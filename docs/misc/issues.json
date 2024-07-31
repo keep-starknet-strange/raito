@@ -1,0 +1,64 @@
+{
+    "issues": [
+      {
+        "title": "Implement BlockHeader Struct",
+        "body": "Define a `BlockHeader` struct to represent a Bitcoin block header.\n\nAcceptance Criteria:\n- Define `BlockHeader` struct with fields:\n  - version: u32\n  - prev_block_hash: [u8; 32]\n  - merkle_root: [u8; 32]\n  - timestamp: u32\n  - bits: u32\n  - nonce: u32\n- Use appropriate types for each field\n- Implement `Default` trait for `BlockHeader`\n\nResources:\n- ZeroSync Cairo 0 code: `block_header.cairo`\n- Bitcoin Block Header: https://developer.bitcoin.org/reference/block_chain.html#block-headers",
+        "labels": ["enhancement"]
+      },
+      {
+        "title": "Implement read_block_header Function",
+        "body": "Create a function to read a block header from a byte stream.\n\nAcceptance Criteria:\n- Implement `read_block_header(reader: &mut Reader) -> Result<BlockHeader, Error>`\n- Read each field of the block header in order\n- Handle potential read errors\n- Return a `BlockHeader` struct if successful\n\nResources:\n- ZeroSync Cairo 0 code: `block_header.cairo`\n- Shinigami codebase for error handling examples",
+        "labels": ["enhancement"]
+      },
+      {
+        "title": "Implement validate_block_header Function",
+        "body": "Create a function to validate a block header.\n\nAcceptance Criteria:\n- Implement `validate_block_header(header: &BlockHeader, prev_header: &BlockHeader) -> Result<(), Error>`\n- Check that the `prev_block_hash` matches the hash of the previous block\n- Validate proof of work (difficulty target)\n- Check that the timestamp is greater than the median time of the last 11 blocks\n- Return an error if any validation check fails\n\nResources:\n- ZeroSync Cairo 0 code: `block_header.cairo`",
+        "labels": ["enhancement"]
+      },
+      {
+        "title": "Implement ChainState Struct",
+        "body": "Define a `ChainState` struct to represent the current state of the blockchain.\n\nAcceptance Criteria:\n- Define `ChainState` struct with fields:\n  - block_height: u32\n  - total_work: u128\n  - best_block_hash: [u8; 32]\n  - current_target: u32\n  - epoch_start_time: u32\n  - prev_timestamps: [u32; 11]\n- Implement `Default` trait for `ChainState`\n\nResources:\n- ZeroSync Cairo 0 code: `block_header.cairo`",
+        "labels": ["enhancement"]
+      },
+      {
+        "title": "Implement apply_block_header Function",
+        "body": "Create a function to apply a validated block header to the current chain state.\n\nAcceptance Criteria:\n- Implement `apply_block_header(state: &mut ChainState, header: &BlockHeader) -> Result<(), Error>`\n- Update `block_height`\n- Recalculate `total_work`\n- Update `best_block_hash`\n- Update `prev_timestamps` array\n- Call `adjust_difficulty` if necessary\n- Handle potential errors\n\nResources:\n- ZeroSync Cairo 0 code: `block_header.cairo`",
+        "labels": ["enhancement"]
+      },
+      {
+        "title": "Implement adjust_difficulty Function",
+        "body": "Create a function to adjust the mining difficulty every 2016 blocks.\n\nAcceptance Criteria:\n- Implement `adjust_difficulty(state: &mut ChainState, header: &BlockHeader) -> Result<(), Error>`\n- Check if it's time to adjust difficulty (every 2016 blocks)\n- Calculate the time taken for the last 2016 blocks\n- Adjust the target based on the time taken, within allowed limits\n- Update `current_target` and `epoch_start_time` in `ChainState`\n- Handle potential overflow errors\n\nResources:\n- ZeroSync Cairo 0 code: `block_header.cairo`",
+        "labels": ["enhancement"]
+      },
+      {
+        "title": "Implement bits_to_target Function",
+        "body": "Create a function to convert the compact `bits` representation to the full 256-bit target.\n\nAcceptance Criteria:\n- Implement `bits_to_target(bits: u32) -> Result<U256, Error>`\n- Extract exponent and mantissa from `bits`\n- Calculate the full target value\n- Ensure the target doesn't exceed the maximum allowed value\n- Handle potential overflow errors\n\nResources:\n- ZeroSync Cairo 0 code: `block_header.cairo`",
+        "labels": ["enhancement"]
+      },
+      {
+        "title": "Implement target_to_bits Function",
+        "body": "Create a function to convert a 256-bit target back to the compact `bits` representation.\n\nAcceptance Criteria:\n- Implement `target_to_bits(target: U256) -> Result<u32, Error>`\n- Calculate the appropriate exponent and mantissa\n- Combine exponent and mantissa into the compact format\n- Ensure the result is valid and normalized\n- Handle potential overflow errors\n\nResources:\n- ZeroSync Cairo 0 code: `block_header.cairo`",
+        "labels": ["enhancement"]
+      },
+      {
+        "title": "Implement compute_work_from_target Function",
+        "body": "Create a function to compute the amount of work represented by a given target.\n\nAcceptance Criteria:\n- Implement `compute_work_from_target(target: U256) -> U256`\n- Calculate work as `(2^256 - 1) / (target + 1)`\n- Handle potential division by zero\n- Optimize for efficiency if possible\n\nResources:\n- ZeroSync Cairo 0 code: `block_header.cairo`",
+        "labels": ["enhancement"]
+      },
+      {
+        "title": "Implement compute_merkle_root Function",
+        "body": "Create a function to compute the Merkle root of a list of transaction hashes.\n\nAcceptance Criteria:\n- Implement `compute_merkle_root(hashes: &[[u8; 32]]) -> Result<[u8; 32], Error>`\n- Handle the case of an empty list of hashes\n- Implement the Merkle tree algorithm\n- Duplicate the last hash if there's an odd number of hashes\n- Implement the CVE-2012-2459 fix (check for duplicate hashes)\n- Return the computed Merkle root\n\nResources:\n- ZeroSync Cairo 0 code: `merkle_tree.cairo`",
+        "labels": ["enhancement"]
+      },
+      {
+        "title": "Implement validate_and_apply_transaction Function",
+        "body": "Create a function to validate a transaction and apply it to the UTXO set.\n\nAcceptance Criteria:\n- Implement `validate_and_apply_transaction(tx: &Transaction, utxo_set: &mut UtxoSet) -> Result<u64, Error>`\n- Verify transaction inputs (check if they exist in the UTXO set)\n- Validate transaction outputs (non-negative values, sum doesn't overflow)\n- Check that input amount >= output amount\n- Remove spent outputs from the UTXO set\n- Add new outputs to the UTXO set\n- Return the transaction fee\n\nResources:\n- ZeroSync Cairo 0 code: `transaction.cairo`, `block.cairo`",
+        "labels": ["enhancement"]
+      },
+      {
+        "title": "Implement validate_and_apply_coinbase Function",
+        "body": "Create a function to validate and apply the coinbase transaction of a block.\n\nAcceptance Criteria:\n- Implement `validate_and_apply_coinbase(coinbase: &Transaction, height: u32, fees: u64, utxo_set: &mut UtxoSet) -> Result<(), Error>`\n- Verify that it's the first transaction in the block\n- Check that it has exactly one input with a null previous output\n- Validate the coinbase reward (block subsidy + fees)\n- Add outputs to the UTXO set\n- Handle potential errors (e.g., invalid reward amount)\n\nResources:\n- ZeroSync Cairo 0 code: `block.cairo`",
+        "labels": ["enhancement"]
+      }
+    ]
+  }
