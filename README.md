@@ -1,6 +1,7 @@
 <div align="center">
-    <h1>Raito ⚡</h1>
-    <h2>Bitcoin ZK client written in Cairo.</h2>
+    <img src="./docs/img/raito_logo.png" alt="raito-logo" height="260"/>
+
+   ***Bitcoin ZK client written in Cairo.***
 
 <a href="https://github.com/keep-starknet-strange/raito/actions/workflows/check.yaml"><img alt="GitHub Workflow Status" src="https://img.shields.io/github/actions/workflow/status/keep-starknet-strange/raito/check.yml?style=for-the-badge" height=30></a>
 <a href="https://bitcoin.org/"> <img alt="Bitcoin" src="https://img.shields.io/badge/Bitcoin-000?style=for-the-badge&logo=bitcoin&logoColor=white" height=30></a>
