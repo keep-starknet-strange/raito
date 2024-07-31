@@ -1,0 +1,29 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --foreground-rgb: 255, 255, 255;
+  --background-rgb: 0, 0, 0;
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background: rgb(var(--background-rgb));
+}
+
+@font-face {
+  font-family: "Electrolize";
+  src: url("https://fonts.googleapis.com/css2?family=Electrolize&display=swap");
+}
+
+.font-electrolize {
+  font-family: "Electrolize", sans-serif;
+}
+
+.lightning-bg {
+  background-image: url("/lightning.svg");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
+}
