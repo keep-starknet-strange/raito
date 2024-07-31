@@ -24,10 +24,9 @@ Design goals:
 
 Raito is a reference to Light Yagami (夜神月, Yagami Raito) from the manga/anime Death Note.
 
-Why ?
-
 - Raito in Japanese means "Light", which in turns can refer to Lightning ⚡ (and hence both a reference to speed of verification of the Bitcoin blockchain using a ZKP and a reference to the Lightning Network)
 - Raito can work in tandem with [Raito](https://github.com/keep-starknet-strange/raito) that enables verification of Bitcoin Script programs. Raito = Consensus and Raito = Execution. Since Shinigami was named after Ryuk (Shinigami in Death Note), Raito was named after Light (Raito in Death Note).
+- What Raito writes in the Death Note always happen, so you can see it as a source of truth, similarly to how you use a Zero-Knowledge Proof to verify the integrity of a computation.
 
 ![Raito and Raito](./docs/img/memes/raito_shinigami_fusion.jpg)
 
