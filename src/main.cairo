@@ -11,10 +11,14 @@ use raito::engine::ChainState;
 fn main() {
     println!("Running Raito Bitcoin ZK client");
     let block_header = BlockHeaderImpl::new(0, "", "", 0, 0, 0);
+
+    // The Times 03/Jan/2009 Chancellor on brink of second bailout for banks
+    let GENESIS = "000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f";
+
     let chain_state = ChainState {
         block_height: 0,
         total_work: 0,
-        best_block_hash: "",
+        best_block_hash: GENESIS,
         current_target: 0,
         epoch_start_time: 0,
         prev_timestamps: ArrayTrait::new()
