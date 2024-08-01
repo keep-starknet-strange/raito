@@ -168,8 +168,47 @@ fn bits_to_target(bits: u32) -> u256 {
     0
 }
 
-fn target_to_bits(target: u256) -> u32 {
-    0
+fn target_to_bits(target: u256) -> Result<u32, felt252> {
+    if target == 0 {
+        return Result::Err('Target is zero');
+    }
+
+    // Find the most significant byte
+    let mut size: u32 = 32;
+    let mut compact = target;
+
+    while size > 3 {
+        compact = compact / 256;
+        if compact != 0 {
+            size -= 1;
+        } else {
+            break;
+        }
+    };
+
+    // The mantissa is the most significant 3 bytes
+    let mut mantissa: u32 = (target / u256_pow(256, size - 3)).try_into().unwrap();
+
+    // Normalize: ensure the most significant byte is non-zero
+    if mantissa < 0x800000 {
+        mantissa = mantissa * 256;
+        size -= 1;
+    }
+
+    // Ensure the result is valid and normalized
+    if mantissa > 0x7fffff {
+        return Result::Err('Mantissa too large');
+    }
+
+    // Combine exponent and mantissa into the compact format
+    let result: u32 = (size * 0x1000000) + mantissa;
+
+    // Check if the result is within the valid range
+    if result > MAX_BITS {
+        return Result::Err('Exceeds max value');
+    }
+
+    Result::Ok(result)
 }
 
 fn compute_work_from_target(target: u256) -> u256 {
@@ -178,4 +217,25 @@ fn compute_work_from_target(target: u256) -> u256 {
 
 fn compute_timestamps_median(timestamps: Span<u32>) -> u32 {
     0
+}
+
+// Custom power function for u256
+fn u256_pow(base: u256, exp: u32) -> u256 {
+    if exp == 0 {
+        return 1.into();
+    }
+    let mut result: u256 = 1.into();
+    let mut base = base;
+    let mut exp = exp;
+    loop {
+        if exp & 1 != 0 {
+            result = result * base;
+        }
+        exp = exp / 2;
+        if exp == 0 {
+            break;
+        }
+        base = base * base;
+    };
+    result
 }
