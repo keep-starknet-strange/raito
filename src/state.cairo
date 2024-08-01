@@ -1,5 +1,3 @@
-
-
 // https://developer.bitcoin.org/reference/block_chain.html#block-headers
 #[derive(Drop, Clone)]
 struct Header {
@@ -51,7 +49,7 @@ pub struct ChainState {
     pub current_target: u32,
     pub epoch_start_time: u32,
     pub prev_timestamps: Span<u32>,
-    // TODO: utreexo_roots?
+// TODO: utreexo_roots?
 }
 
 trait BlockValidator {
