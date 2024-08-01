@@ -129,6 +129,10 @@ pub impl BlockHeaderEngineImpl of BlockHeaderEngineTrait {
     }
 
     fn validate_target(ref self: BlockHeaderEngine) -> Result<(), felt252> {
+        let target = bits_to_target(self.context.block_header.bits)?;
+        if self.context.target != target {
+            return Result::Err('Invalid target');
+        }
         Result::Ok(())
     }
 
@@ -164,8 +168,30 @@ pub impl BlockHeaderEngineImpl of BlockHeaderEngineTrait {
 }
 
 // Helper functions
-fn bits_to_target(bits: u32) -> u256 {
-    0
+fn bits_to_target(bits: u32) -> Result<u256, felt252> {
+    // Extract exponent and mantissa
+    let exponent: u32 = (bits / 0x1000000);
+    let mantissa: u32 = bits & 0x00FFFFFF;
+
+    // Check if mantissa is valid (should be less than 0x1000000)
+    if mantissa > 0x7FFFFF {
+        return Result::Err('Invalid mantissa');
+    }
+
+    // Calculate the full target value
+    let mut target: u256 = mantissa.into();
+    if exponent <= 3 {
+        target = target / u256_pow(256, 3 - exponent);
+    } else {
+        target = target * u256_pow(256, exponent - 3);
+    }
+
+    // Ensure the target doesn't exceed the maximum allowed value
+    if target > MAX_TARGET {
+        return Result::Err('Target exceeds maximum');
+    }
+
+    Result::Ok(target)
 }
 
 fn target_to_bits(target: u256) -> u32 {
@@ -178,4 +204,25 @@ fn compute_work_from_target(target: u256) -> u256 {
 
 fn compute_timestamps_median(timestamps: Span<u32>) -> u32 {
     0
+}
+
+// Custom power function for u256
+fn u256_pow(base: u256, exp: u32) -> u256 {
+    if exp == 0 {
+        return 1.into();
+    }
+    let mut result: u256 = 1.into();
+    let mut base = base;
+    let mut exp = exp;
+    loop {
+        if exp & 1 != 0 {
+            result = result * base;
+        }
+        exp = exp / 2;
+        if exp == 0 {
+            break;
+        }
+        base = base * base;
+    };
+    result
 }
