@@ -53,5 +53,5 @@ pub struct ChainState {
 }
 
 trait BlockValidator {
-    fn validate_and_apply(block: Block) -> Result<ChainState, ByteArray>;
+    fn validate_and_apply(self: ChainState, block: Block) -> Result<ChainState, ByteArray>;
 }
