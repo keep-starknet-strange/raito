@@ -8,7 +8,7 @@ impl BlockValidatorImpl of BlockValidator {
         validate_target(@self, @block)?;
         validate_timestamp(@self, @block)?;
 
-        // validate_merkle_root
+        validate_merkle_root(@self, @block)?;
         // validate_and_apply_transactions
 
         let prev_timestamps = next_prev_timestamps(@self, @block);
@@ -57,4 +57,9 @@ fn compute_total_work(self: @ChainState, block: @Block) -> u256 {
 fn adjust_difficulty(self: @ChainState, block: @Block) -> (u32, u32) {
     // TODO: implement
     (*self.current_target, *self.epoch_start_time)
+}
+
+fn validate_merkle_root(self: @ChainState, block: @Block) -> Result<(), ByteArray> {
+    // TODO: implement
+    Result::Ok(())
 }
