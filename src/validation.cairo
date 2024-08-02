@@ -1,4 +1,4 @@
-use super::state::{Block, ChainState, TxIn};
+use super::state::{Block, ChainState};
 
 #[generate_trait]
 impl BlockValidatorImpl of BlockValidator {
