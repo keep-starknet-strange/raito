@@ -1,4 +1,4 @@
-use super::state::{Block, ChainState};
+use super::state::{Block, ChainState, TxIn};
 
 #[generate_trait]
 impl BlockValidatorImpl of BlockValidator {
@@ -35,8 +35,11 @@ fn validate_proof_of_work(self: @ChainState, block: @Block) -> Result<(), ByteAr
 }
 
 fn validate_target(self: @ChainState, block: @Block) -> Result<(), ByteArray> {
-    // TODO: implement
-    Result::Ok(())
+    if self.current_target == block.header.bits {
+        Result::Ok(())
+    } else {
+        Result::Err("Target is {block.header.bits}. Expected {self.current_target}")
+    }
 }
 
 fn validate_timestamp(self: @ChainState, block: @Block) -> Result<(), ByteArray> {
@@ -62,4 +65,46 @@ fn adjust_difficulty(self: @ChainState, block: @Block) -> (u32, u32) {
 fn validate_merkle_root(self: @ChainState, block: @Block) -> Result<(), ByteArray> {
     // TODO: implement
     Result::Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use core::result::ResultTrait;
+    use super::validate_target;
+    use super::{Block, ChainState,};
+    use super::super::state::{Header, Transaction, TxIn, TxOut};
+    use core::array::{Span};
+
+    #[test]
+    fn test_validate_target() {
+        let mut chain_state = ChainState {
+            block_height: 1,
+            total_work: 1,
+            best_block_hash: 1,
+            current_target: 1,
+            epoch_start_time: 1,
+            prev_timestamps: array![1, 2, 3, 4, 5].span(),
+        };
+        let txIn = TxIn { txid: 1, index: 1, script: @"1", sequence: 1, };
+        let txOut = TxOut { value: 1, pk_script: @"1", };
+        let transaction = Transaction {
+            version: 1, inputs: array![txIn].span(), outputs: array![txOut].span(), lock_time: 1,
+        };
+        let header = Header {
+            version: 1, prev_block_hash: 1, merkle_root_hash: 1, time: 1, bits: 1, nonce: 1,
+        };
+        let mut block = Block { header: header, txs: array![transaction].span() };
+        let result = validate_target(@chain_state, @block);
+        assert(result.is_ok(), 'Expected target to be valid');
+
+        chain_state.current_target = 2;
+        block.header.bits = 1;
+        let result = validate_target(@chain_state, @block);
+        assert(result.is_err(), 'Expected target to be invalid');
+
+        chain_state.current_target = 1;
+        block.header.bits = 2;
+        let result = validate_target(@chain_state, @block);
+        assert(result.is_err(), 'Expected target to be invalid');
+    }
 }

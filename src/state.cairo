@@ -31,7 +31,7 @@ pub struct Block {
 /// Block header
 /// https://developer.bitcoin.org/reference/block_chain.html#block-headers
 #[derive(Drop, Copy)]
-struct Header {
+pub struct Header {
     /// The version of the block.
     pub version: u32,
     /// The hash of the previous block in the blockchain.
@@ -65,9 +65,9 @@ pub struct Transaction {
 #[derive(Drop, Copy)]
 pub struct TxOut {
     /// The value of the output.
-    value: i64,
+    pub value: i64,
     /// The public key script of the output.
-    pk_script: @ByteArray,
+    pub pk_script: @ByteArray,
 }
 
 /// Input of a transaction.
@@ -75,12 +75,12 @@ pub struct TxOut {
 #[derive(Drop, Copy)]
 pub struct TxIn {
     /// The transaction ID of the input.
-    txid: u256,
+    pub txid: u256,
     /// The index of the input.
-    index: u32,
+    pub index: u32,
     /// The script of the input.
-    script: @ByteArray,
+    pub script: @ByteArray,
     /// The sequence of the input.
-    sequence: u32,
+    pub sequence: u32,
 }
 
