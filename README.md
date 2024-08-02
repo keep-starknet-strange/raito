@@ -13,13 +13,49 @@
 
 Raito is a zero-knowledge Bitcoin client implemented in Cairo. It aims to provide trustless validation of the Bitcoin blockchain through STARK proof verification. It is heavily inspired by [ZeroSync](https://github.com/ZeroSync/ZeroSynchttps://github.com/ZeroSync/ZeroSync) project.
 
+```mermaid
+flowchart TB
+Pnm1(STARK proof of the chain state<br>up to the block <i>n - 1</i>) --> Vp(zk verifier)
+Bn(blocks <i>n..m</i>) ----> Vb
+
+subgraph Cairo
+    Vp{{STARK verifier}}-->ChS(verified chain state)
+    ChS --> Vb{{validate block<br>against the chain state}}
+    Vb --> ChS
+end
+
+Vb --> Pn(STARK proof of the chain state<br>up to the block <i>m</i>)
+
+style Bn fill:pink
+style Pn fill:lightgreen
+style Pnm1 fill:lightgreen
+style ChS fill:greenyellow
+style Vp fill:gold
+style Vb fill:gold
+```
+
+Raito accepts two inputs:
+  - batch of consequitive blocks n..m
+  - STARK proof of the state of the chain up to block n - 1
+It makes sure that the previous chain state is valid by verifing STARK proof of it, then produces a new chain state by applying blocks. As a result a proof of a new state is generated. 
+
+## Roadmap
+### Milestone 1
+### Milestone 2
+
+
 > **Disclaimer:** This project is in the early stages of development and should not be used in production. It will evolve rapidly, expect breaking changes.
+
+Overview
 
 Design goals:
 
 - **Usability:** One-click install and run. WebAssembly compatibility for browser-based execution.
 - **Maintainability:** Emphasis on simplicity and clean code structure.
 - **Performance:** Optimized for speed and efficiency, leveraging STWO's next-generation prover.
+
+
+
 
 ## Name reference
 
@@ -61,6 +97,7 @@ This will run the test-suite for all op-codes, integration, and test Bitcoin Scr
 - [Cairo](https://www.cairo-lang.org/)
 - [Circle STARK paper](https://eprint.iacr.org/2024/278)
 - [ZeroSync](https://github.com/ZeroSync/ZeroSync)
+- [Shinigami](https://github.com/keep-starknet-strange/shinigami)
 
 ## Contributors ✨
 
