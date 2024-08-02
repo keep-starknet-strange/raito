@@ -168,22 +168,32 @@ pub impl BlockHeaderEngineImpl of BlockHeaderEngineTrait {
 }
 
 // Helper functions
-fn bits_to_target(bits: u32) -> Result<u256, felt252> {
+pub fn bits_to_target(bits: u32) -> Result<u256, felt252> {
     // Extract exponent and mantissa
     let exponent: u32 = (bits / 0x1000000);
     let mantissa: u32 = bits & 0x00FFFFFF;
 
     // Check if mantissa is valid (should be less than 0x1000000)
-    if mantissa > 0x7FFFFF {
+    if mantissa > 0x7FFFFF && exponent != 0 {
         return Result::Err('Invalid mantissa');
     }
 
     // Calculate the full target value
     let mut target: u256 = mantissa.into();
-    if exponent <= 3 {
-        target = target / u256_pow(256, 3 - exponent);
+
+    if exponent == 0 || exponent == 1 {
+        return Result::Ok(target);
+    } else if exponent <= 3 {
+        let shift = 8 * (3 - exponent);
+        let divisor = u256_pow(256, shift / 8);
+        target = target / divisor;
     } else {
-        target = target * u256_pow(256, exponent - 3);
+        // Check for potential overflow
+        let shift = 8 * (exponent - 3);
+        if shift >= 256 {
+            return Result::Err('Exponent too large');
+        }
+        target = target * u256_pow(256, shift / 8);
     }
 
     // Ensure the target doesn't exceed the maximum allowed value
@@ -210,6 +220,9 @@ fn compute_timestamps_median(timestamps: Span<u32>) -> u32 {
 fn u256_pow(base: u256, exp: u32) -> u256 {
     if exp == 0 {
         return 1.into();
+    }
+    if base == 2.into() {
+        return 1.into() * (2.into() * u256_pow(2, exp - 1));
     }
     let mut result: u256 = 1.into();
     let mut base = base;
