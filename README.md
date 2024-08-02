@@ -41,6 +41,7 @@ Raito, at its core, accepts two inputs: a batch of consecutive blocks <i>n</i> t
 ## Applications
 
 Although this is a highly experimental project without immediate plans for deployment, there are many potential applications:
+
 * light clients
 * IBD speedup
 * non custodial bridges
