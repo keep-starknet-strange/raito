@@ -39,14 +39,16 @@ style Vb fill:gold
 Raito, at its core, accepts two inputs: a batch of consecutive blocks <i>n</i> to <i>m</i> and a STARK proof of the state of the chain up to block <i>n−1</i>. It ensures that the historical chain state is valid by verifying the STARK proof. Then, it produces a new chain state by applying the new blocks on top of the historical state. As a result, a proof of the new state is generated.
 
 ## Applications
+
 Although this is a highly experimental project without immediate plans for deployment, there are many potential applications:
 * light clients
 * IBD speedup
 * non custodial bridges
-* layer 2s 
+* layer 2s
 
 ## Roadmap
-- [ ] verify block header (block hash, previous block hash, Merkle root, proof-of-work, median time, and difficulty adjustment) 
+
+- [ ] verify block header (block hash, previous block hash, Merkle root, proof-of-work, median time, and difficulty adjustment)
 - [ ] verify transactions
 - [ ] integrate with Shinigami and verify scripts
 - [ ] verify previous chain proofs
@@ -63,18 +65,19 @@ Raito is a reference to Light Yagami (夜神月, Yagami Raito) from the manga/an
 ![Raito and Raito](./docs/img/memes/raito_shinigami_fusion.jpg)
 
 ## Usage
+
 This will compile all the components:
 
 ```bash
 scarb build
 
 ```
+
 This will run the test-suite:
 
 ```bash
 scarb test
 ```
-
 
 ## References
 
