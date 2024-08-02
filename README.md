@@ -49,19 +49,19 @@ Although this is a highly experimental project without immediate plans for deplo
 
 ## Roadmap
 
-- [ ] verify block header (block hash, previous block hash, Merkle root, proof-of-work, median time, and difficulty adjustment)
-- [ ] verify transactions
-- [ ] integrate with Shinigami and verify scripts
-- [ ] verify previous chain proofs
-- [ ] add utreexo accumulator to the chain state
+* [ ] verify block header (block hash, previous block hash, Merkle root, proof-of-work, median time, and difficulty adjustment)
+* [ ] verify transactions
+* [ ] integrate with Shinigami and verify scripts
+* [ ] verify previous chain proofs
+* [ ] add utreexo accumulator to the chain state
 
 ## Name reference
 
 Raito is a reference to Light Yagami (夜神月, Yagami Raito) from the manga/anime Death Note.
 
-- Raito in Japanese means "Light", which in turns can refer to Lightning ⚡ (and hence both a reference to speed of verification of the Bitcoin blockchain using a ZKP and a reference to the Lightning Network)
-- Raito can work in tandem with [Shinigami](https://github.com/keep-starknet-strange/shinigami) that enables verification of Bitcoin Script programs. Raito = Consensus and Shinigami = Execution. Since Shinigami was named after Ryuk (Shinigami in Death Note), Raito was named after Light (Raito in Death Note).
-- What Raito writes in the Death Note always happen, so you can see it as a source of truth, similarly to how you use a Zero-Knowledge Proof to verify the integrity of a computation.
+* Raito in Japanese means "Light", which in turns can refer to Lightning ⚡ (and hence both a reference to speed of verification of the Bitcoin blockchain using a ZKP and a reference to the Lightning Network)
+* Raito can work in tandem with [Shinigami](https://github.com/keep-starknet-strange/shinigami) that enables verification of Bitcoin Script programs. Raito = Consensus and Shinigami = Execution. Since Shinigami was named after Ryuk (Shinigami in Death Note), Raito was named after Light (Raito in Death Note).
+* What Raito writes in the Death Note always happen, so you can see it as a source of truth, similarly to how you use a Zero-Knowledge Proof to verify the integrity of a computation.
 
 ![Raito and Raito](./docs/img/memes/raito_shinigami_fusion.jpg)
 
@@ -82,11 +82,11 @@ scarb test
 
 ## References
 
-- [STWO](https://github.com/starkware-libs/stwo)
-- [Cairo](https://www.cairo-lang.org/)
-- [Circle STARK paper](https://eprint.iacr.org/2024/278)
-- [ZeroSync](https://github.com/ZeroSync/ZeroSync)
-- [Shinigami](https://github.com/keep-starknet-strange/shinigami)
+* [STWO](https://github.com/starkware-libs/stwo)
+* [Cairo](https://www.cairo-lang.org/)
+* [Circle STARK paper](https://eprint.iacr.org/2024/278)
+* [ZeroSync](https://github.com/ZeroSync/ZeroSync)
+* [Shinigami](https://github.com/keep-starknet-strange/shinigami)
 
 ## Contributors ✨
 
