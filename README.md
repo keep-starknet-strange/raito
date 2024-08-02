@@ -15,8 +15,6 @@ Raito is a zero-knowledge Bitcoin client implemented in Cairo. It aims to provid
 
 > **Disclaimer:** This project is in the early stages of development and should not be used in production. It will evolve rapidly, expect breaking changes.
 
-Raito at its core accepts two inputs: batch of consequitive blocks n..m and STARK proof of the state of the chain up to block n - 1. It makes sure that the historical chain state is valid by verifing STARK proof of it, then produces a new chain state by applying new blocks of top of historical state. As a result a proof of a new state is generated. 
-
 ```mermaid
 flowchart TB
 Pnm1(STARK proof of the chain state<br>up to the block <i>n - 1</i>) --> Vp(zk verifier)
@@ -38,15 +36,21 @@ style Vp fill:gold
 style Vb fill:gold
 ```
 
+Raito, at its core, accepts two inputs: a batch of consecutive blocks <i>n</i> to <i>m</i> and a STARK proof of the state of the chain up to block <i>n−1</i>. It ensures that the historical chain state is valid by verifying the STARK proof. Then, it produces a new chain state by applying the new blocks on top of the historical state. As a result, a proof of the new state is generated.
+
 ## Applications
 Although this is a highly experimental project without immediate plans for deployment, there are many potential applications:
 * light clients
-* IBC speedup
-* noncustodial bridges
+* IBD speedup
+* non custodial bridges
 * layer 2s 
 
 ## Roadmap
-- [] abc
+- 👷‍♂️ verify block header (block hash, previous block hash, Merkle root, proof-of-work, median time, and difficulty adjustment) 
+- 👷‍♂️ verify transactions
+- [] integrate with Shinigami and verify scripts
+- [] verify previous chain proofs
+- [] add utreexo accumulator to the chain state
 
 ## Name reference
 
