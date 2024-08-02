@@ -48,9 +48,9 @@ Although this is a highly experimental project without immediate plans for deplo
 ## Roadmap
 - 👷‍♂️ verify block header (block hash, previous block hash, Merkle root, proof-of-work, median time, and difficulty adjustment) 
 - 👷‍♂️ verify transactions
-- [] integrate with Shinigami and verify scripts
-- [] verify previous chain proofs
-- [] add utreexo accumulator to the chain state
+- [ ] integrate with Shinigami and verify scripts
+- [ ] verify previous chain proofs
+- [ ] add utreexo accumulator to the chain state
 
 ## Name reference
 
@@ -62,15 +62,7 @@ Raito is a reference to Light Yagami (夜神月, Yagami Raito) from the manga/an
 
 ![Raito and Raito](./docs/img/memes/raito_shinigami_fusion.jpg)
 
-### Running
-
-```bash
-scarb cairo-run --available-gas=200000000
-```
-
-This will run the provided Bitcoin Script in Cairo.
-
-### Building
+## Usage
 
 ```bash
 scarb build
@@ -78,13 +70,11 @@ scarb build
 
 This will compile all the components.
 
-### Testing
-
 ```bash
 scarb test
 ```
 
-This will run the test-suite for all op-codes, integration, and test Bitcoin Scripts.
+This will run the test-suite.
 
 ## References
 
