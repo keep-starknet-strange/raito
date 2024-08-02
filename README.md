@@ -13,7 +13,7 @@
 
 Raito is a zero-knowledge Bitcoin client implemented in Cairo. It aims to provide trustless validation of the Bitcoin blockchain through STARK proof verification. It is heavily inspired by [ZeroSync](https://github.com/ZeroSync/ZeroSynchttps://github.com/ZeroSync/ZeroSync) project.
 
-**Disclaimer:** This project is in the early stages of development and should not be used in production. It will evolve rapidly, expect breaking changes.
+> **Disclaimer:** This project is in the early stages of development and should not be used in production. It will evolve rapidly, expect breaking changes.
 
 Raito at its core accepts two inputs: batch of consequitive blocks n..m and STARK proof of the state of the chain up to block n - 1. It makes sure that the historical chain state is valid by verifing STARK proof of it, then produces a new chain state by applying new blocks of top of historical state. As a result a proof of a new state is generated. 
 
