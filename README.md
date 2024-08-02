@@ -46,8 +46,8 @@ Although this is a highly experimental project without immediate plans for deplo
 * layer 2s 
 
 ## Roadmap
-- 👷‍♂️ verify block header (block hash, previous block hash, Merkle root, proof-of-work, median time, and difficulty adjustment) 
-- 👷‍♂️ verify transactions
+- [ ] verify block header (block hash, previous block hash, Merkle root, proof-of-work, median time, and difficulty adjustment) 
+- [ ] verify transactions
 - [ ] integrate with Shinigami and verify scripts
 - [ ] verify previous chain proofs
 - [ ] add utreexo accumulator to the chain state
@@ -63,18 +63,18 @@ Raito is a reference to Light Yagami (夜神月, Yagami Raito) from the manga/an
 ![Raito and Raito](./docs/img/memes/raito_shinigami_fusion.jpg)
 
 ## Usage
+This will compile all the components:
 
 ```bash
 scarb build
-```
 
-This will compile all the components.
+```
+This will run the test-suite:
 
 ```bash
 scarb test
 ```
 
-This will run the test-suite.
 
 ## References
 
