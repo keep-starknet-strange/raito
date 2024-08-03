@@ -13,7 +13,7 @@ pub struct ChainState {
     pub epoch_start_time: u32,
     /// Previous timestamps.
     pub prev_timestamps: Span<u32>,
-    // TODO: utreexo_roots?
+// TODO: utreexo_roots?
 }
 
 /// Represents a block in the blockchain.
@@ -65,9 +65,9 @@ pub struct Transaction {
 #[derive(Drop, Copy)]
 pub struct TxOut {
     /// The value of the output.
-    pub value: i64,
+    value: i64,
     /// The public key script of the output.
-    pub pk_script: @ByteArray,
+    pk_script: @ByteArray,
 }
 
 /// Input of a transaction.
@@ -75,12 +75,12 @@ pub struct TxOut {
 #[derive(Drop, Copy)]
 pub struct TxIn {
     /// The transaction ID of the input.
-    pub txid: u256,
+    txid: u256,
     /// The index of the input.
-    pub index: u32,
+    index: u32,
     /// The script of the input.
-    pub script: @ByteArray,
+    script: @ByteArray,
     /// The sequence of the input.
-    pub sequence: u32,
+    sequence: u32,
 }
 

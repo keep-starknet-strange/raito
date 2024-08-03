@@ -71,7 +71,7 @@ fn validate_merkle_root(self: @ChainState, block: @Block) -> Result<(), ByteArra
 mod tests {
     use core::result::ResultTrait;
     use super::validate_target;
-    use super::{Block, ChainState,};
+    use super::{Block, ChainState};
     use super::super::state::{Header, Transaction, TxIn, TxOut};
     use core::array::{Span};
 
@@ -85,15 +85,13 @@ mod tests {
             epoch_start_time: 1,
             prev_timestamps: array![1, 2, 3, 4, 5].span(),
         };
-        let txIn = TxIn { txid: 1, index: 1, script: @"1", sequence: 1, };
-        let txOut = TxOut { value: 1, pk_script: @"1", };
-        let transaction = Transaction {
-            version: 1, inputs: array![txIn].span(), outputs: array![txOut].span(), lock_time: 1,
+        let mut block = Block {
+            header: Header {
+                version: 1, prev_block_hash: 1, merkle_root_hash: 1, time: 1, bits: 1, nonce: 1,
+            },
+            txs: ArrayTrait::new().span(),
         };
-        let header = Header {
-            version: 1, prev_block_hash: 1, merkle_root_hash: 1, time: 1, bits: 1, nonce: 1,
-        };
-        let mut block = Block { header: header, txs: array![transaction].span() };
+
         let result = validate_target(@chain_state, @block);
         assert(result.is_ok(), 'Expected target to be valid');
 
