@@ -31,7 +31,7 @@ pub struct Block {
 /// Block header
 /// https://developer.bitcoin.org/reference/block_chain.html#block-headers
 #[derive(Drop, Copy)]
-struct Header {
+pub struct Header {
     /// The version of the block.
     pub version: u32,
     /// The hash of the previous block in the blockchain.
