@@ -13,7 +13,7 @@ pub struct ChainState {
     pub epoch_start_time: u32,
     /// Previous timestamps.
     pub prev_timestamps: Span<u32>,
-// TODO: utreexo_roots?
+    // TODO: utreexo_roots?
 }
 
 /// Represents a block in the blockchain.
