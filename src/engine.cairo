@@ -168,45 +168,43 @@ fn bits_to_target(bits: u32) -> u256 {
     0
 }
 
-fn target_to_bits(target: u256) -> Result<u32, felt252> {
+pub fn target_to_bits(target: u256) -> Result<u32, felt252> {
     if target == 0 {
         return Result::Err('Target is zero');
+    }
+
+    if target > MAX_TARGET {
+        return Result::Err('Exceeds max value');
     }
 
     // Find the most significant byte
     let mut size: u32 = 32;
     let mut compact = target;
 
-    while size > 3 {
-        compact = compact / 256;
-        if compact != 0 {
-            size -= 1;
-        } else {
-            break;
-        }
+    // Count leading zero bytes by finding the first non-zero byte
+    while size > 1 && (compact / u256_pow(256, size - 1)) == 0 {
+        size -= 1;
     };
 
-    // The mantissa is the most significant 3 bytes
-    let mut mantissa: u32 = (target / u256_pow(256, size - 3)).try_into().unwrap();
+    size += 1;
 
-    // Normalize: ensure the most significant byte is non-zero
-    if mantissa < 0x800000 {
-        mantissa = mantissa * 256;
-        size -= 1;
-    }
+    // Extract mantissa (most significant 3 bytes)
+    let mut mantissa: u32 = ((compact / u256_pow(256, size - 3))).try_into().unwrap();
 
-    // Ensure the result is valid and normalized
+    // Normalize
     if mantissa > 0x7fffff {
-        return Result::Err('Mantissa too large');
+        mantissa = (mantissa + 0x80) / 0x100;
+        size += 1;
     }
 
-    // Combine exponent and mantissa into the compact format
-    let result: u32 = (size * 0x1000000) + mantissa;
+    // Ensure the mantissa is only 3 bytes
+    mantissa = mantissa & 0xffffff;
 
-    // Check if the result is within the valid range
-    if result > MAX_BITS {
-        return Result::Err('Exceeds max value');
-    }
+    // Simulate (size << 24) by multiplying size with 0x1000000 (256^3)
+    let size_component: u32 = (u256_pow(256.into(), 3) * size.into()).try_into().unwrap();
+    
+    // Combine size and mantissa
+    let result: u32 = size_component + mantissa;
 
     Result::Ok(result)
 }
@@ -219,23 +217,34 @@ fn compute_timestamps_median(timestamps: Span<u32>) -> u32 {
     0
 }
 
-// Custom power function for u256
+// Helper function to calculate power of 256
 fn u256_pow(base: u256, exp: u32) -> u256 {
     if exp == 0 {
         return 1.into();
     }
     let mut result: u256 = 1.into();
-    let mut base = base;
-    let mut exp = exp;
-    loop {
-        if exp & 1 != 0 {
-            result = result * base;
-        }
-        exp = exp / 2;
-        if exp == 0 {
-            break;
-        }
-        base = base * base;
+    let mut i = 0;
+    while i < exp {
+        result = checked_mul(result, base).expect('u256_mul Overflow');
+        i += 1;
     };
     result
+}
+
+fn checked_mul(a: u256, b: u256) -> Option<u256> {
+    // If either number is zero, return zero immediately
+    if a == 0.into() || b == 0.into() {
+        return Option::Some(0.into());
+    }
+
+    // Perform multiplication and check for overflow
+    let product = a * b;
+
+    // Check if the product divided by either of the operands does not yield the other operand,
+    // which would indicate an overflow.
+    if product / a != b || product / b != a {
+        return Option::None;
+    }
+
+    Option::Some(product)
 }
