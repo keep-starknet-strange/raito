@@ -43,14 +43,10 @@ fn validate_target(self: @ChainState, block: @Block) -> Result<(), ByteArray> {
 }
 
 fn validate_timestamp(self: @ChainState, block: @Block) -> Result<(), ByteArray> {
-    let timestamp: u32 = *block.header.time;
-    let prev_timestamps = self.prev_timestamps;
-    let median_time = (*prev_timestamps).at((*prev_timestamps).len() - 6);
-
-    if timestamp > *median_time {
+    if block.header.time > (*self.prev_timestamps).at((*self.prev_timestamps).len() - 6) {
         Result::Ok(())
     } else {
-        Result::Err("Median time is greater than block's timestamp")
+        Result::Err("Median time is greater than or equal to block's timestamp")
     }
 }
 
