@@ -2,7 +2,7 @@ def block:
 "
 use raito::state::{Block, Header, Transaction, TxIn, TxOut};
 
-pub fn test_data_btc_block() -> Block {
+pub fn test_data_block() -> Block {
 	Block {
 		header : Header {	
 			version: \(.version),

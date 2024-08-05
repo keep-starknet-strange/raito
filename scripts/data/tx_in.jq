@@ -2,7 +2,7 @@ def tx_in:
 "					TxIn {
 						txid: 0x\(.txid),
 						index: \(.vout),
-						script: \"\(.scriptsig)\",
+						script: @\"\(.scriptsig)\",
 						sequence: \(.sequence),
 					},"
 ;

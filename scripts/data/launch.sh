@@ -38,7 +38,7 @@ while (( $total < $tx_count )); do
 	if (( $idx % 25 == 0)) then
 		btcBlockTxs=$(curl -sSL "$api$blockHash/txs/$total")
 		idx=0
-		echo "$total / $tx_count transactions recives"
+		echo "$total / $tx_count transactions recived"
 	fi
 	tx=$(echo $btcBlockTxs | jq -r ".[$idx]")
 	echo "			Transaction {" >> $fileName
@@ -55,7 +55,7 @@ while (( $total < $tx_count )); do
 	((total++))
 done
 if (( $total == $tx_count)) then
-	echo "$total / $tx_count transactions recives"
+	echo "$total / $tx_count transactions recived"
 echo "Execution successful, file created in $fileName"
 fi
 
@@ -65,4 +65,4 @@ echo "	}" >> $fileName
 echo "}" >> $fileName
 echo ""
 echo -e "${green}add: \"pub mod block_$blockHash;\" in lib.cairo${reset}"
-echo -e "${green}add: \"use raito::block_$blockHash::test_data_btc_block;\" in main.cairo${reset}"
+echo -e "${green}add: \"use raito::block_$blockHash::test_data_block;\" in your file${reset}"
