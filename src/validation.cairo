@@ -85,6 +85,7 @@ mod tests {
             current_target: 1,
             epoch_start_time: 1,
             prev_timestamps: array![1, 2, 3, 4, 5].span(),
+            utreexo_roots: array![].span(),
         };
         let mut block = Block {
             header: Header {
@@ -116,6 +117,7 @@ mod tests {
             current_target: 1,
             epoch_start_time: 1,
             prev_timestamps: array![1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].span(),
+            utreexo_roots: array![].span(),
         };
         let mut block = Block {
             header: Header {
