@@ -29,3 +29,10 @@ fn test_target_to_bits_normalization() {
     let result = target_to_bits(target).unwrap();
     assert!(result == 0x1b7fffff, "Incorrect bits after normalization");
 }
+
+#[test]
+fn test_target_to_bits_max_target() {
+    let max_target: u256 = 0x00000000FFFF0000000000000000000000000000000000000000000000000000;
+    let result = target_to_bits(max_target).unwrap();
+    assert!(result == 0x1d00ffff, "Incorrect bits for max target");
+}
