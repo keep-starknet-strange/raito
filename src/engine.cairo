@@ -186,8 +186,14 @@ pub fn bits_to_target(bits: u32) -> Result<u256, felt252> {
         return Result::Ok(target);
     } else if exponent <= 3 {
         // For exponents 1, 2, and 3, divide by 256^(3 - exponent) i.e right shift
-        let divisor = u256_pow(256.into(), 3 - exponent);
-        target = target / divisor;
+        let shift = 8 * (3 - exponent);
+        let mut multiplier: u256 = 1.into();
+        let mut i = 0;
+        while i < shift {
+            multiplier = checked_mul(multiplier, 256.into()).expect('u256_mul Overflow');
+            i += 1;
+        };
+        target = checked_mul(target, multiplier).expect('u256_mul Overflow');
     } else {
         // Check for potential overflow
         let shift = exponent - 3;
