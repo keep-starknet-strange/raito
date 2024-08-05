@@ -43,8 +43,11 @@ fn validate_target(self: @ChainState, block: @Block) -> Result<(), ByteArray> {
 }
 
 fn validate_timestamp(self: @ChainState, block: @Block) -> Result<(), ByteArray> {
-    // TODO: implement
-    Result::Ok(())
+    if block.header.time > (*self.prev_timestamps).at((*self.prev_timestamps).len() - 6) {
+        Result::Ok(())
+    } else {
+        Result::Err("Median time is greater than or equal to block's timestamp")
+    }
 }
 
 fn next_prev_timestamps(self: @ChainState, block: @Block) -> Span<u32> {
@@ -69,11 +72,9 @@ fn validate_merkle_root(self: @ChainState, block: @Block) -> Result<(), ByteArra
 
 #[cfg(test)]
 mod tests {
-    use core::result::ResultTrait;
-    use super::validate_target;
+    use super::{validate_target, validate_timestamp};
     use super::{Block, ChainState};
     use super::super::state::{Header, Transaction, TxIn, TxOut};
-    use core::array::{Span};
 
     #[test]
     fn test_validate_target() {
@@ -104,5 +105,37 @@ mod tests {
         block.header.bits = 2;
         let result = validate_target(@chain_state, @block);
         assert(result.is_err(), 'Expected target to be invalid');
+    }
+
+    #[test]
+    fn test_validate_timestamp() {
+        let mut chain_state = ChainState {
+            block_height: 1,
+            total_work: 1,
+            best_block_hash: 1,
+            current_target: 1,
+            epoch_start_time: 1,
+            prev_timestamps: array![1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].span(),
+        };
+        let mut block = Block {
+            header: Header {
+                version: 1, prev_block_hash: 1, merkle_root_hash: 1, time: 12, bits: 1, nonce: 1,
+            },
+            txs: ArrayTrait::new().span(),
+        };
+
+        // new timestamp is greater than the last timestamp
+        let result = validate_timestamp(@chain_state, @block);
+        assert(result.is_ok(), 'Expected target to be valid');
+
+        // new timestamp is strictly greater than the median of the last 11 timestamps
+        block.header.time = 7;
+        let result = validate_timestamp(@chain_state, @block);
+        assert(result.is_ok(), 'Expected target to be valid');
+
+        // new timestamp is equal to the median of the last 11 timestamps
+        block.header.time = 6;
+        let result = validate_timestamp(@chain_state, @block);
+        assert!(result.is_err(), "Median time is greater than block's timestamp");
     }
 }
