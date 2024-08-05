@@ -1,17 +1,19 @@
 #! /usr/bin/env bash
 
-path="./"
+destPath="./src/"
+tx_inJqPath="./scripts/data/tx_in.jq"
+tx_outJqPath="./scripts/data/tx_out.jq"
+blockJqPath="./scripts/data/block.jq"
 blockHash=""
 api="https://mempool.space/api/block/"
 
-if $1; then
-	blockHash=$1
+if [ ! -z "$1" ]; then
+	blockHash="$1"
 else
 	read -p "Enter bitcoin block hash: " blockHash
 fi
-blockHash="000000000000000019006062b88e3e5a3b99bd98aa149eb143d6335d382cd91f"
 
-fileName="block_$blockHash.cairo"
+fileName="${destPath}block_$blockHash.cairo"
 
 
 # Recive informations
@@ -23,7 +25,7 @@ tx_count=$(echo $btcBlock | jq -r ".tx_count")
 echo "Total of transactions: " $tx_count
 
 #Put the header block in file
-echo $btcBlock | jq -r -f ./block.jq > $fileName
+echo $btcBlock | jq -r -f $blockJqPath > $fileName
 echo "		txs: array![" >> $fileName
 
 tx_count=50
@@ -43,19 +45,24 @@ while (( $total < $tx_count )); do
 	echo "				version: $(echo $tx | jq -r ".version")," >> $fileName
 	echo "				lock_time: $(echo $tx | jq -r ".locktime")," >> $fileName
 	echo "				inputs: array![" >> $fileName
-	echo $tx |  jq -r ".vin[]" | jq -r -f tx_in.jq >> $fileName
+	echo $tx |  jq -r ".vin[]" | jq -r -f $tx_inJqPath >> $fileName
 	echo "				].span()," >> $fileName
 	echo "				outputs: array![" >> $fileName
-	echo $tx |  jq -r ".vout[]" | jq -r -f tx_out.jq >> $fileName
+	echo $tx |  jq -r ".vout[]" | jq -r -f $tx_outJqPath >> $fileName
 	echo "			].span()," >> $fileName
 	echo "			}," >> $fileName
 	((idx++))
 	((total++))
 done
+if (( $total == $tx_count)) then
+	echo "$total / $tx_count transactions recives"
+echo "Execution successful, file created in $fileName"
+fi
 
 #end file
 echo "		].span()" >> $fileName
 echo "	}" >> $fileName
 echo "}" >> $fileName
-mv $fileName $path
-echo "Finish, file created in $path$fileName"
+echo ""
+echo -e "${green}add: \"pub mod block_$blockHash;\" in lib.cairo${reset}"
+echo -e "${green}add: \"use raito::block_$blockHash::test_data_btc_block;\" in main.cairo${reset}"

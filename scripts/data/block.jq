@@ -1,5 +1,8 @@
 def block:
-"fn test_data_btc_block() -> Block {
+"
+use raito::state::{Block, Header, Transaction, TxIn, TxOut};
+
+pub fn test_data_btc_block() -> Block {
 	Block {
 		header : Header {	
 			version: \(.version),
