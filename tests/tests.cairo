@@ -20,5 +20,5 @@ fn test_target_to_bits_overflow() {
 fn test_target_to_bits_medium_target() {
     let medium_target: u256 = 0x00000000000FFFFF000000000000000000000000000000000000000000000000;
     let result = target_to_bits(medium_target).unwrap();
-    assert!(result == 0x1c000fff, "Incorrect bits for medium target");
+    assert!(result == 454033407, "Incorrect bits for medium target");
 }

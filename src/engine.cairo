@@ -186,8 +186,6 @@ pub fn target_to_bits(target: u256) -> Result<u32, felt252> {
         size -= 1;
     };
 
-    size += 1;
-
     // Extract mantissa (most significant 3 bytes)
     let mut mantissa: u32 = ((compact / u256_pow(256, size - 3))).try_into().unwrap();
 
@@ -202,7 +200,7 @@ pub fn target_to_bits(target: u256) -> Result<u32, felt252> {
 
     // Simulate (size << 24) by multiplying size with 0x1000000 (256^3)
     let size_component: u32 = (u256_pow(256.into(), 3) * size.into()).try_into().unwrap();
-    
+
     // Combine size and mantissa
     let result: u32 = size_component + mantissa;
 
