@@ -22,3 +22,10 @@ fn test_target_to_bits_medium_target() {
     let result = target_to_bits(medium_target).unwrap();
     assert!(result == 454033407, "Incorrect bits for medium target");
 }
+
+#[test]
+fn test_target_to_bits_normalization() {
+    let target: u256 = 0x00000000007FFFFF800000000000000000000000000000000000000000000000;
+    let result = target_to_bits(target).unwrap();
+    assert!(result == 0x1b7fffff, "Incorrect bits after normalization");
+}

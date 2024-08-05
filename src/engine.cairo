@@ -198,6 +198,11 @@ pub fn target_to_bits(target: u256) -> Result<u32, felt252> {
     // Ensure the mantissa is only 3 bytes
     mantissa = mantissa & 0xffffff;
 
+    // Check size doesn't exceed maximum
+    if size > 34 {
+        return Result::Err('Overflow');
+    }
+
     // Simulate (size << 24) by multiplying size with 0x1000000 (256^3)
     let size_component: u32 = (u256_pow(256.into(), 3) * size.into()).try_into().unwrap();
 
