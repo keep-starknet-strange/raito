@@ -28,7 +28,6 @@ echo "Total of transactions: " $tx_count
 echo $btcBlock | jq -r -f $blockJqPath > $fileName
 echo "		txs: array![" >> $fileName
 
-tx_count=50
 #declare at 1 for skipping the coinbase transaction
 idx=1
 total=1
