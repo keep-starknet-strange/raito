@@ -19,8 +19,43 @@ pub struct ChainState {
     pub epoch_start_time: u32,
     /// Previous timestamps.
     pub prev_timestamps: Span<u32>,
-    // Utreexo roots (for checking [TxIn] inclusion proofs)
-    pub utreexo_roots: Span<felt252>
+    /// Utreexo state
+    pub utreexo_state: UtreexoState,
+}
+
+/// Accumulator representation of the state aka "Compact State Node"
+#[derive(Drop, Copy)]
+pub struct UtreexoState {
+    /// Roots of Merkle tree forest
+    pub roots: Span<felt252>,
+}
+
+/// Utreexo set is used to retrieve TXOs spent by particular inputs
+#[derive(Drop, Copy)]
+pub struct UtreexoSet {
+    /// A list of extended transaction outputs spent in a particular block(s).
+    pub outputs: Span<UtreexoOutput>,
+}
+
+/// TXO extended with info about parent transaction and the position within it.
+/// The hash of this structure is a leaf node in the Utreexo Merkle tree forest.
+#[derive(Drop, Copy)]
+pub struct UtreexoOutput {
+    /// The TXID this output belongs to.
+    pub txid: u256,
+    /// The index of this output.
+    pub vout: u32,
+    /// Output data
+    pub output: TxOut,
+}
+
+/// Inclusion proof for multiple leaves
+#[derive(Drop, Copy)]
+pub struct UtreexoBatchProof {
+    /// Indices of tree leaves, one for each output in the utreexo set
+    pub targets: Span<u64>,
+    /// All the nodes required to calculate the root
+    pub proof: Span<felt252>,
 }
 
 /// Represents a block in the blockchain.
@@ -50,15 +85,15 @@ pub struct Header {
     pub nonce: u32,
 }
 
-/// Extended transaction.
+/// Transaction
 /// https://learnmeabitcoin.com/technical/transaction/
-///
-/// Contains additional "meta" fields required for validation.
 #[derive(Drop, Copy)]
 pub struct Transaction {
     /// The version of the transaction.
-    pub version: i32,
+    pub version: u32,
     /// Flag which indicates the presence of witness data.
+    /// It combines `marker` and `flag` fields for now but in the future
+    /// we might need to separate them if transaction structure changes.
     /// Segwit marker and flag do not contribute to TXID (transaction hash),
     /// but do contribute to wTXID.
     pub is_segwit: bool,
@@ -72,37 +107,29 @@ pub struct Transaction {
     pub witnesses: Span<Span<ByteArray>>,
     /// The lock time of the transaction.
     pub lock_time: u32,
-    /// Transaction fee which is diff between total input and output amounts (meta field)
-    pub fee: i64,
 }
 
 /// Output of a transaction.
 /// https://learnmeabitcoin.com/technical/transaction/output/
 #[derive(Drop, Copy)]
 pub struct TxOut {
-    /// The value of the output.
+    /// The value of the output in satoshis.
     pub value: i64,
-    /// The public key script of the output.
+    /// The spending script (aka locking code) for this output.
     pub pk_script: @ByteArray,
 }
 
-/// Extended input of a transaction.
+/// Input of a transaction.
 /// https://learnmeabitcoin.com/technical/transaction/input/
 ///
-/// Contains additional "meta" fields required for validation.
+/// NOTE that `txid` and `vout` fields can be resolved via Utreexo set using the TXO index.
 #[derive(Drop, Copy)]
 pub struct TxIn {
-    /// The previous TXID this input spends.
-    pub txid: u256,
-    /// The previous transaction output index this input spends.
-    pub vout: u32,
     /// The signature script which satisfies the conditions placed in the txo pubkey script
     /// or coinbase script that contains block height (since 227,836) and miner nonce (optional).
     pub script: @ByteArray,
-    /// The sequence number of the input ().
+    /// The sequence number of the input.
     pub sequence: u32,
-    /// The previous transaction output this input spends (meta field)
-    pub txo: @TxOut,
-    /// Utreexo inclusion proof of the spent output (meta field)
-    pub txo_proof: Span<felt252>,
+    /// The index of output in the utreexo set (meta field).
+    pub txo_index: u64,
 }
