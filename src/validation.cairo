@@ -1,4 +1,10 @@
 use super::state::{Block, ChainState};
+use alexandria_math::i257::{i257, I257Impl};
+use alexandria_math::pow;
+
+
+const ONE_256: u256 = 1_u256;
+const ALL_ONES_U128: u128 = 340282366920938463463374607431768211455;
 
 #[generate_trait]
 impl BlockValidatorImpl of BlockValidator {
@@ -56,8 +62,40 @@ fn next_prev_timestamps(self: @ChainState, block: @Block) -> Span<u32> {
 }
 
 fn compute_total_work(self: @ChainState, block: @Block) -> u256 {
-    // TODO: implement
-    *self.total_work
+    let block_target: u256 = convert_u32_to_u256(*block.header.bits);
+    let work_in_block: u256 = compute_work_from_target(block_target);
+    let new_total_work: u256 = *self.total_work + work_in_block;
+    new_total_work
+}
+
+fn convert_u32_to_u256(val: u32) -> u256 {
+    let felt_val: felt252 = val.into();
+    let mut val_u256: u256 = 1;
+    let low: u128 = felt_val.try_into().unwrap();
+    let high: u128 = 0;
+    val_u256.low = low;
+    val_u256.high = high;
+    val_u256
+    
+}
+
+fn compute_bitwise_not_for_u256(val: u256) -> u256 {
+    let mut not_val: u256 = 0;
+    not_val.low = ALL_ONES_U128 - val.low;
+    not_val.high = ALL_ONES_U128 - val.high;
+    not_val
+}
+fn compute_work_from_target(target: u256) -> u256 {
+    let one_i257: i257 = I257Impl::new(ONE_256, false);
+    let target_i257: i257 = target.into();
+    print!("converted target is {}", target_i257.abs());
+    let not_target: i257 = compute_bitwise_not_for_u256(target).into();
+    print!("not target is {}", not_target.abs());
+    let div_i257: i257 = not_target / (target_i257 + one_i257);
+    print!("div target is {}", div_i257.abs());
+    let result_i257: i257 = div_i257 + one_i257;
+    print!("result is {}", result_i257.abs());
+    result_i257.abs()
 }
 
 fn adjust_difficulty(self: @ChainState, block: @Block) -> (u32, u32) {
@@ -72,9 +110,11 @@ fn validate_merkle_root(self: @ChainState, block: @Block) -> Result<(), ByteArra
 
 #[cfg(test)]
 mod tests {
-    use super::{validate_target, validate_timestamp};
+    use super::{validate_target, validate_timestamp, compute_work_from_target};
     use super::{Block, ChainState};
     use super::super::state::{Header, Transaction, TxIn, TxOut};
+    use alexandria_math::i257::{i257, I257Impl};
+    use cairo_lib::utils::math::pow;
 
     #[test]
     fn test_validate_target() {
@@ -105,6 +145,14 @@ mod tests {
         block.header.bits = 2;
         let result = validate_target(@chain_state, @block);
         assert(result.is_err(), 'Expected target to be invalid');
+    }
+
+    #[test] 
+    fn test_compute_work_from_target() {
+        let expected_work = 0x0100010001;
+        let target: u256 = 0x00000000ffff0000000000000000000000000000000000000000000000000000;
+        let work = compute_work_from_target(target);
+        assert(expected_work == work, 'failed to compute target');
     }
 
     #[test]
