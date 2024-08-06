@@ -89,13 +89,9 @@ fn compute_bitwise_not_for_u256(val: u256) -> u256 {
 fn compute_work_from_target(target: u256) -> u256 {
     let one_i257: i257 = I257Impl::new(ONE_256, false);
     let target_i257: i257 = target.into();
-    print!("converted target is {}", target_i257.abs());
     let not_target: i257 = compute_bitwise_not_for_u256(target).into();
-    print!("not target is {}", not_target.abs());
     let div_i257: i257 = not_target / (target_i257 + one_i257);
-    print!("div target is {}", div_i257.abs());
     let result_i257: i257 = div_i257 + one_i257;
-    print!("result is {}", result_i257.abs());
     result_i257.abs()
 }
 
