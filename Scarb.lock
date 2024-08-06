@@ -54,14 +54,8 @@ dependencies = [
 ]
 
 [[package]]
-name = "cairo_lib"
-version = "0.2.0"
-source = "git+https://github.com/HerodotusDev/cairo-lib.git#a0c0ee4feeb4edb61e7a35d29595ad8647c3d469"
-
-[[package]]
 name = "raito"
 version = "0.1.0"
 dependencies = [
  "alexandria_math",
- "cairo_lib",
 ]

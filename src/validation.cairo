@@ -76,7 +76,6 @@ fn convert_u32_to_u256(val: u32) -> u256 {
     val_u256.low = low;
     val_u256.high = high;
     val_u256
-    
 }
 
 fn compute_bitwise_not_for_u256(val: u256) -> u256 {
@@ -86,6 +85,11 @@ fn compute_bitwise_not_for_u256(val: u256) -> u256 {
     not_val
 }
 
+
+// Need to compute 2**256 / (target+1), but we can't represent 2**256
+// as it's too large for an u256. However, as 2**256 is at least as large
+// as target+1, it is equal to ((2**256 - target - 1) / (target+1)) + 1,
+// or ~target / (target+1) + 1.
 fn compute_work_from_target(target: u256) -> u256 {
     let one_i257: i257 = I257Impl::new(ONE_256, false);
     let target_i257: i257 = target.into();

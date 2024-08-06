@@ -8,7 +8,6 @@ gen_data_test= "chmod -x ./scripts/data/launch.sh && bash ./scripts/data/launch.
 
 [dependencies]
 alexandria_math = { git = "https://github.com/keep-starknet-strange/alexandria.git" }
-cairo_lib = { git = "https://github.com/HerodotusDev/cairo-lib.git" }
 
 [dev-dependencies]
 cairo_test = "2.7.0"
