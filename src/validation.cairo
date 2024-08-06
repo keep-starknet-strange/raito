@@ -1,10 +1,8 @@
-use super::state::{Block, ChainState};
 use alexandria_math::i257::{i257, I257Impl};
 use alexandria_math::pow;
-
-
 const ONE_256: u256 = 1_u256;
 const ALL_ONES_U128: u128 = 340282366920938463463374607431768211455;
+use super::state::{Block, ChainState, UtreexoState};
 
 #[generate_trait]
 impl BlockValidatorImpl of BlockValidator {
@@ -112,7 +110,7 @@ fn validate_merkle_root(self: @ChainState, block: @Block) -> Result<(), ByteArra
 #[cfg(test)]
 mod tests {
     use super::{validate_target, validate_timestamp, compute_work_from_target, compute_total_work};
-    use super::{Block, ChainState};
+    use super::{Block, ChainState, UtreexoState};
     use super::super::state::{Header, Transaction, TxIn, TxOut};
     use alexandria_math::i257::{i257, I257Impl};
     use cairo_lib::utils::math::pow;
@@ -127,6 +125,7 @@ mod tests {
             current_target: 1,
             epoch_start_time: 1,
             prev_timestamps: array![1, 2, 3, 4, 5].span(),
+            utreexo_state: UtreexoState { roots: array![].span() },
         };
         let mut block = Block {
             header: Header {
@@ -158,6 +157,7 @@ mod tests {
             current_target: 1,
             epoch_start_time: 1,
             prev_timestamps: array![1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].span(),
+            utreexo_state: UtreexoState { roots: array![].span() },
         };
         let mut block = Block {
             header: Header {
