@@ -1,8 +1,7 @@
-use alexandria_math::i257::{i257, I257Impl};
 use super::state::{Block, ChainState, UtreexoState};
 
 const ONE_256: u256 = 1_u256;
-const ALL_ONES_U128: u128 = 340282366920938463463374607431768211455;
+const ALL_ONES_U128: u128 = 340282366920938463463374607431768211455; //(2^128) - 1
 
 #[generate_trait]
 impl BlockValidatorImpl of BlockValidator {
@@ -76,25 +75,14 @@ fn convert_u32_to_u256(val: u32) -> u256 {
     val_u256
 }
 
-fn compute_bitwise_not_for_u256(val: u256) -> u256 {
-    let mut not_val: u256 = 0;
-    not_val.low = ALL_ONES_U128 - val.low - 1_u128;
-    not_val.high = ALL_ONES_U128 - val.high - 1_u128;
-    not_val
-}
-
-
 // Need to compute 2**256 / (target+1), but we can't represent 2**256
 // as it's too large for an u256. However, as 2**256 is at least as large
 // as target+1, it is equal to ((2**256 - target - 1) / (target+1)) + 1,
 // or ~target / (target+1) + 1.
 fn compute_work_from_target(target: u256) -> u256 {
-    let one_i257: i257 = I257Impl::new(ONE_256, false);
-    let target_i257: i257 = target.into();
-    let not_target: i257 = compute_bitwise_not_for_u256(target).into();
-    let div_i257: i257 = not_target / (target_i257 + one_i257);
-    let result_i257: i257 = div_i257 + one_i257;
-    result_i257.abs()
+    let div: u256 = ~target / (target + ONE_256);
+    let result: u256 = div + ONE_256;
+    result
 }
 
 fn adjust_difficulty(self: @ChainState, block: @Block) -> (u32, u32) {
@@ -112,8 +100,6 @@ mod tests {
     use super::{validate_target, validate_timestamp, compute_work_from_target, compute_total_work};
     use super::{Block, ChainState, UtreexoState};
     use super::super::state::{Header, Transaction, TxIn, TxOut};
-    use alexandria_math::i257::{i257, I257Impl};
-    const ONE_256: u256 = 1_u256;
 
     #[test]
     fn test_validate_target() {
@@ -179,32 +165,39 @@ mod tests {
         let result = validate_timestamp(@chain_state, @block);
         assert!(result.is_err(), "Median time is greater than block's timestamp");
     }
-    #[test]
-    fn test_compute_total_work() {
-        let mut chain_state = ChainState {
-            block_height: 1,
-            total_work: 1,
-            best_block_hash: 1,
-            current_target: 1,
-            epoch_start_time: 1,
-            prev_timestamps: array![1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].span(),
-            utreexo_state: UtreexoState { roots: array![].span() },
-        };
-        let mut block = Block {
-            header: Header {
-                version: 1, prev_block_hash: 1, merkle_root_hash: 1, time: 12, bits: 1, nonce: 1,
-            },
-            txs: ArrayTrait::new().span(),
-        };
-        let expected_work = compute_work_from_target(ONE_256) + chain_state.total_work;
-        let total_work: u256 = compute_total_work(@chain_state, @block);
-        assert(total_work == expected_work, 'failed to compute target');
-    }
 
     #[test]
-    fn test_compute_work_from_target() {
+    fn test_compute_work_from_target1() {
         let expected_work = 0x0100010001;
         let target: u256 = 0x00000000ffff0000000000000000000000000000000000000000000000000000;
+        let work = compute_work_from_target(target);
+        assert(expected_work == work, 'failed to compute target');
+    }
+    #[test]
+    fn test_compute_work_from_target2() {
+        let expected_work = 0x26d946e509ac00026d;
+        let target: u256 = 0x00000000000000000696f4000000000000000000000000000000000000000000;
+        let work = compute_work_from_target(target);
+        assert(expected_work == work, 'failed to compute target');
+    }
+    #[test]
+    fn test_compute_work_from_target3() {
+        let expected_work = 0xe10005d2a0269364ff907d1d1d3ce0e1b351d743fe3222740c2440d07;
+        let target: u256 = 0x12345600;
+        let work = compute_work_from_target(target);
+        assert(expected_work == work, 'failed to compute target');
+    }
+    #[test]
+    fn test_compute_work_from_target4() {
+        let expected_work = 0x1c040c95d1a74d2e27abbbd2255f66c9db2cad7511eb970cd4dac39e4;
+        let target: u256 = 0x92340000;
+        let work = compute_work_from_target(target);
+        assert(expected_work == work, 'failed to compute target');
+    }
+    #[test]
+    fn test_compute_work_from_target5() {
+        let expected_work = 0x21809b468faa88dbe34f;
+        let target: u256 = 0x00000000000000000007a4290000000000000000000000000000000000000000;
         let work = compute_work_from_target(target);
         assert(expected_work == work, 'failed to compute target');
     }

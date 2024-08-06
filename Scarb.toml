@@ -7,7 +7,6 @@ edition = "2023_11"
 gen_data_test= "chmod -x ./scripts/data/launch.sh && bash ./scripts/data/launch.sh"
 
 [dependencies]
-alexandria_math = { git = "https://github.com/keep-starknet-strange/alexandria.git" }
 
 [dev-dependencies]
 cairo_test = "2.7.0"
