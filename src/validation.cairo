@@ -1,8 +1,8 @@
 use alexandria_math::i257::{i257, I257Impl};
-use alexandria_math::pow;
+use super::state::{Block, ChainState, UtreexoState};
+
 const ONE_256: u256 = 1_u256;
 const ALL_ONES_U128: u128 = 340282366920938463463374607431768211455;
-use super::state::{Block, ChainState, UtreexoState};
 
 #[generate_trait]
 impl BlockValidatorImpl of BlockValidator {
@@ -113,7 +113,6 @@ mod tests {
     use super::{Block, ChainState, UtreexoState};
     use super::super::state::{Header, Transaction, TxIn, TxOut};
     use alexandria_math::i257::{i257, I257Impl};
-    use cairo_lib::utils::math::pow;
     const ONE_256: u256 = 1_u256;
 
     #[test]
@@ -201,7 +200,7 @@ mod tests {
         assert(total_work == expected_work, 'failed to compute target');
     }
 
-    #[test] 
+    #[test]
     fn test_compute_work_from_target() {
         let expected_work = 0x0100010001;
         let target: u256 = 0x00000000ffff0000000000000000000000000000000000000000000000000000;
