@@ -30,8 +30,14 @@ fn validate_prev_block_hash(self: @ChainState, block: @Block) -> Result<(), Byte
 }
 
 fn validate_proof_of_work(self: @ChainState, block: @Block) -> Result<(), ByteArray> {
-    // TODO: implement
-    Result::Ok(())
+    let target_u256: u256 = block.header.bits.clone().into();
+    if block.header.prev_block_hash.clone() <= target_u256 {
+        Result::Ok(())
+    } else {
+        Result::Err(
+            "Insufficient proof of work. Expected block hash {block.header.prev_block_hash} to be less than or equal to target {block.header.bits}."
+        )
+    }
 }
 
 fn validate_target(self: @ChainState, block: @Block) -> Result<(), ByteArray> {
