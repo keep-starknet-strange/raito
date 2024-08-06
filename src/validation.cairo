@@ -116,6 +116,7 @@ mod tests {
     use super::super::state::{Header, Transaction, TxIn, TxOut};
     use alexandria_math::i257::{i257, I257Impl};
     use cairo_lib::utils::math::pow;
+    const ONE_256: u256 = 1_u256;
 
     #[test]
     fn test_validate_target() {
@@ -148,51 +149,6 @@ mod tests {
         assert(result.is_err(), 'Expected target to be invalid');
     }
 
-    // #[test] 
-    // fn test_compute_work_from_targe1() {
-    //     let expected_work = 0x0100010001;
-    //     let target: u256 = 0x00000000ffff0000000000000000000000000000000000000000000000000000;
-    //     let work = compute_work_from_target(target);
-    //     assert(expected_work == work, 'failed to compute target');
-    // }
-    // #[test] 
-    // fn test_compute_work_from_target2() {
-    //     let expected_work = 0x26d946e509ac00026d;
-    //     let target: u256 = 0x00000000000000000696f4000000000000000000000000000000000000000000;
-    //     let work = compute_work_from_target(target);
-    //     assert(expected_work == work, 'failed to compute target');
-    // }
-    
-    // #[test] 
-    // fn test_compute_work_from_target3() {
-    //     let expected_work = 0x21809b468faa88dbe34f;
-    //     let target: u256 = 0x00000000000000000007a4290000000000000000000000000000000000000000;
-    //     let work = compute_work_from_target(target);
-    //     assert(expected_work == work, 'failed to compute target');
-    // }
-
-    #[test]
-    fn test_compute_total_work () {
-        let mut chain_state = ChainState {
-            block_height: 1,
-            total_work: 1,
-            best_block_hash: 1,
-            current_target: 1,
-            epoch_start_time: 1,
-            prev_timestamps: array![1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].span(),
-        };
-        let mut block = Block {
-            header: Header {
-                version: 1, prev_block_hash: 1, merkle_root_hash: 1, time: 12, bits: 0x1, nonce: 1,
-            },
-            txs: ArrayTrait::new().span(),
-        };
-        let expected_work = 0x7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF + chain_state.total_work;
-        let total_work: u256 = compute_total_work(@chain_state, @block);
-        assert(total_work == expected_work, 'failed to compute target');
-
-    }
-
     #[test]
     fn test_validate_timestamp() {
         let mut chain_state = ChainState {
@@ -223,5 +179,33 @@ mod tests {
         block.header.time = 6;
         let result = validate_timestamp(@chain_state, @block);
         assert!(result.is_err(), "Median time is greater than block's timestamp");
+    }
+    #[test]
+    fn test_compute_total_work() {
+        let mut chain_state = ChainState {
+            block_height: 1,
+            total_work: 1,
+            best_block_hash: 1,
+            current_target: 1,
+            epoch_start_time: 1,
+            prev_timestamps: array![1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].span(),
+        };
+        let mut block = Block {
+            header: Header {
+                version: 1, prev_block_hash: 1, merkle_root_hash: 1, time: 12, bits: 1, nonce: 1,
+            },
+            txs: ArrayTrait::new().span(),
+        };
+        let expected_work = compute_work_from_target(ONE_256) + chain_state.total_work;
+        let total_work: u256 = compute_total_work(@chain_state, @block);
+        assert(total_work == expected_work, 'failed to compute target');
+    }
+
+    #[test] 
+    fn test_compute_work_from_target() {
+        let expected_work = 0x0100010001;
+        let target: u256 = 0x00000000ffff0000000000000000000000000000000000000000000000000000;
+        let work = compute_work_from_target(target);
+        assert(expected_work == work, 'failed to compute target');
     }
 }
