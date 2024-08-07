@@ -4,7 +4,6 @@ use core::traits::Into;
 use core::byte_array::ByteArray;
 use raito::utils::shl;
 use raito::utils::shr;
-use raito::utils::fast_pow;
 
 // Constants
 const BLOCK_HEADER_SIZE: u32 = 80;
