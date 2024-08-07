@@ -151,8 +151,6 @@ pub fn target_to_bits(target: u256) -> Result<u32, felt252> {
     Result::Ok(result)
 }
 
-fn get_fee_and_merkle_root(self: @ChainState, block: @Block) -> Result<(u256, u256), ByteArray> {
-
 fn fee_and_merkle_root(self: @ChainState, block: @Block) -> Result<(u256, u256), ByteArray> {
     let mut txids = ArrayTrait::new();
     let mut total_fee = 0;
@@ -245,9 +243,7 @@ mod tests {
     #[test]
     fn test_validate_proof_of_work() {
         let mut block = Block {
-            header: Header {
-                version: 1, prev_block_hash: 1, merkle_root_hash: 1, time: 12, bits: 1, nonce: 1,
-            },
+            header: Header { version: 1, prev_block_hash: 1, time: 12, bits: 1, nonce: 1, },
             txs: ArrayTrait::new().span(),
         };
 
