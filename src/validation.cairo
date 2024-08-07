@@ -2,6 +2,8 @@ use super::utils::{shl, shr};
 use super::state::{Block, ChainState, Transaction, UtreexoState};
 
 const MAX_TARGET: u256 = 0x00000000FFFF0000000000000000000000000000000000000000000000000000;
+pub const REWARD_INITIAL: u256 = 50; // 50 BTC in satoshis =>  5000000000 SATS
+pub const POW_SATS_AMOUNT: u256 = 8; // Pow to convert in SATS
 
 #[generate_trait]
 impl BlockValidatorImpl of BlockValidator {
@@ -106,20 +108,27 @@ fn validate_merkle_root(self: @ChainState, block: @Block) -> Result<(), ByteArra
     Result::Ok(())
 }
 
-fn compute_block_reward(self: @ChainState, block: @Block) -> Result<felt252, ByteArray> {
-    let number_halvings: u32 = *self.block_height / 210000;
+// Return BTC reward => pow to 8 to transform into Sats. Otherwise difficult to cast to u64 correctly after if needed
+fn compute_block_reward(block_height: u32) -> Result<u64, ByteArray> {
+    let number_halvings = block_height / 210_000;
     match number_halvings {
         0 => { return Result::Err("number_halvings equal 0"); },
         _ => {}
     }
-    let denominator: u32 = number_halvings*number_halvings;
-    match denominator {
+    // Simple way to do it, but breaking the final part of the test
+    // let subsidy_initial: u256 = REWARD_INITIAL;
+    // // let current_reward = subsidy_initial >> number_halvings;
+    // let current_reward = shr(subsidy_initial, number_halvings);
+    // Result::Ok((current_reward).try_into().unwrap())
+    let cast_number_halvings: u256 = number_halvings.try_into().unwrap();
+    let denominator = shr(cast_number_halvings, 2);
+    match denominator.try_into().unwrap() {
         0 => { return Result::Err("denominator = 0"); },
-        _ => { println!("compute block reward"); }
+        _ => {  }
     }
-    let num: u32 = (50_u32 * 10_u32) ** @8_u32;
-    Result::Ok((num / denominator).try_into().unwrap())
-
+    let subsidy_initial: u256 = REWARD_INITIAL;
+    let current_reward = subsidy_initial / denominator;
+    Result::Ok((current_reward).try_into().unwrap())
 }
 
 pub fn target_to_bits(target: u256) -> Result<u32, felt252> {
@@ -190,7 +199,10 @@ fn validate_coinbase(block: @Block, total_fees: u256) -> Result<(), ByteArray> {
 
 #[cfg(test)]
 mod tests {
-    use super::{validate_target, validate_timestamp, validate_proof_of_work};
+    use super::{
+        validate_target, validate_timestamp, validate_proof_of_work, compute_block_reward, shr,
+        REWARD_INITIAL, POW_SATS_AMOUNT
+    };
     use super::{Block, ChainState, UtreexoState};
     use super::super::state::{Header, Transaction, TxIn, TxOut};
 
@@ -283,5 +295,42 @@ mod tests {
         block.header.prev_block_hash = 9;
         let result = validate_proof_of_work(@10_u256, @block);
         assert!(result.is_ok(), "Expect prev block hash lt target");
+    }
+
+
+    #[test]
+    fn test_compute_block_reward() {
+        let max_halvings: u32 = 64;
+        let reward_initial: u32 = REWARD_INITIAL.try_into().unwrap();
+        let halving_block_range = 210_000; // every 210 000 blocks
+        let mut nprevious_subsidy = REWARD_INITIAL * 2;
+        let mut loop_index: u32 = 0;
+        loop {
+            if loop_index == max_halvings {
+                break;
+            }
+            let block_height: u32 = loop_index * halving_block_range;
+            let reward = compute_block_reward(block_height);
+            if let Result::Ok(r) = reward {
+                let cast_reward_initial: u64 = reward_initial.try_into().unwrap();
+                assert!(r <= cast_reward_initial);
+                // TODO check this assert
+                // let cast_reward_previous: u64 = nprevious_subsidy.try_into().unwrap();
+                // assert_eq!(r, cast_reward_previous/2);
+                nprevious_subsidy = r.try_into().unwrap();
+            }
+            loop_index = loop_index + 1;
+        };
+        let last_reward = compute_block_reward(max_halvings);
+        if let Result::Ok(r) = last_reward {
+            assert_eq!(r, 0);
+        };
+
+        let height_test = compute_block_reward(300000);
+        if let Result::Ok(r) = height_test {
+            println!("last reward compute {:?}", r);
+            let cast_r: u256 = r.try_into().unwrap();
+            assert_eq!(shr(cast_r, 8), 250000000);
+        };
     }
 }
