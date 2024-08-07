@@ -1,7 +1,7 @@
 use core::result::ResultTrait;
 use core::option::OptionTrait;
 use core::traits::Into;
-use raito::engine::target_to_bits;
+use raito::validation::target_to_bits;
 
 #[test]
 fn test_target_to_bits_large_target() {
