@@ -53,17 +53,20 @@ Although this is a highly experimental project without immediate plans for deplo
   * header verification
     * [ ] block hash
     * [ ] previous block hash
-    * [ ] tx merkle root,
-    * [ ] proof-of-work,
-    * [ ] median time,
+    * [ ] proof-of-work
+    * [ ] median time
     * [ ] difficulty adjustment
   * transaction verification
-    * [ ] verify inputs
-    * [ ] verify outputs
-    * [ ] verify coinbase tx
+    * [ ] tx hash
+    * [ ] tx merkle root
+    * [ ] verify transaction fee
+  * utreexo
+    * [ ] fetch utreexo from some kind of bridge node, tbd
     * [ ] use utreexo to verify tx inputs
   * verify scripts
     * integration with Shinigami, tbd
+  * block verification
+    * [ ] verify coinbase tx
   * integration testing
     * [ ] test on individual historical blocks
 ### Milestone 2 - Real Data
