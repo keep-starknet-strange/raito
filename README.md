@@ -62,8 +62,8 @@ Although this is a highly experimental project without immediate plans for deplo
     * [ ] verify outputs
     * [ ] verify coinbase tx
     * [ ] use utreexo to verify tx inputs
-  * verify scripts(integrate with Shinigami)
-    * tbd
+  * verify scripts
+    * integrate with Shinigami, tbd
   * integration testing
     * [ ] test on individual historical blocks
 ### Milestone 2 - Real Data
