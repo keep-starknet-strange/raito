@@ -63,12 +63,12 @@ Although this is a highly experimental project without immediate plans for deplo
     * [ ] verify coinbase tx
     * [ ] use utreexo to verify tx inputs
   * verify scripts
-    * integrate with Shinigami, tbd
+    * integration with Shinigami, tbd
   * integration testing
     * [ ] test on individual historical blocks
 ### Milestone 2 - Real Data
   * [ ] feed it with real data
-  * [ ] produce and verify proofs of verification of individual blocks
+  * [ ] test that you can produce and verify proofs of individual blocks
 ### Milestone 3 - Recursive Verification
   * verify chain proofs with cairo verifier, tbd
 
