@@ -63,6 +63,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "m-kus",
+      "name": "Michael Zaikin",
+      "avatar_url": "https://avatars.githubusercontent.com/u/44951260?v=4",
+      "profile": "https://nodeguardians.io/character/m-kus",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,
