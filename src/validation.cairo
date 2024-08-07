@@ -4,7 +4,7 @@ use super::state::{Block, ChainState};
 impl BlockValidatorImpl of BlockValidator {
     fn validate_and_apply(self: ChainState, block: Block) -> Result<ChainState, ByteArray> {
         validate_prev_block_hash(@self, @block)?;
-        validate_proof_of_work(@self, @block)?;
+        validate_proof_of_work(@0_u256, @block)?;
         validate_target(@self, @block)?;
         validate_timestamp(@self, @block)?;
 
@@ -29,9 +29,8 @@ fn validate_prev_block_hash(self: @ChainState, block: @Block) -> Result<(), Byte
     }
 }
 
-fn validate_proof_of_work(self: @ChainState, block: @Block) -> Result<(), ByteArray> {
-    let target_u256: u256 = block.header.bits.clone().into();
-    if block.header.prev_block_hash.clone() <= target_u256 {
+fn validate_proof_of_work(target: @u256, block: @Block) -> Result<(), ByteArray> {
+    if block.header.prev_block_hash <= target {
         Result::Ok(())
     } else {
         Result::Err(
@@ -78,7 +77,7 @@ fn validate_merkle_root(self: @ChainState, block: @Block) -> Result<(), ByteArra
 
 #[cfg(test)]
 mod tests {
-    use super::{validate_target, validate_timestamp};
+    use super::{validate_target, validate_timestamp, validate_proof_of_work};
     use super::{Block, ChainState};
     use super::super::state::{Header, Transaction, TxIn, TxOut};
 
@@ -143,5 +142,37 @@ mod tests {
         block.header.time = 6;
         let result = validate_timestamp(@chain_state, @block);
         assert!(result.is_err(), "Median time is greater than block's timestamp");
+    }
+
+    #[test]
+    fn test_validate_proof_of_work() {
+        let mut block = Block {
+            header: Header {
+                version: 1, prev_block_hash: 1, merkle_root_hash: 1, time: 12, bits: 1, nonce: 1,
+            },
+            txs: ArrayTrait::new().span(),
+        };
+
+        // target is less than prev block hash
+        let result = validate_proof_of_work(@0_u256, @block);
+        assert!(result.is_err(), "Expect target less than prev block hash");
+
+        // target is greater than prev block hash
+        let result = validate_proof_of_work(@2_u256, @block);
+        assert!(result.is_ok(), "Expect target gt prev block hash");
+
+        // target is equal to prev block hash
+        let result = validate_proof_of_work(@1_u256, @block);
+        assert!(result.is_ok(), "Expect target equal to prev block hash");
+
+        // block prev block hash is greater than target
+        block.header.prev_block_hash = 2;
+        let result = validate_proof_of_work(@1_u256, @block);
+        assert!(result.is_err(), "Expect prev block hash gt target");
+
+        // block prev block hash is less than target
+        block.header.prev_block_hash = 9;
+        let result = validate_proof_of_work(@10_u256, @block);
+        assert!(result.is_ok(), "Expect prev block hash lt target");
     }
 }
