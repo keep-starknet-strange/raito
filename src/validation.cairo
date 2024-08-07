@@ -1,4 +1,8 @@
 use super::state::{Block, ChainState, UtreexoState};
+use raito::utils::shl;
+use raito::utils::shr;
+
+const MAX_TARGET: u256 = 0x00000000FFFF0000000000000000000000000000000000000000000000000000;
 
 #[generate_trait]
 impl BlockValidatorImpl of BlockValidator {
@@ -73,6 +77,51 @@ fn adjust_difficulty(self: @ChainState, block: @Block) -> (u32, u32) {
 fn validate_merkle_root(self: @ChainState, block: @Block) -> Result<(), ByteArray> {
     // TODO: implement
     Result::Ok(())
+}
+
+
+pub fn target_to_bits(target: u256) -> Result<u32, felt252> {
+    if target == 0 {
+        return Result::Err('Target is zero');
+    }
+
+    if target > MAX_TARGET {
+        return Result::Err('Exceeds max value');
+    }
+
+    // Find the most significant byte
+    let mut size: u32 = 32;
+    let mut compact = target;
+
+    // Count leading zero bytes by finding the first non-zero byte
+    while size > 1 && shr(compact, (size - 1) * 8) == 0 {
+        size -= 1;
+    };
+
+    // Extract mantissa (most significant 3 bytes)
+    let mut mantissa: u32 = shr(compact, (size - 3) * 8).try_into().unwrap();
+
+    // Normalize
+    if mantissa > 0x7fffff {
+        mantissa = (mantissa + 0x80) / 0x100;
+        size += 1;
+    }
+
+    // Ensure the mantissa is only 3 bytes
+    mantissa = mantissa & 0xffffff;
+
+    // Check size doesn't exceed maximum
+    if size > 34 {
+        return Result::Err('Overflow');
+    }
+
+    // Convert size to u256
+    let size_u256: u256 = size.into();
+
+    // Combine size and mantissa
+    let result: u32 = (shl(size_u256, 24) + mantissa.into()).try_into().unwrap();
+
+    Result::Ok(result)
 }
 
 #[cfg(test)]
