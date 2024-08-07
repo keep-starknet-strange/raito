@@ -1,5 +1,4 @@
 use super::state::{Block, ChainState, UtreexoState};
-use raito::utils::{shr};
 
 #[generate_trait]
 impl BlockValidatorImpl of BlockValidator {
@@ -77,14 +76,13 @@ fn compute_block_reward(self: @ChainState, block: @Block) -> Result<felt252, Byt
         0 => { return Result::Err("number_halvings equal 0"); },
         _ => {}
     }
-    let denominator: u32 = shr(number_halvings, 2);
+    let denominator: u32 = number_halvings*number_halvings;
     match denominator {
         0 => { return Result::Err("denominator = 0"); },
         _ => { println!("compute block reward"); }
     }
-    let pow_of = 8_u32;
-    let mul: u32 = (50_u32 * 10_u32 * *@pow_of);
-    Result::Ok((mul / denominator).try_into().unwrap())
+    let num: u32 = (50_u32 * 10_u32) ** @8_u32;
+    Result::Ok((num / denominator).try_into().unwrap())
 }
 
 #[cfg(test)]
