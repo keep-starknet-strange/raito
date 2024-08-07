@@ -1,6 +1,5 @@
-use super::state::{Block, ChainState, UtreexoState};
-use raito::utils::shl;
-use raito::utils::shr;
+use super::utils::{shl, shr};
+use super::state::{Block, ChainState, Transaction, UtreexoState};
 
 const MAX_TARGET: u256 = 0x00000000FFFF0000000000000000000000000000000000000000000000000000;
 
@@ -12,17 +11,45 @@ impl BlockValidatorImpl of BlockValidator {
         validate_target(@self, @block)?;
         validate_timestamp(@self, @block)?;
 
-        validate_merkle_root(@self, @block)?;
-        // validate_and_apply_transactions
+        let (total_fees, merkle_root) = fee_and_merkle_root(@self, @block)?;
 
+        validate_coinbase(@block, total_fees)?;
+
+        let best_block_hash = block_hash(@block, merkle_root)?;
         let prev_timestamps = next_prev_timestamps(@self, @block);
         let total_work = compute_total_work(@self, @block);
         let (current_target, epoch_start_time) = adjust_difficulty(@self, @block);
+        let block_height = self.block_height + 1;
 
         Result::Ok(
-            ChainState { total_work, current_target, epoch_start_time, prev_timestamps, ..self, }
+            ChainState {
+                block_height,
+                total_work,
+                best_block_hash,
+                current_target,
+                epoch_start_time,
+                prev_timestamps,
+                ..self,
+            }
         )
     }
+}
+
+#[generate_trait]
+impl TransactionValidatorImpl of TransactionValidator {
+    fn txid(self: @Transaction) -> u256 {
+        // TODO: implement
+        0
+    }
+    fn fee(self: @Transaction) -> u256 {
+        // TODO: implement
+        0
+    }
+}
+
+fn block_hash(block: @Block, merkle_root: u256) -> Result<u256, ByteArray> {
+    // TODO: implement
+    Result::Ok(0)
 }
 
 fn validate_prev_block_hash(self: @ChainState, block: @Block) -> Result<(), ByteArray> {
@@ -124,6 +151,28 @@ pub fn target_to_bits(target: u256) -> Result<u32, felt252> {
     Result::Ok(result)
 }
 
+fn fee_and_merkle_root(self: @ChainState, block: @Block) -> Result<(u256, u256), ByteArray> {
+    let mut txids = ArrayTrait::new();
+    let mut total_fee = 0;
+
+    for tx in *block.txs {
+        txids.append(tx.txid());
+        total_fee += tx.fee();
+    };
+
+    Result::Ok((total_fee, merkle_root(txids)))
+}
+
+fn merkle_root(txids: Array<u256>) -> u256 {
+    // TODO: implement
+    0
+}
+
+fn validate_coinbase(block: @Block, total_fees: u256) -> Result<(), ByteArray> {
+    //TODO implement
+    Result::Ok(())
+}
+
 #[cfg(test)]
 mod tests {
     use super::{validate_target, validate_timestamp, validate_proof_of_work};
@@ -142,9 +191,7 @@ mod tests {
             utreexo_state: UtreexoState { roots: array![].span() },
         };
         let mut block = Block {
-            header: Header {
-                version: 1, prev_block_hash: 1, merkle_root_hash: 1, time: 1, bits: 1, nonce: 1,
-            },
+            header: Header { version: 1, prev_block_hash: 1, time: 1, bits: 1, nonce: 1, },
             txs: ArrayTrait::new().span(),
         };
 
@@ -174,9 +221,7 @@ mod tests {
             utreexo_state: UtreexoState { roots: array![].span() },
         };
         let mut block = Block {
-            header: Header {
-                version: 1, prev_block_hash: 1, merkle_root_hash: 1, time: 12, bits: 1, nonce: 1,
-            },
+            header: Header { version: 1, prev_block_hash: 1, time: 12, bits: 1, nonce: 1, },
             txs: ArrayTrait::new().span(),
         };
 
@@ -198,9 +243,7 @@ mod tests {
     #[test]
     fn test_validate_proof_of_work() {
         let mut block = Block {
-            header: Header {
-                version: 1, prev_block_hash: 1, merkle_root_hash: 1, time: 12, bits: 1, nonce: 1,
-            },
+            header: Header { version: 1, prev_block_hash: 1, time: 12, bits: 1, nonce: 1, },
             txs: ArrayTrait::new().span(),
         };
 
