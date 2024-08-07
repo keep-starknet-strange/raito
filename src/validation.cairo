@@ -96,7 +96,7 @@ pub fn target_to_bits(target: u256) -> Result<u32, felt252> {
     // Extract mantissa (most significant 3 bytes)
     let mut mantissa: u32 = shr(compact, (size - 3) * 8).try_into().unwrap();
 
-    // Normalize 
+    // Normalize
     if mantissa > 0x7fffff {
         mantissa = (mantissa + 0x80) / 0x100;
         size += 1;
@@ -113,7 +113,7 @@ pub fn target_to_bits(target: u256) -> Result<u32, felt252> {
     // Convert size to u256
     let size_u256: u256 = size.into();
 
-    // Combine size and mantissa 
+    // Combine size and mantissa
     let result: u32 = (shl(size_u256, 24) + mantissa.into()).try_into().unwrap();
 
     Result::Ok(result)
