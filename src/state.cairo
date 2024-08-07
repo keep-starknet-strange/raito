@@ -75,8 +75,6 @@ pub struct Header {
     pub version: u32,
     /// The hash of the previous block in the blockchain.
     pub prev_block_hash: u256,
-    /// The Merkle root hash of the transactions in the block.
-    pub merkle_root_hash: u256,
     /// The timestamp of the block.
     pub time: u32,
     /// The difficulty target for mining the block.
