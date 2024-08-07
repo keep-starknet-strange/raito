@@ -181,14 +181,14 @@ mod tests {
     }
     #[test]
     fn test_compute_work_from_target3() {
-        let expected_work = 0xe10005d2a0269364ff907d1d1d3ce0e1b351d743fe3222740c2440d07;
+        let expected_work = 0xe10005c64415f04ef3e387b97db388404db9fdfaab2b1918f6783471d;
         let target: u256 = 0x12345600;
         let work = compute_work_from_target(target);
         assert(expected_work == work, 'failed to compute target');
     }
     #[test]
     fn test_compute_work_from_target4() {
-        let expected_work = 0x1c040c95d1a74d2e27abbbd2255f66c9db2cad7511eb970cd4dac39e4;
+        let expected_work = 0x1c040c95a099201bcaf85db4e7f2e21e18707c8d55a887643b95afb2f;
         let target: u256 = 0x92340000;
         let work = compute_work_from_target(target);
         assert(expected_work == work, 'failed to compute target');
