@@ -34,7 +34,7 @@ fn validate_proof_of_work(target: @u256, block: @Block) -> Result<(), ByteArray>
         Result::Ok(())
     } else {
         Result::Err(
-            "Insufficient proof of work. Expected block hash {block.header.prev_block_hash} to be less than or equal to target {block.header.bits}."
+            "Insufficient proof of work. Expected block hash {block.header.prev_block_hash} to be less than or equal to {target}."
         )
     }
 }
