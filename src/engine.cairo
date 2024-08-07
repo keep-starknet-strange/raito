@@ -2,6 +2,8 @@ use core::result::Result;
 use core::option::OptionTrait;
 use core::traits::Into;
 use core::byte_array::ByteArray;
+use raito::utils::shl;
+use raito::utils::shr;
 
 // Constants
 const BLOCK_HEADER_SIZE: u32 = 80;
@@ -187,27 +189,10 @@ pub fn bits_to_target(bits: u32) -> Result<u256, felt252> {
     } else if exponent <= 3 {
         // For exponents 1, 2, and 3, divide by 256^(3 - exponent) i.e right shift
         let shift = 8 * (3 - exponent);
-        let mut multiplier: u256 = 1.into();
-        let mut i = 0;
-        while i < shift {
-            multiplier = checked_mul(multiplier, 256.into()).expect('u256_mul Overflow');
-            i += 1;
-        };
-        target = checked_mul(target, multiplier).expect('u256_mul Overflow');
+        target = shr(target, shift);
     } else {
-        // Check for potential overflow
-        let shift = exponent - 3;
-        if shift >= 29 {
-            return Result::Err('Exponent too large');
-        }
-        // left shift
-        let mut multiplier: u256 = 256.into();
-        let mut i: u32 = 3;
-        while i < exponent {
-            multiplier = checked_mul(multiplier, 256.into()).expect('u256_mul Overflow');
-            i += 1;
-        };
-        target = checked_mul(target, multiplier).expect('u256_mul Overflow');
+        let shift = 8 * (exponent - 3);
+        target = shl(target, shift);
     }
 
     // Ensure the target doesn't exceed the maximum allowed value
@@ -228,36 +213,4 @@ fn compute_work_from_target(target: u256) -> u256 {
 
 fn compute_timestamps_median(timestamps: Span<u32>) -> u32 {
     0
-}
-
-// Helper function to calculate power of 256
-fn u256_pow(base: u256, exp: u32) -> u256 {
-    if exp == 0 {
-        return 1.into();
-    }
-    let mut result: u256 = 1.into();
-    let mut i = 0;
-    while i < exp {
-        result = checked_mul(result, base).expect('u256_mul Overflow');
-        i += 1;
-    };
-    result
-}
-
-fn checked_mul(a: u256, b: u256) -> Option<u256> {
-    // If either number is zero, return zero immediately
-    if a == 0.into() || b == 0.into() {
-        return Option::Some(0.into());
-    }
-
-    // Perform multiplication and check for overflow
-    let product = a * b;
-
-    // Check if the product divided by either of the operands does not yield the other operand,
-    // which would indicate an overflow.
-    if product / a != b || product / b != a {
-        return Option::None;
-    }
-
-    Option::Some(product)
 }
