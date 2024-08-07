@@ -36,6 +36,42 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "TAdev0",
+      "name": "Tristan",
+      "avatar_url": "https://avatars.githubusercontent.com/u/122918260?v=4",
+      "profile": "https://nodeguardians.io/character/tadev-guardian",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "Jeanmichel7",
+      "name": "Jean-Michel",
+      "avatar_url": "https://avatars.githubusercontent.com/u/59661788?v=4",
+      "profile": "https://github.com/Jeanmichel7",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "lomasson",
+      "name": "lomasson",
+      "avatar_url": "https://avatars.githubusercontent.com/u/97454276?v=4",
+      "profile": "https://github.com/lomasson",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "m-kus",
+      "name": "Michael Zaikin",
+      "avatar_url": "https://avatars.githubusercontent.com/u/44951260?v=4",
+      "profile": "https://nodeguardians.io/character/m-kus",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,
