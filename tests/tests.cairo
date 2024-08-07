@@ -1,4 +1,4 @@
-use raito::engine::bits_to_target;
+use raito::validation::bits_to_target;
 
 #[test]
 fn test_bits_to_target_01003456() {
