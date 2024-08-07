@@ -68,7 +68,7 @@ Although this is a highly experimental project without immediate plans for deplo
     * [ ] test on individual historical blocks
 ### Milestone 2 - Real Data
   * [ ] feed it with real data
-  * [ ] produce and verify proofs of verrification of individual blocks
+  * [ ] produce and verify proofs of verification of individual blocks
 ### Milestone 3 - Recursive Verification
   * verify chain proofs with cairo verifier, tbd
 
