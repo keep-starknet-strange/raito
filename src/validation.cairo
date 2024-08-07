@@ -1,4 +1,5 @@
-use super::utils::{shl, shr};
+use super::merkle_tree::merkle_root;
+use super::utils::{shl, shr, double_sha256};
 use super::state::{Block, ChainState, Transaction, UtreexoState};
 
 const MAX_TARGET: u256 = 0x00000000FFFF0000000000000000000000000000000000000000000000000000;
@@ -101,12 +102,6 @@ fn adjust_difficulty(self: @ChainState, block: @Block) -> (u32, u32) {
     (*self.current_target, *self.epoch_start_time)
 }
 
-fn validate_merkle_root(self: @ChainState, block: @Block) -> Result<(), ByteArray> {
-    // TODO: implement
-    Result::Ok(())
-}
-
-
 pub fn target_to_bits(target: u256) -> Result<u32, felt252> {
     if target == 0 {
         return Result::Err('Target is zero');
@@ -160,12 +155,7 @@ fn fee_and_merkle_root(self: @ChainState, block: @Block) -> Result<(u256, u256),
         total_fee += tx.fee();
     };
 
-    Result::Ok((total_fee, merkle_root(txids)))
-}
-
-fn merkle_root(txids: Array<u256>) -> u256 {
-    // TODO: implement
-    0
+    Result::Ok((total_fee, merkle_root(ref txids)))
 }
 
 fn validate_coinbase(block: @Block, total_fees: u256) -> Result<(), ByteArray> {
