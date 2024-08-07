@@ -2,6 +2,8 @@ use super::state::{Block, ChainState, UtreexoState};
 use raito::utils::shl;
 use raito::utils::shr;
 
+const MAX_TARGET: u256 = 0x00000000FFFF0000000000000000000000000000000000000000000000000000;
+
 #[generate_trait]
 impl BlockValidatorImpl of BlockValidator {
     fn validate_and_apply(self: ChainState, block: Block) -> Result<ChainState, ByteArray> {
