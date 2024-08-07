@@ -1,5 +1,4 @@
-pub mod utils;
-pub mod validation;
-
+mod utils;
+mod validation;
 mod state;
 mod main;
