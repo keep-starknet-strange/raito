@@ -15,10 +15,10 @@ pub fn shr(value: u256, shift: u32) -> u256 {
 // Reference: https://github.com/keep-starknet-strange/alexandria/blob/bcdca70afdf59c9976148e95cebad5cf63d75a7f/packages/math/src/fast_power.cairo#L12
 pub fn fast_pow(base: u256, exp: u32) -> u256 {
     if exp == 0 {
-        return 1.into();
+        return 1_u256;
     }
 
-    let mut res: u256 = 1.into();
+    let mut res: u256 = 1_u256;
     let mut base: u256 = base;
     let mut exp: u32 = exp;
 
