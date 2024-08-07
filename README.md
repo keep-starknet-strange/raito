@@ -49,11 +49,29 @@ Although this is a highly experimental project without immediate plans for deplo
 
 ## Roadmap
 
-* [ ] verify block header (block hash, previous block hash, Merkle root, proof-of-work, median time, and difficulty adjustment)
-* [ ] verify transactions
-* [ ] integrate with Shinigami and verify scripts
-* [ ] verify previous chain proofs
-* [ ] add utreexo accumulator to the chain state
+### Milestone 1 - Block Verification
+  * header verification
+    * [ ] block hash
+    * [ ] previous block hash
+    * [ ] tx merkle root,
+    * [ ] proof-of-work,
+    * [ ] median time,
+    * [ ] difficulty adjustment
+  * transaction verification
+    * [ ] verify inputs
+    * [ ] verify outputs
+    * [ ] verify coinbase tx
+    * [ ] use utreexo to verify tx inputs
+  * verify scripts(integrate with Shinigami)
+    * tbd
+  * integration testing
+    * [ ] test on individual historical blocks
+### Milestone 2 - Real Data
+  * [ ] feed it with real data
+  * [ ] produce and verify proofs of verrification of individual blocks
+### Milestone 3 - Recursive Verification
+  * verify chain proofs with cairo verifier, tbd
+
 
 ## Name reference
 
