@@ -47,9 +47,11 @@ impl TransactionValidatorImpl of TransactionValidator {
         let outputs: Span<TxOut> = *self.outputs;
         let locktime: ByteArray = (*self.lock_time).format_as_byte_array(10);
 
+        // append version
         let mut sha256_input: ByteArray = "";
         sha256_input.append(@version);
 
+        // append inputs
         let mut i = 0;
         while i < inputs.len() {
             sha256_input.append(*inputs.at(i).script);
@@ -59,6 +61,7 @@ impl TransactionValidatorImpl of TransactionValidator {
             i += 1;
         };
 
+        // append outputs
         let mut i = 0;
         while i < outputs.len() {
             let value: felt252 = (*outputs.at(i).value).into();
@@ -67,16 +70,18 @@ impl TransactionValidatorImpl of TransactionValidator {
             i += 1;
         };
 
+        // append locktime
         sha256_input.append(@locktime);
 
+        // Compute double sha256
         let firstHash = compute_sha256_byte_array(@sha256_input).span();
         let secondHash = compute_sha256_u32_array(firstHash.into(), 0, 0).span();
 
         let mut txid: u256 = 0;
         let mut i: u32 = 0;
         while i != 8 {
-            let byte: u256 = (*secondHash[i]).into();
-            txid += shl(byte, (8 * i).into());
+            let element: u256 = (*secondHash[i]).into();
+            txid += shl(element, (8 * i).into());
 
             i += 1;
         };
