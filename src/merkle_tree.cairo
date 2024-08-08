@@ -21,6 +21,7 @@ pub fn merkle_root(ref txids: Array<u256>) -> u256 {
     merkle_root(ref next_txids)
 }
 
+
 #[cfg(test)]
 mod tests {
     use super::{merkle_root};
@@ -86,4 +87,5 @@ mod tests {
         assert_eq!(merkle_root(txids), expected_merkle_root);
     }
 }
+
 
