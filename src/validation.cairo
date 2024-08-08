@@ -1,7 +1,5 @@
 use super::state::{Block, ChainState, UtreexoState};
 
-const ONE_256: u256 = 1_u256;
-
 #[generate_trait]
 impl BlockValidatorImpl of BlockValidator {
     fn validate_and_apply(self: ChainState, block: Block) -> Result<ChainState, ByteArray> {
@@ -14,8 +12,9 @@ impl BlockValidatorImpl of BlockValidator {
         // validate_and_apply_transactions
 
         let prev_timestamps = next_prev_timestamps(@self, @block);
-        let total_work = compute_total_work(@self, @block);
         let (current_target, epoch_start_time) = adjust_difficulty(@self, @block);
+        let bits_to_target: u256 = block.header.bits.into(); //will replace with bits to target implementation
+        let total_work = compute_total_work(@self, bits_to_target);
 
         Result::Ok(
             ChainState { total_work, current_target, epoch_start_time, prev_timestamps, ..self, }
@@ -57,21 +56,8 @@ fn next_prev_timestamps(self: @ChainState, block: @Block) -> Span<u32> {
     *self.prev_timestamps
 }
 
-fn compute_total_work(self: @ChainState, block: @Block) -> u256 {
-    let block_target: u256 = convert_u32_to_u256(*block.header.bits);
-    let work_in_block: u256 = compute_work_from_target(block_target);
-    let new_total_work: u256 = *self.total_work + work_in_block;
-    new_total_work
-}
-
-fn convert_u32_to_u256(val: u32) -> u256 {
-    let felt_val: felt252 = val.into();
-    let mut val_u256: u256 = 1;
-    let low: u128 = felt_val.try_into().unwrap();
-    let high: u128 = 0;
-    val_u256.low = low;
-    val_u256.high = high;
-    val_u256
+fn compute_total_work(self: @ChainState, target: u256) -> u256 {
+    *self.total_work + compute_work_from_target(target)
 }
 
 // Need to compute 2**256 / (target+1), but we can't represent 2**256
@@ -79,9 +65,7 @@ fn convert_u32_to_u256(val: u32) -> u256 {
 // as target+1, it is equal to ((2**256 - target - 1) / (target+1)) + 1,
 // or ~target / (target+1) + 1.
 fn compute_work_from_target(target: u256) -> u256 {
-    let div: u256 = ~target / (target + ONE_256);
-    let result: u256 = div + ONE_256;
-    result
+    (~target / (target + 1_u256)) + 1_u256
 }
 
 fn adjust_difficulty(self: @ChainState, block: @Block) -> (u32, u32) {
@@ -170,34 +154,34 @@ mod tests {
         let expected_work = 0x0100010001;
         let target: u256 = 0x00000000ffff0000000000000000000000000000000000000000000000000000;
         let work = compute_work_from_target(target);
-        assert(expected_work == work, 'failed to compute target');
+        assert(expected_work == work, 'Failed to compute target');
     }
     #[test]
     fn test_compute_work_from_target2() {
         let expected_work = 0x26d946e509ac00026d;
         let target: u256 = 0x00000000000000000696f4000000000000000000000000000000000000000000;
         let work = compute_work_from_target(target);
-        assert(expected_work == work, 'failed to compute target');
+        assert(expected_work == work, 'Failed to compute target');
     }
     #[test]
     fn test_compute_work_from_target3() {
         let expected_work = 0xe10005c64415f04ef3e387b97db388404db9fdfaab2b1918f6783471d;
         let target: u256 = 0x12345600;
         let work = compute_work_from_target(target);
-        assert(expected_work == work, 'failed to compute target');
+        assert(expected_work == work, 'Failed to compute target');
     }
     #[test]
     fn test_compute_work_from_target4() {
         let expected_work = 0x1c040c95a099201bcaf85db4e7f2e21e18707c8d55a887643b95afb2f;
         let target: u256 = 0x92340000;
         let work = compute_work_from_target(target);
-        assert(expected_work == work, 'failed to compute target');
+        assert(expected_work == work, 'Failed to compute target');
     }
     #[test]
     fn test_compute_work_from_target5() {
         let expected_work = 0x21809b468faa88dbe34f;
         let target: u256 = 0x00000000000000000007a4290000000000000000000000000000000000000000;
         let work = compute_work_from_target(target);
-        assert(expected_work == work, 'failed to compute target');
+        assert(expected_work == work, 'Failed to compute target');
     }
 }
