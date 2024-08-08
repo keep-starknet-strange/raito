@@ -2,6 +2,8 @@ use super::state::{Block, ChainState, Transaction, UtreexoState};
 use super::utils::{shl, shr};
 
 const MAX_TARGET: u256 = 0x00000000FFFF0000000000000000000000000000000000000000000000000000;
+pub const REWARD_INITIAL: u256 = 50; // 50 BTC in satoshis =>  5000000000 SATS
+pub const POW_SATS_AMOUNT: u256 = 8; // Pow to convert in SATS
 
 #[generate_trait]
 impl BlockValidatorImpl of BlockValidator {
@@ -206,9 +208,16 @@ fn validate_coinbase(block: @Block, total_fees: u256) -> Result<(), ByteArray> {
     Result::Ok(())
 }
 
+// Return BTC reward in SATS
+fn compute_block_reward(block_height: u32) -> u64 {
+    shr(5000000000, block_height / 210_000).try_into().unwrap()
+}
 #[cfg(test)]
 mod tests {
-    use super::{validate_target, validate_timestamp, validate_proof_of_work};
+    use super::{
+        validate_target, validate_timestamp, validate_proof_of_work, compute_block_reward, shr, shl,
+        REWARD_INITIAL, POW_SATS_AMOUNT
+    };
     use super::{Block, ChainState, UtreexoState};
     use super::super::state::{Header, Transaction, TxIn, TxOut};
 
@@ -301,5 +310,49 @@ mod tests {
         block.header.prev_block_hash = 9;
         let result = validate_proof_of_work(@10_u256, @block);
         assert!(result.is_ok(), "Expect prev block hash lt target");
+    }
+
+    // Ref implementation here:
+    // https://github.com/bitcoin/bitcoin/blob/0f68a05c084bef3e53e3f549c403bc90b1db319c/src/test/validation_tests.cpp#L24
+    #[test]
+    fn test_compute_block_reward() {
+        let max_halvings: u32 = 64;
+        let reward_initial: u256 = 5000000000;
+        let mut block_height = 210_000; // halving every 210 000 blocks
+        // Before first halving
+        let genesis_halving_reward = compute_block_reward(0);
+        assert_eq!(genesis_halving_reward, reward_initial.try_into().unwrap());
+
+        // Before first halving
+        assert_eq!(compute_block_reward(209999), reward_initial.try_into().unwrap());
+
+        // First halving
+        let first_halving_reward = compute_block_reward(block_height);
+        assert_eq!(first_halving_reward, reward_initial.try_into().unwrap() / 2);
+
+        // Second halving
+        assert_eq!(compute_block_reward(420000), 1250000000); // 12.5 BTC
+
+        // Third halving
+        assert_eq!(compute_block_reward(630000), 625000000); // 6.25
+
+        // Just after fourth halving
+        assert_eq!(compute_block_reward(840001), 312500000); // 3.125
+
+        // Fight halving
+        assert_eq!(compute_block_reward(1050000), 156250000); // 1.5625
+
+        // Seventh halving
+        assert_eq!(compute_block_reward(1470000), 39062500); // 0.390625
+
+        // Ninth halving
+        assert_eq!(compute_block_reward(1890000), 9765625); // 0.09765625
+
+        // Tenth halving
+        let tenth_reward = compute_block_reward(10 * block_height);
+        assert_eq!(tenth_reward, 4882812); // 0.048828125
+
+        let last_reward = compute_block_reward(max_halvings * block_height);
+        assert_eq!(last_reward, 0);
     }
 }
