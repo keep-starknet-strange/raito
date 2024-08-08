@@ -1,5 +1,5 @@
-use super::utils::{shl, shr};
 use super::state::{Block, ChainState, Transaction, UtreexoState};
+use super::utils::{shl, shr};
 
 const MAX_TARGET: u256 = 0x00000000FFFF0000000000000000000000000000000000000000000000000000;
 pub const REWARD_INITIAL: u256 = 50; // 50 BTC in satoshis =>  5000000000 SATS
@@ -108,27 +108,38 @@ fn validate_merkle_root(self: @ChainState, block: @Block) -> Result<(), ByteArra
     Result::Ok(())
 }
 
-// Return BTC reward => pow to 8 to transform into Sats. Otherwise difficult to cast to u64 correctly after if needed
-fn compute_block_reward(block_height: u32) -> Result<u64, ByteArray> {
-    let number_halvings = block_height / 210_000;
-    match number_halvings {
-        0 => { return Result::Err("number_halvings equal 0"); },
-        _ => {}
+// Helper functions
+pub fn bits_to_target(bits: u32) -> Result<u256, felt252> {
+    // Extract exponent and mantissa
+    let exponent: u32 = (bits / 0x1000000);
+    let mantissa: u32 = bits & 0x00FFFFFF;
+
+    // Check if mantissa is valid (should be less than 0x1000000)
+    if mantissa > 0x7FFFFF && exponent != 0 {
+        return Result::Err('Invalid mantissa');
     }
-    // Simple way to do it, but breaking the final part of the test
-    // let subsidy_initial: u256 = REWARD_INITIAL;
-    // // let current_reward = subsidy_initial >> number_halvings;
-    // let current_reward = shr(subsidy_initial, number_halvings);
-    // Result::Ok((current_reward).try_into().unwrap())
-    let cast_number_halvings: u256 = number_halvings.try_into().unwrap();
-    let denominator = shr(cast_number_halvings, 2);
-    match denominator.try_into().unwrap() {
-        0 => { return Result::Err("denominator = 0"); },
-        _ => {  }
+
+    // Calculate the full target value
+    let mut target: u256 = mantissa.into();
+
+    if exponent == 0 {
+        // Special case: exponent 0 means we use the mantissa as-is
+        return Result::Ok(target);
+    } else if exponent <= 3 {
+        // For exponents 1, 2, and 3, divide by 256^(3 - exponent) i.e right shift
+        let shift = 8 * (3 - exponent);
+        target = shr(target, shift);
+    } else {
+        let shift = 8 * (exponent - 3);
+        target = shl(target, shift);
     }
-    let subsidy_initial: u256 = REWARD_INITIAL;
-    let current_reward = subsidy_initial / denominator;
-    Result::Ok((current_reward).try_into().unwrap())
+
+    // Ensure the target doesn't exceed the maximum allowed value
+    if target > MAX_TARGET {
+        return Result::Err('Target exceeds maximum');
+    }
+
+    Result::Ok(target)
 }
 
 pub fn target_to_bits(target: u256) -> Result<u32, felt252> {
