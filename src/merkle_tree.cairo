@@ -24,7 +24,7 @@ pub fn merkle_root(ref txids: Array<u256>) -> u256 {
 #[cfg(test)]
 mod tests {
     use super::{merkle_root};
-    use starknet::core::types::FieldElement;
+   
 
     #[test]
     fn test_merkle_root() {
@@ -45,6 +45,6 @@ mod tests {
      
         let expected_merkle_root = 0x50ba87bdd484f07c8c55f76a22982f987c0465fdc345381b4634a70dc0ea0b38_u256;
        
-        assert_eq!(merkle_root(txids), expected_merkle_root);
+        assert_eq!(merkle_root(ref txids), expected_merkle_root);
     }
 }
