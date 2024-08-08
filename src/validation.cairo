@@ -336,24 +336,41 @@ mod tests {
         let mut nprevious_subsidy: u256 = shl(
             REWARD_INITIAL.try_into().unwrap() * 2, POW_SATS_AMOUNT.try_into().unwrap()
         );
-        let mut loop_index: u32 = 0;
+        let mut halving_index: u32 = 0;
         assert_eq!(nprevious_subsidy.try_into().unwrap(), reward_initial * 2);
+
+        // First halving block reward : initial supply in SATS
+        let first_halving_reward = compute_block_reward(halving_index * halving_block_range);
+        assert_eq!(first_halving_reward, reward_initial.try_into().unwrap());
+
+        // Second halving block reward : initial supply in SATS
+        let second_halving_reward = compute_block_reward((halving_index + 1) * halving_block_range);
+        assert_eq!(second_halving_reward, reward_initial.try_into().unwrap() / 2);
+
+        // Test the reward when we have 5 halvings
+        let five_halving_reward = compute_block_reward((halving_index + 5) * halving_block_range);
+        let five_reward_amount = shr(reward_initial.try_into().unwrap(), halving_index + 5)
+            .try_into()
+            .unwrap();
+        assert_eq!(five_halving_reward, five_reward_amount);
+
+        // Last halving block reward = 0
+        let last_reward = compute_block_reward(max_halvings * halving_block_range);
+        assert_eq!(last_reward, 0);
+
         // Testing all halvings rewards possible
         loop {
-            if loop_index == max_halvings {
+            if halving_index == max_halvings {
                 break;
             }
-            let block_height: u32 = loop_index * halving_block_range;
+            let block_height: u32 = halving_index * halving_block_range;
             // Compute reward
             let reward = compute_block_reward(block_height);
             assert!(reward <= reward_initial.try_into().unwrap());
             let cast_nprevious_subsidy: u64 = nprevious_subsidy.try_into().unwrap();
             assert_eq!(reward, cast_nprevious_subsidy / 2);
             nprevious_subsidy = reward.try_into().unwrap();
-            loop_index = loop_index + 1;
+            halving_index = halving_index + 1;
         };
-        // Last halving with 0 block reward
-        let last_reward = compute_block_reward(max_halvings * halving_block_range);
-        assert_eq!(last_reward, 0);
     }
 }
