@@ -14,7 +14,7 @@ impl BlockValidatorImpl of BlockValidator {
         let prev_timestamps = next_prev_timestamps(@self, @block);
         let (current_target, epoch_start_time) = adjust_difficulty(@self, @block);
         let bits_to_target: u256 = block.header.bits.into(); //will replace with bits to target implementation
-        let total_work = compute_total_work(@self, bits_to_target);
+        let total_work = compute_total_work(self.total_work, bits_to_target);
 
         Result::Ok(
             ChainState { total_work, current_target, epoch_start_time, prev_timestamps, ..self, }
@@ -56,8 +56,8 @@ fn next_prev_timestamps(self: @ChainState, block: @Block) -> Span<u32> {
     *self.prev_timestamps
 }
 
-fn compute_total_work(self: @ChainState, target: u256) -> u256 {
-    *self.total_work + compute_work_from_target(target)
+fn compute_total_work(current_total_work: u256, target: u256) -> u256 {
+    current_total_work + compute_work_from_target(target)
 }
 
 // Need to compute 2**256 / (target+1), but we can't represent 2**256
