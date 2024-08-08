@@ -73,16 +73,16 @@ impl TransactionValidatorImpl of TransactionValidator {
         let firstHash = compute_sha256_byte_array(@sha256_input).span();
         let secondHash = compute_sha256_u32_array(firstHash.into(), 0, 0).span();
 
-        let mut result: u256 = 0;
+        let mut txid: u256 = 0;
         let mut i: u32 = 0;
         while i != 8 {
             let byte: u256 = (*secondHash[i]).into();
-            result += shl(byte, (8 * i).into());
+            txid += shl(byte, (8 * i).into());
 
             i += 1;
         };
 
-        result
+        txid
     }
 
     fn fee(self: @Transaction) -> u256 {
