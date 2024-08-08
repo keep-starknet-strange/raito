@@ -49,11 +49,36 @@ Although this is a highly experimental project without immediate plans for deplo
 
 ## Roadmap
 
-* [ ] verify block header (block hash, previous block hash, Merkle root, proof-of-work, median time, and difficulty adjustment)
-* [ ] verify transactions
-* [ ] integrate with Shinigami and verify scripts
-* [ ] verify previous chain proofs
-* [ ] add utreexo accumulator to the chain state
+### Milestone 1 - Block Verification
+
+* header verification
+   * [ ] block hash
+   * [ ] previous block hash
+   * [ ] proof-of-work
+   * [ ] median time
+   * [ ] difficulty adjustment
+* transaction verification
+   * [ ] tx hash
+   * [ ] tx merkle root
+   * [ ] verify transaction fee
+* utreexo
+   * [ ] fetch utreexo from some kind of bridge node, tbd
+   * [ ] use utreexo to verify tx inputs
+* verify scripts
+   * integration with Shinigami, tbd
+* block verification
+   * [ ] verify coinbase tx
+* integration testing
+   * [ ] test on individual historical blocks
+
+### Milestone 2 - Real Data
+
+* [ ] feed it with real data
+* [ ] test that you can produce and verify proofs of individual blocks
+
+### Milestone 3 - Recursive Verification
+
+* verify chain proofs with cairo verifier, tbd
 
 ## Name reference
 
@@ -64,6 +89,11 @@ Raito is a reference to Light Yagami (夜神月, Yagami Raito) from the manga/an
 * What Raito writes in the Death Note always happen, so you can see it as a source of truth, similarly to how you use a Zero-Knowledge Proof to verify the integrity of a computation.
 
 ![Raito and Raito](./docs/img/memes/raito_shinigami_fusion.jpg)
+
+# Contact
+
+* [Raito Telegram](https://t.me/RaitoStarknet)
+* [Raito OnlyDust](https://app.onlydust.com/p/raito---bitcoin-zk-client)
 
 ## Usage
 
@@ -105,6 +135,10 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/Jeanmichel7"><img src="https://avatars.githubusercontent.com/u/59661788?v=4?s=100" width="100px;" alt="Jean-Michel"/><br /><sub><b>Jean-Michel</b></sub></a><br /><a href="https://github.com/keep-starknet-strange/raito/commits?author=Jeanmichel7" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/lomasson"><img src="https://avatars.githubusercontent.com/u/97454276?v=4?s=100" width="100px;" alt="lomasson"/><br /><sub><b>lomasson</b></sub></a><br /><a href="https://github.com/keep-starknet-strange/raito/commits?author=lomasson" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://nodeguardians.io/character/m-kus"><img src="https://avatars.githubusercontent.com/u/44951260?v=4?s=100" width="100px;" alt="Michael Zaikin"/><br /><sub><b>Michael Zaikin</b></sub></a><br /><a href="https://github.com/keep-starknet-strange/raito/commits?author=m-kus" title="Code">💻</a></td>
+    </tr>
+    <tr>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/harsh-ps-2003"><img src="https://avatars.githubusercontent.com/u/119954739?v=4?s=100" width="100px;" alt="Harsh Pratap Singh"/><br /><sub><b>Harsh Pratap Singh</b></sub></a><br /><a href="https://github.com/keep-starknet-strange/raito/commits?author=harsh-ps-2003" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/Xavek"><img src="https://avatars.githubusercontent.com/u/61218841?v=4?s=100" width="100px;" alt="Xavek"/><br /><sub><b>Xavek</b></sub></a><br /><a href="https://github.com/keep-starknet-strange/raito/commits?author=Xavek" title="Code">💻</a></td>
     </tr>
   </tbody>
 </table>
