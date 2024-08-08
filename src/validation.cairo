@@ -210,19 +210,7 @@ fn validate_coinbase(block: @Block, total_fees: u256) -> Result<(), ByteArray> {
 
 // Return BTC reward in SATS
 fn compute_block_reward(block_height: u32) -> u64 {
-    let number_halvings = block_height / 210_000;
-    match number_halvings {
-        0 => {
-            return shl(REWARD_INITIAL, POW_SATS_AMOUNT.try_into().unwrap()).try_into().unwrap();
-        }, // return REWARD_INITAL
-        _ => {}
-    }
-    // Calculate BTC to SATS amount
-    let sats_init_amount = shl(REWARD_INITIAL, POW_SATS_AMOUNT.try_into().unwrap());
-    // Shift right to divide by number_halvings
-    let current_reward = shr(sats_init_amount, number_halvings);
-    // Convert into a u64
-    (current_reward).try_into().unwrap()
+    shr(5000000000, block_height / 210_000).try_into().unwrap()
 }
 #[cfg(test)]
 mod tests {
@@ -329,48 +317,42 @@ mod tests {
     #[test]
     fn test_compute_block_reward() {
         let max_halvings: u32 = 64;
-        let reward_initial: u256 = shl(
-            REWARD_INITIAL.try_into().unwrap(), POW_SATS_AMOUNT.try_into().unwrap()
-        );
-        let halving_block_range = 210_000; // every 210 000 blocks
-        let mut nprevious_subsidy: u256 = shl(
-            REWARD_INITIAL.try_into().unwrap() * 2, POW_SATS_AMOUNT.try_into().unwrap()
-        );
-        let mut halving_index: u32 = 0;
-        assert_eq!(nprevious_subsidy.try_into().unwrap(), reward_initial * 2);
+        let reward_initial: u256 = 5000000000;
+        let mut block_height = 210_000; // halving every 210 000 blocks
+        // Before first halving
+        let genesis_halving_reward = compute_block_reward(0);
+        assert_eq!(genesis_halving_reward, reward_initial.try_into().unwrap());
 
-        // First halving block reward : initial supply in SATS
-        let first_halving_reward = compute_block_reward(halving_index * halving_block_range);
-        assert_eq!(first_halving_reward, reward_initial.try_into().unwrap());
+        // Before first halving
+        assert_eq!(compute_block_reward(209999), reward_initial.try_into().unwrap());
 
-        // Second halving block reward : initial supply in SATS
-        let second_halving_reward = compute_block_reward((halving_index + 1) * halving_block_range);
-        assert_eq!(second_halving_reward, reward_initial.try_into().unwrap() / 2);
+        // First halving
+        let first_halving_reward = compute_block_reward(block_height);
+        assert_eq!(first_halving_reward, reward_initial.try_into().unwrap() / 2);
 
-        // Test the reward when we have 5 halvings
-        let five_halving_reward = compute_block_reward((halving_index + 5) * halving_block_range);
-        let five_reward_amount = shr(reward_initial.try_into().unwrap(), halving_index + 5)
-            .try_into()
-            .unwrap();
-        assert_eq!(five_halving_reward, five_reward_amount);
+        // Second halving
+        assert_eq!(compute_block_reward(420000), 1250000000); // 12.5 BTC
 
-        // Last halving block reward = 0
-        let last_reward = compute_block_reward(max_halvings * halving_block_range);
+        // Third halving
+        assert_eq!(compute_block_reward(630000), 625000000); // 6.25
+
+        // Just after fourth halving
+        assert_eq!(compute_block_reward(840001), 312500000); // 3.125
+
+        // Fight halving
+        assert_eq!(compute_block_reward(1050000), 156250000); // 1.5625
+
+        // Seventh halving
+        assert_eq!(compute_block_reward(1470000), 39062500); // 0.390625
+
+        // Ninth halving
+        assert_eq!(compute_block_reward(1890000), 9765625); // 0.09765625
+
+        // Tenth halving
+        let tenth_reward = compute_block_reward(10 * block_height);
+        assert_eq!(tenth_reward, 4882812); // 0.048828125
+
+        let last_reward = compute_block_reward(max_halvings * block_height);
         assert_eq!(last_reward, 0);
-
-        // Testing all halvings rewards possible
-        loop {
-            if halving_index == max_halvings {
-                break;
-            }
-            let block_height: u32 = halving_index * halving_block_range;
-            // Compute reward
-            let reward = compute_block_reward(block_height);
-            assert!(reward <= reward_initial.try_into().unwrap());
-            let cast_nprevious_subsidy: u64 = nprevious_subsidy.try_into().unwrap();
-            assert_eq!(reward, cast_nprevious_subsidy / 2);
-            nprevious_subsidy = reward.try_into().unwrap();
-            halving_index = halving_index + 1;
-        };
     }
 }
