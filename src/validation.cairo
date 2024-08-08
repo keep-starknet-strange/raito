@@ -1,6 +1,5 @@
 use core::sha256::{compute_sha256_byte_array, compute_sha256_u32_array};
 use core::to_byte_array::FormatAsByteArray;
-use core::num::traits::{Zero, One, BitSize};
 use super::state::{Block, ChainState, Transaction, UtreexoState, TxIn, TxOut};
 use super::utils::{shl, shr};
 
