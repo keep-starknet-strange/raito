@@ -42,9 +42,9 @@ mod tests {
           0xd4ed5f5e4334c0a4ccce6f706f3c9139ac0f6d2af3343ad3fae5a02fee8df542_u256,
           0xb5aed07505677c8b1c6703742f4558e993d7984dc03d2121d3712d81ee067351_u256,
           0xf9a14bf211c857f61ff9a1de95fc902faebff67c5d4898da8f48c9d306f1f80f_u256
-          ]
+          ];
      
-        let expected_merkle_root = "0x50ba87bdd484f07c8c55f76a22982f987c0465fdc345381b4634a70dc0ea0b38_u256"
+        let expected_merkle_root = "0x50ba87bdd484f07c8c55f76a22982f987c0465fdc345381b4634a70dc0ea0b38_u256";
        
         assert_eq!(merkle_root(txids), expected_merkle_root);
     }
