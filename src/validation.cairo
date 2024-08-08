@@ -208,6 +208,16 @@ fn validate_coinbase(block: @Block, total_fees: u256) -> Result<(), ByteArray> {
     Result::Ok(())
 }
 
+// Return BTC reward => pow to 8 to transform into Sats. Otherwise difficult to cast to u64 correctly after if needed
+fn compute_block_reward(block_height: u32) -> Result<u64, ByteArray> {
+    let number_halvings = block_height / 210_000;
+    match number_halvings {
+        0 => { return Result::Ok(REWARD_INITIAL.try_into().unwrap()); }, // return REWARD_INITAL
+        _ => {}
+    }
+    let current_reward = shr(REWARD_INITIAL, number_halvings);
+    Result::Ok((current_reward).try_into().unwrap())
+}
 #[cfg(test)]
 mod tests {
     use super::{
@@ -309,6 +319,7 @@ mod tests {
     }
 
 
+    // Ref implementation here: https://github.com/bitcoin/bitcoin/blob/0f68a05c084bef3e53e3f549c403bc90b1db319c/src/test/validation_tests.cpp#L24
     #[test]
     fn test_compute_block_reward() {
         let max_halvings: u32 = 64;
@@ -316,32 +327,30 @@ mod tests {
         let halving_block_range = 210_000; // every 210 000 blocks
         let mut nprevious_subsidy = REWARD_INITIAL * 2;
         let mut loop_index: u32 = 0;
+        assert_eq!(nprevious_subsidy.try_into().unwrap(), reward_initial*2);
+
+        // Testing all halvings rewards possible
         loop {
             if loop_index == max_halvings {
                 break;
             }
             let block_height: u32 = loop_index * halving_block_range;
+            // Compute reward
             let reward = compute_block_reward(block_height);
+            // Check if reward is decrease when another halving is in process.
             if let Result::Ok(r) = reward {
                 let cast_reward_initial: u64 = reward_initial.try_into().unwrap();
                 assert!(r <= cast_reward_initial);
-                // TODO check this assert
-                // let cast_reward_previous: u64 = nprevious_subsidy.try_into().unwrap();
-                // assert_eq!(r, cast_reward_previous/2);
+                let cast_reward_previous: u64 = nprevious_subsidy.try_into().unwrap();
+                assert_eq!(r, cast_reward_previous/2);
                 nprevious_subsidy = r.try_into().unwrap();
             }
             loop_index = loop_index + 1;
         };
-        let last_reward = compute_block_reward(max_halvings);
+        // Last halving with 0 block reward
+        let last_reward = compute_block_reward(max_halvings*halving_block_range);
         if let Result::Ok(r) = last_reward {
             assert_eq!(r, 0);
-        };
-
-        let height_test = compute_block_reward(300000);
-        if let Result::Ok(r) = height_test {
-            println!("last reward compute {:?}", r);
-            let cast_r: u256 = r.try_into().unwrap();
-            assert_eq!(shr(cast_r, 8), 250000000);
         };
     }
 }
