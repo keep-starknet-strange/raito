@@ -1,5 +1,6 @@
+use super::merkle_tree::merkle_root;
+use super::utils::{shl, shr, double_sha256};
 use super::state::{Block, ChainState, Transaction, UtreexoState};
-use super::utils::{shl, shr};
 
 const MAX_TARGET: u256 = 0x00000000FFFF0000000000000000000000000000000000000000000000000000;
 
@@ -101,45 +102,6 @@ fn adjust_difficulty(self: @ChainState, block: @Block) -> (u32, u32) {
     (*self.current_target, *self.epoch_start_time)
 }
 
-fn validate_merkle_root(self: @ChainState, block: @Block) -> Result<(), ByteArray> {
-    // TODO: implement
-    Result::Ok(())
-}
-
-// Helper functions
-pub fn bits_to_target(bits: u32) -> Result<u256, felt252> {
-    // Extract exponent and mantissa
-    let exponent: u32 = (bits / 0x1000000);
-    let mantissa: u32 = bits & 0x00FFFFFF;
-
-    // Check if mantissa is valid (should be less than 0x1000000)
-    if mantissa > 0x7FFFFF && exponent != 0 {
-        return Result::Err('Invalid mantissa');
-    }
-
-    // Calculate the full target value
-    let mut target: u256 = mantissa.into();
-
-    if exponent == 0 {
-        // Special case: exponent 0 means we use the mantissa as-is
-        return Result::Ok(target);
-    } else if exponent <= 3 {
-        // For exponents 1, 2, and 3, divide by 256^(3 - exponent) i.e right shift
-        let shift = 8 * (3 - exponent);
-        target = shr(target, shift);
-    } else {
-        let shift = 8 * (exponent - 3);
-        target = shl(target, shift);
-    }
-
-    // Ensure the target doesn't exceed the maximum allowed value
-    if target > MAX_TARGET {
-        return Result::Err('Target exceeds maximum');
-    }
-
-    Result::Ok(target)
-}
-
 pub fn target_to_bits(target: u256) -> Result<u32, felt252> {
     if target == 0 {
         return Result::Err('Target is zero');
@@ -193,12 +155,7 @@ fn fee_and_merkle_root(self: @ChainState, block: @Block) -> Result<(u256, u256),
         total_fee += tx.fee();
     };
 
-    Result::Ok((total_fee, merkle_root(txids)))
-}
-
-fn merkle_root(txids: Array<u256>) -> u256 {
-    // TODO: implement
-    0
+    Result::Ok((total_fee, merkle_root(ref txids)))
 }
 
 fn validate_coinbase(block: @Block, total_fees: u256) -> Result<(), ByteArray> {
