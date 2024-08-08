@@ -208,20 +208,26 @@ fn validate_coinbase(block: @Block, total_fees: u256) -> Result<(), ByteArray> {
     Result::Ok(())
 }
 
-// Return BTC reward => pow to 8 to transform into Sats. Otherwise difficult to cast to u64 correctly after if needed
-fn compute_block_reward(block_height: u32) -> Result<u64, ByteArray> {
+// Return BTC reward in SATS
+fn compute_block_reward(block_height: u32) -> u64 {
     let number_halvings = block_height / 210_000;
     match number_halvings {
-        0 => { return Result::Ok(REWARD_INITIAL.try_into().unwrap()); }, // return REWARD_INITAL
+        0 => {
+            return shl(REWARD_INITIAL, POW_SATS_AMOUNT.try_into().unwrap()).try_into().unwrap();
+        }, // return REWARD_INITAL
         _ => {}
     }
-    let current_reward = shr(REWARD_INITIAL, number_halvings);
-    Result::Ok((current_reward).try_into().unwrap())
+    // Calculate BTC to SATS amount
+    let sats_init_amount = shl(REWARD_INITIAL, POW_SATS_AMOUNT.try_into().unwrap());
+    // Shift right to divide by number_halvings
+    let current_reward = shr(sats_init_amount, number_halvings);
+    // Convert into a u64
+    (current_reward).try_into().unwrap()
 }
 #[cfg(test)]
 mod tests {
     use super::{
-        validate_target, validate_timestamp, validate_proof_of_work, compute_block_reward, shr,
+        validate_target, validate_timestamp, validate_proof_of_work, compute_block_reward, shr, shl,
         REWARD_INITIAL, POW_SATS_AMOUNT
     };
     use super::{Block, ChainState, UtreexoState};
@@ -318,17 +324,20 @@ mod tests {
         assert!(result.is_ok(), "Expect prev block hash lt target");
     }
 
-
-    // Ref implementation here: https://github.com/bitcoin/bitcoin/blob/0f68a05c084bef3e53e3f549c403bc90b1db319c/src/test/validation_tests.cpp#L24
+    // Ref implementation here:
+    // https://github.com/bitcoin/bitcoin/blob/0f68a05c084bef3e53e3f549c403bc90b1db319c/src/test/validation_tests.cpp#L24
     #[test]
     fn test_compute_block_reward() {
         let max_halvings: u32 = 64;
-        let reward_initial: u32 = REWARD_INITIAL.try_into().unwrap();
+        let reward_initial: u256 = shl(
+            REWARD_INITIAL.try_into().unwrap(), POW_SATS_AMOUNT.try_into().unwrap()
+        );
         let halving_block_range = 210_000; // every 210 000 blocks
-        let mut nprevious_subsidy = REWARD_INITIAL * 2;
+        let mut nprevious_subsidy: u256 = shl(
+            REWARD_INITIAL.try_into().unwrap() * 2, POW_SATS_AMOUNT.try_into().unwrap()
+        );
         let mut loop_index: u32 = 0;
-        assert_eq!(nprevious_subsidy.try_into().unwrap(), reward_initial*2);
-
+        assert_eq!(nprevious_subsidy.try_into().unwrap(), reward_initial * 2);
         // Testing all halvings rewards possible
         loop {
             if loop_index == max_halvings {
@@ -337,20 +346,14 @@ mod tests {
             let block_height: u32 = loop_index * halving_block_range;
             // Compute reward
             let reward = compute_block_reward(block_height);
-            // Check if reward is decrease when another halving is in process.
-            if let Result::Ok(r) = reward {
-                let cast_reward_initial: u64 = reward_initial.try_into().unwrap();
-                assert!(r <= cast_reward_initial);
-                let cast_reward_previous: u64 = nprevious_subsidy.try_into().unwrap();
-                assert_eq!(r, cast_reward_previous/2);
-                nprevious_subsidy = r.try_into().unwrap();
-            }
+            assert!(reward <= reward_initial.try_into().unwrap());
+            let cast_nprevious_subsidy: u64 = nprevious_subsidy.try_into().unwrap();
+            assert_eq!(reward, cast_nprevious_subsidy / 2);
+            nprevious_subsidy = reward.try_into().unwrap();
             loop_index = loop_index + 1;
         };
         // Last halving with 0 block reward
-        let last_reward = compute_block_reward(max_halvings*halving_block_range);
-        if let Result::Ok(r) = last_reward {
-            assert_eq!(r, 0);
-        };
+        let last_reward = compute_block_reward(max_halvings * halving_block_range);
+        assert_eq!(last_reward, 0);
     }
 }
