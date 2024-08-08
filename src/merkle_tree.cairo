@@ -28,7 +28,8 @@ mod tests {
 
     #[test]
     fn test_merkle_root() {
-        let txids = vec![
+
+        let txids = array![
             FieldElement::from_hex_be(
                 "50ba87bdd484f07c8c55f76a22982f987c0465fdc345381b4634a70dc0ea0b38"
             )
@@ -79,7 +80,7 @@ mod tests {
                 .unwrap(),
         ];
         let expected_merkle_root = FieldElement::from_hex_be(
-            "17663ab10c2e13d92dccb4514b05b18815f5f38af1f21e06931c71d62b36d8af"
+            "0x50ba87bdd484f07c8c55f76a22982f987c0465fdc345381b4634a70dc0ea0b38_u256"
         )
             .unwrap();
         assert_eq!(merkle_root(txids), expected_merkle_root);
