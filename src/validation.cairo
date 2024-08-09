@@ -225,7 +225,7 @@ fn compute_block_reward(block_height: u32) -> u64 {
 mod tests {
     use super::{
         validate_target, validate_timestamp, validate_proof_of_work, compute_block_reward,
-        compute_total_work, compute_work_from_target, shr, shl, REWARD_INITIAL, POW_SATS_AMOUNT
+        compute_total_work, compute_work_from_target, REWARD_INITIAL, POW_SATS_AMOUNT
     };
     use super::{Block, ChainState, UtreexoState};
     use super::super::state::{Header, Transaction, TxIn, TxOut};
