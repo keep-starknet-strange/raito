@@ -3,6 +3,8 @@ use super::utils::{shl, shr};
 use super::state::{Block, ChainState, Transaction, UtreexoState};
 
 const MAX_TARGET: u256 = 0x00000000FFFF0000000000000000000000000000000000000000000000000000;
+pub const REWARD_INITIAL: u256 = 50; // 50 BTC in satoshis =>  5000000000 SATS
+pub const POW_SATS_AMOUNT: u256 = 8; // Pow to convert in SATS
 
 #[generate_trait]
 impl BlockValidatorImpl of BlockValidator {
@@ -18,8 +20,10 @@ impl BlockValidatorImpl of BlockValidator {
 
         let best_block_hash = block_hash(@block, merkle_root)?;
         let prev_timestamps = next_prev_timestamps(@self, @block);
-        let total_work = compute_total_work(@self, @block);
         let (current_target, epoch_start_time) = adjust_difficulty(@self, @block);
+        let total_work = compute_total_work(
+            self.total_work, bits_to_target(block.header.bits).unwrap()
+        );
         let block_height = self.block_height + 1;
 
         Result::Ok(
@@ -92,9 +96,16 @@ fn next_prev_timestamps(self: @ChainState, block: @Block) -> Span<u32> {
     *self.prev_timestamps
 }
 
-fn compute_total_work(self: @ChainState, block: @Block) -> u256 {
-    // TODO: implement
-    *self.total_work
+fn compute_total_work(current_total_work: u256, target: u256) -> u256 {
+    current_total_work + compute_work_from_target(target)
+}
+
+// Need to compute 2**256 / (target+1), but we can't represent 2**256
+// as it's too large for an u256. However, as 2**256 is at least as large
+// as target+1, it is equal to ((2**256 - target - 1) / (target+1)) + 1,
+// or ~target / (target+1) + 1.
+fn compute_work_from_target(target: u256) -> u256 {
+    (~target / (target + 1_u256)) + 1_u256
 }
 
 fn adjust_difficulty(self: @ChainState, block: @Block) -> (u32, u32) {
@@ -175,7 +186,7 @@ pub fn target_to_bits(target: u256) -> Result<u32, felt252> {
     let size_u256: u256 = size.into();
 
     // Combine size and mantissa
-    let result: u32 = (shl(size_u256, 24) + mantissa.into()).try_into().unwrap();
+    let result: u32 = (shl(size_u256, 24_u32) + mantissa.into()).try_into().unwrap();
 
     Result::Ok(result)
 }
@@ -197,11 +208,20 @@ fn validate_coinbase(block: @Block, total_fees: u256) -> Result<(), ByteArray> {
     Result::Ok(())
 }
 
+// Return BTC reward in SATS
+fn compute_block_reward(block_height: u32) -> u64 {
+    shr(5000000000_u256, (block_height / 210000_u32)).try_into().unwrap()
+}
+
+
 #[cfg(test)]
 mod tests {
-    use super::{validate_target, validate_timestamp, validate_proof_of_work};
-    use super::{Block, ChainState, UtreexoState};
-    use super::super::state::{Header, Transaction, TxIn, TxOut};
+    use raito::state::{Header, Transaction, TxIn, TxOut};
+    use super::{
+        Block, ChainState, UtreexoState, REWARD_INITIAL, POW_SATS_AMOUNT, compute_block_reward,
+        compute_work_from_target, compute_total_work, validate_proof_of_work, validate_target,
+        validate_timestamp
+    };
 
     #[test]
     fn test_validate_target() {
@@ -265,6 +285,46 @@ mod tests {
     }
 
     #[test]
+    fn test_compute_work_from_target1() {
+        let expected_work = 0x0100010001;
+        let target: u256 = 0x00000000ffff0000000000000000000000000000000000000000000000000000;
+        let work = compute_work_from_target(target);
+        assert(expected_work == work, 'Failed to compute target');
+    }
+
+    #[test]
+    fn test_compute_work_from_target2() {
+        let expected_work = 0x26d946e509ac00026d;
+        let target: u256 = 0x00000000000000000696f4000000000000000000000000000000000000000000;
+        let work = compute_work_from_target(target);
+        assert(expected_work == work, 'Failed to compute target');
+    }
+
+    #[test]
+    fn test_compute_work_from_target3() {
+        let expected_work = 0xe10005c64415f04ef3e387b97db388404db9fdfaab2b1918f6783471d;
+        let target: u256 = 0x12345600;
+        let work = compute_work_from_target(target);
+        assert(expected_work == work, 'Failed to compute target');
+    }
+
+    #[test]
+    fn test_compute_work_from_target4() {
+        let expected_work = 0x1c040c95a099201bcaf85db4e7f2e21e18707c8d55a887643b95afb2f;
+        let target: u256 = 0x92340000;
+        let work = compute_work_from_target(target);
+        assert(expected_work == work, 'Failed to compute target');
+    }
+
+    #[test]
+    fn test_compute_work_from_target5() {
+        let expected_work = 0x21809b468faa88dbe34f;
+        let target: u256 = 0x00000000000000000007a4290000000000000000000000000000000000000000;
+        let work = compute_work_from_target(target);
+        assert(expected_work == work, 'Failed to compute target');
+    }
+
+    #[test]
     fn test_validate_proof_of_work() {
         let mut block = Block {
             header: Header { version: 1, prev_block_hash: 1, time: 12, bits: 1, nonce: 1, },
@@ -292,5 +352,49 @@ mod tests {
         block.header.prev_block_hash = 9;
         let result = validate_proof_of_work(@10_u256, @block);
         assert!(result.is_ok(), "Expect prev block hash lt target");
+    }
+
+    // Ref implementation here:
+    // https://github.com/bitcoin/bitcoin/blob/0f68a05c084bef3e53e3f549c403bc90b1db319c/src/test/validation_tests.cpp#L24
+    #[test]
+    fn test_compute_block_reward() {
+        let max_halvings: u32 = 64;
+        let reward_initial: u256 = 5000000000;
+        let mut block_height = 210_000; // halving every 210 000 blocks
+        // Before first halving
+        let genesis_halving_reward = compute_block_reward(0);
+        assert_eq!(genesis_halving_reward, reward_initial.try_into().unwrap());
+
+        // Before first halving
+        assert_eq!(compute_block_reward(209999), reward_initial.try_into().unwrap());
+
+        // First halving
+        let first_halving_reward = compute_block_reward(block_height);
+        assert_eq!(first_halving_reward, reward_initial.try_into().unwrap() / 2);
+
+        // Second halving
+        assert_eq!(compute_block_reward(420000), 1250000000); // 12.5 BTC
+
+        // Third halving
+        assert_eq!(compute_block_reward(630000), 625000000); // 6.25
+
+        // Just after fourth halving
+        assert_eq!(compute_block_reward(840001), 312500000); // 3.125
+
+        // Fight halving
+        assert_eq!(compute_block_reward(1050000), 156250000); // 1.5625
+
+        // Seventh halving
+        assert_eq!(compute_block_reward(1470000), 39062500); // 0.390625
+
+        // Ninth halving
+        assert_eq!(compute_block_reward(1890000), 9765625); // 0.09765625
+
+        // Tenth halving
+        let tenth_reward = compute_block_reward(10 * block_height);
+        assert_eq!(tenth_reward, 4882812); // 0.048828125
+
+        let last_reward = compute_block_reward(max_halvings * block_height);
+        assert_eq!(last_reward, 0);
     }
 }
