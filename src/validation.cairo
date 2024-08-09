@@ -19,8 +19,10 @@ impl BlockValidatorImpl of BlockValidator {
 
         let best_block_hash = block_hash(@block, merkle_root)?;
         let prev_timestamps = next_prev_timestamps(@self, @block);
-        let total_work = compute_total_work(@self, @block);
         let (current_target, epoch_start_time) = adjust_difficulty(@self, @block);
+        let total_work = compute_total_work(
+            self.total_work, bits_to_target(block.header.bits).unwrap()
+        );
         let block_height = self.block_height + 1;
 
         Result::Ok(
@@ -93,9 +95,16 @@ fn next_prev_timestamps(self: @ChainState, block: @Block) -> Span<u32> {
     *self.prev_timestamps
 }
 
-fn compute_total_work(self: @ChainState, block: @Block) -> u256 {
-    // TODO: implement
-    *self.total_work
+fn compute_total_work(current_total_work: u256, target: u256) -> u256 {
+    current_total_work + compute_work_from_target(target)
+}
+
+// Need to compute 2**256 / (target+1), but we can't represent 2**256
+// as it's too large for an u256. However, as 2**256 is at least as large
+// as target+1, it is equal to ((2**256 - target - 1) / (target+1)) + 1,
+// or ~target / (target+1) + 1.
+fn compute_work_from_target(target: u256) -> u256 {
+    (~target / (target + 1_u256)) + 1_u256
 }
 
 fn adjust_difficulty(self: @ChainState, block: @Block) -> (u32, u32) {
@@ -215,8 +224,8 @@ fn compute_block_reward(block_height: u32) -> u64 {
 #[cfg(test)]
 mod tests {
     use super::{
-        validate_target, validate_timestamp, validate_proof_of_work, compute_block_reward, shr, shl,
-        REWARD_INITIAL, POW_SATS_AMOUNT
+        validate_target, validate_timestamp, validate_proof_of_work, compute_block_reward,
+        compute_total_work, compute_work_from_target, shr, shl, REWARD_INITIAL, POW_SATS_AMOUNT
     };
     use super::{Block, ChainState, UtreexoState};
     use super::super::state::{Header, Transaction, TxIn, TxOut};
@@ -280,6 +289,42 @@ mod tests {
         block.header.time = 6;
         let result = validate_timestamp(@chain_state, @block);
         assert!(result.is_err(), "Median time is greater than block's timestamp");
+    }
+
+    #[test]
+    fn test_compute_work_from_target1() {
+        let expected_work = 0x0100010001;
+        let target: u256 = 0x00000000ffff0000000000000000000000000000000000000000000000000000;
+        let work = compute_work_from_target(target);
+        assert(expected_work == work, 'Failed to compute target');
+    }
+    #[test]
+    fn test_compute_work_from_target2() {
+        let expected_work = 0x26d946e509ac00026d;
+        let target: u256 = 0x00000000000000000696f4000000000000000000000000000000000000000000;
+        let work = compute_work_from_target(target);
+        assert(expected_work == work, 'Failed to compute target');
+    }
+    #[test]
+    fn test_compute_work_from_target3() {
+        let expected_work = 0xe10005c64415f04ef3e387b97db388404db9fdfaab2b1918f6783471d;
+        let target: u256 = 0x12345600;
+        let work = compute_work_from_target(target);
+        assert(expected_work == work, 'Failed to compute target');
+    }
+    #[test]
+    fn test_compute_work_from_target4() {
+        let expected_work = 0x1c040c95a099201bcaf85db4e7f2e21e18707c8d55a887643b95afb2f;
+        let target: u256 = 0x92340000;
+        let work = compute_work_from_target(target);
+        assert(expected_work == work, 'Failed to compute target');
+    }
+    #[test]
+    fn test_compute_work_from_target5() {
+        let expected_work = 0x21809b468faa88dbe34f;
+        let target: u256 = 0x00000000000000000007a4290000000000000000000000000000000000000000;
+        let work = compute_work_from_target(target);
+        assert(expected_work == work, 'Failed to compute target');
     }
 
     #[test]
