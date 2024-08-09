@@ -1,5 +1,4 @@
 use core::num::traits::{Zero, One, BitSize};
-use core::panic_with_felt252;
 use core::starknet::secp256_trait::Secp256PointTrait;
 
 pub trait Bitshift<T, U> {
