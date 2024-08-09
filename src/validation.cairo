@@ -3,28 +3,25 @@ use super::utils::{shl, shr};
 use super::state::{Block, ChainState, Transaction, UtreexoState};
 
 const MAX_TARGET: u256 = 0x00000000FFFF0000000000000000000000000000000000000000000000000000;
-pub const REWARD_INITIAL: u256 = 50; // 50 BTC in satoshis =>  5000000000 SATS
-pub const POW_SATS_AMOUNT: u256 = 8; // Pow to convert in SATS
 
 #[generate_trait]
 impl BlockValidatorImpl of BlockValidator {
     fn validate_and_apply(self: ChainState, block: Block) -> Result<ChainState, ByteArray> {
-        validate_prev_block_hash(@self, @block)?;
-        validate_proof_of_work(@0_u256, @block)?;
-        validate_target(@self, @block)?;
         validate_timestamp(@self, @block)?;
 
-        let (total_fees, merkle_root) = fee_and_merkle_root(@self, @block)?;
+        let (total_fees, merkle_root) = fee_and_merkle_root(@block)?;
 
         validate_coinbase(@block, total_fees)?;
 
-        let best_block_hash = block_hash(@block, merkle_root)?;
         let prev_timestamps = next_prev_timestamps(@self, @block);
         let (current_target, epoch_start_time) = adjust_difficulty(@self, @block);
-        let total_work = compute_total_work(
-            self.total_work, bits_to_target(block.header.bits).unwrap()
-        );
+        let total_work = compute_total_work(self.total_work, current_target);
         let block_height = self.block_height + 1;
+
+        let best_block_hash = block_hash(@self, @block, merkle_root)?;
+
+        validate_proof_of_work(current_target, best_block_hash)?;
+        validate_bits(@block, current_target)?;
 
         Result::Ok(
             ChainState {
@@ -52,34 +49,18 @@ impl TransactionValidatorImpl of TransactionValidator {
     }
 }
 
-fn block_hash(block: @Block, merkle_root: u256) -> Result<u256, ByteArray> {
+fn block_hash(self: @ChainState, block: @Block, merkle_root: u256) -> Result<u256, ByteArray> {
     // TODO: implement
     Result::Ok(0)
 }
 
-fn validate_prev_block_hash(self: @ChainState, block: @Block) -> Result<(), ByteArray> {
-    if self.best_block_hash == block.header.prev_block_hash {
-        Result::Ok(())
-    } else {
-        Result::Err("Invalid `prev_block_hash`. This block does not extend the current chain.")
-    }
-}
-
-fn validate_proof_of_work(target: @u256, block: @Block) -> Result<(), ByteArray> {
-    if block.header.prev_block_hash <= target {
+fn validate_proof_of_work(target: u256, block_hash: u256) -> Result<(), ByteArray> {
+    if block_hash <= target {
         Result::Ok(())
     } else {
         Result::Err(
-            "Insufficient proof of work. Expected block hash {block.header.prev_block_hash} to be less than or equal to {target}."
+            "Insufficient proof of work. Expected block hash {chain_state.best_block_hash} to be less than or equal to {target}."
         )
-    }
-}
-
-fn validate_target(self: @ChainState, block: @Block) -> Result<(), ByteArray> {
-    if self.current_target == block.header.bits {
-        Result::Ok(())
-    } else {
-        Result::Err("Target is {block.header.bits}. Expected {self.current_target}")
     }
 }
 
@@ -108,20 +89,20 @@ fn compute_work_from_target(target: u256) -> u256 {
     (~target / (target + 1_u256)) + 1_u256
 }
 
-fn adjust_difficulty(self: @ChainState, block: @Block) -> (u32, u32) {
+fn adjust_difficulty(self: @ChainState, block: @Block) -> (u256, u32) {
     // TODO: implement
     (*self.current_target, *self.epoch_start_time)
 }
 
 // Helper functions
-pub fn bits_to_target(bits: u32) -> Result<u256, felt252> {
+pub fn bits_to_target(bits: u32) -> Result<u256, ByteArray> {
     // Extract exponent and mantissa
     let exponent: u32 = (bits / 0x1000000);
     let mantissa: u32 = bits & 0x00FFFFFF;
 
     // Check if mantissa is valid (should be less than 0x1000000)
     if mantissa > 0x7FFFFF && exponent != 0 {
-        return Result::Err('Invalid mantissa');
+        return Result::Err("Invalid mantissa");
     }
 
     // Calculate the full target value
@@ -141,19 +122,20 @@ pub fn bits_to_target(bits: u32) -> Result<u256, felt252> {
 
     // Ensure the target doesn't exceed the maximum allowed value
     if target > MAX_TARGET {
-        return Result::Err('Target exceeds maximum');
+        return Result::Err("Target exceeds maximum");
     }
 
     Result::Ok(target)
 }
 
-pub fn target_to_bits(target: u256) -> Result<u32, felt252> {
+// TODO: potentially not necessary?
+pub fn target_to_bits(target: u256) -> Result<u32, ByteArray> {
     if target == 0 {
-        return Result::Err('Target is zero');
+        return Result::Err("Target is zero");
     }
 
     if target > MAX_TARGET {
-        return Result::Err('Exceeds max value');
+        return Result::Err("Exceeds max value");
     }
 
     // Find the most significant byte
@@ -179,7 +161,7 @@ pub fn target_to_bits(target: u256) -> Result<u32, felt252> {
 
     // Check size doesn't exceed maximum
     if size > 34 {
-        return Result::Err('Overflow');
+        return Result::Err("Overflow");
     }
 
     // Convert size to u256
@@ -191,7 +173,15 @@ pub fn target_to_bits(target: u256) -> Result<u32, felt252> {
     Result::Ok(result)
 }
 
-fn fee_and_merkle_root(self: @ChainState, block: @Block) -> Result<(u256, u256), ByteArray> {
+fn validate_bits(block: @Block, target: u256) -> Result<(), ByteArray> {
+    if *block.header.bits == target_to_bits(target)? {
+        Result::Ok(())
+    } else {
+        Result::Err("Block header bits do not match target")
+    }
+}
+
+fn fee_and_merkle_root(block: @Block) -> Result<(u256, u256), ByteArray> {
     let mut txids = ArrayTrait::new();
     let mut total_fee = 0;
 
@@ -210,7 +200,7 @@ fn validate_coinbase(block: @Block, total_fees: u256) -> Result<(), ByteArray> {
 
 // Return BTC reward in SATS
 fn compute_block_reward(block_height: u32) -> u64 {
-    shr(5000000000_u256, (block_height / 210000_u32)).try_into().unwrap()
+    shr(5000000000_u64, (block_height / 210000_u32))
 }
 
 
@@ -218,40 +208,10 @@ fn compute_block_reward(block_height: u32) -> u64 {
 mod tests {
     use raito::state::{Header, Transaction, TxIn, TxOut};
     use super::{
-        Block, ChainState, UtreexoState, REWARD_INITIAL, POW_SATS_AMOUNT, compute_block_reward,
-        compute_work_from_target, compute_total_work, validate_proof_of_work, validate_target,
-        validate_timestamp
+        validate_timestamp, validate_proof_of_work, compute_block_reward, compute_total_work,
+        compute_work_from_target, shr, shl, Block, ChainState, UtreexoState,
     };
 
-    #[test]
-    fn test_validate_target() {
-        let mut chain_state = ChainState {
-            block_height: 1,
-            total_work: 1,
-            best_block_hash: 1,
-            current_target: 1,
-            epoch_start_time: 1,
-            prev_timestamps: array![1, 2, 3, 4, 5].span(),
-            utreexo_state: UtreexoState { roots: array![].span() },
-        };
-        let mut block = Block {
-            header: Header { version: 1, prev_block_hash: 1, time: 1, bits: 1, nonce: 1, },
-            txs: ArrayTrait::new().span(),
-        };
-
-        let result = validate_target(@chain_state, @block);
-        assert(result.is_ok(), 'Expected target to be valid');
-
-        chain_state.current_target = 2;
-        block.header.bits = 1;
-        let result = validate_target(@chain_state, @block);
-        assert(result.is_err(), 'Expected target to be invalid');
-
-        chain_state.current_target = 1;
-        block.header.bits = 2;
-        let result = validate_target(@chain_state, @block);
-        assert(result.is_err(), 'Expected target to be invalid');
-    }
 
     #[test]
     fn test_validate_timestamp() {
@@ -265,7 +225,7 @@ mod tests {
             utreexo_state: UtreexoState { roots: array![].span() },
         };
         let mut block = Block {
-            header: Header { version: 1, prev_block_hash: 1, time: 12, bits: 1, nonce: 1, },
+            header: Header { version: 1, time: 12, nonce: 1, bits: 1 },
             txs: ArrayTrait::new().span(),
         };
 
@@ -326,31 +286,24 @@ mod tests {
 
     #[test]
     fn test_validate_proof_of_work() {
-        let mut block = Block {
-            header: Header { version: 1, prev_block_hash: 1, time: 12, bits: 1, nonce: 1, },
-            txs: ArrayTrait::new().span(),
-        };
-
         // target is less than prev block hash
-        let result = validate_proof_of_work(@0_u256, @block);
+        let result = validate_proof_of_work(0, 1);
         assert!(result.is_err(), "Expect target less than prev block hash");
 
         // target is greater than prev block hash
-        let result = validate_proof_of_work(@2_u256, @block);
+        let result = validate_proof_of_work(2, 1);
         assert!(result.is_ok(), "Expect target gt prev block hash");
 
         // target is equal to prev block hash
-        let result = validate_proof_of_work(@1_u256, @block);
+        let result = validate_proof_of_work(1, 1);
         assert!(result.is_ok(), "Expect target equal to prev block hash");
 
         // block prev block hash is greater than target
-        block.header.prev_block_hash = 2;
-        let result = validate_proof_of_work(@1_u256, @block);
+        let result = validate_proof_of_work(1, 2);
         assert!(result.is_err(), "Expect prev block hash gt target");
 
         // block prev block hash is less than target
-        block.header.prev_block_hash = 9;
-        let result = validate_proof_of_work(@10_u256, @block);
+        let result = validate_proof_of_work(10, 9);
         assert!(result.is_ok(), "Expect prev block hash lt target");
     }
 

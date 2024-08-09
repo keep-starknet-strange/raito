@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2023_11"
 
 [scripts]
-gen_data_test= "chmod -x ./scripts/data/launch.sh && bash ./scripts/data/launch.sh"
+get_block= "./scripts/data/get_block.sh"
 
 [dependencies]
 
