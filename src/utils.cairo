@@ -31,7 +31,6 @@ pub impl BitshiftImpl<
     +PartialOrd<U>,
     +PartialEq<U>,
     +BitSize<T>,
-    +TryInto<usize, T>,
     +Into<usize, U>
 > of Bitshift<T, U> {
     fn shl(self: T, shift: U) -> T {
