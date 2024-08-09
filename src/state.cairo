@@ -14,7 +14,7 @@ pub struct ChainState {
     /// Best block.
     pub best_block_hash: u256,
     /// Current block.
-    pub current_target: u32,
+    pub current_target: u256,
     /// Start of the current epoch.
     pub epoch_start_time: u32,
     /// Previous timestamps.
@@ -73,11 +73,11 @@ pub struct Block {
 pub struct Header {
     /// The version of the block.
     pub version: u32,
-    /// The hash of the previous block in the blockchain.
-    pub prev_block_hash: u256,
     /// The timestamp of the block.
     pub time: u32,
     /// The difficulty target for mining the block.
+    /// Not strictly necessary since it can be computed from target
+    /// But it is cheaper to validate than compute
     pub bits: u32,
     /// The nonce used in mining the block.
     pub nonce: u32,
@@ -99,10 +99,6 @@ pub struct Transaction {
     pub inputs: Span<TxIn>,
     /// The outputs of the transaction.
     pub outputs: Span<TxOut>,
-    /// The list of witnesses, one for each input.
-    /// Each witness is a list of elements that are to be pushed onto stack.
-    /// Witnesses do not contribute to TXID but do contribute to wTXID.
-    pub witnesses: Span<Span<ByteArray>>,
     /// The lock time of the transaction.
     pub lock_time: u32,
 }
@@ -128,6 +124,20 @@ pub struct TxIn {
     pub script: @ByteArray,
     /// The sequence number of the input.
     pub sequence: u32,
+    /// The reference to the previous output that is being used as an input.
+    pub previous_output: OutPoint,
+    /// The witness data for transactions.
+    pub witness: Span<ByteArray>,
+}
+
+
+/// A reference to a transaction output.
+#[derive(Drop, Copy)]
+pub struct OutPoint {
+    /// The hash of the referenced transaction.
+    pub txid: u256,
+    /// The index of the specific output in the transaction.
+    pub vout: u32,
     /// The index of output in the utreexo set (meta field).
     pub txo_index: u64,
 }
