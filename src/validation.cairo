@@ -1,5 +1,5 @@
 use super::state::{Block, ChainState, Transaction, UtreexoState};
-use super::utils::{shr, shl};
+use super::utils::{shl, shr};
 
 const MAX_TARGET: u256 = 0x00000000FFFF0000000000000000000000000000000000000000000000000000;
 pub const REWARD_INITIAL: u256 = 50; // 50 BTC in satoshis =>  5000000000 SATS
