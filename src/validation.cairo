@@ -1,4 +1,6 @@
-use super::state::{Block, ChainState, Transaction, UtreexoState};
+use core::sha256::{compute_sha256_byte_array, compute_sha256_u32_array};
+use core::to_byte_array::FormatAsByteArray;
+use super::state::{Block, ChainState, Transaction, UtreexoState, TxIn, TxOut};
 use super::utils::{shl, shr};
 
 const MAX_TARGET: u256 = 0x00000000FFFF0000000000000000000000000000000000000000000000000000;
@@ -41,10 +43,56 @@ impl BlockValidatorImpl of BlockValidator {
 
 #[generate_trait]
 impl TransactionValidatorImpl of TransactionValidator {
+    // marker, flag, and witness fields in segwit transactions are not included
+    // this means txid computation is the same for legacy and segwit tx
     fn txid(self: @Transaction) -> u256 {
-        // TODO: implement
-        0
+        let version: ByteArray = (*self.version).format_as_byte_array(10);
+        let inputs: Span<TxIn> = *self.inputs;
+        let outputs: Span<TxOut> = *self.outputs;
+        let locktime: ByteArray = (*self.lock_time).format_as_byte_array(10);
+
+        // append version
+        let mut sha256_input: ByteArray = "";
+        sha256_input.append(@version);
+
+        // append inputs
+        let mut i = 0;
+        while i < inputs.len() {
+            sha256_input.append(*inputs.at(i).script);
+            sha256_input.append(@(*inputs.at(i).sequence).format_as_byte_array(10));
+            sha256_input.append(@(*inputs.at(i).txo_index).format_as_byte_array(10));
+
+            i += 1;
+        };
+
+        // append outputs
+        let mut i = 0;
+        while i < outputs.len() {
+            let value: felt252 = (*outputs.at(i).value).into();
+            sha256_input.append(@value.format_as_byte_array(10));
+
+            i += 1;
+        };
+
+        // append locktime
+        sha256_input.append(@locktime);
+
+        // Compute double sha256
+        let firstHash = compute_sha256_byte_array(@sha256_input).span();
+        let secondHash = compute_sha256_u32_array(firstHash.into(), 0, 0).span();
+
+        let mut txid: u256 = 0;
+        let mut i: u32 = 0;
+        while i != 8 {
+            let element: u256 = (*secondHash[i]).into();
+            txid += shl(element, (8 * i).into());
+
+            i += 1;
+        };
+
+        txid
     }
+
     fn fee(self: @Transaction) -> u256 {
         // TODO: implement
         0
