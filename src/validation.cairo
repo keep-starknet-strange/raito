@@ -219,7 +219,7 @@ fn validate_coinbase(block: @Block, total_fees: u256) -> Result<(), ByteArray> {
 
 // Return BTC reward in SATS
 fn compute_block_reward(block_height: u32) -> u64 {
-    shr(5000000000, block_height / 210_000).try_into().unwrap()
+    Bitshift::shr(5000000000_u256, block_height / 210_000).try_into().unwrap()
 }
 #[cfg(test)]
 mod tests {
