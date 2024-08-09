@@ -1,9 +1,8 @@
-use super::state::{Block, ChainState, Transaction, UtreexoState};
+use super::merkle_tree::merkle_root;
 use super::utils::{shl, shr};
+use super::state::{Block, ChainState, Transaction, UtreexoState};
 
 const MAX_TARGET: u256 = 0x00000000FFFF0000000000000000000000000000000000000000000000000000;
-pub const REWARD_INITIAL: u256 = 50; // 50 BTC in satoshis =>  5000000000 SATS
-pub const POW_SATS_AMOUNT: u256 = 8; // Pow to convert in SATS
 
 #[generate_trait]
 impl BlockValidatorImpl of BlockValidator {
@@ -95,11 +94,6 @@ fn adjust_difficulty(self: @ChainState, block: @Block) -> (u256, u32) {
     (*self.current_target, *self.epoch_start_time)
 }
 
-fn validate_merkle_root(self: @ChainState, block: @Block) -> Result<(), ByteArray> {
-    // TODO: implement
-    Result::Ok(())
-}
-
 // Helper functions
 pub fn bits_to_target(bits: u32) -> Result<u256, ByteArray> {
     // Extract exponent and mantissa
@@ -174,7 +168,7 @@ pub fn target_to_bits(target: u256) -> Result<u32, ByteArray> {
     let size_u256: u256 = size.into();
 
     // Combine size and mantissa
-    let result: u32 = (shl(size_u256, 24) + mantissa.into()).try_into().unwrap();
+    let result: u32 = (shl(size_u256, 24_u32) + mantissa.into()).try_into().unwrap();
 
     Result::Ok(result)
 }
@@ -196,12 +190,7 @@ fn fee_and_merkle_root(block: @Block) -> Result<(u256, u256), ByteArray> {
         total_fee += tx.fee();
     };
 
-    Result::Ok((total_fee, merkle_root(txids)))
-}
-
-fn merkle_root(txids: Array<u256>) -> u256 {
-    // TODO: implement
-    0
+    Result::Ok((total_fee, merkle_root(ref txids)))
 }
 
 fn validate_coinbase(block: @Block, total_fees: u256) -> Result<(), ByteArray> {
@@ -211,16 +200,17 @@ fn validate_coinbase(block: @Block, total_fees: u256) -> Result<(), ByteArray> {
 
 // Return BTC reward in SATS
 fn compute_block_reward(block_height: u32) -> u64 {
-    shr(5000000000, block_height / 210_000).try_into().unwrap()
+    shr(5000000000_u64, (block_height / 210000_u32))
 }
+
+
 #[cfg(test)]
 mod tests {
+    use raito::state::{Header, Transaction, TxIn, TxOut};
     use super::{
         validate_timestamp, validate_proof_of_work, compute_block_reward, compute_total_work,
-        compute_work_from_target, shr, shl, REWARD_INITIAL, POW_SATS_AMOUNT
+        compute_work_from_target, shr, shl, Block, ChainState, UtreexoState,
     };
-    use super::{Block, ChainState, UtreexoState};
-    use super::super::state::{Header, Transaction, TxIn, TxOut};
 
 
     #[test]
@@ -261,6 +251,7 @@ mod tests {
         let work = compute_work_from_target(target);
         assert(expected_work == work, 'Failed to compute target');
     }
+
     #[test]
     fn test_compute_work_from_target2() {
         let expected_work = 0x26d946e509ac00026d;
@@ -268,6 +259,7 @@ mod tests {
         let work = compute_work_from_target(target);
         assert(expected_work == work, 'Failed to compute target');
     }
+
     #[test]
     fn test_compute_work_from_target3() {
         let expected_work = 0xe10005c64415f04ef3e387b97db388404db9fdfaab2b1918f6783471d;
@@ -275,6 +267,7 @@ mod tests {
         let work = compute_work_from_target(target);
         assert(expected_work == work, 'Failed to compute target');
     }
+
     #[test]
     fn test_compute_work_from_target4() {
         let expected_work = 0x1c040c95a099201bcaf85db4e7f2e21e18707c8d55a887643b95afb2f;
@@ -282,6 +275,7 @@ mod tests {
         let work = compute_work_from_target(target);
         assert(expected_work == work, 'Failed to compute target');
     }
+
     #[test]
     fn test_compute_work_from_target5() {
         let expected_work = 0x21809b468faa88dbe34f;
