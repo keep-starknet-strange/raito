@@ -221,14 +221,16 @@ fn validate_coinbase(block: @Block, total_fees: u256) -> Result<(), ByteArray> {
 fn compute_block_reward(block_height: u32) -> u64 {
     Bitshift::shr(5000000000_u256, (block_height / 210000_u32)).try_into().unwrap()
 }
+
+
 #[cfg(test)]
 mod tests {
+    use raito::state::{Header, Transaction, TxIn, TxOut};
     use super::{
-        validate_target, validate_timestamp, validate_proof_of_work, compute_block_reward,
-        compute_total_work, compute_work_from_target, REWARD_INITIAL, POW_SATS_AMOUNT
+        Block, ChainState, UtreexoState, REWARD_INITIAL, POW_SATS_AMOUNT, compute_block_reward,
+        compute_work_from_target, compute_total_work, validate_proof_of_work, validate_target,
+        validate_timestamp
     };
-    use super::{Block, ChainState, UtreexoState};
-    use super::super::state::{Header, Transaction, TxIn, TxOut};
 
     #[test]
     fn test_validate_target() {
@@ -298,6 +300,7 @@ mod tests {
         let work = compute_work_from_target(target);
         assert(expected_work == work, 'Failed to compute target');
     }
+
     #[test]
     fn test_compute_work_from_target2() {
         let expected_work = 0x26d946e509ac00026d;
@@ -305,6 +308,7 @@ mod tests {
         let work = compute_work_from_target(target);
         assert(expected_work == work, 'Failed to compute target');
     }
+
     #[test]
     fn test_compute_work_from_target3() {
         let expected_work = 0xe10005c64415f04ef3e387b97db388404db9fdfaab2b1918f6783471d;
@@ -312,6 +316,7 @@ mod tests {
         let work = compute_work_from_target(target);
         assert(expected_work == work, 'Failed to compute target');
     }
+
     #[test]
     fn test_compute_work_from_target4() {
         let expected_work = 0x1c040c95a099201bcaf85db4e7f2e21e18707c8d55a887643b95afb2f;
@@ -319,6 +324,7 @@ mod tests {
         let work = compute_work_from_target(target);
         assert(expected_work == work, 'Failed to compute target');
     }
+
     #[test]
     fn test_compute_work_from_target5() {
         let expected_work = 0x21809b468faa88dbe34f;

@@ -2,7 +2,6 @@ use core::num::traits::{Zero, One, BitSize};
 use core::panic_with_felt252;
 use core::starknet::secp256_trait::Secp256PointTrait;
 
-
 pub trait Bitshift<T, U> {
     fn shl(self: T, shift: U) -> T;
     fn shr(self: T, shift: U) -> T;
@@ -17,17 +16,15 @@ pub impl BitshiftImpl<
     +One<U>,
     +Add<T>,
     +Add<U>,
-    +Sub<T>,
     +Sub<U>,
     +Div<T>,
     +Mul<T>,
-    +Rem<U>,
     +Div<U>,
+    +Rem<U>,
     +Copy<T>,
     +Copy<U>,
     +Drop<T>,
     +Drop<U>,
-    +PartialOrd<T>,
     +PartialOrd<U>,
     +PartialEq<U>,
     +BitSize<T>,
@@ -57,19 +54,19 @@ pub impl BitshiftImpl<
 pub fn fast_pow<
     T,
     U,
-    +Copy<U>,
-    +Copy<T>,
-    +Drop<T>,
-    +Drop<U>,
     +Zero<T>,
-    +One<T>,
     +Zero<U>,
+    +One<T>,
     +One<U>,
-    +PartialEq<U>,
     +Add<U>,
     +Mul<T>,
     +Rem<U>,
-    +Div<U>
+    +Div<U>,
+    +Copy<T>,
+    +Copy<U>,
+    +Drop<T>,
+    +Drop<U>,
+    +PartialEq<U>,
 >(
     base: T, exp: U
 ) -> T {
