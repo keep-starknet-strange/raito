@@ -1,12 +1,38 @@
 use core::num::traits::{Zero, One, BitSize};
 use core::starknet::secp256_trait::Secp256PointTrait;
 
-pub trait Bitshift<T, U> {
-    fn shl(self: T, shift: U) -> T;
-    fn shr(self: T, shift: U) -> T;
+pub fn shl<
+    T,
+    U,
+    +Zero<T>,
+    +Zero<U>,
+    +One<T>,
+    +One<U>,
+    +Add<T>,
+    +Add<U>,
+    +Sub<U>,
+    +Mul<T>,
+    +Div<U>,
+    +Rem<U>,
+    +Copy<T>,
+    +Copy<U>,
+    +Drop<T>,
+    +Drop<U>,
+    +PartialOrd<U>,
+    +PartialEq<U>,
+    +BitSize<T>,
+    +Into<usize, U>
+>(
+    self: T, shift: U,
+) -> T {
+    if shift > BitSize::<T>::bits().into() - One::one() {
+        return Zero::zero();
+    }
+    let two = One::one() + One::one();
+    self * fast_pow(two, shift)
 }
 
-pub impl BitshiftImpl<
+pub fn shr<
     T,
     U,
     +Zero<T>,
@@ -28,24 +54,17 @@ pub impl BitshiftImpl<
     +PartialEq<U>,
     +BitSize<T>,
     +Into<usize, U>
-> of Bitshift<T, U> {
-    fn shl(self: T, shift: U) -> T {
-        if shift > BitSize::<T>::bits().into() - One::one() {
-            return Zero::zero();
-        }
-        let two = One::one() + One::one();
-        self * fast_pow(two, shift)
+>(
+    self: T, shift: U
+) -> T {
+    if shift > BitSize::<T>::bits().try_into().unwrap() - One::one() {
+        return Zero::zero();
     }
 
-    fn shr(self: T, shift: U) -> T {
-        if shift > BitSize::<T>::bits().try_into().unwrap() - One::one() {
-            return Zero::zero();
-        }
-
-        let two = One::one() + One::one();
-        self / fast_pow(two, shift)
-    }
+    let two = One::one() + One::one();
+    self / fast_pow(two, shift)
 }
+
 
 // Fast exponentiation using the square-and-multiply algorithm
 // Reference:
