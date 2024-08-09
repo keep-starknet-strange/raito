@@ -1,5 +1,5 @@
 use super::state::{Block, ChainState, Transaction, UtreexoState};
-use super::utils::{shl, shr};
+use super::utils::Bitshift;
 
 const MAX_TARGET: u256 = 0x00000000FFFF0000000000000000000000000000000000000000000000000000;
 
@@ -126,10 +126,10 @@ pub fn bits_to_target(bits: u32) -> Result<u256, felt252> {
     } else if exponent <= 3 {
         // For exponents 1, 2, and 3, divide by 256^(3 - exponent) i.e right shift
         let shift = 8 * (3 - exponent);
-        target = shr(target, shift);
+        target = Bitshift::shr(target, shift);
     } else {
         let shift = 8 * (exponent - 3);
-        target = shl(target, shift);
+        target = Bitshift::shl(target, shift);
     }
 
     // Ensure the target doesn't exceed the maximum allowed value
@@ -154,12 +154,12 @@ pub fn target_to_bits(target: u256) -> Result<u32, felt252> {
     let mut compact = target;
 
     // Count leading zero bytes by finding the first non-zero byte
-    while size > 1 && shr(compact, (size - 1) * 8) == 0 {
+    while size > 1 && Bitshift::shr(compact, (size - 1) * 8) == 0 {
         size -= 1;
     };
 
     // Extract mantissa (most significant 3 bytes)
-    let mut mantissa: u32 = shr(compact, (size - 3) * 8).try_into().unwrap();
+    let mut mantissa: u32 = Bitshift::shr(compact, (size - 3) * 8).try_into().unwrap();
 
     // Normalize
     if mantissa > 0x7fffff {
@@ -179,7 +179,7 @@ pub fn target_to_bits(target: u256) -> Result<u32, felt252> {
     let size_u256: u256 = size.into();
 
     // Combine size and mantissa
-    let result: u32 = (shl(size_u256, 24) + mantissa.into()).try_into().unwrap();
+    let result: u32 = (Bitshift::shl(size_u256, 24_u32) + mantissa.into()).try_into().unwrap();
 
     Result::Ok(result)
 }
