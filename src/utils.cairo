@@ -45,6 +45,7 @@ pub impl BitshiftImpl<
         if shift > BitSize::<T>::bits().try_into().unwrap() - One::one() {
             panic_with_felt252('mul Overflow');
         }
+
         let two = One::one() + One::one();
         self / fast_pow(two, shift)
     }
@@ -73,7 +74,7 @@ pub fn fast_pow<
     base: T, exp: U
 ) -> T {
     if exp == Zero::zero() {
-        return Zero::zero();
+        return One::one();
     }
 
     let mut res: T = One::one();
