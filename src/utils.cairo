@@ -32,7 +32,7 @@ pub impl BitshiftImpl<
 > of Bitshift<T, U> {
     fn shl(self: T, shift: U) -> T {
         if shift > BitSize::<T>::bits().into() - One::one() {
-            panic_with_felt252('mul Overflow');
+            return Zero::zero();
         }
         let two = One::one() + One::one();
         self * fast_pow(two, shift)
@@ -40,7 +40,7 @@ pub impl BitshiftImpl<
 
     fn shr(self: T, shift: U) -> T {
         if shift > BitSize::<T>::bits().try_into().unwrap() - One::one() {
-            panic_with_felt252('mul Overflow');
+            return Zero::zero();
         }
 
         let two = One::one() + One::one();
