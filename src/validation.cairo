@@ -20,7 +20,9 @@ impl BlockValidatorImpl of BlockValidator {
         let best_block_hash = block_hash(@block, merkle_root)?;
         let prev_timestamps = next_prev_timestamps(@self, @block);
         let (current_target, epoch_start_time) = adjust_difficulty(@self, @block);
-        let total_work = compute_total_work(self.total_work, bits_to_target(block.header.bits).unwrap());
+        let total_work = compute_total_work(
+            self.total_work, bits_to_target(block.header.bits).unwrap()
+        );
         let block_height = self.block_height + 1;
 
         Result::Ok(
@@ -223,7 +225,7 @@ fn compute_block_reward(block_height: u32) -> u64 {
 mod tests {
     use super::{
         validate_target, validate_timestamp, validate_proof_of_work, compute_block_reward,
-        compute_total_work, shr, shl, REWARD_INITIAL, POW_SATS_AMOUNT
+        compute_total_work, compute_work_from_target, shr, shl, REWARD_INITIAL, POW_SATS_AMOUNT
     };
     use super::{Block, ChainState, UtreexoState};
     use super::super::state::{Header, Transaction, TxIn, TxOut};
