@@ -102,11 +102,6 @@ fn adjust_difficulty(self: @ChainState, block: @Block) -> (u32, u32) {
     (*self.current_target, *self.epoch_start_time)
 }
 
-fn validate_merkle_root(self: @ChainState, block: @Block) -> Result<(), ByteArray> {
-    // TODO: implement
-    Result::Ok(())
-}
-
 // Helper functions
 pub fn bits_to_target(bits: u32) -> Result<u256, felt252> {
     // Extract exponent and mantissa
@@ -140,7 +135,6 @@ pub fn bits_to_target(bits: u32) -> Result<u256, felt252> {
 
     Result::Ok(target)
 }
-
 
 pub fn target_to_bits(target: u256) -> Result<u32, felt252> {
     if target == 0 {
