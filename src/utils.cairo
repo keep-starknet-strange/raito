@@ -1,6 +1,5 @@
 use core::sha256::{compute_sha256_byte_array, compute_sha256_u32_array};
 use core::num::traits::{Zero, One, BitSize};
-use core::starknet::secp256_trait::Secp256PointTrait;
 
 pub fn shl<
     T,
