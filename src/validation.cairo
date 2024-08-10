@@ -4,6 +4,7 @@ use core::traits::TryInto;
 use super::merkle_tree::merkle_root;
 use super::utils::{shl, shr, Hash};
 use super::state::{Block, ChainState, Transaction, UtreexoState, UtreexoSet, TxIn, TxOut, OutPoint};
+use core::sha256::compute_sha256_u32_array;
 
 const MAX_TARGET: u256 = 0x00000000FFFF0000000000000000000000000000000000000000000000000000;
 
@@ -21,7 +22,14 @@ impl BlockValidatorImpl of BlockValidator {
         let total_work = compute_total_work(self.total_work, current_target);
         let block_height = self.block_height + 1;
 
-        let best_block_hash = block_hash(@self, @block, merkle_root)?;
+        let best_block_hash = block_hash(
+            block.header.version,
+            self.best_block_hash,
+            merkle_root,
+            block.header.time,
+            block.header.bits,
+            block.header.nonce
+        )?;
 
         validate_proof_of_work(current_target, best_block_hash)?;
         validate_bits(@block, current_target)?;
@@ -46,33 +54,28 @@ impl TransactionValidatorImpl of TransactionValidator {
         // TODO: implement
         0
     }
-    fn fee(self: @Transaction) -> u64 {
-        let mut total_input_amount = 0;
-        let mut total_output_amount = 0;
-        // Inputs of a transaction
-        let inputs = *self.inputs;
-        // Outputs of a transaction
-        let outputs = *self.outputs;
-
-        for input in inputs {
-            let amount = *input.previous_output.amount;
-            total_input_amount += amount;
-        };
-
-        for output in outputs {
-            let value = *output.value;
-            total_output_amount += value;
-        };
-
-        let tx_fee = total_input_amount - total_output_amount;
-
-        tx_fee
+    fn fee(self: @Transaction) -> u256 {
+        // TODO: implement
+        0
     }
 }
 
-fn block_hash(self: @ChainState, block: @Block, merkle_root: Hash) -> Result<u256, ByteArray> {
-    // TODO: implement
-    Result::Ok(0)
+fn block_hash(
+    version: u32, previous_block: [u32; 8], merkle_root: [u32; 8], time: u32, bits: u32, nonce: u32
+    ) -> [
+    u32
+; 8] {
+    let mut header_data = ArrayTrait::<u32>::new();
+    header_data.append(version);
+    header_data.append(time);
+    header_data.append(bits);
+    header_data.append(nonce);
+
+    let hashed_header_data = compute_sha256_u32_array(
+        compute_sha256_u32_array(header_data, 0, 0).span().into(), 0, 0
+    );
+
+    previous_block
 }
 
 fn validate_proof_of_work(target: u256, block_hash: u256) -> Result<(), ByteArray> {
@@ -94,11 +97,8 @@ fn validate_timestamp(self: @ChainState, block: @Block) -> Result<(), ByteArray>
 }
 
 fn next_prev_timestamps(self: @ChainState, block: @Block) -> Span<u32> {
-    let mut prev_timestamps = *self.prev_timestamps;
-    prev_timestamps.pop_front().unwrap(); //keep only 10 most recent previous timestamps
-    let mut timestamps: Array<u32> = array![*block.header.time];
-    timestamps.append_span(prev_timestamps);
-    timestamps.span()
+    // TODO: implement
+    *self.prev_timestamps
 }
 
 fn compute_total_work(current_total_work: u256, target: u256) -> u256 {
@@ -205,12 +205,12 @@ fn validate_bits(block: @Block, target: u256) -> Result<(), ByteArray> {
     }
 }
 
-fn fee_and_merkle_root(block: @Block) -> Result<(u64, Hash), ByteArray> {
-    let mut txids: Array<Hash> = array![];
+fn fee_and_merkle_root(block: @Block) -> Result<(u256, u256), ByteArray> {
+    let mut txids = ArrayTrait::new();
     let mut total_fee = 0;
 
     for tx in *block.txs {
-        txids.append(tx.txid().into());
+        txids.append(tx.txid());
         total_fee += tx.fee();
     };
 
@@ -260,8 +260,7 @@ fn compute_block_reward(block_height: u32) -> u64 {
 
 #[cfg(test)]
 mod tests {
-    use raito::state::{Header, Transaction, TxIn, TxOut, OutPoint};
-    use raito::utils::from_base16;
+    use raito::state::{Header, Transaction, TxIn, TxOut};
     use super::{
         validate_timestamp, validate_proof_of_work, compute_block_reward, compute_total_work,
         compute_work_from_target, shr, shl, Block, ChainState, UtreexoState, next_prev_timestamps,
@@ -297,43 +296,6 @@ mod tests {
         block.header.time = 6;
         let result = validate_timestamp(@chain_state, @block);
         assert!(result.is_err(), "Median time is greater than block's timestamp");
-    }
-
-    #[test]
-    fn test_tx_fee() {
-        let tx = Transaction {
-            version: 1,
-            is_segwit: false,
-            inputs: array![
-                TxIn {
-                    script: from_base16(
-                        "01091d8d76a82122082246acbb6cc51c839d9012ddaca46048de07ca8eec221518200241cdb85fab4815c6c624d6e932774f3fdf5fa2a1d3a1614951afb83269e1454e2002443047"
-                    ),
-                    sequence: 0xffffffff,
-                    previous_output: OutPoint {
-                        txid: 0x0437cd7f8525ceed2324359c2d0ba26006d92d856a9c20fa0241106ee5a597c9,
-                        vout: 0x00000000,
-                        txo_index: 0,
-                        amount: 100
-                    },
-                    witness: from_base16("")
-                }
-            ]
-                .span(),
-            outputs: array![
-                TxOut {
-                    value: 90,
-                    pk_script: from_base16(
-                        "ac4cd86c7e4f702ac7d5debaf126068a3b30b7c1212c145fdfa754f59773b3aae71484a22f30718d37cd74f325229b15f7a2996bf0075f90131bf5c509fe621aae0441"
-                    ),
-                }
-            ]
-                .span(),
-            lock_time: 0
-        };
-
-        let fee = TransactionValidatorImpl::fee(@tx);
-        assert_eq!(fee, 10);
     }
 
     #[test]
