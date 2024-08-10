@@ -130,7 +130,6 @@ pub struct TxIn {
     pub witness: Span<ByteArray>,
 }
 
-
 /// A reference to a transaction output.
 #[derive(Drop, Copy)]
 pub struct OutPoint {
