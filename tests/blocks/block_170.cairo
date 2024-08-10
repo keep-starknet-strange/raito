@@ -1,5 +1,7 @@
 use super::state::{Block, Header, Transaction, OutPoint, TxIn, TxOut};
 
+// block containing first P2P tx to Hal Finney
+
 pub fn block_170() -> Block {
     // block hash: 00000000d1145790a8694403d4063f323d499e655c83426834d4ce2f8dd4a2ee
     Block {

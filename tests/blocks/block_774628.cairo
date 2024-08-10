@@ -1,6 +1,6 @@
 use super::state::{Block, Header, Transaction, OutPoint, TxIn, TxOut};
 
-// Taproot Wizard biggest block in Bitcoin history
+// biggest block in Bitcoin history (Taproot Wizard)
 
 pub fn block_774628() -> Block {
     // block hash: 0000000000000000000515e202c8ae73c8155fc472422d7593af87aa74f2cf3d
