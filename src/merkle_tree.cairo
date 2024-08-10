@@ -9,7 +9,7 @@ pub fn merkle_root(ref txids: Array<Array<u32>>) -> u256 {
         let mut i: u32 = 0;
         while i != 8 {
             let element: u256 = (*txid[i]).into();
-            root += shl(element, (8 * i));
+            root += shl(element, (32 * i));
 
             i += 1;
         };

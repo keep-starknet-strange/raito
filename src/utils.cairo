@@ -115,7 +115,6 @@ const TWO_POW_96: u128 = 0x1000000000000000000000000;
 
 pub fn double_sha256(a: @Array<u32>, b: @Array<u32>) -> Array<u32> {
     let mut input1: Array<u32> = array![];
-
     input1.append_span(a.span());
     input1.append_span(b.span());
 
