@@ -109,14 +109,24 @@ pub fn fast_pow<
     }
 }
 
-const TWO_POW_32: u128 = 0x100000000;
-const TWO_POW_64: u128 = 0x10000000000000000;
-const TWO_POW_96: u128 = 0x1000000000000000000000000;
-
 pub fn double_sha256(a: @Array<u32>, b: @Array<u32>) -> Array<u32> {
+    let mut reversed_a: Array<u32> = array![];
+    let mut i = 0;
+    while i < 8 {
+        reversed_a.append(*a[7 - i]);
+        i += 1;
+    };
+
+    let mut reversed_b: Array<u32> = array![];
+    let mut i = 0;
+    while i < 8 {
+        reversed_b.append(*b[7 - i]);
+        i += 1;
+    };
+
     let mut input1: Array<u32> = array![];
-    input1.append_span(a.span());
-    input1.append_span(b.span());
+    input1.append_span(reversed_a.span());
+    input1.append_span(reversed_b.span());
 
     let mut input2: Array<u32> = array![];
     input2.append_span(compute_sha256_u32_array(input1, 0, 0).span());

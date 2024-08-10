@@ -286,5 +286,57 @@ mod tests {
 
         assert_eq!(merkle_root(ref txids), expected_merkle_root);
     }
+
+    #[test]
+    #[available_gas(100000000)]
+    fn test_merkle_root_04() {
+        let mut txids = array![
+            array![
+                0x021fb219_u32,
+                0x58ba3f7d_u32,
+                0xdd190978_u32,
+                0xca17e0ac_u32,
+                0x29a5f5e6_u32,
+                0x7cde337a_u32,
+                0xaf9e1997_u32,
+                0xba49fa00_u32
+            ],
+            array![
+                0x8e89f0db_u32,
+                0x199c16ba_u32,
+                0xa5fadbf3_u32,
+                0x24945a49_u32,
+                0x60e5fc02_u32,
+                0x17454405_u32,
+                0xf9421f05_u32,
+                0x687a0000_u32
+            ],
+            array![
+                0x47afef06_u32,
+                0x7c5bdf62_u32,
+                0x48282e94_u32,
+                0x2dd50e93_u32,
+                0xc2f23517_u32,
+                0x758dd99d_u32,
+                0xcf2e7ab9_u32,
+                0xb268fe1c_u32
+            ],
+            array![
+                0x19cd2625_u32,
+                0x25d9738c_u32,
+                0x1872089b_u32,
+                0xd295f0e9_u32,
+                0x952d32fc_u32,
+                0x815c4eb7_u32,
+                0xcbc1884c_u32,
+                0xa3ef640c_u32
+            ]
+        ];
+
+        let expected_merkle_root =
+            0xcbd5729479af2864f228ced99e842e64957a700d3e0e361f1ebf70bdc16473d7_u256;
+
+        assert_eq!(merkle_root(ref txids), expected_merkle_root);
+    }
 }
 
