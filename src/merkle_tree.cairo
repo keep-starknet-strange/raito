@@ -94,88 +94,98 @@ mod tests {
 
         assert_eq!(merkle_root(ref txids), expected_merkle_root);
     }
-    //     #[test]
-//     #[available_gas(100000000)]
-//     fn test_merkle_root_03() {
-//         let mut txids = array![
-//             array![
-//                 0x37112244_u32,
-//                 0x736608a2_u32,
-//                 0x0a90aac8_u32,
-//                 0x7cdd22fc_u32,
-//                 0xe10930f6_u32,
-//                 0xb608df10_u32,
-//                 0x8bc370c9_u32,
-//                 0x33829817_u32
-//             ],
-//             array![
-//                 0x0386e85f_u32,
-//                 0x94eab006_u32,
-//                 0x4470341e_u32,
-//                 0xe22a4a93_u32,
-//                 0x871e1c78_u32,
-//                 0x4980caf9_u32,
-//                 0x336c2dd0_u32,
-//                 0x8d7d9d9f_u32
-//             ],
-//             array![
-//                 0xe529d977_u32,
-//                 0xcff90d0a_u32,
-//                 0xb87b4ba8_u32,
-//                 0x5e97cff7_u32,
-//                 0xc0b7930f_u32,
-//                 0x6649ec5f_u32,
-//                 0x4f07d443_u32,
-//                 0x7379d505_u32
-//             ]
-//         ];
 
-    //         let expected_merkle_root =
-//             0x72b1759885ec48bd60653b7009022009cec92f484dde0ff0da9ab46b035c5568_u256;
+    #[test]
+    #[available_gas(100000000)]
+    fn test_merkle_root_03() {
+        let mut txids = array![
+            array![
+                0xe914f166_u32,
+                0x85930f04_u32,
+                0x30a6fa68_u32,
+                0x7b4b17f9_u32,
+                0x8f988fe8_u32,
+                0x3f0ee26d_u32,
+                0xc162b4cd_u32,
+                0x3f6ea432_u32
+            ],
+            array![
+                0x7dd21e37_u32,
+                0x98f3ac70_u32,
+                0x16203db2_u32,
+                0x04b0436b_u32,
+                0x8dfb2305_u32,
+                0x11921921_u32,
+                0x80b5a711_u32,
+                0x50b35fcf_u32
+            ],
+            array![
+                0x65d02549_u32,
+                0xbb947d23_u32,
+                0x341b3951_u32,
+                0x6b4684e8_u32,
+                0xe30f8eca_u32,
+                0x5ba71d7a_u32,
+                0x574d8c57_u32,
+                0xbc8ecf4b_u32
+            ],
+            array![
+                0x3d455f55_u32,
+                0x10978382_u32,
+                0x65bc6410_u32,
+                0x9907b97b_u32,
+                0x6b8a60aa_u32,
+                0xe04aed39_u32,
+                0x969047b4_u32,
+                0xad8a2993_u32
+            ]
+        ];
 
-    //         assert_eq!(merkle_root(ref txids), expected_merkle_root);
-//     }
+        let expected_merkle_root =
+            0x5545be569eb578bb9498bbc114867edb6259c894370e14f5361988fe07d48b96_u256;
 
-    //     #[test]
-//     #[available_gas(100000000)]
-//     fn test_merkle_root_04() {
-//         let mut txids = array![
-//             array![
-//                 0xf50b7435_u32,
-//                 0x9467dd8a_u32,
-//                 0x3a4309b2_u32,
-//                 0x09fb270b_u32,
-//                 0x9fdd63ef_u32,
-//                 0x638118bc_u32,
-//                 0x42fe1d92_u32,
-//                 0xca54c74e_u32
-//             ],
-//             array![
-//                 0x7883ed76_u32,
-//                 0x1b66a6fe_u32,
-//                 0x0b1810a2_u32,
-//                 0x0b4b3cbb_u32,
-//                 0xca333356_u32,
-//                 0x8728d072_u32,
-//                 0x661bc45e_u32,
-//                 0x4e82112e_u32
-//             ],
-//             array![
-//                 0x529a1d89_u32,
-//                 0xbc7330a6_u32,
-//                 0xd9386c7b_u32,
-//                 0x59801d35_u32,
-//                 0xaba46d88_u32,
-//                 0x3333f974_u32,
-//                 0xc2fe85b8_u32,
-//                 0x91bc1a9e_u32
-//             ]
-//         ];
+        assert_eq!(merkle_root(ref txids), expected_merkle_root);
+    }
+    // #[test]
+// #[available_gas(100000000)]
+// fn test_merkle_root_04() {
+//     let mut txids = array![
+//         array![
+//             0xf50b7435_u32,
+//             0x9467dd8a_u32,
+//             0x3a4309b2_u32,
+//             0x09fb270b_u32,
+//             0x9fdd63ef_u32,
+//             0x638118bc_u32,
+//             0x42fe1d92_u32,
+//             0xca54c74e_u32
+//         ],
+//         array![
+//             0x7883ed76_u32,
+//             0x1b66a6fe_u32,
+//             0x0b1810a2_u32,
+//             0x0b4b3cbb_u32,
+//             0xca333356_u32,
+//             0x8728d072_u32,
+//             0x661bc45e_u32,
+//             0x4e82112e_u32
+//         ],
+//         array![
+//             0x529a1d89_u32,
+//             0xbc7330a6_u32,
+//             0xd9386c7b_u32,
+//             0x59801d35_u32,
+//             0xaba46d88_u32,
+//             0x3333f974_u32,
+//             0xc2fe85b8_u32,
+//             0x91bc1a9e_u32
+//         ]
+//     ];
 
-    //         let expected_merkle_root =
-//             0x69a17a9beb8a590fd92382d9f471dc1fdc15f2f3c410678156f08d202fd41c4d_u256;
+    //     let expected_merkle_root =
+//         0x69a17a9beb8a590fd92382d9f471dc1fdc15f2f3c410678156f08d202fd41c4d_u256;
 
-    //         assert_eq!(merkle_root(ref txids), expected_merkle_root);
-//     }
+    //     assert_eq!(merkle_root(ref txids), expected_merkle_root);
+// }
 }
 
