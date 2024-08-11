@@ -39,9 +39,9 @@ impl BlockValidatorImpl of BlockValidator {
 
 #[generate_trait]
 impl TransactionValidatorImpl of TransactionValidator {
-    fn txid(self: @Transaction) -> u256 {
+    fn txid(self: @Transaction) -> Array<u32> {
         // TODO: implement
-        0
+        array![]
     }
     fn fee(self: @Transaction) -> u256 {
         // TODO: implement
@@ -182,7 +182,7 @@ fn validate_bits(block: @Block, target: u256) -> Result<(), ByteArray> {
 }
 
 fn fee_and_merkle_root(block: @Block) -> Result<(u256, u256), ByteArray> {
-    let mut txids = ArrayTrait::new();
+    let mut txids: Array<Array<u32>> = array![];
     let mut total_fee = 0;
 
     for tx in *block.txs {
