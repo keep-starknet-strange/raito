@@ -1,6 +1,6 @@
 use super::merkle_tree::merkle_root;
 use super::utils::{shl, shr};
-use super::state::{Block, ChainState, Transaction, UtreexoState};
+use super::state::{Block, ChainState, Transaction, UtreexoState, UtreexoSet, TxIn, TxOut};
 
 const MAX_TARGET: u256 = 0x00000000FFFF0000000000000000000000000000000000000000000000000000;
 
@@ -44,8 +44,30 @@ impl TransactionValidatorImpl of TransactionValidator {
         0
     }
     fn fee(self: @Transaction) -> u256 {
-        // TODO: implement
-        0
+        let mut total_input_amount = 0;
+        let mut total_output_amount = 0;
+        // Inputs of a transaction
+        let inputs = *self.inputs;
+        // Outputs of a transaction
+        let outputs = *self.outputs;
+
+        let mut i = 0;
+        while i < inputs.len() {
+            let amount = (*inputs.at(i).previous_output.amount).into();
+            total_input_amount += amount;
+            i += 1;
+        };
+
+        let mut i = 0;
+        while i < outputs.len() {
+            let value: felt252 = (*outputs.at(i).value).into();
+            total_output_amount += value;
+            i += 1;
+        };
+
+        let tx_fee = total_input_amount - total_output_amount;
+
+        tx_fee.into()
     }
 }
 
