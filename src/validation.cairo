@@ -1,3 +1,6 @@
+use core::traits::Into;
+use core::traits::TryInto;
+
 use super::merkle_tree::merkle_root;
 use super::utils::{shl, shr};
 use super::state::{Block, ChainState, Transaction, UtreexoState};
@@ -194,7 +197,35 @@ fn fee_and_merkle_root(block: @Block) -> Result<(u256, u256), ByteArray> {
 }
 
 fn validate_coinbase(block: @Block, total_fees: u256) -> Result<(), ByteArray> {
-    //TODO implement
+    let tx_context = block.txs[0];
+
+    // Validate the coinbase input
+    // Ensure there is exactly one coinbase input
+    assert(tx_context.inputs.clone().len() == 1, 'Input count should be 1');
+
+    // Ensure the input's vout is 0xFFFFFFFF
+    assert(*tx_context.inputs[0].previous_output.vout == 0xFFFFFFFF, 'vout should be 0xFFFFFFFF');
+
+    // Ensure the input's TXID is zero
+    assert(*tx_context.inputs[0].previous_output.txid == 0, 'txid should be 0');
+
+    // Validate the outputs' amounts
+    // Sum up the total amount of all outputs
+    // and also add the outputs to the UtreexoSet.
+    let mut total_output_amount: i64 = 0;
+
+    for txs in *block
+        .txs {
+            for outputs in *txs.outputs {
+                total_output_amount + *outputs.value;
+                //TODO add outputs to UtreexoSet
+
+            };
+        };
+
+    // // Ensure the total amount is at most the block reward + TX fees
+    //TODO let block_reward = compute_block_reward();
+
     Result::Ok(())
 }
 
