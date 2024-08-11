@@ -117,7 +117,7 @@ pub struct TxIn {
     /// The reference to the previous output that is being used as an input.
     pub previous_output: OutPoint,
     /// The witness data for transactions.
-    pub witness: Span<ByteArray>,
+    pub witness: @ByteArray,
 }
 
 
@@ -137,7 +137,7 @@ pub struct OutPoint {
 #[derive(Drop, Copy)]
 pub struct TxOut {
     /// The value of the output in satoshis.
-    pub value: i64,
+    pub value: u64,
     /// The spending script (aka locking code) for this output.
     pub pk_script: @ByteArray,
 }

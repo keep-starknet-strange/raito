@@ -1,8 +1,7 @@
 use core::sha256::{compute_sha256_byte_array, compute_sha256_u32_array};
-use core::to_byte_array::FormatAsByteArray;
 use super::state::{Block, ChainState, Transaction, UtreexoState, TxIn, TxOut, OutPoint};
 use super::merkle_tree::merkle_root;
-use super::utils::{shl, shr, double_sha256};
+use super::utils::{shl, shr};
 
 const MAX_TARGET: u256 = 0x00000000FFFF0000000000000000000000000000000000000000000000000000;
 
@@ -40,7 +39,7 @@ impl BlockValidatorImpl of BlockValidator {
 }
 
 #[generate_trait]
-impl TransactionValidatorImpl of TransactionValidator {
+pub impl TransactionValidatorImpl of TransactionValidator {
     // marker, flag, and witness fields in segwit transactions are not included
     // this means txid computation is the same for legacy and segwit tx
     fn txid(self: @Transaction) -> u256 {
@@ -292,11 +291,12 @@ fn compute_block_reward(block_height: u32) -> u64 {
 #[cfg(test)]
 mod tests {
     use raito::state::{Header, Transaction, TxIn, TxOut};
+    use raito::utils::from_base16;
     use super::{
         validate_timestamp, validate_proof_of_work, compute_block_reward, compute_total_work,
-        compute_work_from_target, shr, shl, Block, ChainState, UtreexoState,
+        compute_work_from_target, shr, shl, TransactionValidatorImpl, Block, ChainState,
+        UtreexoState, OutPoint
     };
-
 
     #[test]
     fn test_validate_timestamp() {
@@ -434,5 +434,39 @@ mod tests {
 
         let last_reward = compute_block_reward(max_halvings * block_height);
         assert_eq!(last_reward, 0);
+    }
+
+    #[test]
+    fn test_txid() {
+        let tx: Transaction = Transaction {
+            version: 1,
+            is_segwit: false,
+            inputs: array![
+                TxIn {
+                    script: from_base16(
+                        "04ffff001d0104455468652054696d65732030332f4a616e2f32303039204368616e63656c6c6f72206f6e206272696e6b206f66207365636f6e64206261696c6f757420666f722062616e6b73"
+                    ),
+                    sequence: 4294967295,
+                    previous_output: OutPoint {
+                        txid: 0_u256, vout: 0xffffffff_u32, txo_index: 0, // TODO: implement
+                    },
+                    witness: from_base16("")
+                }
+            ]
+                .span(),
+            outputs: array![
+                TxOut {
+                    value: 5000000000_u64,
+                    pk_script: from_base16(
+                        "4104678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5fac"
+                    ),
+                }
+            ]
+                .span(),
+            lock_time: 0
+        };
+
+        let txid: u256 = TransactionValidatorImpl::txid(@tx);
+        assert_eq!(txid, 0);
     }
 }
