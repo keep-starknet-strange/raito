@@ -123,7 +123,7 @@ pub impl TransactionValidatorImpl of TransactionValidator {
         let mut i: u32 = 0;
         while i != 8 {
             let element: u256 = (*secondHash[i]).into();
-            txid += shl(element, (32 * i));
+            txid += shl(element, (32 * (7 - i)));
 
             i += 1;
         };
