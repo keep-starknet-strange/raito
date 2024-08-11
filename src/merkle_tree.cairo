@@ -1,235 +1,76 @@
 use super::utils::{shl, double_sha256};
-use core::starknet::SyscallResultTrait;
-// use core::sha256::{sha256_process_block_syscall};
-use starknet::{SyscallResult};
-const SHA256_INITIAL_STATE: [
-    u32
-    ; 8] = [
-    0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, 0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19,
-];
 
-fn append_zeros(ref arr: Array<u32>, count: felt252) {
-    if count == 0 {
-        return;
-    }
-    arr.append(0);
-    if count == 1 {
-        return;
-    }
-    arr.append(0);
-    if count == 2 {
-        return;
-    }
-    arr.append(0);
-    if count == 3 {
-        return;
-    }
-    arr.append(0);
-    if count == 4 {
-        return;
-    }
-    arr.append(0);
-    if count == 5 {
-        return;
-    }
-    arr.append(0);
-    if count == 6 {
-        return;
-    }
-    arr.append(0);
-    if count == 7 {
-        return;
-    }
-    arr.append(0);
-    if count == 8 {
-        return;
-    }
-    arr.append(0);
-    if count == 9 {
-        return;
-    }
-    arr.append(0);
-    if count == 10 {
-        return;
-    }
-    arr.append(0);
-    if count == 11 {
-        return;
-    }
-    arr.append(0);
-    if count == 12 {
-        return;
-    }
-    arr.append(0);
-    if count == 13 {
-        return;
-    }
-    arr.append(0);
-    if count == 14 {
-        return;
-    }
-    arr.append(0);
-    if count == 15 {
-        return;
-    }
-    arr.append(0);
-}
-
-fn add_sha256_padding(
-    ref arr: [u32; 16], last_input_word: u32, last_input_num_bytes: u32
-    ) -> [
-    u32
-; 32] {
-    let [a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15, a16] = arr;
-    [
-        a1,
-        a2,
-        a3,
-        a4,
-        a5,
-        a6,
-        a7,
-        a8,
-        a9,
-        a10,
-        a11,
-        a12,
-        a13,
-        a14,
-        a15,
-        a16,
-        0x80000000,
-        0x0,
-        0x0,
-        0x0,
-        0x0,
-        0x0,
-        0x0,
-        0x0,
-        0x0,
-        0x0,
-        0x0,
-        0x0,
-        0x0,
-        0x0,
-        0x0,
-        0x10
-    ]
-}
-
-#[derive(Copy, Drop)]
-pub(crate) extern type Sha256StateHandle;
-
-extern fn sha256_state_handle_init(state: Box<[u32; 8]>) -> Sha256StateHandle nopanic;
-
-pub extern fn sha256_process_block_syscall(
-    state: Sha256StateHandle, input: Box<[u32; 16]>
-) -> SyscallResult<Sha256StateHandle> implicits(GasBuiltin, System) nopanic;
-
-extern fn sha256_state_handle_digest(state: Sha256StateHandle) -> Box<[u32; 8]> nopanic;
-
-fn calculate_double_hash_helper(ref inputs: [u32; 16]) -> [u32; 8] {
-    // let a = *a.clone();
-    // let inputs: [u32; 32] = add_sha256_padding(ref inputs, 0, 0);
-
-    // let newa: Array<u32> = a.clone();
-
-    // let [a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15, a16] = inputs;
-    // print!(
-    //     "inputs: {a1}, {a2}, {a3}, {a4}, {a5}, {a6}, {a7}, {a8}, {a9}, {a10}, {a11}, {a12},
-    //     {a13}, {a14}, {a15}, {a16}\n"
-    // );
-
-    // let mut a = a.span();
-    let mut state = sha256_state_handle_init(BoxTrait::new(SHA256_INITIAL_STATE));
-
-    // let [a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12,a13,a14,a15 ] = a.unbox();
-    // let [b1, b2, b3, b4, b5, b6, b7, b8] = b.unbox();
-    // let test = *a[0];
-    // let inputs: [u32; 16] = [a1, a2, a3, a4, a5, a6, a7, a8, b1, b2, b3, b4, b5, b6, b7, b8];
-
-    state = sha256_process_block_syscall(state, BoxTrait::new(inputs)).unwrap_syscall();
-    let inputs200: [u32; 16] = [
-        0x80000000, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x200
-    ];
-    state = sha256_process_block_syscall(state, BoxTrait::new(inputs200)).unwrap_syscall();
-
-    let output1: [u32; 8] = sha256_state_handle_digest(state).unbox();
-    // println!("output1: {:?}", output1);
-
-    let mut state = sha256_state_handle_init(BoxTrait::new(SHA256_INITIAL_STATE));
-
-    let [i1, i2, i3, i4, i5, i6, i7, i8] = output1;
-    let temp: Box<[u32; 16]> = BoxTrait::new(
-        [i1, i2, i3, i4, i5, i6, i7, i8, 0x80000000, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x100],
-    );
-
-    // while let Option::Some(chunk) = output1.multi_pop_front() {
-    state = sha256_process_block_syscall(state, temp).unwrap_syscall();
-
-    // };
-
-    let result: [u32; 8] = sha256_state_handle_digest(state).unbox();
-    // println!("result: {:?}", result);
-    result
-}
-
-pub fn merkle_root_recurisve(ref txids: Array<[u32; 8]>) -> u256 {
+pub fn merkle_branch(ref txids: Array<[u32; 8]>) -> u256 {
     let len: u32 = txids.len();
 
-    if len == 1 {
-        // let [txid0, _] = *txids[0];
-        // let txid: [u32; 8] = txids[0];
-        let mut root: u256 = 0;
-        let mut i: u32 = 0;
+    match len == 1 {
+        true => {
+            let mut root: u256 = 0;
+            let mut i: u32 = 0;
 
-        let [txid0, txid1, txid2, txid3, txid4, txid5, txid6, txid7] = *txids[0];
-        let mut teste: Array<u32> = array![txid0, txid1, txid2, txid3, txid4, txid5, txid6, txid7];
+            let [txid0, txid1, txid2, txid3, txid4, txid5, txid6, txid7] = *txids[0];
+            let tx0: Array<u32> = array![txid0, txid1, txid2, txid3, txid4, txid5, txid6, txid7];
+            while i != 8 {
+                let element = (*tx0[i]);
+                root += shl(element.into(), (32 * (7 - i)));
 
-        while i != 8_u32 {
-            let element = (*teste[i]);
-            root += shl(element.into(), (32 * (7 - i)));
+                i += 1;
+            };
 
-            i += 1;
-        };
+            return root;
+        },
+        false => {}
+    }
+    // if len == 1 {
+    //     let mut root: u256 = 0;
+    //     let mut i: u32 = 0;
 
-        return root;
+    //     let [txid0, txid1, txid2, txid3, txid4, txid5, txid6, txid7] = *txids[0];
+    //     let tx0: Array<u32> = array![txid0, txid1, txid2, txid3, txid4, txid5, txid6, txid7];
+    //     while i != 8 {
+    //         let element = (*tx0[i]);
+    //         root += shl(element.into(), (32 * (7 - i)));
+
+    //         i += 1;
+    //     };
+
+    //     return root;
+    // }
+
+    match len % 2 == 1 {
+        true => { txids.append(*txids[len - 1]); },
+        false => {
+            // CVE-2012-2459 bug fix
+            assert!(
+                txids.at(len - 1) != txids.at(len - 2), "unexpected node duplication in merkle tree"
+            );
+        }
     }
 
-    if len % 2 == 1 {
-        let last_leaf = txids[len - 1];
-        txids.append(last_leaf.clone());
-    } else {
-        // CVE-2012-2459 bug fix
-        assert!(
-            txids.at(len - 1) != txids.at(len - 2), "unexpected node duplication in merkle tree"
-        );
-    }
+    // if len % 2 == 1 {
+    //     txids.append(*txids[len - 1]);
+    // } else {
+    //     // CVE-2012-2459 bug fix
+    //     assert!(
+    //         txids.at(len - 1) != txids.at(len - 2), "unexpected node duplication in merkle tree"
+    //     );
+    // }
 
     let mut next_txids: Array<[u32; 8]> = array![];
     let mut i = 0;
 
     while i < len {
-        // let bidule: @Array<u32> = txids[i];
-        // let machin: @Array<u32> = txids[i + 1];
-
-        // let trest: [u32; 8] = txids[i];
         let [i0, i1, i2, i3, i4, i5, i6, i7] = *txids[i];
         let [i8, i9, i10, i11, i12, i13, i14, i15] = *txids[i + 1];
+        let hashs: Box<[u32; 16]> = BoxTrait::new(
+            [i0, i1, i2, i3, i4, i5, i6, i7, i8, i9, i10, i11, i12, i13, i14, i15]
+        );
+        next_txids.append(double_sha256(hashs));
 
-        let mut machintruc: [u32; 16] = [
-            i0, i1, i2, i3, i4, i5, i6, i7, i8, i9, i10, i11, i12, i13, i14, i15
-        ];
-        // println!("machintruc: {:?}", machintruc);
-
-        let ret: [u32; 8] = calculate_double_hash_helper(ref machintruc);
-        // println!("i{} : {:?}", i, ret);
-        next_txids.append(ret);
-        // next_txids.append(double_sha256((txids[i]), txids[i + 1]));
         i += 2;
     };
 
-    merkle_root_recurisve(ref next_txids)
+    merkle_branch(ref next_txids)
 }
 
 pub fn merkle_root(ref txids: Array<Array<u32>>) -> u256 {
@@ -238,21 +79,15 @@ pub fn merkle_root(ref txids: Array<Array<u32>>) -> u256 {
     let mut i = 0;
 
     while i < len {
-        let machintruc: [u32; 8] = [
-            *txids[i].clone()[0],
-            *txids[i].clone()[1],
-            *txids[i].clone()[2],
-            *txids[i].clone()[3],
-            *txids[i].clone()[4],
-            *txids[i].clone()[5],
-            *txids[i].clone()[6],
-            *txids[i].clone()[7]
+        let txid = txids[i].clone();
+        let elem: [u32; 8] = [
+            *txid[0], *txid[1], *txid[2], *txid[3], *txid[4], *txid[5], *txid[6], *txid[7],
         ];
-        next_txids.append(machintruc);
+        next_txids.append(elem);
         i += 1;
     };
 
-    merkle_root_recurisve(ref next_txids)
+    merkle_branch(ref next_txids)
 }
 
 #[cfg(test)]
