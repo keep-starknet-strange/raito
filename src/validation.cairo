@@ -1,8 +1,8 @@
 use core::sha256::{compute_sha256_byte_array, compute_sha256_u32_array};
 use core::to_byte_array::FormatAsByteArray;
-use super::state::{Block, ChainState, Transaction, UtreexoState, TxIn, TxOut};
+use super::state::{Block, ChainState, Transaction, UtreexoState, TxIn, TxOut, OutPoint};
 use super::merkle_tree::merkle_root;
-use super::utils::{shl, shr};
+use super::utils::{shl, shr, double_sha256};
 
 const MAX_TARGET: u256 = 0x00000000FFFF0000000000000000000000000000000000000000000000000000;
 
@@ -44,36 +44,73 @@ impl TransactionValidatorImpl of TransactionValidator {
     // marker, flag, and witness fields in segwit transactions are not included
     // this means txid computation is the same for legacy and segwit tx
     fn txid(self: @Transaction) -> u256 {
-        let version: ByteArray = (*self.version).format_as_byte_array(10);
+        let version: felt252 = (*self.version).into();
+        let inputs_count: felt252 = (*self.inputs).len().into();
         let inputs: Span<TxIn> = *self.inputs;
+        let outputs_count: felt252 = (*self.outputs).len().into();
         let outputs: Span<TxOut> = *self.outputs;
-        let locktime: ByteArray = (*self.lock_time).format_as_byte_array(10);
+        let locktime: felt252 = (*self.lock_time).into();
 
         // append version
         let mut sha256_input: ByteArray = "";
-        sha256_input.append(@version);
+        sha256_input.append_word(version, 4);
+
+        // append inputs count
+        sha256_input.append_word(inputs_count, 1);
 
         // append inputs
         let mut i = 0;
-        while i < inputs.len() {
-            sha256_input.append(*inputs.at(i).script);
-            sha256_input.append(@(*inputs.at(i).sequence).format_as_byte_array(10));
-            sha256_input.append(@(*inputs.at(i).txo_index).format_as_byte_array(10));
+        // != instead of < to avoid range check builtin usage for comparison
+        while i != inputs.len() {
+            // append txid
+            let txid: u256 = (*inputs[i]).previous_output.txid.into();
+            let txid_high: felt252 = txid.high.into();
+            let txid_low: felt252 = txid.low.into();
+            sha256_input.append_word(txid_high, 16);
+            sha256_input.append_word(txid_low, 16);
+
+            // append VOUT
+            let vout: felt252 = (*inputs[i]).previous_output.vout.into();
+            sha256_input.append_word(vout, 4);
+
+            // append ScriptSig size
+            let scriptsig_size: felt252 = (*inputs[i]).script.len().into();
+            sha256_input.append_word(scriptsig_size, 4);
+
+            // append ScriptSig
+            let script_sig: @ByteArray = (*inputs[i]).script;
+            sha256_input.append(script_sig);
+
+            // append Sequence
+            let sequence: felt252 = (*inputs.at(i)).sequence.into();
+            sha256_input.append_word(sequence, 4);
 
             i += 1;
         };
 
+        // append outputs count
+        sha256_input.append_word(outputs_count, 1);
+
         // append outputs
         let mut i = 0;
-        while i < outputs.len() {
-            let value: felt252 = (*outputs.at(i).value).into();
-            sha256_input.append(@value.format_as_byte_array(10));
+        while i != outputs.len() {
+            // append amount
+            let amount: felt252 = (*outputs.at(i).value).into();
+            sha256_input.append_word(amount, 8);
+
+            // append ScriptPubKey size
+            let script_size: felt252 = (*outputs.at(i).pk_script).len().into();
+            sha256_input.append_word(script_size, 1);
+
+            // append ScriptPubKey
+            let script: @ByteArray = *outputs.at(i).pk_script;
+            sha256_input.append(script);
 
             i += 1;
         };
 
         // append locktime
-        sha256_input.append(@locktime);
+        sha256_input.append_word(locktime, 4);
 
         // Compute double sha256
         let firstHash = compute_sha256_byte_array(@sha256_input).span();
@@ -83,7 +120,7 @@ impl TransactionValidatorImpl of TransactionValidator {
         let mut i: u32 = 0;
         while i != 8 {
             let element: u256 = (*secondHash[i]).into();
-            txid += shl(element, (8 * i).into());
+            txid += shl(element, (32 * i));
 
             i += 1;
         };
