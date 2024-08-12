@@ -108,7 +108,7 @@ pub struct Transaction {
 #[derive(Drop, Copy)]
 pub struct TxOut {
     /// The value of the output in satoshis.
-    pub value: i64,
+    pub value: u64,
     /// The spending script (aka locking code) for this output.
     pub pk_script: @ByteArray,
 }

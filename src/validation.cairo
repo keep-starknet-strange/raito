@@ -3,7 +3,7 @@ use core::traits::TryInto;
 
 use super::merkle_tree::merkle_root;
 use super::utils::{shl, shr};
-use super::state::{Block, ChainState, Transaction, UtreexoState};
+use super::state::{Block, ChainState, Transaction, UtreexoState, OutPoint};
 
 const MAX_TARGET: u256 = 0x00000000FFFF0000000000000000000000000000000000000000000000000000;
 
@@ -14,7 +14,7 @@ impl BlockValidatorImpl of BlockValidator {
 
         let (total_fees, merkle_root) = fee_and_merkle_root(@block)?;
 
-        validate_coinbase(@self, @block, total_fees)?;
+        validate_coinbase(@block, total_fees, self.block_height)?;
 
         let prev_timestamps = next_prev_timestamps(@self, @block);
         let (current_target, epoch_start_time) = adjust_difficulty(@self, @block);
@@ -196,36 +196,35 @@ fn fee_and_merkle_root(block: @Block) -> Result<(u256, u256), ByteArray> {
     Result::Ok((total_fee, merkle_root(ref txids)))
 }
 
-fn validate_coinbase(self: @ChainState, block: @Block, total_fees: u256) -> Result<(), ByteArray> {
-    let tx_context = block.txs[0];
+fn validate_coinbase(block: @Block, total_fees: u256, block_height: u32) -> Result<(), ByteArray> {
+    let tx = block.txs[0];
 
     // Validate the coinbase input
     // Ensure there is exactly one coinbase input
-    assert(tx_context.inputs.clone().len() == 1, 'Input count should be 1');
+    assert((*tx.inputs).len() == 1, 'Input count should be 1');
 
     // Ensure the input's vout is 0xFFFFFFFF
-    assert(*tx_context.inputs[0].previous_output.vout == 0xFFFFFFFF, 'vout should be 0xFFFFFFFF');
+    assert(*tx.inputs[0].previous_output.vout == 0xFFFFFFFF, 'vout should be 0xFFFFFFFF');
 
     // Ensure the input's TXID is zero
-    assert(*tx_context.inputs[0].previous_output.txid == 0, 'txid should be 0');
+    assert(*tx.inputs[0].previous_output.txid == 0, 'txid should be 0');
 
     // Validate the outputs' amounts
     // Sum up the total amount of all outputs
     // and also add the outputs to the UtreexoSet.
-    let mut total_output_amount: u64 = 0;
+    let mut total_output_amount = 0;
 
     for txs in *block
         .txs {
-            for outputs in *txs
-                .outputs {
-                    total_output_amount + (*outputs.value).try_into().unwrap();
-                    //TODO add outputs to UtreexoSet
+            for output in *txs.outputs {
+                total_output_amount + (*output.value);
+                //TODO add outputs to UtreexoSet
 
-                };
+            };
         };
 
     // Ensure the total output amount is at most the block reward + TX fees
-    let block_reward = compute_block_reward(*self.block_height);
+    let block_reward = compute_block_reward(block_height);
     assert(
         total_output_amount.into() <= total_fees + block_reward.into(),
         'total output val > block reward'
@@ -242,10 +241,10 @@ fn compute_block_reward(block_height: u32) -> u64 {
 
 #[cfg(test)]
 mod tests {
-    use raito::state::{Header, Transaction, TxIn, TxOut};
+    use raito::state::{Header, Transaction, TxIn, TxOut, OutPoint};
     use super::{
         validate_timestamp, validate_proof_of_work, compute_block_reward, compute_total_work,
-        compute_work_from_target, shr, shl, Block, ChainState, UtreexoState,
+        compute_work_from_target, shr, shl, Block, ChainState, UtreexoState, validate_coinbase
     };
 
 
