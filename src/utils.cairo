@@ -3,7 +3,9 @@ use core::sha256::{compute_sha256_byte_array, compute_sha256_u32_array};
 use core::starknet::secp256_trait::Secp256PointTrait;
 
 #[derive(Copy, Drop, Debug)]
-struct Hash {
+// pub is required here as we define Hash in utils and we need to import Hash in merkle_tree.cairo
+// for arguments to merkle_root function
+pub struct Hash {
     value: [u32; 8]
 }
 
