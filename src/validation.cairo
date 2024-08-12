@@ -43,77 +43,55 @@ pub impl TransactionValidatorImpl of TransactionValidator {
     // marker, flag, and witness fields in segwit transactions are not included
     // this means txid computation is the same for legacy and segwit tx
     fn txid(self: @Transaction) -> u256 {
-        let version: felt252 = (*self.version).into();
-        let inputs_count: felt252 = (*self.inputs).len().into();
-        let inputs: Span<TxIn> = *self.inputs;
-        let outputs_count: felt252 = (*self.outputs).len().into();
-        let outputs: Span<TxOut> = *self.outputs;
-        let locktime: felt252 = (*self.lock_time).into();
-
         // append version (1 byte)
         let mut sha256_input: ByteArray = "";
-        sha256_input.append_word(version, 1);
+        sha256_input.append_word((*self.version).into(), 1);
 
         // append padding (3 bytes)
-        let padding: felt252 = 0;
-        sha256_input.append_word(padding, 3);
+        sha256_input.append_word(0, 3);
 
-        // append inputs count
-        sha256_input.append_word(inputs_count, 1);
+        // append inputs count (1 byte)
+        sha256_input.append_word((*self.inputs).len().into(), 1);
 
         // append inputs
-        let mut i = 0;
-        // != instead of < to avoid range check builtin usage for comparison
-        while i != inputs.len() {
-            // append txid
-            let txid: u256 = (*inputs[i]).previous_output.txid.into();
-            let txid_high: felt252 = txid.high.into();
-            let txid_low: felt252 = txid.low.into();
-            sha256_input.append_word(txid_high, 16);
-            sha256_input.append_word(txid_low, 16);
+        let mut inputs: Span<TxIn> = *self.inputs;
+        while let Option::Some(txin) = inputs.pop_front() {
+            // append txid (32 bytes)
+            let txid: u256 = *txin.previous_output.txid;
+            sha256_input.append_word(txid.high.into(), 16);
+            sha256_input.append_word(txid.low.into(), 16);
 
-            // append VOUT
-            let vout: felt252 = (*inputs[i]).previous_output.vout.into();
-            sha256_input.append_word(vout, 4);
+            // append VOUT (4 bytes)
+            sha256_input.append_word((*txin.previous_output.vout).into(), 4);
 
-            // append ScriptSig size
-            let scriptsig_size: felt252 = (*inputs[i]).script.len().into();
-            sha256_input.append_word(scriptsig_size, 4);
+            // append ScriptSig size (1 byte)
+            sha256_input.append_word((*txin.script).len().into(), 4);
 
-            // append ScriptSig
-            let script_sig: @ByteArray = (*inputs[i]).script;
-            sha256_input.append(script_sig);
+            // append ScriptSig (variable size)
+            sha256_input.append(*txin.script);
 
-            // append Sequence
-            let sequence: felt252 = (*inputs.at(i)).sequence.into();
-            sha256_input.append_word(sequence, 4);
-
-            i += 1;
+            // append Sequence (4 bytes)
+            sha256_input.append_word((*txin.sequence).into(), 4);
         };
 
-        // append outputs count
-        sha256_input.append_word(outputs_count, 1);
+        // append outputs count (1 byte)
+        sha256_input.append_word((*self.outputs).len().into(), 1);
 
         // append outputs
-        let mut i = 0;
-        while i != outputs.len() {
-            // append amount
-            let amount: felt252 = (*outputs.at(i).value).into();
-            sha256_input.append_word(amount, 8);
+        let mut outputs: Span<TxOut> = *self.outputs;
+        while let Option::Some(txout) = outputs.pop_front() {
+            // append amount (8 bytes)
+            sha256_input.append_word((*txout.value).into(), 8);
 
-            // append ScriptPubKey size
-            let script_size: felt252 = (*outputs.at(i).pk_script).len().into();
-            sha256_input.append_word(script_size, 1);
+            // append ScriptPubKey size (1 byte)
+            sha256_input.append_word((*txout.pk_script).len().into(), 1);
 
-            // append ScriptPubKey
-            let script: @ByteArray = *outputs.at(i).pk_script;
-            sha256_input.append(script);
-
-            i += 1;
+            // append ScriptPubKey (variable size)
+            sha256_input.append(*txout.pk_script);
         };
 
-        // append locktime
-        sha256_input.append_word(locktime, 4);
+        // append locktime (4 bytes)
+        sha256_input.append_word((*self.lock_time).into(), 4);
 
         // Compute double sha256
         let firstHash = compute_sha256_byte_array(@sha256_input).span();
@@ -439,39 +417,40 @@ mod tests {
         let last_reward = compute_block_reward(max_halvings * block_height);
         assert_eq!(last_reward, 0);
     }
-    // #[test]
-// fn test_txid() {
-//     let tx: Transaction = Transaction {
-//         version: 1,
-//         is_segwit: false,
-//         inputs: array![
-//             TxIn {
-//                 script: from_base16(
-//                     "4730440220758f18952b4ebe859b91bdfc86d67478e85511f9fe949c30ab9ea12c78ddf9be0220146e88b5a89ca14a3505c17a13c9f6654014ecce1ca2910db525f6b2b23e680a012102d13c14dfd083b9b19b50ad6f6209902179f98a1acda715633b5622267e067676"
-//                 ),
-//                 sequence: 0xffffffff,
-//                 previous_output: OutPoint {
-//                     txid:
-//                     0x183e7d7146f1fe51a79417dce4c7b0b6f848f844ff56c12d2242f86d52fae8cb_u256,
-//                     vout: 0x01000000_u32, txo_index: 0,
-//                 },
-//                 witness: from_base16("")
-//             }
-//         ]
-//             .span(),
-//         outputs: array![
-//             TxOut {
-//                 value: 0x04bdcd0200000000,
-//                 pk_script: from_base16("76a9142bd74c02779861ee95f9dc61c870d31e15a29c3a88ac"),
-//             }
-//         ]
-//             .span(),
-//         lock_time: 0
-//     };
 
-    //     let txid: u256 = TransactionValidatorImpl::txid(@tx);
-//     assert_eq!(
-//         txid, 31117111977866514605580122280379099880855664600995121277970332180238727346730
-//     );
-// }
+    #[test]
+    fn test_txid() {
+        let tx: Transaction = Transaction {
+            version: 1,
+            is_segwit: false,
+            inputs: array![
+                TxIn {
+                    script: from_base16(
+                        "4730440220758f18952b4ebe859b91bdfc86d67478e85511f9fe949c30ab9ea12c78ddf9be0220146e88b5a89ca14a3505c17a13c9f6654014ecce1ca2910db525f6b2b23e680a012102d13c14dfd083b9b19b50ad6f6209902179f98a1acda715633b5622267e067676"
+                    ),
+                    sequence: 0xffffffff,
+                    previous_output: OutPoint {
+                        txid: 0x183e7d7146f1fe51a79417dce4c7b0b6f848f844ff56c12d2242f86d52fae8cb_u256,
+                        vout: 0x01000000_u32,
+                        txo_index: 0,
+                    },
+                    witness: from_base16("")
+                }
+            ]
+                .span(),
+            outputs: array![
+                TxOut {
+                    value: 0x04bdcd0200000000,
+                    pk_script: from_base16("76a9142bd74c02779861ee95f9dc61c870d31e15a29c3a88ac"),
+                }
+            ]
+                .span(),
+            lock_time: 0
+        };
+
+        let txid: u256 = TransactionValidatorImpl::txid(@tx);
+        assert_eq!(
+            txid, 31117111977866514605580122280379099880855664600995121277970332180238727346730
+        );
+    }
 }
