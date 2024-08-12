@@ -1,6 +1,5 @@
 use core::num::traits::{Zero, One, BitSize};
 use core::sha256::{compute_sha256_byte_array, compute_sha256_u32_array};
-use core::starknet::secp256_trait::Secp256PointTrait;
 
 #[derive(Copy, Drop, Debug)]
 // pub is required here as we define Hash in utils and we need to import Hash in merkle_tree.cairo
@@ -16,6 +15,13 @@ pub impl HashImpl of HashTrait {
         Hash { value: [0; 8] }
     }
 }
+
+impl HashPartialEq of PartialEq<Hash> {
+    fn eq(lhs: @Hash, rhs: @Hash) -> bool {
+        lhs.value == rhs.value
+    }
+}
+
 
 pub impl U256IntoHash of Into<u256, Hash> {
     fn into(self: u256) -> Hash {
@@ -45,6 +51,13 @@ pub impl U256IntoHash of Into<u256, Hash> {
             ]
         }
     }
+}
+
+fn random() {
+    let mut txids: Array<Hash> = array![
+        0x8710b2819a369672a2bce3d5270e7ae0ea59be2f7ce7f9078341b389098953e0_u256.into(),
+        0x64efde3a3f3531569cdab031bb31cfeb5c2d8cba62ae1ca5b2913b4ef643fd49_u256.into(),
+    ];
 }
 
 pub fn shl<
