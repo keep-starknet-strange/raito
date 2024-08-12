@@ -212,21 +212,24 @@ fn validate_coinbase(self: @ChainState, block: @Block, total_fees: u256) -> Resu
     // Validate the outputs' amounts
     // Sum up the total amount of all outputs
     // and also add the outputs to the UtreexoSet.
-    let mut total_output_amount = 0;
+    let mut total_output_amount: u64 = 0;
 
     for txs in *block
         .txs {
-            for outputs in *txs.outputs {
-                total_output_amount + *outputs.value;
-                //TODO add outputs to UtreexoSet
+            for outputs in *txs
+                .outputs {
+                    total_output_amount + (*outputs.value).try_into().unwrap();
+                    //TODO add outputs to UtreexoSet
 
-            };
+                };
         };
 
-    // // Ensure the total output amount is at most the block reward + TX fees
-    let _block_reward = compute_block_reward(*self.block_height);
-    //TODO assert(total_output_amount <=  total_fees + block_reward, 'total amount <= block_reward +
-    //total_fees');
+    // Ensure the total output amount is at most the block reward + TX fees
+    let block_reward = compute_block_reward(*self.block_height);
+    assert(
+        total_output_amount.into() <= total_fees + block_reward.into(),
+        'total output val > block reward'
+    );
 
     Result::Ok(())
 }
