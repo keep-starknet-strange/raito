@@ -1,4 +1,39 @@
-use super::utils::double_sha256;
+use super::utils::{shr, double_sha256};
+
+#[derive(Copy, Drop)]
+pub struct Hash {
+    pub value: [u32; 8]
+}
+
+pub impl U256IntoHash of Into<u256, Hash> {
+    fn into(self: u256) -> Hash {
+        let mut result: Array<u32> = array![];
+        let mut value = self;
+
+        let mut i = 0;
+        loop {
+            if i == 8 {
+                break;
+            }
+            result.append((value & 0xffffffff).try_into().unwrap());
+            value = shr(value, 32_u32);
+            i += 1;
+        };
+
+        Hash {
+            value: [
+                *result[7],
+                *result[6],
+                *result[5],
+                *result[4],
+                *result[3],
+                *result[2],
+                *result[1],
+                *result[0],
+            ]
+        }
+    }
+}
 
 pub fn merkle_root(ref txids: Array<u256>) -> u256 {
     let len = txids.len();
