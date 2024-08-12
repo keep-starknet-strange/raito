@@ -1,7 +1,7 @@
 use core::sha256::{compute_sha256_byte_array, compute_sha256_u32_array};
 use super::state::{Block, ChainState, Transaction, UtreexoState, TxIn, TxOut, OutPoint};
 use super::merkle_tree::merkle_root;
-use super::utils::{shl, shr};
+use super::utils::{shl, shr, from_base16};
 
 const MAX_TARGET: u256 = 0x00000000FFFF0000000000000000000000000000000000000000000000000000;
 
@@ -65,7 +65,7 @@ pub impl TransactionValidatorImpl of TransactionValidator {
             sha256_input.append_word((*txin.previous_output.vout).into(), 4);
 
             // append ScriptSig size (1 byte)
-            sha256_input.append_word((*txin.script).len().into(), 4);
+            sha256_input.append_word((*txin.script).len().into(), 1);
 
             // append ScriptSig (variable size)
             sha256_input.append(*txin.script);
