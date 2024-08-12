@@ -5,7 +5,7 @@ def txin_coinbase:
         previous_output: OutPoint {
             txid: 0_u256,
             vout: 0xffffffff_u32,
-            txo_index: 0, // TODO: implement,
+            txo_index: 0, // TODO: implement
         },
         witness: LITERAL_AT_QUOTES
     }"

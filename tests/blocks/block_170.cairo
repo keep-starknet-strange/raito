@@ -1,8 +1,6 @@
 use raito::state::{Block, Header, Transaction, OutPoint, TxIn, TxOut};
 use super::super::utils::from_base16;
 
-// // block containing first P2P tx to Hal Finney
-
 pub fn block_170() -> Block {
     // block hash: 00000000d1145790a8694403d4063f323d499e655c83426834d4ce2f8dd4a2ee
     Block {
@@ -19,7 +17,7 @@ pub fn block_170() -> Block {
                         script: from_base16("04ffff001d0102"),
                         sequence: 4294967295,
                         previous_output: OutPoint {
-                            txid: 0_u256, vout: 0xffffffff_u32, txo_index: 0, // TODO: implement,
+                            txid: 0_u256, vout: 0xffffffff_u32, txo_index: 0, // TODO: implement
                         },
                         witness: @""
                     }

@@ -15,6 +15,3 @@ curl \
     }' \
  -H 'content-type: text/plain;' $BITCOIN_RPC \
  | jq -r -f scripts/data/block_filter.jq | sed 's/LITERAL_AT_QUOTES/@""/g' > tests/blocks/block_${HEIGHT}.cairo
-
-      # validate_target, validate_timestamp, validate_proof_of_work, compute_block_reward,
-      # compute_total_work,
