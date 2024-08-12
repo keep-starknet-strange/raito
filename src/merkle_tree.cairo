@@ -3,58 +3,30 @@ use super::utils::{shl, double_sha256};
 pub fn merkle_branch(ref txids: Array<[u32; 8]>) -> u256 {
     let len: u32 = txids.len();
 
-    match len == 1 {
-        true => {
-            let mut root: u256 = 0;
-            let mut i: u32 = 0;
+    if len == 1 {
+        let mut root: u256 = 0;
+        let mut i: u32 = 0;
 
-            let [txid0, txid1, txid2, txid3, txid4, txid5, txid6, txid7] = *txids[0];
-            let tx0: Array<u32> = array![txid0, txid1, txid2, txid3, txid4, txid5, txid6, txid7];
-            while i != 8 {
-                let element = (*tx0[i]);
-                root += shl(element.into(), (32 * (7 - i)));
+        let [txid0, txid1, txid2, txid3, txid4, txid5, txid6, txid7] = *txids[0];
+        let tx0: Array<u32> = array![txid0, txid1, txid2, txid3, txid4, txid5, txid6, txid7];
+        while i != 8 {
+            let element = (*tx0[i]);
+            root += shl(element.into(), (32 * (7 - i)));
 
-                i += 1;
-            };
+            i += 1;
+        };
 
-            return root;
-        },
-        false => {}
-    }
-    // if len == 1 {
-    //     let mut root: u256 = 0;
-    //     let mut i: u32 = 0;
-
-    //     let [txid0, txid1, txid2, txid3, txid4, txid5, txid6, txid7] = *txids[0];
-    //     let tx0: Array<u32> = array![txid0, txid1, txid2, txid3, txid4, txid5, txid6, txid7];
-    //     while i != 8 {
-    //         let element = (*tx0[i]);
-    //         root += shl(element.into(), (32 * (7 - i)));
-
-    //         i += 1;
-    //     };
-
-    //     return root;
-    // }
-
-    match len % 2 == 1 {
-        true => { txids.append(*txids[len - 1]); },
-        false => {
-            // CVE-2012-2459 bug fix
-            assert!(
-                txids.at(len - 1) != txids.at(len - 2), "unexpected node duplication in merkle tree"
-            );
-        }
+        return root;
     }
 
-    // if len % 2 == 1 {
-    //     txids.append(*txids[len - 1]);
-    // } else {
-    //     // CVE-2012-2459 bug fix
-    //     assert!(
-    //         txids.at(len - 1) != txids.at(len - 2), "unexpected node duplication in merkle tree"
-    //     );
-    // }
+    if len % 2 == 1 {
+        txids.append(*txids[len - 1]);
+    } else {
+        // CVE-2012-2459 bug fix
+        assert!(
+            txids.at(len - 1) != txids.at(len - 2), "unexpected node duplication in merkle tree"
+        );
+    }
 
     let mut next_txids: Array<[u32; 8]> = array![];
     let mut i = 0;
