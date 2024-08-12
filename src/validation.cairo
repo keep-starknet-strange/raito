@@ -14,7 +14,7 @@ impl BlockValidatorImpl of BlockValidator {
 
         let (total_fees, merkle_root) = fee_and_merkle_root(@block)?;
 
-        validate_coinbase(@block, total_fees)?;
+        validate_coinbase(@self, @block, total_fees)?;
 
         let prev_timestamps = next_prev_timestamps(@self, @block);
         let (current_target, epoch_start_time) = adjust_difficulty(@self, @block);
@@ -196,7 +196,7 @@ fn fee_and_merkle_root(block: @Block) -> Result<(u256, u256), ByteArray> {
     Result::Ok((total_fee, merkle_root(ref txids)))
 }
 
-fn validate_coinbase(block: @Block, total_fees: u256) -> Result<(), ByteArray> {
+fn validate_coinbase(self: @ChainState, block: @Block, total_fees: u256) -> Result<(), ByteArray> {
     let tx_context = block.txs[0];
 
     // Validate the coinbase input
@@ -212,7 +212,7 @@ fn validate_coinbase(block: @Block, total_fees: u256) -> Result<(), ByteArray> {
     // Validate the outputs' amounts
     // Sum up the total amount of all outputs
     // and also add the outputs to the UtreexoSet.
-    let mut total_output_amount: i64 = 0;
+    let mut total_output_amount = 0;
 
     for txs in *block
         .txs {
@@ -223,8 +223,10 @@ fn validate_coinbase(block: @Block, total_fees: u256) -> Result<(), ByteArray> {
             };
         };
 
-    // // Ensure the total amount is at most the block reward + TX fees
-    //TODO let block_reward = compute_block_reward();
+    // // Ensure the total output amount is at most the block reward + TX fees
+    let _block_reward = compute_block_reward(*self.block_height);
+    //TODO assert(total_output_amount <=  total_fees + block_reward, 'total amount <= block_reward +
+    //total_fees');
 
     Result::Ok(())
 }
