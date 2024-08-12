@@ -16,13 +16,6 @@ pub impl HashImpl of HashTrait {
     }
 }
 
-impl HashPartialEq of PartialEq<Hash> {
-    fn eq(lhs: @Hash, rhs: @Hash) -> bool {
-        lhs.value == rhs.value
-    }
-}
-
-
 pub impl U256IntoHash of Into<u256, Hash> {
     fn into(self: u256) -> Hash {
         let mut result: Array<u32> = array![];
@@ -51,13 +44,6 @@ pub impl U256IntoHash of Into<u256, Hash> {
             ]
         }
     }
-}
-
-fn random() {
-    let mut txids: Array<Hash> = array![
-        0x8710b2819a369672a2bce3d5270e7ae0ea59be2f7ce7f9078341b389098953e0_u256.into(),
-        0x64efde3a3f3531569cdab031bb31cfeb5c2d8cba62ae1ca5b2913b4ef643fd49_u256.into(),
-    ];
 }
 
 pub fn shl<
