@@ -55,8 +55,10 @@ pub impl TransactionValidatorImpl of TransactionValidator {
         while let Option::Some(txin) = inputs.pop_front() {
             // append txid (32 bytes)
             let txid: u256 = *(txin.previous_output.txid);
-            sha256_input.append_word_rev(txid.high.into(), 16);
+            // passing low before high so that we end up with little endian byte representation of
+            // the u256, as input is big endian
             sha256_input.append_word_rev(txid.low.into(), 16);
+            sha256_input.append_word_rev(txid.high.into(), 16);
 
             // append VOUT (4 bytes)
             sha256_input.append_word_rev((*txin.previous_output.vout).into(), 4);
@@ -425,12 +427,12 @@ mod tests {
             inputs: array![
                 TxIn {
                     script: from_base16(
-                        "4730440220758f18952b4ebe859b91bdfc86d67478e85511f9fe949c30ab9ea12c78ddf9be0220146e88b5a89ca14a3505c17a13c9f6654014ecce1ca2910db525f6b2b23e680a012102d13c14dfd083b9b19b50ad6f6209902179f98a1acda715633b5622267e067676"
+                        "01091d8d76a82122082246acbb6cc51c839d9012ddaca46048de07ca8eec221518200241cdb85fab4815c6c624d6e932774f3fdf5fa2a1d3a1614951afb83269e1454e2002443047"
                     ),
                     sequence: 0xffffffff,
                     previous_output: OutPoint {
-                        txid: 0x183e7d7146f1fe51a79417dce4c7b0b6f848f844ff56c12d2242f86d52fae8cb_u256,
-                        vout: 0x01000000_u32,
+                        txid: 0x0437cd7f8525ceed2324359c2d0ba26006d92d856a9c20fa0241106ee5a597c9,
+                        vout: 0x00000000,
                         txo_index: 0,
                     },
                     witness: from_base16("")
@@ -439,8 +441,16 @@ mod tests {
                 .span(),
             outputs: array![
                 TxOut {
-                    value: 0x04bdcd0200000000,
-                    pk_script: from_base16("76a9142bd74c02779861ee95f9dc61c870d31e15a29c3a88ac"),
+                    value: 0x000000003b9aca00,
+                    pk_script: from_base16(
+                        "ac4cd86c7e4f702ac7d5debaf126068a3b30b7c1212c145fdfa754f59773b3aae71484a22f30718d37cd74f325229b15f7a2996bf0075f90131bf5c509fe621aae0441"
+                    ),
+                },
+                TxOut {
+                    value: 0x00000000ee6b2800,
+                    pk_script: from_base16(
+                        "aca312b456f643869b993fc0d4f9648b9bfa0b162ef8644474f9cc84fbddeae0b25c9a90a648b1d7ca2e48b1972e388ab61ebc538c0f84496b018adbdce193db110441"
+                    ),
                 }
             ]
                 .span(),
@@ -448,8 +458,6 @@ mod tests {
         };
 
         let txid: u256 = TransactionValidatorImpl::txid(@tx);
-        assert_eq!(
-            txid, 31117111977866514605580122280379099880855664600995121277970332180238727346730
-        );
+        assert_eq!(txid, 0x169e1e83e930853391bc6f35f605c6754cfead57cf8387639d3b4096c54f18f4);
     }
 }
