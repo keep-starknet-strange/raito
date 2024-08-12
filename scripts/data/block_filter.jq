@@ -5,14 +5,15 @@ def txin_coinbase:
         previous_output: OutPoint {
             txid: 0_u256,
             vout: 0xffffffff_u32,
-            txo_index: 0, // TODO: implement
+            txo_index: 0, // TODO: implement,
+            witness: @""
         },
     }"
 ;
 
 def txin_regular:
     "TxIn {
-        script: from_base16(\"\(.scriptSig.hex)\"),
+        script: from_base16(\@"\(.scriptSig.hex)\"),
         sequence: \(.sequence),
         previous_output: OutPoint {
             txid: 0x\(.txid),
@@ -33,7 +34,7 @@ def txin:
 def txout:
     "TxOut {
         value: \(.value*100000000)_u64,
-        pk_script: from_base16(\"\(.scriptPubKey.hex)\"),
+        pk_script: from_base16(\@"\(.scriptPubKey.hex)\"),
     }"
 ;
 
@@ -53,6 +54,7 @@ def block:
         header : Header {	
             version: \(.version)_u32,
             time: \(.time)_u32,
+            bits: 0,
             nonce: \(.nonce)_u32
         },
 		txs: array![\(.tx | map(tx) | join(",\n"))].span()
@@ -60,13 +62,13 @@ def block:
 ;
 
 def fixture:
-"use super::state::{Block, Header, Transaction, OutPoint, TxIn, TxOut};
+"use raito::state::{Block, Header, Transaction, OutPoint, TxIn, TxOut};
+use super::super::utils::from_base16;
 
 pub fn block_\(.height)() -> Block {
     // block hash: \(.hash)
      \( . | block )
 }"
-;
 
 .result | fixture
 
