@@ -43,55 +43,54 @@ pub impl TransactionValidatorImpl of TransactionValidator {
     // marker, flag, and witness fields in segwit transactions are not included
     // this means txid computation is the same for legacy and segwit tx
     fn txid(self: @Transaction) -> u256 {
-        // append version (1 byte)
+        // append version (4 bytes)
         let mut sha256_input: ByteArray = "";
-        sha256_input.append_word((*self.version).into(), 1);
+        sha256_input.append_word_rev((*self.version).into(), 4);
 
-        // append padding (3 bytes)
-        sha256_input.append_word(0, 3);
-
-        // append inputs count (1 byte)
-        sha256_input.append_word((*self.inputs).len().into(), 1);
+        // append inputs count (1 byte) - needs to be adapted, size might be bigger
+        sha256_input.append_word_rev((*self.inputs).len().into(), 1);
 
         // append inputs
         let mut inputs: Span<TxIn> = *self.inputs;
         while let Option::Some(txin) = inputs.pop_front() {
             // append txid (32 bytes)
-            let txid: u256 = *txin.previous_output.txid;
-            sha256_input.append_word(txid.high.into(), 16);
-            sha256_input.append_word(txid.low.into(), 16);
+            let txid: u256 = *(txin.previous_output.txid);
+            sha256_input.append_word_rev(txid.high.into(), 16);
+            sha256_input.append_word_rev(txid.low.into(), 16);
 
             // append VOUT (4 bytes)
-            sha256_input.append_word((*txin.previous_output.vout).into(), 4);
+            sha256_input.append_word_rev((*txin.previous_output.vout).into(), 4);
 
             // append ScriptSig size (1 byte)
-            sha256_input.append_word((*txin.script).len().into(), 1);
+            sha256_input.append_word_rev((*txin.script).len().into(), 1);
 
             // append ScriptSig (variable size)
-            sha256_input.append(*txin.script);
+            let rev_script = (*txin.script).rev();
+            sha256_input.append(@rev_script);
 
             // append Sequence (4 bytes)
-            sha256_input.append_word((*txin.sequence).into(), 4);
+            sha256_input.append_word_rev((*txin.sequence).into(), 4);
         };
 
-        // append outputs count (1 byte)
-        sha256_input.append_word((*self.outputs).len().into(), 1);
+        // append outputs count (1 byte) - needs to be adapted, size might be bigger
+        sha256_input.append_word_rev((*self.outputs).len().into(), 1);
 
         // append outputs
         let mut outputs: Span<TxOut> = *self.outputs;
         while let Option::Some(txout) = outputs.pop_front() {
             // append amount (8 bytes)
-            sha256_input.append_word((*txout.value).into(), 8);
+            sha256_input.append_word_rev((*txout.value).into(), 8);
 
             // append ScriptPubKey size (1 byte)
-            sha256_input.append_word((*txout.pk_script).len().into(), 1);
+            sha256_input.append_word_rev((*txout.pk_script).len().into(), 1);
 
             // append ScriptPubKey (variable size)
-            sha256_input.append(*txout.pk_script);
+            let rev_pk_script = (*txout.pk_script).rev();
+            sha256_input.append(@rev_pk_script);
         };
 
         // append locktime (4 bytes)
-        sha256_input.append_word((*self.lock_time).into(), 4);
+        sha256_input.append_word_rev((*self.lock_time).into(), 4);
 
         // Compute double sha256
         let firstHash = compute_sha256_byte_array(@sha256_input).span();
