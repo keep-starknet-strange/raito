@@ -1,8 +1,8 @@
-use core::sha256::{compute_sha256_byte_array, compute_sha256_u32_array};
 use core::num::traits::{Zero, One, BitSize};
+use core::sha256::{compute_sha256_byte_array, compute_sha256_u32_array};
 use core::starknet::secp256_trait::Secp256PointTrait;
 
-#[derive(Copy, Drop)]
+#[derive(Copy, Drop, Debug)]
 struct Hash {
     value: [u32; 8]
 }
