@@ -54,7 +54,7 @@ def block:
         header : Header {	
             version: \(.version)_u32,
             time: \(.time)_u32,
-            bits: 0,
+            bits: 0, # TODO
             nonce: \(.nonce)_u32
         },
 		txs: array![\(.tx | map(tx) | join(",\n"))].span()
