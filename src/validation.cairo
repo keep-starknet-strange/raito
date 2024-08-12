@@ -73,10 +73,9 @@ fn validate_timestamp(self: @ChainState, block: @Block) -> Result<(), ByteArray>
 }
 
 fn next_prev_timestamps(self: @ChainState, block: @Block) -> Span<u32> {
-    let mut timestamps: Array<u32> = ArrayTrait::new();
-    timestamps.append(*block.header.time);
     let mut prev_timestamps = *self.prev_timestamps;
-    prev_timestamps.pop_front().unwrap();
+    prev_timestamps.pop_front().unwrap(); //keep only 10 most recent previous timestamps
+    let mut timestamps: Array<u32> = array![*block.header.time];
     timestamps.append_span(prev_timestamps);
     timestamps.span()
 }
