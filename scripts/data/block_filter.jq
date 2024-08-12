@@ -13,7 +13,7 @@ def txin_coinbase:
 
 def txin_regular:
     "TxIn {
-        script: from_base16(\@"\(.scriptSig.hex)\"),
+        script: from_base16(\"\(.scriptSig.hex)\"),
         sequence: \(.sequence),
         previous_output: OutPoint {
             txid: 0x\(.txid),
@@ -34,7 +34,7 @@ def txin:
 def txout:
     "TxOut {
         value: \(.value*100000000)_u64,
-        pk_script: from_base16(\@"\(.scriptPubKey.hex)\"),
+        pk_script: from_base16(\"\(.scriptPubKey.hex)\"),
     }"
 ;
 
