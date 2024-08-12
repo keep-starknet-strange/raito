@@ -34,7 +34,7 @@ def txin:
 
 def txout:
     "TxOut {
-        value: \(.value*100000000)_u64,
+        value: \((.value*100000000) | round)_u64,
         pk_script: from_base16(\"\(.scriptPubKey.hex)\"),
     }"
 ;
