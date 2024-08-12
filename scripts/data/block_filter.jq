@@ -6,8 +6,8 @@ def txin_coinbase:
             txid: 0_u256,
             vout: 0xffffffff_u32,
             txo_index: 0, // TODO: implement,
-            witness: @""
         },
+        witness: LITERAL_AT_QUOTES
     }"
 ;
 
@@ -20,6 +20,7 @@ def txin_regular:
             vout: \(.vout),
             txo_index: 0, // TODO: implement
         },
+        witness: LITERAL_AT_QUOTES
     }"
 ;
 
@@ -48,17 +49,16 @@ def tx:
     }"
 ;
 
-
 def block:
     "Block {
         header : Header {	
             version: \(.version)_u32,
             time: \(.time)_u32,
-            bits: 0, # TODO
+            bits: 0, // TODO
             nonce: \(.nonce)_u32
         },
 		txs: array![\(.tx | map(tx) | join(",\n"))].span()
-   };"
+   }"
 ;
 
 def fixture:
@@ -69,6 +69,7 @@ pub fn block_\(.height)() -> Block {
     // block hash: \(.hash)
      \( . | block )
 }"
+;
 
 .result | fixture
 
