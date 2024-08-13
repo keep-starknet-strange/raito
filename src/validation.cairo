@@ -1,5 +1,5 @@
 use super::merkle_tree::merkle_root;
-use super::utils::{shl, shr};
+use super::utils::{shl, shr, Hash};
 use super::state::{Block, ChainState, Transaction, UtreexoState, UtreexoSet, TxIn, TxOut};
 
 const MAX_TARGET: u256 = 0x00000000FFFF0000000000000000000000000000000000000000000000000000;
@@ -202,8 +202,8 @@ fn validate_bits(block: @Block, target: u256) -> Result<(), ByteArray> {
     }
 }
 
-fn fee_and_merkle_root(block: @Block) -> Result<(u64, u256), ByteArray> {
-    let mut txids = ArrayTrait::new();
+fn fee_and_merkle_root(block: @Block) -> Result<(u64, Hash), ByteArray> {
+    let mut txids: Array<Hash> = array![];
     let mut total_fee = 0;
 
     for tx in *block.txs {
