@@ -74,15 +74,15 @@ pub impl HashIntoU256 of Into<Hash, u256> {
         let mut low: u128 = 0;
         let mut high: u128 = 0;
 
-        low = low | (a.into());
-        low = low | shl((b.into()), 32_u32);
-        low = low | shl((c.into()), 64_u32);
-        low = low | shl((d.into()), 96_u32);
+        low += (a.into());
+        low += shl((b.into()), 32_u32);
+        low += shl((c.into()), 64_u32);
+        low += shl((d.into()), 96_u32);
 
-        high = high | (e.into());
-        high = high | shl((f.into()), 32_u32);
-        high = high | shl((g.into()), 64_u32);
-        high = high | shl((h.into()), 96_u32);
+        high += (e.into());
+        high += shl((f.into()), 32_u32);
+        high += shl((g.into()), 64_u32);
+        high += shl((h.into()), 96_u32);
 
         u256 { low, high }
     }
