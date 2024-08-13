@@ -18,13 +18,6 @@ pub impl HashImpl of HashTrait {
     }
 }
 
-impl ValueDisplay of Display<[u32; 8]> {
-    fn fmt(self: @[u32; 8], ref f: Formatter) -> Result<(), Error> {
-        let value = *self;
-        writeln!(f, "Hash ({value})")
-    }
-}
-
 impl HashDisplay of Display<Hash> {
     fn fmt(self: @Hash, ref f: Formatter) -> Result<(), Error> {
         let hash: u256 = (*self).into();
