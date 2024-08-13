@@ -26,6 +26,12 @@ impl HashDisplay of Display<Hash> {
     }
 }
 
+impl HashPartialEq of PartialEq<Hash> {
+    fn eq(lhs: @Hash, rhs: @Hash) -> bool {
+        lhs.value == rhs.value
+    }
+}
+
 pub impl U256IntoHash of Into<u256, Hash> {
     fn into(self: u256) -> Hash {
         let mut result: Array<u32> = array![];
@@ -197,25 +203,13 @@ pub fn fast_pow<
     }
 }
 
-const TWO_POW_32: u128 = 0x100000000;
-const TWO_POW_64: u128 = 0x10000000000000000;
-const TWO_POW_96: u128 = 0x1000000000000000000000000;
+pub fn double_sha256(a: @Hash, b: @Hash) -> Hash {
+    let mut input1: Array<u32> = array![];
+    input1.append_span(a.value.span());
+    input1.append_span(b.value.span());
 
-pub fn double_sha256(a: u256, b: u256) -> u256 {
-    let mut ba = Default::default();
+    let mut input2: Array<u32> = array![];
+    input2.append_span(compute_sha256_u32_array(input1, 0, 0).span());
 
-    ba.append_word(a.high.into(), 16);
-    ba.append_word(a.low.into(), 16);
-    ba.append_word(b.high.into(), 16);
-    ba.append_word(b.low.into(), 16);
-
-    let mut input1 = Default::default();
-    input1.append_span(compute_sha256_byte_array(@ba).span());
-
-    let [x0, x1, x2, x3, x4, x5, x6, x7] = compute_sha256_u32_array(input1, 0, 0);
-
-    u256 {
-        high: x0.into() * TWO_POW_96 + x1.into() * TWO_POW_64 + x2.into() * TWO_POW_32 + x3.into(),
-        low: x4.into() * TWO_POW_96 + x5.into() * TWO_POW_64 + x6.into() * TWO_POW_32 + x7.into(),
-    }
+    HashTrait::to_hash(compute_sha256_u32_array(input2, 0, 0))
 }
