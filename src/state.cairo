@@ -140,4 +140,6 @@ pub struct OutPoint {
     pub vout: u32,
     /// The index of output in the utreexo set (meta field).
     pub txo_index: u64,
+    // Amount calculated with the txid and vout
+    pub amount: u64
 }

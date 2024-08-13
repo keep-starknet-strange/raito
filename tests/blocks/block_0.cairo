@@ -19,7 +19,7 @@ pub fn block_0() -> Block {
                         ),
                         sequence: 4294967295,
                         previous_output: OutPoint {
-                            txid: 0_u256, vout: 0xffffffff_u32, txo_index: 0, // TODO: implement
+                            txid: 0_u256, vout: 0xffffffff_u32, txo_index: 0, amount: 0
                         },
                         witness: @""
                     }

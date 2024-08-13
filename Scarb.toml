@@ -5,6 +5,7 @@ edition = "2023_11"
 
 [scripts]
 get_block= "./scripts/data/get_block.sh"
+get_blocks= "./scripts/data/get_blocks.sh"
 
 [dependencies]
 

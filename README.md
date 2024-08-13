@@ -17,7 +17,7 @@ Raito is a zero-knowledge Bitcoin client implemented in Cairo. It aims to provid
 
 ```mermaid
 flowchart TB
-Pnm1(STARK proof of the chain state<br>up to the block <i>n - 1</i>) --> Vp(zk verifier)
+Pnm1(STARK proof of the chain state<br>up to the block <i>n - 1</i>,<br> including utxo accumulator) --> Vp(zk verifier)
 Bn(blocks <i>n..m</i>) ----> Vb
 
 subgraph Cairo
@@ -26,7 +26,7 @@ subgraph Cairo
     Vb --> ChS
 end
 
-Vb --> Pn(STARK proof of the chain state<br>up to the block <i>m</i>)
+Vb --> Pn(STARK proof of the chain state<br>up to the block <i>m</i>,<br> including utxo accumulator)
 
 style Bn fill:pink
 style Pn fill:lightgreen
@@ -53,7 +53,6 @@ Although this is a highly experimental project without immediate plans for deplo
 
 * header verification
    * [ ] block hash
-   * [ ] previous block hash
    * [ ] proof-of-work
    * [ ] median time
    * [ ] difficulty adjustment
@@ -61,22 +60,24 @@ Although this is a highly experimental project without immediate plans for deplo
    * [ ] tx hash
    * [ ] tx merkle root
    * [ ] verify transaction fee
-* utreexo
-   * [ ] fetch utreexo from some kind of bridge node, tbd
-   * [ ] use utreexo to verify tx inputs
-* verify scripts
-   * integration with Shinigami, tbd
 * block verification
    * [ ] verify coinbase tx
+* verify scripts
+   * integration with Shinigami, tbd
 * integration testing
    * [ ] test on individual historical blocks
 
-### Milestone 2 - Real Data
+### Milestone 2 - Utreexo
+
+* [ ] fetch utreexo from some kind of bridge node, tbd
+* [ ] use utreexo to verify tx inputs
+
+### Milestone 3 - Real Data
 
 * [ ] feed it with real data
 * [ ] test that you can produce and verify proofs of individual blocks
 
-### Milestone 3 - Recursive Verification
+### Milestone 4 - Recursive Verification
 
 * verify chain proofs with cairo verifier, tbd
 
@@ -142,6 +143,8 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
       <td align="center" valign="top" width="14.28%"><a href="https://www.heyfemi.com/home"><img src="https://avatars.githubusercontent.com/u/53274579?v=4?s=100" width="100px;" alt="Olufemi Olumaiyegun"/><br /><sub><b>Olufemi Olumaiyegun</b></sub></a><br /><a href="https://github.com/keep-starknet-strange/raito/commits?author=olufemi-olumaiyegun" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/MSghais"><img src="https://avatars.githubusercontent.com/u/59928086?v=4?s=100" width="100px;" alt="MSG"/><br /><sub><b>MSG</b></sub></a><br /><a href="https://github.com/keep-starknet-strange/raito/commits?author=MSghais" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="http://mubarak23.github.io/"><img src="https://avatars.githubusercontent.com/u/7858376?v=4?s=100" width="100px;" alt="Mubarak Muhammad Aminu"/><br /><sub><b>Mubarak Muhammad Aminu</b></sub></a><br /><a href="https://github.com/keep-starknet-strange/raito/commits?author=mubarak23" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/oluwa-peski"><img src="https://avatars.githubusercontent.com/u/53274579?v=4?s=100" width="100px;" alt="oluwapeski"/><br /><sub><b>oluwapeski</b></sub></a><br /><a href="https://github.com/keep-starknet-strange/raito/commits?author=oluwa-peski" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/stevencartavia"><img src="https://avatars.githubusercontent.com/u/112043913?v=4?s=100" width="100px;" alt="Steven"/><br /><sub><b>Steven</b></sub></a><br /><a href="https://github.com/keep-starknet-strange/raito/commits?author=stevencartavia" title="Code">💻</a></td>
     </tr>
   </tbody>
 </table>

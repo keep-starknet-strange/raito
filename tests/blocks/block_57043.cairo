@@ -17,7 +17,7 @@ pub fn block_57043() -> Block {
                         script: from_base16("04249c151c0176"),
                         sequence: 4294967295,
                         previous_output: OutPoint {
-                            txid: 0_u256, vout: 0xffffffff_u32, txo_index: 0, // TODO: implement
+                            txid: 0_u256, vout: 0xffffffff_u32, txo_index: 0, amount: 0
                         },
                         witness: @""
                     }
@@ -47,6 +47,7 @@ pub fn block_57043() -> Block {
                             txid: 0x867da54b0fd0a9429d30471af3fcf069e069141fcc544583f3103ac3948f2e0d,
                             vout: 0,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -59,6 +60,7 @@ pub fn block_57043() -> Block {
                             txid: 0xa1b2926e0b0e2d032d24a7bc38700cde95b7db754962c8d2add113178ad0df1b,
                             vout: 0,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -71,6 +73,7 @@ pub fn block_57043() -> Block {
                             txid: 0xd9be96849d639cf6194d333015943824800302a0263854bac0b9d3cfb7c7c381,
                             vout: 0,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -83,6 +86,7 @@ pub fn block_57043() -> Block {
                             txid: 0x9d62e6dadaafde34c0eff8f9f85829f2451dd8379e0ccdd364114f8722100090,
                             vout: 0,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -95,6 +99,7 @@ pub fn block_57043() -> Block {
                             txid: 0x29ca7dc4433e506aeedd0213c8b5715d887414093aa7d100661863814f472776,
                             vout: 0,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -107,6 +112,7 @@ pub fn block_57043() -> Block {
                             txid: 0x1498ba4baa3e211e498ff290d80cee5a378419faeaf0bfad4d5cab4a85c21377,
                             vout: 0,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -119,6 +125,7 @@ pub fn block_57043() -> Block {
                             txid: 0x42605a288f6b7afd229050ea3a5ca402d11d0d840ca83140eeb6da51290d2c77,
                             vout: 1,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -131,6 +138,7 @@ pub fn block_57043() -> Block {
                             txid: 0xdffa83544fb441f040f335f840e218fedf5b1e8329ba05a927f317357fa66478,
                             vout: 1,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -143,6 +151,7 @@ pub fn block_57043() -> Block {
                             txid: 0x88ecb21af0fdff135cd72557f797f46c501e7fb06f0bb85e6797689c200b7b78,
                             vout: 0,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -155,6 +164,7 @@ pub fn block_57043() -> Block {
                             txid: 0x411d7cc303e6344f238d2e61d0ccfc95e18b4a5b41acfab7313cf90f2fa99278,
                             vout: 1,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -167,6 +177,7 @@ pub fn block_57043() -> Block {
                             txid: 0xf6858b5c10f9e8025c4a1ebf09e348ce78944739703a8a61a5588cc493d19a78,
                             vout: 1,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -179,6 +190,7 @@ pub fn block_57043() -> Block {
                             txid: 0x3d2ccc12be57cd26fca1a280a321de9559a8dcf86ae46852665ade09e149ab78,
                             vout: 0,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -191,6 +203,7 @@ pub fn block_57043() -> Block {
                             txid: 0x63ff45247f43d354a678835fc2602bc907bdc06249ffe8242f08ccfb4ae16779,
                             vout: 1,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -203,6 +216,7 @@ pub fn block_57043() -> Block {
                             txid: 0xba6bc364c183002d04ae11528ee8543dee9b5e17af147fe9245b705f94df7179,
                             vout: 0,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -215,6 +229,7 @@ pub fn block_57043() -> Block {
                             txid: 0xeec82457cbc83612495843f85ba22caa9492978840048944c93294ce3e815f7a,
                             vout: 1,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -227,6 +242,7 @@ pub fn block_57043() -> Block {
                             txid: 0x39fa5eeec4ea7ffc8c4089590bb96b6c09280684bd0f083cacf5b4a70b136f7a,
                             vout: 0,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -239,6 +255,7 @@ pub fn block_57043() -> Block {
                             txid: 0x3808ce98d033fd3765c042e1a3ea7a86095bc4d81419281346bb912101c45b7b,
                             vout: 1,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -251,6 +268,7 @@ pub fn block_57043() -> Block {
                             txid: 0x2ca0decccec19f4e86021dfc56ae2c7581b3f8c16d4c42e252f35e7234de7b7b,
                             vout: 0,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -263,6 +281,7 @@ pub fn block_57043() -> Block {
                             txid: 0xce806910ce4804de564a9b2a3704b57b0c87c7517ca2a5012e3b6aa9563dcc7b,
                             vout: 0,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -275,6 +294,7 @@ pub fn block_57043() -> Block {
                             txid: 0x3d2ccf1f47baa32d3866de6096311e3fd2d59c17d92e2c3e014726f788472f7c,
                             vout: 0,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -287,6 +307,7 @@ pub fn block_57043() -> Block {
                             txid: 0x58a71de0624df8d191a3168f091f07e9892b08517b12d9c1976bb042cb26477c,
                             vout: 1,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -299,6 +320,7 @@ pub fn block_57043() -> Block {
                             txid: 0x218dd670405060a42db62841e98dd6c9d6bad1ac33129f14f83ae16e34d6557c,
                             vout: 1,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -311,6 +333,7 @@ pub fn block_57043() -> Block {
                             txid: 0xe316b5de62759e81b00c47ec0c534389b934a9dffa0c9d8582cd7dd4d972c57c,
                             vout: 1,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -323,6 +346,7 @@ pub fn block_57043() -> Block {
                             txid: 0xf3e3e6d35a63d0dca1ccc175540e9c815aee337a1b416741faacb06ebeb4ff7c,
                             vout: 0,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -335,6 +359,7 @@ pub fn block_57043() -> Block {
                             txid: 0x9bfe09d61f9330e822ad6635d7275ac1a2dab9761a02768905b16f3c6d8a007d,
                             vout: 1,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -347,6 +372,7 @@ pub fn block_57043() -> Block {
                             txid: 0x9a0af80f17bde34b51a536f72622a616fc02b6398eb5266609ed4f6aa959127d,
                             vout: 1,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -359,6 +385,7 @@ pub fn block_57043() -> Block {
                             txid: 0x757e734978084d632e1e83791573166b7e8eebf08b8faff4d68e3222af0f767d,
                             vout: 0,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -371,6 +398,7 @@ pub fn block_57043() -> Block {
                             txid: 0x42e2a34063276f264f5dd58cad2139b76de5f24da7fd33fffd20f64ccb0d327e,
                             vout: 1,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -383,6 +411,7 @@ pub fn block_57043() -> Block {
                             txid: 0xcefef7c0284dc6f1d08de73de5092e7159147bcca72b250a68137bde68cc3f7e,
                             vout: 1,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -395,6 +424,7 @@ pub fn block_57043() -> Block {
                             txid: 0x749e6d90ff5215373ac1b70a114d48f18ea3bd09aca50a9bdc5fb0c4cd87717e,
                             vout: 1,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -407,6 +437,7 @@ pub fn block_57043() -> Block {
                             txid: 0x4c67129f4669b258453950c4332a82da3e40ee6b37ec37ed2f6706c44509a07e,
                             vout: 1,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -419,6 +450,7 @@ pub fn block_57043() -> Block {
                             txid: 0xf76bc2ad696f9861926f8d93a1a7fcb1ae4f98dfac350ee25f52a7793d4aa17e,
                             vout: 1,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -431,6 +463,7 @@ pub fn block_57043() -> Block {
                             txid: 0x95f8fbcb78be95cca3e046ec95db185473456448abb2eb44e08988ba488da57f,
                             vout: 0,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -443,6 +476,7 @@ pub fn block_57043() -> Block {
                             txid: 0x7148b9c04cf4d5452e7793935dbbf051237987885afe7b2845625830147e4b80,
                             vout: 1,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -455,6 +489,7 @@ pub fn block_57043() -> Block {
                             txid: 0x9a0d6b2fef0ae8a22620e52b71222ecb4f44872f01d97353f110120bd52578b0,
                             vout: 0,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -467,6 +502,7 @@ pub fn block_57043() -> Block {
                             txid: 0x40e4590a76a27464736a8573cc9716c8541141540e0e160e5014215530f73db2,
                             vout: 1,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -479,6 +515,7 @@ pub fn block_57043() -> Block {
                             txid: 0xc76d3f0f53774b0f097791c71cab38900c25c39de430a03ab196a8878e487eb2,
                             vout: 0,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -491,6 +528,7 @@ pub fn block_57043() -> Block {
                             txid: 0x72f284c65380734639107a190f842eca12da9e9a3389329d7fbd39815ac136b3,
                             vout: 0,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -503,6 +541,7 @@ pub fn block_57043() -> Block {
                             txid: 0x096f85124d670e3da13cb55880ec272e486fb423b034797b0c48c0a5825046b3,
                             vout: 0,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -515,6 +554,7 @@ pub fn block_57043() -> Block {
                             txid: 0x23ac73d6d65aa7187e4eeef69fc6ca73d62403cb9a591cfe977fb7ff2696c9b4,
                             vout: 1,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -527,6 +567,7 @@ pub fn block_57043() -> Block {
                             txid: 0x073636d643eca967219c9243795b78e2b55ac28311611b7344962b4a85e276b5,
                             vout: 1,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -539,6 +580,7 @@ pub fn block_57043() -> Block {
                             txid: 0xb9fad902500cf044ca4029c802320d6a646cf4e4a3495a619a18f08ec23e95b6,
                             vout: 1,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -551,6 +593,7 @@ pub fn block_57043() -> Block {
                             txid: 0x12e5bdfd3c73f383802a03b763c0afffdc217fcb38b408cecd1ad15de38595b6,
                             vout: 1,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -563,6 +606,7 @@ pub fn block_57043() -> Block {
                             txid: 0xf433f23310abc5017482e8fd5cd703b519bbec52c910315d1ac619b622de2db7,
                             vout: 0,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -575,6 +619,7 @@ pub fn block_57043() -> Block {
                             txid: 0x9dde8fe8aae2214436112ade88feadfbf520d0eb33e6e2c7e251254bc41bacb8,
                             vout: 1,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -587,6 +632,7 @@ pub fn block_57043() -> Block {
                             txid: 0x6f4a63e1645dffc3366a3d2e0b34c4348e5fe74f3998c91a1176f117c7f2c6b8,
                             vout: 1,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -599,6 +645,7 @@ pub fn block_57043() -> Block {
                             txid: 0xf324c33340d606787505661163bde71c83a98c8f6fb2c54e1dde0af61d4527ba,
                             vout: 0,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -611,6 +658,7 @@ pub fn block_57043() -> Block {
                             txid: 0xd055e9d56ac8f056b987b83be9da08131d68f868466799797ed4b27bf422e2ba,
                             vout: 0,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -623,6 +671,7 @@ pub fn block_57043() -> Block {
                             txid: 0x1f54bafc70859e908d3bcad89f1071d180a9773d2a3548b547926ebc8d7486bb,
                             vout: 0,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -635,6 +684,7 @@ pub fn block_57043() -> Block {
                             txid: 0xa75ee11092b0f9d8034a37e33cbdcb5a14dae64ba19a21faa153ba94b94bbabc,
                             vout: 1,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -647,6 +697,7 @@ pub fn block_57043() -> Block {
                             txid: 0x9da20d81079f681ce8b011e9e3dd740828992c4da46a929d688b770b025af1bd,
                             vout: 1,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -659,6 +710,7 @@ pub fn block_57043() -> Block {
                             txid: 0xfaf54b18008b5c4619284fac155faadb96d7c688ac70e2255a465f8a730b8dbe,
                             vout: 0,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -671,6 +723,7 @@ pub fn block_57043() -> Block {
                             txid: 0xf1471b9274a03a3d01d49d07234c2b09c2a978a0d967eebd86e52b9ccf4f2fc2,
                             vout: 0,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -683,6 +736,7 @@ pub fn block_57043() -> Block {
                             txid: 0x8bc4e089808e9228d391385c150b2659f30cca4c7490ac518a48475e302d41c2,
                             vout: 0,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -695,6 +749,7 @@ pub fn block_57043() -> Block {
                             txid: 0x654793645f14469d31fe7dc9e4f0ba677227dd6ceedbc419f91126364f6151c5,
                             vout: 0,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -707,6 +762,7 @@ pub fn block_57043() -> Block {
                             txid: 0xb3c09778a61a9288dfb3f9acc4339eea5f9bb84dd9971230d8cc851dafdb67c5,
                             vout: 0,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -719,6 +775,7 @@ pub fn block_57043() -> Block {
                             txid: 0x4ad7e893c416111750708da29290a56bf6c023b9afd4e49ce482b6a6d24e8dc5,
                             vout: 1,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -731,6 +788,7 @@ pub fn block_57043() -> Block {
                             txid: 0xe9e3553efe6036050de1056a0550e29cb8a1a319402b78970ba687edb8f2c7c5,
                             vout: 0,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -743,6 +801,7 @@ pub fn block_57043() -> Block {
                             txid: 0x82e2ca47f77910707b7f92d901e5f6c46bf9d051ff78feaf390cbdc943ba94c6,
                             vout: 1,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -755,6 +814,7 @@ pub fn block_57043() -> Block {
                             txid: 0xdb91e957cacb27671efc8ad68313b11932287091250f91aa8d2c270ea14d9cc6,
                             vout: 1,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -767,6 +827,7 @@ pub fn block_57043() -> Block {
                             txid: 0xf316c977ee690d68353e109cc0d3c838d63db485e04b5104ce124c40d9c3fbc8,
                             vout: 1,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -779,6 +840,7 @@ pub fn block_57043() -> Block {
                             txid: 0xbc38699dad81b73424846511136b5d45d7cd676ff5793e7c8ac8ac16fe4c17ca,
                             vout: 1,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -791,6 +853,7 @@ pub fn block_57043() -> Block {
                             txid: 0xac646f02c0be8e1ce546aafb7fdbd909cb0c166a588b19df655596253d0d2fcb,
                             vout: 1,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -803,6 +866,7 @@ pub fn block_57043() -> Block {
                             txid: 0x625311c568bcc2fbc4c663a889605bd38e3531b2c0fa25c648061cd28dc9aecb,
                             vout: 1,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -815,6 +879,7 @@ pub fn block_57043() -> Block {
                             txid: 0x3447aaf4b81eb523d9fded8a16b73e3c5f35501673a6811504be1dd5531cfdcb,
                             vout: 1,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -827,6 +892,7 @@ pub fn block_57043() -> Block {
                             txid: 0x23baf46c5edb2ce6586499dddf07499c9729257caf9b05367e72a9db2bed3ecc,
                             vout: 0,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -839,6 +905,7 @@ pub fn block_57043() -> Block {
                             txid: 0x396475d4c3011ea97c31aa1132e63c335cea9b3b1b573ca93ef135dbee0a66cc,
                             vout: 1,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -851,6 +918,7 @@ pub fn block_57043() -> Block {
                             txid: 0x5343067077d72bba45d3ec2409a8dc99f2dcc9fe395f266cd6000a6ad23472cc,
                             vout: 0,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -863,6 +931,7 @@ pub fn block_57043() -> Block {
                             txid: 0xb7c2284c4dc5bea6fd6b265db4658f13198698e14c39ffd7575046d8d0df82cc,
                             vout: 1,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -875,6 +944,7 @@ pub fn block_57043() -> Block {
                             txid: 0xcd1949ee8ebff49f6816712506ec8fccd4375b2d8c14ad658716c803b1e1efcc,
                             vout: 1,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -887,6 +957,7 @@ pub fn block_57043() -> Block {
                             txid: 0x3c67bd3cf51c97c35dad0cd7df407660b3d9269bc6c5ff876222870f88ebeccd,
                             vout: 0,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -899,6 +970,7 @@ pub fn block_57043() -> Block {
                             txid: 0xdd4f6c4df7207e07ab511e5e4c05d4b9b5b659a7407e98d34f2285c8a9bd21cf,
                             vout: 1,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -911,6 +983,7 @@ pub fn block_57043() -> Block {
                             txid: 0x6fc810a072612c07891dad98da9c9727b2acc5e80c6129582e4ae62941886dcf,
                             vout: 1,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -923,6 +996,7 @@ pub fn block_57043() -> Block {
                             txid: 0x2a26caaa654d86cdd0908df6bbfc4853cd8488cc8d23d7d97aadb0bf2e8603d0,
                             vout: 0,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -935,6 +1009,7 @@ pub fn block_57043() -> Block {
                             txid: 0x8dbc8f799a740116fdfe9ea0f07ad0b782337f96b708c1476a6c06aea567a1d0,
                             vout: 1,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -947,6 +1022,7 @@ pub fn block_57043() -> Block {
                             txid: 0x5869a11f3e77ac4ced18ee57ca2a86ce4fd7856b773040d52bdd5c1992f81ad1,
                             vout: 1,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -959,6 +1035,7 @@ pub fn block_57043() -> Block {
                             txid: 0x94178e0f3fab417c2d7476ec61e4efb87547ce4521d3c67625a90788cff230d1,
                             vout: 1,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -971,6 +1048,7 @@ pub fn block_57043() -> Block {
                             txid: 0x3829901b78eeaf27db486e8ee9ca1e555cf6f61db982aae4be72faec75f80bd3,
                             vout: 1,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -983,6 +1061,7 @@ pub fn block_57043() -> Block {
                             txid: 0x7244ac18ba85d4921cb374cb7382a98638f9c4a4ea2f7c5ec0ea927fd54728d3,
                             vout: 1,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -995,6 +1074,7 @@ pub fn block_57043() -> Block {
                             txid: 0x90c8eecf4108ba4108f274b064bf10654004bc88aec2ea6aaca8510d9bba81d3,
                             vout: 1,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -1007,6 +1087,7 @@ pub fn block_57043() -> Block {
                             txid: 0xc62223868b5a1084eb7f0c3809552348906981fcd759b9758538e5cb3e310cd4,
                             vout: 1,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -1019,6 +1100,7 @@ pub fn block_57043() -> Block {
                             txid: 0xbd188807ef1f543e0b01031cad679641a4e2464ac60e91734b44e0c5f7c5cdd4,
                             vout: 0,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -1031,6 +1113,7 @@ pub fn block_57043() -> Block {
                             txid: 0x21959ee208412d667658dc422190c61532351a53849a63ec5cb004cc421b6dd6,
                             vout: 1,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -1043,6 +1126,7 @@ pub fn block_57043() -> Block {
                             txid: 0xc87cc73985735393fa51099e2f7a6ef5c56e92b0f5576658a270a5b2bbf19cd7,
                             vout: 1,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -1055,6 +1139,7 @@ pub fn block_57043() -> Block {
                             txid: 0x85e0391418021b7f901cf80907446eb01dc020176a14ae88483a17c3ecc12ad8,
                             vout: 0,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -1067,6 +1152,7 @@ pub fn block_57043() -> Block {
                             txid: 0x7570bdd52a658e0387b530808d766737a6e4886cbf81808f0a99297a51e1a9d9,
                             vout: 0,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -1079,6 +1165,7 @@ pub fn block_57043() -> Block {
                             txid: 0x015c55fd82cbf37804f7e890e5aa8c1af3cc22e19c953364583b9c1565d5ffd9,
                             vout: 1,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -1091,6 +1178,7 @@ pub fn block_57043() -> Block {
                             txid: 0x5960b4f4bb0e5482091a6e09297e9009c633ee5aad3e5699dec25115bbab6bdb,
                             vout: 0,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -1103,6 +1191,7 @@ pub fn block_57043() -> Block {
                             txid: 0xcb74bccd1f6f60636ed97469f22e7557441ac69ad3fcc53ca21eeec502187adb,
                             vout: 0,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -1115,6 +1204,7 @@ pub fn block_57043() -> Block {
                             txid: 0xa00862be011a12daee64d276910ea4d03fc1bf0dd21c044318132dd3156892db,
                             vout: 0,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -1127,6 +1217,7 @@ pub fn block_57043() -> Block {
                             txid: 0xe0519bf9d689cbdbcd22020b077856dff1ab939d796f3ff51ce22de628ec6ddc,
                             vout: 0,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -1139,6 +1230,7 @@ pub fn block_57043() -> Block {
                             txid: 0x548c20f8d11acff00aa85937ab3057ead5579d00ed74f057a1d1fab1846ab8dc,
                             vout: 0,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -1151,6 +1243,7 @@ pub fn block_57043() -> Block {
                             txid: 0x1f645b9f7a9dc38ab4f7c6e94ce004b47972db6815fe00147ff9b1854cc843de,
                             vout: 0,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -1163,6 +1256,7 @@ pub fn block_57043() -> Block {
                             txid: 0x41078cbcaf25846ae35ac91cd1ad402a3c631871800b600872c5a560243078de,
                             vout: 1,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -1175,6 +1269,7 @@ pub fn block_57043() -> Block {
                             txid: 0x32d3d1db140cfcc95b7fb93acc840f65f05e42f6455b329b60e29572fbdac4de,
                             vout: 0,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -1187,6 +1282,7 @@ pub fn block_57043() -> Block {
                             txid: 0xe751d7b93a8c4743853b765604dd83d90be5e43a20e4778c03dce2568e1af5e0,
                             vout: 0,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -1199,6 +1295,7 @@ pub fn block_57043() -> Block {
                             txid: 0x482d4930807f057bec35bdf7ce9844065ead791cc18bef0c796cd92a6edb22e1,
                             vout: 0,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -1211,6 +1308,7 @@ pub fn block_57043() -> Block {
                             txid: 0xafc66b0cb0a08246bef497d3ec1b332deaafff446801a54f9250f77cc39e35e3,
                             vout: 1,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -1223,6 +1321,7 @@ pub fn block_57043() -> Block {
                             txid: 0x97a45b12de40e0a491065ada61f5a99fa60fe2e7d455652ea009716b649662e3,
                             vout: 0,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -1235,6 +1334,7 @@ pub fn block_57043() -> Block {
                             txid: 0xe010731d4a4271f7ac71b7641f7650e1b16155fc19c59b407c2e38f1a63c34e5,
                             vout: 1,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -1247,6 +1347,7 @@ pub fn block_57043() -> Block {
                             txid: 0x48367ebccf38c7828f64ced6ff504b66221220e6e32053c6715f53cb5e1375e5,
                             vout: 1,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -1259,6 +1360,7 @@ pub fn block_57043() -> Block {
                             txid: 0x56c5f59e29aafef9dbb8db57cfb9a8d882400ea31c43e607cd73071feade8fe7,
                             vout: 1,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -1271,6 +1373,7 @@ pub fn block_57043() -> Block {
                             txid: 0x98fc0a74fdb3b3f65716c0234bae0f7bb937e6cc3971947ad18497b76b85f1e7,
                             vout: 0,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -1283,6 +1386,7 @@ pub fn block_57043() -> Block {
                             txid: 0x1c09709162d7ceb05dfc9132021383ded38f1989845390e8cc2406b25e944aec,
                             vout: 0,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -1295,6 +1399,7 @@ pub fn block_57043() -> Block {
                             txid: 0x4886dcd0f19c042ab0d1e24ad21fcfb6bff4ffaade5e92b545250b2a26959fec,
                             vout: 1,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -1307,6 +1412,7 @@ pub fn block_57043() -> Block {
                             txid: 0xc9f48d77390ce192caff8b6007ba7cd10fafd06c4b6d53d27dd093d2af6c32ee,
                             vout: 0,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -1319,6 +1425,7 @@ pub fn block_57043() -> Block {
                             txid: 0xb0771e69aaf1eb2f46badc79d33d1879f980898e824fd9fdbba3d058601f01f0,
                             vout: 0,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -1331,6 +1438,7 @@ pub fn block_57043() -> Block {
                             txid: 0x780f846d4f0efcfafc44e9a85badee109d99a61ca0069312dbfaddb03a0a07f0,
                             vout: 0,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -1343,6 +1451,7 @@ pub fn block_57043() -> Block {
                             txid: 0xf3c947d55836ee4bf8f64f370327ba9bcd6267faa0d5f1c9f911f6befc7f39f0,
                             vout: 0,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -1355,6 +1464,7 @@ pub fn block_57043() -> Block {
                             txid: 0x5b22c03c9427334f61f57fb0714a8eb1f3a0b073c6a5310f873f86f534dd34f1,
                             vout: 1,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -1367,6 +1477,7 @@ pub fn block_57043() -> Block {
                             txid: 0x2ada4f681eddb7c175d4c9a2c9f14a148d7af9a82004b8e5bf06ac10db6c80f5,
                             vout: 0,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -1379,6 +1490,7 @@ pub fn block_57043() -> Block {
                             txid: 0x307fe9212a7e34477df50fb0289ff6611f8a8d2925a3445a26cdb3db6af213f6,
                             vout: 1,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -1391,6 +1503,7 @@ pub fn block_57043() -> Block {
                             txid: 0x7bfea77535fbbc3baa1de262d42b629a3bbbc7578c3fe603dfa42eb9779493f6,
                             vout: 0,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -1403,6 +1516,7 @@ pub fn block_57043() -> Block {
                             txid: 0x2c18f3c94c449a73e9eb83cc25447391f68876f5adb1da84c65b5c238381cbf6,
                             vout: 0,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -1415,6 +1529,7 @@ pub fn block_57043() -> Block {
                             txid: 0x98a2a6b924b736ea60aea576f22b12750c5e0283f21170f5a82c4eaa869251fa,
                             vout: 0,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -1427,6 +1542,7 @@ pub fn block_57043() -> Block {
                             txid: 0x06da3773e907eed9d81b25dbb68c6c7d170657bc08d69a389036535ff7e5e1fa,
                             vout: 0,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -1439,6 +1555,7 @@ pub fn block_57043() -> Block {
                             txid: 0x39b5cc68681b525bb8d5bd088940cd0ae500ca54fa973bb70e4ca53044a628fb,
                             vout: 0,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -1451,6 +1568,7 @@ pub fn block_57043() -> Block {
                             txid: 0x61c1ec0e8d3ce364e872455d9eb0fee74c632777aaeed57a5b59d0d5c7da93fd,
                             vout: 0,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -1463,6 +1581,7 @@ pub fn block_57043() -> Block {
                             txid: 0xf2e83235b8f466c5044ba1f6a0cc63d110cf292db22d299f9b3a898d9fe326fe,
                             vout: 0,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -1475,6 +1594,7 @@ pub fn block_57043() -> Block {
                             txid: 0x0c55a81ef1961d91f0240b37344633a3cf6beb45463b7199df2fd91e673347db,
                             vout: 0,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -1487,6 +1607,7 @@ pub fn block_57043() -> Block {
                             txid: 0x01341b0a33e842f05d5388a4914d5aa1504bc324718dc7dd6e0338ef27b6d636,
                             vout: 0,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -1499,6 +1620,7 @@ pub fn block_57043() -> Block {
                             txid: 0x677586030b3d4c010d716c5b601aece411c1ec6c98f3efaa505d64090f7115e3,
                             vout: 0,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -1511,6 +1633,7 @@ pub fn block_57043() -> Block {
                             txid: 0xed1f9611b76b094c652e3031ccb0a6b4f8d222128136b4d7f154b6e2323fd0a8,
                             vout: 0,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -1523,6 +1646,7 @@ pub fn block_57043() -> Block {
                             txid: 0x0ab29e3cb647e108bc104b71a095c3c72318c03aa61d05aef99d6b8da5d5a672,
                             vout: 0,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -1535,6 +1659,7 @@ pub fn block_57043() -> Block {
                             txid: 0x852603e1590ddb86b932ce6c6eeb68d060e255c04c5b7a7fab9f5bdb3e717ff5,
                             vout: 0,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -1547,6 +1672,7 @@ pub fn block_57043() -> Block {
                             txid: 0x888e013a915fe7dc05cfbd4be19114d41e19d69372da9c04555708fd1dbc373b,
                             vout: 0,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -1559,6 +1685,7 @@ pub fn block_57043() -> Block {
                             txid: 0x42fa5605339f473d04346e044b084c591da292839bcf5e31ac9042a07ceb98f9,
                             vout: 0,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -1571,6 +1698,7 @@ pub fn block_57043() -> Block {
                             txid: 0x07c8b28197c8c84bcb77104e299ee7ae75f3543f74d8d37217de54b6da85c72c,
                             vout: 0,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -1583,6 +1711,7 @@ pub fn block_57043() -> Block {
                             txid: 0x4dc331f38a9c73c00caa2ea47e73b7068dbff7069a9740de8f6175cf3904b424,
                             vout: 0,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -1595,6 +1724,7 @@ pub fn block_57043() -> Block {
                             txid: 0x85c325b5a4b25f750a05e7f0eb12a10fd234c704564c09d8c8a0c8df4063871c,
                             vout: 0,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -1607,6 +1737,7 @@ pub fn block_57043() -> Block {
                             txid: 0x3ef0dd724b40387967a6871c814e6a16e09a5c5bcc772deb924f4c9aa5820d22,
                             vout: 0,
                             txo_index: 0, // TODO: implement
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     }
