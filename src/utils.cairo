@@ -21,9 +21,7 @@ pub impl HashImpl of HashTrait {
 impl HashDisplay of Display<Hash> {
     fn fmt(self: @Hash, ref f: Formatter) -> Result<(), Error> {
         let hash: u256 = (*self).into();
-        let base: u256 = 16;
-
-        hash.append_formatted_to_byte_array(ref f.buffer, base.try_into().unwrap());
+        hash.append_formatted_to_byte_array(ref f.buffer, 16);
         Result::Ok(())
     }
 }
