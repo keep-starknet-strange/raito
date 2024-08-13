@@ -13,7 +13,7 @@ pub struct ChainState {
     pub total_work: u256,
     /// Best block.
     pub best_block_hash: u256,
-    /// Current block.
+    /// Current target.
     pub current_target: u256,
     /// Start of the current epoch.
     pub epoch_start_time: u32,

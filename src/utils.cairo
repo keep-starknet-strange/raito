@@ -1,6 +1,98 @@
-use core::sha256::{compute_sha256_byte_array, compute_sha256_u32_array};
+use core::fmt::{Display, Formatter, Error};
 use core::num::traits::{Zero, One, BitSize};
-use core::starknet::secp256_trait::Secp256PointTrait;
+use core::sha256::{compute_sha256_byte_array, compute_sha256_u32_array};
+use core::to_byte_array::AppendFormattedToByteArray;
+
+#[derive(Copy, Drop, Debug)]
+// pub is required here as we define Hash in utils and we need to import Hash in merkle_tree.cairo
+// for arguments to merkle_root function
+pub struct Hash {
+    pub value: [u32; 8]
+}
+
+#[generate_trait]
+pub impl HashImpl of HashTrait {
+    #[inline(always)]
+    fn to_hash(array: [u32; 8]) -> Hash {
+        Hash { value: array }
+    }
+}
+
+impl HashDisplay of Display<Hash> {
+    fn fmt(self: @Hash, ref f: Formatter) -> Result<(), Error> {
+        let hash: u256 = (*self).into();
+        hash.append_formatted_to_byte_array(ref f.buffer, 16);
+        Result::Ok(())
+    }
+}
+
+impl HashPartialEq of PartialEq<Hash> {
+    fn eq(lhs: @Hash, rhs: @Hash) -> bool {
+        lhs.value == rhs.value
+    }
+}
+
+pub impl U256IntoHash of Into<u256, Hash> {
+    fn into(self: u256) -> Hash {
+        let mut result: Array<u32> = array![];
+        let mut low: u128 = self.low;
+        let mut high: u128 = self.high;
+
+        let mut i = 0;
+        loop {
+            if i == 4 {
+                break;
+            }
+            result.append((low & 0xffffffff).try_into().unwrap());
+            low = shr(low, 32_u32);
+            i += 1;
+        };
+
+        let mut i = 0;
+        loop {
+            if i == 4 {
+                break;
+            }
+            result.append((high & 0xffffffff).try_into().unwrap());
+            high = shr(high, 32_u32);
+            i += 1;
+        };
+
+        Hash {
+            value: [
+                *result[7],
+                *result[6],
+                *result[5],
+                *result[4],
+                *result[3],
+                *result[2],
+                *result[1],
+                *result[0],
+            ]
+        }
+    }
+}
+
+pub impl HashIntoU256 of Into<Hash, u256> {
+    fn into(self: Hash) -> u256 {
+        let [a, b, c, d, e, f, g, h] = self.value;
+
+        let mut low: u128 = 0;
+        let mut high: u128 = 0;
+
+        low += (a.into());
+        low += shl((b.into()), 32_u32);
+        low += shl((c.into()), 64_u32);
+        low += shl((d.into()), 96_u32);
+
+        high += (e.into());
+        high += shl((f.into()), 32_u32);
+        high += shl((g.into()), 64_u32);
+        high += shl((h.into()), 96_u32);
+
+        u256 { low, high }
+    }
+}
 
 pub fn shl<
     T,
@@ -111,27 +203,15 @@ pub fn fast_pow<
     }
 }
 
-const TWO_POW_32: u128 = 0x100000000;
-const TWO_POW_64: u128 = 0x10000000000000000;
-const TWO_POW_96: u128 = 0x1000000000000000000000000;
+pub fn double_sha256(a: @Hash, b: @Hash) -> Hash {
+    let mut input1: Array<u32> = array![];
+    input1.append_span(a.value.span());
+    input1.append_span(b.value.span());
 
-pub fn double_sha256(a: u256, b: u256) -> u256 {
-    let mut ba = Default::default();
+    let mut input2: Array<u32> = array![];
+    input2.append_span(compute_sha256_u32_array(input1, 0, 0).span());
 
-    ba.append_word(a.high.into(), 16);
-    ba.append_word(a.low.into(), 16);
-    ba.append_word(b.high.into(), 16);
-    ba.append_word(b.low.into(), 16);
-
-    let mut input1 = Default::default();
-    input1.append_span(compute_sha256_byte_array(@ba).span());
-
-    let [x0, x1, x2, x3, x4, x5, x6, x7] = compute_sha256_u32_array(input1, 0, 0);
-
-    u256 {
-        high: x0.into() * TWO_POW_96 + x1.into() * TWO_POW_64 + x2.into() * TWO_POW_32 + x3.into(),
-        low: x4.into() * TWO_POW_96 + x5.into() * TWO_POW_64 + x6.into() * TWO_POW_32 + x7.into(),
-    }
+    HashTrait::to_hash(compute_sha256_u32_array(input2, 0, 0))
 }
 
 fn hex_to_byte(h: u8) -> u8 {
