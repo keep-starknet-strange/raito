@@ -22,7 +22,7 @@ pub fn block_170() -> Block {
                             txo_index: 0,
                             amount: 0 // TODO: implement
                         },
-                        witness: @""
+                        witness: @"" // Placeholder for witness
                     }
                 ]
                     .span(),
@@ -52,7 +52,7 @@ pub fn block_170() -> Block {
                             txo_index: 0,
                             amount: 0 // TODO: implement
                         },
-                        witness: @""
+                        witness: @"" // Placeholder for witness
                     }
                 ]
                     .span(),
