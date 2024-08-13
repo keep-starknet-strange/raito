@@ -227,7 +227,7 @@ fn validate_coinbase(block: @Block, total_fees: u256, block_height: u32) -> Resu
     let block_reward = compute_block_reward(block_height);
     assert(
         total_output_amount.into() <= total_fees + block_reward.into(),
-        'total output val > block reward'
+        'total output > block rwd + fees'
     );
 
     Result::Ok(())
@@ -246,6 +246,7 @@ mod tests {
         validate_timestamp, validate_proof_of_work, compute_block_reward, compute_total_work,
         compute_work_from_target, shr, shl, Block, ChainState, UtreexoState, validate_coinbase
     };
+    use raito::utils::from_base16;
 
 
     #[test]
@@ -385,4 +386,153 @@ mod tests {
         let last_reward = compute_block_reward(max_halvings * block_height);
         assert_eq!(last_reward, 0);
     }
+
+    #[test]
+    #[should_panic(expected: ('Input count should be 1',))]
+    fn test_validate_coinbase_with_multiple_input() {
+        let block = Block {
+            header: Header { version: 1_u32, time: 1231006505_u32, bits: 1, nonce: 2083236893_u32 },
+            txs: array![
+                Transaction {
+                    version: 1,
+                    is_segwit: false,
+                    inputs: array![
+                        TxIn {
+                            script: @from_base16(
+                                @"01091d8d76a82122082246acbb6cc51c839d9012ddaca46048de07ca8eec221518200241cdb85fab4815c6c624d6e932774f3fdf5fa2a1d3a1614951afb83269e1454e2002443047"
+                            ),
+                            sequence: 4294967295,
+                            previous_output: OutPoint {
+                                txid: 0_u256, vout: 0xffffffff_u32, txo_index: 0, // TODO: implement
+                            },
+                            witness: array![].span()
+                        },
+                        TxIn {
+                            script: @from_base16(
+                                @"01091d8d76a82122082246acbb6cc51c839d9012ddaca46048de07ca8eec221518200241cdb85fab4815c6c624d6e932774f3fdf5fa2a1d3a1614951afb83269e1454e2002443047"
+                            ),
+                            sequence: 4294967295,
+                            previous_output: OutPoint {
+                                txid: 0_u256, vout: 0xffffffff_u32, txo_index: 0, // TODO: implement
+                            },
+                            witness: array![].span()
+                        }
+                    ]
+                        .span(),
+                    outputs: array![
+                        TxOut {
+                            value: 5000000000_u64,
+                            pk_script: @from_base16(
+                                @"4104678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5fac"
+                            ),
+                        }
+                    ]
+                        .span(),
+                    lock_time: 0
+                }
+            ]
+                .span()
+        };
+        let total_fees = 5000000000_u64;
+        let block_height = 1;
+
+        validate_coinbase(@block, total_fees.into(), block_height);
+    }
+
+    #[test]
+    #[should_panic(expected: ('vout should be 0xFFFFFFFF',))]
+    fn test_validate_coinbase_with_wrong_vout() {
+        let block = Block {
+            header: Header { version: 1_u32, time: 1231006505_u32, bits: 1, nonce: 2083236893_u32 },
+            txs: array![
+                Transaction {
+                    version: 1,
+                    is_segwit: false,
+                    inputs: array![
+                        TxIn {
+                            script: @from_base16(
+                                @"01091d8d76a82122082246acbb6cc51c839d9012ddaca46048de07ca8eec221518200241cdb85fab4815c6c624d6e932774f3fdf5fa2a1d3a1614951afb83269e1454e2002443047"
+                            ),
+                            sequence: 4294967295,
+                            previous_output: OutPoint {
+                                txid: 0_u256, vout: 0x1_u32, txo_index: 0, // TODO: implement
+                            },
+                            witness: array![].span()
+                        }
+                    ]
+                        .span(),
+                    outputs: array![
+                        TxOut {
+                            value: 5000000000_u64,
+                            pk_script: @from_base16(
+                                @"4104678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5fac"
+                            ),
+                        }
+                    ]
+                        .span(),
+                    lock_time: 0
+                }
+            ]
+                .span()
+        };
+        let total_fees = 5000000000_u64;
+        let block_height = 1;
+
+        validate_coinbase(@block, total_fees.into(), block_height);
+    }
+
+    #[test]
+    #[should_panic(expected: ('txid should be 0',))]
+    fn test_validate_coinbase_with_txid_not_zero() {
+        let block = Block {
+            header: Header { version: 1_u32, time: 1231006505_u32, bits: 1, nonce: 2083236893_u32 },
+            txs: array![
+                Transaction {
+                    version: 1,
+                    is_segwit: false,
+                    inputs: array![
+                        TxIn {
+                            script: @from_base16(
+                                @"01091d8d76a82122082246acbb6cc51c839d9012ddaca46048de07ca8eec221518200241cdb85fab4815c6c624d6e932774f3fdf5fa2a1d3a1614951afb83269e1454e2002443047"
+                            ),
+                            sequence: 4294967295,
+                            previous_output: OutPoint {
+                                txid: 0x2_u256,
+                                vout: 0xFFFFFFFF_u32,
+                                txo_index: 0, // TODO: implement
+                            },
+                            witness: array![].span()
+                        }
+                    ]
+                        .span(),
+                    outputs: array![
+                        TxOut {
+                            value: 5000000000_u64,
+                            pk_script: @from_base16(
+                                @"4104678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5fac"
+                            ),
+                        }
+                    ]
+                        .span(),
+                    lock_time: 0
+                }
+            ]
+                .span()
+        };
+        let total_fees = 5000000000_u64;
+        let block_height = 1;
+
+        validate_coinbase(@block, total_fees.into(), block_height);
+    }
+    
+    // #[test]
+// #[should_panic(expected: ('total output > block rwd + fees',))]
+// fn test_validate_coinbase_outputs_amount() {
+//     let block = Block {};
+
+    //     let total_fees = 1000000000_u64;
+//     let block_height = 0;
+
+    //     validate_coinbase(@block, total_fees.into(), block_height);
+// }
 }
