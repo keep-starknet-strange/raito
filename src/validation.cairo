@@ -67,6 +67,8 @@ fn block_hash(
 ; 8] {
     let mut header_data = ArrayTrait::<u32>::new();
     header_data.append(version);
+    header_data.append_span(previous_block.span());
+    header_data.append_span(merkle_root.span());
     header_data.append(time);
     header_data.append(bits);
     header_data.append(nonce);
