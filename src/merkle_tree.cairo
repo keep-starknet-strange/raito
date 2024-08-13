@@ -8,18 +8,18 @@ pub fn merkle_root(ref hashes: Array<Hash>) -> Hash {
     }
 
     if len % 2 == 1 {
-        hashes.append(*hashes.at(len - 1));
+        hashes.append(*hashes[len - 1]);
     } else {
         // CVE-2012-2459 bug fix
         assert!(
-            *hashes.at(len - 1) != *hashes.at(len - 2), "unexpected node duplication in merkle tree"
+            *hashes[len - 1] != *hashes[len - 2], "unexpected node duplication in merkle tree"
         );
     }
 
     let mut next_hashes: Array<Hash> = array![];
     let mut i = 0;
     while i < len {
-        next_hashes.append(double_sha256(hashes.at(i), hashes.at(i + 1)));
+        next_hashes.append(double_sha256(hashes[i], hashes[i + 1]));
         i += 2;
     };
 
