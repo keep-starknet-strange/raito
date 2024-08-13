@@ -1,3 +1,4 @@
+use core::fmt::{Display, Formatter, Error};
 use core::num::traits::{Zero, One, BitSize};
 use core::sha256::{compute_sha256_byte_array, compute_sha256_u32_array};
 
@@ -13,6 +14,20 @@ pub impl HashImpl of HashTrait {
     #[inline(always)]
     fn new() -> Hash {
         Hash { value: [0; 8] }
+    }
+}
+
+impl ValueDisplay of Display<[u32; 8]> {
+    fn fmt(self: @[u32; 8], ref f: Formatter) -> Result<(), Error> {
+        let value = *self;
+        writeln!(f, "Hash ({value})")
+    }
+}
+
+impl HashDisplay of Display<Hash> {
+    fn fmt(self: @Hash, ref f: Formatter) -> Result<(), Error> {
+        let value = *self.value;
+        writeln!(f, "Hash ({value})")
     }
 }
 
