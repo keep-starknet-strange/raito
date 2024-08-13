@@ -117,6 +117,24 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "oluwa-peski",
+      "name": "oluwapeski",
+      "avatar_url": "https://avatars.githubusercontent.com/u/53274579?v=4",
+      "profile": "https://github.com/oluwa-peski",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "stevencartavia",
+      "name": "Steven",
+      "avatar_url": "https://avatars.githubusercontent.com/u/112043913?v=4",
+      "profile": "https://github.com/stevencartavia",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,

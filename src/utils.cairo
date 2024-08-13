@@ -154,5 +154,6 @@ pub fn from_base16(hexs: ByteArray) -> @ByteArray {
         result.append_word(hex_to_byte(hexs.at(i).unwrap()).into(), 4);
         i += 1;
     };
+
     @result
 }

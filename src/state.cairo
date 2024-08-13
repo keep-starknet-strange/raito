@@ -103,6 +103,16 @@ pub struct Transaction {
     pub lock_time: u32,
 }
 
+/// Output of a transaction.
+/// https://learnmeabitcoin.com/technical/transaction/output/
+#[derive(Drop, Copy)]
+pub struct TxOut {
+    /// The value of the output in satoshis.
+    pub value: u64,
+    /// The spending script (aka locking code) for this output.
+    pub pk_script: @ByteArray,
+}
+
 /// Input of a transaction.
 /// https://learnmeabitcoin.com/technical/transaction/input/
 ///
@@ -117,7 +127,7 @@ pub struct TxIn {
     /// The reference to the previous output that is being used as an input.
     pub previous_output: OutPoint,
     /// The witness data for transactions.
-    pub witness: @ByteArray,
+    pub witness: @ByteArray
 }
 
 
@@ -130,6 +140,8 @@ pub struct OutPoint {
     pub vout: u32,
     /// The index of output in the utreexo set (meta field).
     pub txo_index: u64,
+    // Amount calculated with the txid and vout
+    pub amount: u64
 }
 
 /// Output of a transaction.
