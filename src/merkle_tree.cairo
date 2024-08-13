@@ -11,9 +11,7 @@ pub fn merkle_root(ref hashes: Array<Hash>) -> Hash {
         hashes.append(*hashes[len - 1]);
     } else {
         // CVE-2012-2459 bug fix
-        assert!(
-            *hashes[len - 1] != *hashes[len - 2], "unexpected node duplication in merkle tree"
-        );
+        assert!(*hashes[len - 1] != *hashes[len - 2], "unexpected node duplication in merkle tree");
     }
 
     let mut next_hashes: Array<Hash> = array![];
