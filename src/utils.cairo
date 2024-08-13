@@ -7,7 +7,7 @@ use core::to_byte_array::AppendFormattedToByteArray;
 // pub is required here as we define Hash in utils and we need to import Hash in merkle_tree.cairo
 // for arguments to merkle_root function
 pub struct Hash {
-    value: [u32; 8]
+    pub value: [u32; 8]
 }
 
 #[generate_trait]
