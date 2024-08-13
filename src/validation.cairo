@@ -96,8 +96,9 @@ fn validate_timestamp(self: @ChainState, block: @Block) -> Result<(), ByteArray>
 fn next_prev_timestamps(self: @ChainState, block: @Block) -> Span<u32> {
     let mut prev_timestamps = *self.prev_timestamps;
     prev_timestamps.pop_front().unwrap(); //keep only 10 most recent previous timestamps
-    let mut timestamps: Array<u32> = array![*block.header.time];
+    let mut timestamps: Array<u32> = array![];
     timestamps.append_span(prev_timestamps);
+    timestamps.append(*block.header.time);
     timestamps.span()
 }
 
@@ -459,10 +460,17 @@ mod tests {
             txs: ArrayTrait::new().span(),
         };
         let next_prev_timestamps = next_prev_timestamps(@chain_state, @block);
-        assert(*next_prev_timestamps[0] == 12, 'Failed to compute');
-        assert(*next_prev_timestamps[6] == 6, 'Failed to compute');
-        assert(*next_prev_timestamps[8] == 8, 'Failed to compute');
-        assert(*next_prev_timestamps[9] == 9, 'Failed to compute');
+        assert_eq!(*next_prev_timestamps[0], 1);
+        assert_eq!(*next_prev_timestamps[1], 2);
+        assert_eq!(*next_prev_timestamps[2], 3);
+        assert_eq!(*next_prev_timestamps[3], 4);
+        assert_eq!(*next_prev_timestamps[4], 5);
+        assert_eq!(*next_prev_timestamps[5], 6);
+        assert_eq!(*next_prev_timestamps[6], 7);
+        assert_eq!(*next_prev_timestamps[7], 8);
+        assert_eq!(*next_prev_timestamps[8], 9);
+        assert_eq!(*next_prev_timestamps[9], 10);
+        assert_eq!(*next_prev_timestamps[10], 12);
     }
 
     #[test]
