@@ -72,7 +72,6 @@ Although this is a highly experimental project without immediate plans for deplo
 * [ ] fetch utreexo from some kind of bridge node, tbd
 * [ ] use utreexo to verify tx inputs
 
-
 ### Milestone 3 - Real Data
 
 * [ ] feed it with real data
