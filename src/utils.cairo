@@ -1,6 +1,7 @@
 use core::fmt::{Display, Formatter, Error};
 use core::num::traits::{Zero, One, BitSize};
 use core::sha256::{compute_sha256_byte_array, compute_sha256_u32_array};
+use core::to_byte_array::AppendFormattedToByteArray;
 
 #[derive(Copy, Drop, Debug)]
 // pub is required here as we define Hash in utils and we need to import Hash in merkle_tree.cairo
@@ -12,8 +13,8 @@ pub struct Hash {
 #[generate_trait]
 pub impl HashImpl of HashTrait {
     #[inline(always)]
-    fn new() -> Hash {
-        Hash { value: [0; 8] }
+    fn to_hash(array: [u32; 8]) -> Hash {
+        Hash { value: array }
     }
 }
 
@@ -26,8 +27,11 @@ impl ValueDisplay of Display<[u32; 8]> {
 
 impl HashDisplay of Display<Hash> {
     fn fmt(self: @Hash, ref f: Formatter) -> Result<(), Error> {
-        let value = *self.value;
-        writeln!(f, "Hash ({value})")
+        let hash: u256 = (*self).into();
+        let base: u256 = 16;
+
+        hash.append_formatted_to_byte_array(ref f.buffer, base.try_into().unwrap());
+        Result::Ok(())
     }
 }
 
@@ -69,6 +73,27 @@ pub impl U256IntoHash of Into<u256, Hash> {
                 *result[0],
             ]
         }
+    }
+}
+
+pub impl HashIntoU256 of Into<Hash, u256> {
+    fn into(self: Hash) -> u256 {
+        let [a, b, c, d, e, f, g, h] = self.value;
+
+        let mut low: u128 = 0;
+        let mut high: u128 = 0;
+
+        low = low | (a.into());
+        low = low | shl((b.into()), 32_u32);
+        low = low | shl((c.into()), 64_u32);
+        low = low | shl((d.into()), 96_u32);
+
+        high = high | (e.into());
+        high = high | shl((f.into()), 32_u32);
+        high = high | shl((g.into()), 64_u32);
+        high = high | shl((h.into()), 96_u32);
+
+        u256 { low, high }
     }
 }
 
