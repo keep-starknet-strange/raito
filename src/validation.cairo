@@ -91,8 +91,11 @@ fn validate_timestamp(self: @ChainState, block: @Block) -> Result<(), ByteArray>
 }
 
 fn next_prev_timestamps(self: @ChainState, block: @Block) -> Span<u32> {
-    // TODO: implement
-    *self.prev_timestamps
+    let mut prev_timestamps = *self.prev_timestamps;
+    prev_timestamps.pop_front().unwrap(); //keep only 10 most recent previous timestamps
+    let mut timestamps: Array<u32> = array![*block.header.time];
+    timestamps.append_span(prev_timestamps);
+    timestamps.span()
 }
 
 fn compute_total_work(current_total_work: u256, target: u256) -> u256 {
@@ -228,7 +231,7 @@ mod tests {
     use raito::utils::from_base16;
     use super::{
         validate_timestamp, validate_proof_of_work, compute_block_reward, compute_total_work,
-        compute_work_from_target, shr, shl, Block, ChainState, UtreexoState,
+        compute_work_from_target, shr, shl, Block, ChainState, UtreexoState, next_prev_timestamps,
         TransactionValidatorImpl
     };
 
@@ -406,5 +409,27 @@ mod tests {
 
         let last_reward = compute_block_reward(max_halvings * block_height);
         assert_eq!(last_reward, 0);
+    }
+
+    #[test]
+    fn test_next_prev_timstamps() {
+        let chain_state = ChainState {
+            block_height: 1,
+            total_work: 1,
+            best_block_hash: 1,
+            current_target: 1,
+            epoch_start_time: 1,
+            prev_timestamps: array![0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10].span(),
+            utreexo_state: UtreexoState { roots: array![].span() },
+        };
+        let block = Block {
+            header: Header { version: 1, time: 12, nonce: 1, bits: 1 },
+            txs: ArrayTrait::new().span(),
+        };
+        let next_prev_timestamps = next_prev_timestamps(@chain_state, @block);
+        assert(*next_prev_timestamps[0] == 12, 'Failed to compute');
+        assert(*next_prev_timestamps[6] == 6, 'Failed to compute');
+        assert(*next_prev_timestamps[8] == 8, 'Failed to compute');
+        assert(*next_prev_timestamps[9] == 9, 'Failed to compute');
     }
 }
