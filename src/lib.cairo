@@ -1,6 +1,6 @@
 pub mod utils;
 pub mod validation;
+pub mod state;
 
-mod state;
 mod main;
 mod merkle_tree;

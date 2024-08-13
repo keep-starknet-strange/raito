@@ -146,7 +146,7 @@ fn hex_to_byte(h: u8) -> u8 {
     0
 }
 
-pub fn from_base16(hexs: @ByteArray) -> ByteArray {
+pub fn from_base16(hexs: ByteArray) -> @ByteArray {
     let mut result: ByteArray = Default::default();
     let mut i = 0;
     let len = hexs.len();
@@ -155,5 +155,5 @@ pub fn from_base16(hexs: @ByteArray) -> ByteArray {
         i += 1;
     };
 
-    result
+    @result
 }

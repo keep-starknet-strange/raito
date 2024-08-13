@@ -1,9 +1,13 @@
-use super::state::{Block, Header, Transaction, OutPoint, TxIn, TxOut};
+use raito::state::{Block, Header, Transaction, OutPoint, TxIn, TxOut};
+use super::super::utils::from_base16;
 
 pub fn block_0() -> Block {
     // block hash: 000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f
     Block {
-        header: Header { version: 1_u32, time: 1231006505_u32, nonce: 2083236893_u32 },
+        header: Header {
+            version: 1_u32, time: 1231006505_u32, bits: 0, // TODO
+             nonce: 2083236893_u32
+        },
         txs: array![
             Transaction {
                 version: 1,
@@ -15,8 +19,9 @@ pub fn block_0() -> Block {
                         ),
                         sequence: 4294967295,
                         previous_output: OutPoint {
-                            txid: 0_u256, vout: 0xffffffff_u32, txo_index: 0, // TODO: implement
+                            txid: 0_u256, vout: 0xffffffff_u32, txo_index: 0, amount: 0
                         },
+                        witness: @""
                     }
                 ]
                     .span(),
@@ -33,5 +38,5 @@ pub fn block_0() -> Block {
             }
         ]
             .span()
-    };
+    }
 }

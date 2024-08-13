@@ -127,7 +127,7 @@ pub struct TxIn {
     /// The reference to the previous output that is being used as an input.
     pub previous_output: OutPoint,
     /// The witness data for transactions.
-    pub witness: Span<ByteArray>,
+    pub witness: @ByteArray
 }
 
 
@@ -140,4 +140,6 @@ pub struct OutPoint {
     pub vout: u32,
     /// The index of output in the utreexo set (meta field).
     pub txo_index: u64,
+    // Amount calculated with the txid and vout
+    pub amount: u64
 }
