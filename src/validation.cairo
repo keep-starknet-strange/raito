@@ -266,7 +266,7 @@ mod tests {
 
     #[test]
     fn test_tx_fee() {
-        let tx_fee = Transaction {
+        let tx = Transaction {
             version: 1,
             is_segwit: false,
             inputs: array![
@@ -297,8 +297,8 @@ mod tests {
             lock_time: 0
         };
 
-        let tx_fee = TransactionValidatorImpl::fee(@tx_fee);
-        assert_eq!(tx_fee, 10);
+        let fee = TransactionValidatorImpl::fee(@tx);
+        assert_eq!(fee, 10);
     }
 
     #[test]
