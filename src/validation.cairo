@@ -517,6 +517,7 @@ mod tests {
 
         let txid: u256 = TransactionValidatorImpl::txid(@tx);
         assert_eq!(txid, 0x169e1e83e930853391bc6f35f605c6754cfead57cf8387639d3b4096c54f18f4);
+    }
 
     #[test]
     fn test_next_prev_timstamps() {

@@ -143,13 +143,3 @@ pub struct OutPoint {
     // Amount calculated with the txid and vout
     pub amount: u64
 }
-
-/// Output of a transaction.
-/// https://learnmeabitcoin.com/technical/transaction/output/
-#[derive(Drop, Copy)]
-pub struct TxOut {
-    /// The value of the output in satoshis.
-    pub value: u64,
-    /// The spending script (aka locking code) for this output.
-    pub pk_script: @ByteArray,
-}
