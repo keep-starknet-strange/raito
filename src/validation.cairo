@@ -405,7 +405,7 @@ mod tests {
                             previous_output: OutPoint {
                                 txid: 0_u256, vout: 0xffffffff_u32, txo_index: 0,
                             },
-                            witness: array![].span()
+                            witness: array![from_base16(@"")].span()
                         },
                         TxIn {
                             script: @from_base16(
@@ -415,7 +415,7 @@ mod tests {
                             previous_output: OutPoint {
                                 txid: 0_u256, vout: 0xffffffff_u32, txo_index: 0,
                             },
-                            witness: array![].span()
+                            witness: array![from_base16(@"")].span()
                         }
                     ]
                         .span(),
@@ -457,7 +457,7 @@ mod tests {
                             previous_output: OutPoint {
                                 txid: 0_u256, vout: 0x1_u32, txo_index: 0,
                             },
-                            witness: array![].span()
+                            witness: array![from_base16(@"")].span()
                         }
                     ]
                         .span(),
@@ -499,7 +499,7 @@ mod tests {
                             previous_output: OutPoint {
                                 txid: 0x2_u256, vout: 0xFFFFFFFF_u32, txo_index: 0,
                             },
-                            witness: array![].span()
+                            witness: array![from_base16(@"")].span()
                         }
                     ]
                         .span(),
@@ -540,7 +540,7 @@ mod tests {
 //                         previous_output: OutPoint {
 //                             txid: 0_u256, vout: 0xFFFFFFFF_u32, txo_index: 0,
 //                         },
-//                         witness: array![].span()
+//                         witness: array![from_base16(@"")].span()
 //                     }
 //                 ]
 //                     .span(),
