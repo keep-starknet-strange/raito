@@ -251,7 +251,7 @@ pub fn target_to_bits(target: u256) -> Result<u32, ByteArray> {
 }
 
 fn validate_bits(block: @Block, target: u256) -> Result<(), ByteArray> {
-    if *block.header.bits == target_to_bits(target)? {
+    if bits_to_target(*block.header.bits)? == target {
         Result::Ok(())
     } else {
         Result::Err("Block header bits do not match target")
