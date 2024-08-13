@@ -14,7 +14,7 @@ impl BlockValidatorImpl of BlockValidator {
 
         let (total_fees, merkle_root) = fee_and_merkle_root(@block)?;
 
-        validate_coinbase(@block, total_fees, self.block_height)?;
+        validate_coinbase(@block, total_fees.into(), self.block_height)?;
 
         let prev_timestamps = next_prev_timestamps(@self, @block);
         let (current_target, epoch_start_time) = adjust_difficulty(@self, @block);
@@ -268,10 +268,8 @@ mod tests {
     use super::{
         validate_timestamp, validate_proof_of_work, compute_block_reward, compute_total_work,
         compute_work_from_target, shr, shl, Block, ChainState, UtreexoState, next_prev_timestamps,
-        TransactionValidatorImpl validate_coinbase
+        TransactionValidatorImpl, validate_coinbase
     };
-    use raito::utils::from_base16;
-
 
     #[test]
     fn test_validate_timestamp() {
@@ -481,32 +479,32 @@ mod tests {
                     is_segwit: false,
                     inputs: array![
                         TxIn {
-                            script: @from_base16(
-                                @"01091d8d76a82122082246acbb6cc51c839d9012ddaca46048de07ca8eec221518200241cdb85fab4815c6c624d6e932774f3fdf5fa2a1d3a1614951afb83269e1454e2002443047"
+                            script: from_base16(
+                                "01091d8d76a82122082246acbb6cc51c839d9012ddaca46048de07ca8eec221518200241cdb85fab4815c6c624d6e932774f3fdf5fa2a1d3a1614951afb83269e1454e2002443047"
                             ),
                             sequence: 4294967295,
                             previous_output: OutPoint {
-                                txid: 0_u256, vout: 0xffffffff_u32, txo_index: 0,
+                                txid: 0_u256, vout: 0xffffffff_u32, txo_index: 0, amount: 0_64
                             },
-                            witness: array![from_base16(@"0")].span()
+                            witness: from_base16("0")
                         },
                         TxIn {
-                            script: @from_base16(
-                                @"01091d8d76a82122082246acbb6cc51c839d9012ddaca46048de07ca8eec221518200241cdb85fab4815c6c624d6e932774f3fdf5fa2a1d3a1614951afb83269e1454e2002443047"
+                            script: from_base16(
+                                "01091d8d76a82122082246acbb6cc51c839d9012ddaca46048de07ca8eec221518200241cdb85fab4815c6c624d6e932774f3fdf5fa2a1d3a1614951afb83269e1454e2002443047"
                             ),
                             sequence: 4294967295,
                             previous_output: OutPoint {
-                                txid: 0_u256, vout: 0xffffffff_u32, txo_index: 0,
+                                txid: 0_u256, vout: 0xffffffff_u32, txo_index: 0, amount: 0_64
                             },
-                            witness: array![from_base16(@"0")].span()
+                            witness: from_base16("0")
                         }
                     ]
                         .span(),
                     outputs: array![
                         TxOut {
                             value: 5000000000_u64,
-                            pk_script: @from_base16(
-                                @"4104678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5fac"
+                            pk_script: from_base16(
+                                "4104678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5fac"
                             ),
                         }
                     ]
@@ -533,22 +531,22 @@ mod tests {
                     is_segwit: false,
                     inputs: array![
                         TxIn {
-                            script: @from_base16(
-                                @"01091d8d76a82122082246acbb6cc51c839d9012ddaca46048de07ca8eec221518200241cdb85fab4815c6c624d6e932774f3fdf5fa2a1d3a1614951afb83269e1454e2002443047"
+                            script: from_base16(
+                                "01091d8d76a82122082246acbb6cc51c839d9012ddaca46048de07ca8eec221518200241cdb85fab4815c6c624d6e932774f3fdf5fa2a1d3a1614951afb83269e1454e2002443047"
                             ),
                             sequence: 4294967295,
                             previous_output: OutPoint {
-                                txid: 0_u256, vout: 0x1_u32, txo_index: 0,
+                                txid: 0_u256, vout: 0x1_u32, txo_index: 0, amount: 0_64
                             },
-                            witness: array![from_base16(@"0")].span()
+                            witness: from_base16("0")
                         }
                     ]
                         .span(),
                     outputs: array![
                         TxOut {
                             value: 5000000000_u64,
-                            pk_script: @from_base16(
-                                @"4104678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5fac"
+                            pk_script: from_base16(
+                                "4104678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5fac"
                             ),
                         }
                     ]
@@ -575,22 +573,22 @@ mod tests {
                     is_segwit: false,
                     inputs: array![
                         TxIn {
-                            script: @from_base16(
-                                @"01091d8d76a82122082246acbb6cc51c839d9012ddaca46048de07ca8eec221518200241cdb85fab4815c6c624d6e932774f3fdf5fa2a1d3a1614951afb83269e1454e2002443047"
+                            script: from_base16(
+                                "01091d8d76a82122082246acbb6cc51c839d9012ddaca46048de07ca8eec221518200241cdb85fab4815c6c624d6e932774f3fdf5fa2a1d3a1614951afb83269e1454e2002443047"
                             ),
                             sequence: 4294967295,
                             previous_output: OutPoint {
-                                txid: 0x2_u256, vout: 0xFFFFFFFF_u32, txo_index: 0,
+                                txid: 0x2_u256, vout: 0xFFFFFFFF_u32, txo_index: 0, amount: 0_64
                             },
-                            witness: array![from_base16(@"0")].span()
+                            witness: from_base16("0")
                         }
                     ]
                         .span(),
                     outputs: array![
                         TxOut {
                             value: 5000000000_u64,
-                            pk_script: @from_base16(
-                                @"4104678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5fac"
+                            pk_script: from_base16(
+                                "4104678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5fac"
                             ),
                         }
                     ]
@@ -616,22 +614,22 @@ mod tests {
                     is_segwit: false,
                     inputs: array![
                         TxIn {
-                            script: @from_base16(
-                                @"01091d8d76a82122082246acbb6cc51c839d9012ddaca46048de07ca8eec221518200241cdb85fab4815c6c624d6e932774f3fdf5fa2a1d3a1614951afb83269e1454e2002443047"
+                            script: from_base16(
+                                "01091d8d76a82122082246acbb6cc51c839d9012ddaca46048de07ca8eec221518200241cdb85fab4815c6c624d6e932774f3fdf5fa2a1d3a1614951afb83269e1454e2002443047"
                             ),
                             sequence: 4294967295,
                             previous_output: OutPoint {
-                                txid: 0_u256, vout: 0xffffffff_u32, txo_index: 0,
+                                txid: 0_u256, vout: 0xffffffff_u32, txo_index: 0, amount: 0_64
                             },
-                            witness: array![from_base16(@"0")].span()
+                            witness: from_base16("0")
                         }
                     ]
                         .span(),
                     outputs: array![
                         TxOut {
                             value: 5000000000_u64,
-                            pk_script: @from_base16(
-                                @"4104678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5fac"
+                            pk_script: from_base16(
+                                "4104678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5fac"
                             ),
                         }
                     ]
@@ -658,22 +656,22 @@ mod tests {
                     is_segwit: false,
                     inputs: array![
                         TxIn {
-                            script: @from_base16(
-                                @"01091d8d76a82122082246acbb6cc51c839d9012ddaca46048de07ca8eec221518200241cdb85fab4815c6c624d6e932774f3fdf5fa2a1d3a1614951afb83269e1454e2002443047"
+                            script: from_base16(
+                                "01091d8d76a82122082246acbb6cc51c839d9012ddaca46048de07ca8eec221518200241cdb85fab4815c6c624d6e932774f3fdf5fa2a1d3a1614951afb83269e1454e2002443047"
                             ),
                             sequence: 4294967295,
                             previous_output: OutPoint {
-                                txid: 0_u256, vout: 0xffffffff_u32, txo_index: 0,
+                                txid: 0_u256, vout: 0xffffffff_u32, txo_index: 0, amount: 0_64
                             },
-                            witness: array![from_base16(@"0")].span()
+                            witness: from_base16("0")
                         }
                     ]
                         .span(),
                     outputs: array![
                         TxOut {
                             value: 5000000000_u64,
-                            pk_script: @from_base16(
-                                @"4104678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5fac"
+                            pk_script: from_base16(
+                                "4104678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5fac"
                             ),
                         }
                     ]
