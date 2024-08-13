@@ -17,7 +17,10 @@ pub fn block_24835() -> Block {
                         script: from_base16("04ffff001d024c08"),
                         sequence: 4294967295,
                         previous_output: OutPoint {
-                            txid: 0_u256, vout: 0xffffffff_u32, txo_index: 0, // TODO: implement
+                            txid: 0_u256,
+                            vout: 0xffffffff_u32,
+                            txo_index: 0,
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     }
@@ -46,7 +49,8 @@ pub fn block_24835() -> Block {
                         previous_output: OutPoint {
                             txid: 0x311518ff986d423a6ea1d1f33fb5bcbbf52a45da078b4d359588bea7e0e8dc9c,
                             vout: 0,
-                            txo_index: 0, // TODO: implement
+                            txo_index: 0,
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -58,7 +62,8 @@ pub fn block_24835() -> Block {
                         previous_output: OutPoint {
                             txid: 0xf1e1a4ea1b1c0f213f112d6ced2bc455bdd44d969f945e509e3cb3bce8a764ca,
                             vout: 0,
-                            txo_index: 0, // TODO: implement
+                            txo_index: 0,
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -70,7 +75,8 @@ pub fn block_24835() -> Block {
                         previous_output: OutPoint {
                             txid: 0x0cf8e3045db0ac2c9cb74b2b9e691301b9b6c2d5007e2fd183eb8bf74cde85ca,
                             vout: 0,
-                            txo_index: 0, // TODO: implement
+                            txo_index: 0,
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -82,7 +88,8 @@ pub fn block_24835() -> Block {
                         previous_output: OutPoint {
                             txid: 0x3435c47921743c686ab901963f4d39dffb9bae8e9af2b60bb47cb1803ad102cb,
                             vout: 0,
-                            txo_index: 0, // TODO: implement
+                            txo_index: 0,
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -94,7 +101,8 @@ pub fn block_24835() -> Block {
                         previous_output: OutPoint {
                             txid: 0xa57ba08fc61402fe4ccc3b64cbb262d876447f70706eb047be6d82d38c8538cb,
                             vout: 0,
-                            txo_index: 0, // TODO: implement
+                            txo_index: 0,
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -106,7 +114,8 @@ pub fn block_24835() -> Block {
                         previous_output: OutPoint {
                             txid: 0x34c8fc278a3e23dea617a9b5c1e8cdc339acd3ecabf47b1cb7304de8583085cb,
                             vout: 0,
-                            txo_index: 0, // TODO: implement
+                            txo_index: 0,
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -118,7 +127,8 @@ pub fn block_24835() -> Block {
                         previous_output: OutPoint {
                             txid: 0x7856a709df5dadcf3fa7eb08e71ad4f51190bc75d1ca6fd57c9034f7380df8cc,
                             vout: 0,
-                            txo_index: 0, // TODO: implement
+                            txo_index: 0,
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -130,7 +140,8 @@ pub fn block_24835() -> Block {
                         previous_output: OutPoint {
                             txid: 0x483eb83f521702470279f53e64ab9dccfc0cae5575d18d9eb485b9da7befaecf,
                             vout: 0,
-                            txo_index: 0, // TODO: implement
+                            txo_index: 0,
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -142,7 +153,8 @@ pub fn block_24835() -> Block {
                         previous_output: OutPoint {
                             txid: 0x06986d4f0f7e45f60b92f36d9f2a5dacbe39601f9eaa04867b15be28d0dce2cf,
                             vout: 0,
-                            txo_index: 0, // TODO: implement
+                            txo_index: 0,
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -154,7 +166,8 @@ pub fn block_24835() -> Block {
                         previous_output: OutPoint {
                             txid: 0x3de058d7ebb9786a559132a8a9a4dfc4f83613179c2ca58dd6e313ff3371fccf,
                             vout: 0,
-                            txo_index: 0, // TODO: implement
+                            txo_index: 0,
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -166,7 +179,8 @@ pub fn block_24835() -> Block {
                         previous_output: OutPoint {
                             txid: 0xe1b1501273f4848dab128873af1b208e79885cf59e9a4c9b865b406c6f5dc8d1,
                             vout: 0,
-                            txo_index: 0, // TODO: implement
+                            txo_index: 0,
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -178,7 +192,8 @@ pub fn block_24835() -> Block {
                         previous_output: OutPoint {
                             txid: 0xdf34174373127152bde8f07fc4b31f8c7d6cd914e8048ac7b2a19b91203187d2,
                             vout: 0,
-                            txo_index: 0, // TODO: implement
+                            txo_index: 0,
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -190,7 +205,8 @@ pub fn block_24835() -> Block {
                         previous_output: OutPoint {
                             txid: 0x11e5b0bbf5a4f567525721f45d89bd30a2888c829b333a4a50710148777200d3,
                             vout: 0,
-                            txo_index: 0, // TODO: implement
+                            txo_index: 0,
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -202,7 +218,8 @@ pub fn block_24835() -> Block {
                         previous_output: OutPoint {
                             txid: 0xee102532f039f1f23f03a82c0566c52992f4519ccaa52f5c54fd45c36f1ebbd5,
                             vout: 0,
-                            txo_index: 0, // TODO: implement
+                            txo_index: 0,
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -214,7 +231,8 @@ pub fn block_24835() -> Block {
                         previous_output: OutPoint {
                             txid: 0xfcefb3dca3f1269d1b584cea5f43035a1ea573a409776fe423972a0035af70d7,
                             vout: 0,
-                            txo_index: 0, // TODO: implement
+                            txo_index: 0,
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -226,7 +244,8 @@ pub fn block_24835() -> Block {
                         previous_output: OutPoint {
                             txid: 0xde5539fc61f35d777a9b939ccb74651d71f3c3024b8262772d06e3c1465797d7,
                             vout: 0,
-                            txo_index: 0, // TODO: implement
+                            txo_index: 0,
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -238,7 +257,8 @@ pub fn block_24835() -> Block {
                         previous_output: OutPoint {
                             txid: 0x97a310f6928e41091fbc0dc1a3a92738a99accc1ee0b97e5ecfe9291003dbdd7,
                             vout: 0,
-                            txo_index: 0, // TODO: implement
+                            txo_index: 0,
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -250,7 +270,8 @@ pub fn block_24835() -> Block {
                         previous_output: OutPoint {
                             txid: 0x630cb2941dbfd117facd8a2a9e7597c23c02a089788db100fe79b992527209d8,
                             vout: 0,
-                            txo_index: 0, // TODO: implement
+                            txo_index: 0,
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -262,7 +283,8 @@ pub fn block_24835() -> Block {
                         previous_output: OutPoint {
                             txid: 0xa7b92da966ff1d0041cf6ed1b3d6410766594ef712dec910b23ec9914c9084d8,
                             vout: 0,
-                            txo_index: 0, // TODO: implement
+                            txo_index: 0,
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -274,7 +296,8 @@ pub fn block_24835() -> Block {
                         previous_output: OutPoint {
                             txid: 0xaddf48dd7aa118346ea88e023c4d83bb43e754d0be4dd69fc863b2000956f1d8,
                             vout: 0,
-                            txo_index: 0, // TODO: implement
+                            txo_index: 0,
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -286,7 +309,8 @@ pub fn block_24835() -> Block {
                         previous_output: OutPoint {
                             txid: 0x1619c6f1ad84d7e7956bb45e6438305afe7b6991e80c18ea08aab1ce46090bdb,
                             vout: 0,
-                            txo_index: 0, // TODO: implement
+                            txo_index: 0,
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -298,7 +322,8 @@ pub fn block_24835() -> Block {
                         previous_output: OutPoint {
                             txid: 0x065960fbe75deb05f8e322001d200c847bff4cc1d9430bf3d4e5fd18aa8f19db,
                             vout: 0,
-                            txo_index: 0, // TODO: implement
+                            txo_index: 0,
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -310,7 +335,8 @@ pub fn block_24835() -> Block {
                         previous_output: OutPoint {
                             txid: 0x20f565ce967fa02bb9949c6634d45703226d5e1913be99a927111ee700e330db,
                             vout: 0,
-                            txo_index: 0, // TODO: implement
+                            txo_index: 0,
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -322,7 +348,8 @@ pub fn block_24835() -> Block {
                         previous_output: OutPoint {
                             txid: 0xe62b3408c5ba2ce1753fbac751f73c9acb26716b17729cc6388e353617df4edc,
                             vout: 0,
-                            txo_index: 0, // TODO: implement
+                            txo_index: 0,
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -334,7 +361,8 @@ pub fn block_24835() -> Block {
                         previous_output: OutPoint {
                             txid: 0x4a03897b4779be06b21b1acc5d69c49d46f759b8f1b6b73abb77d14039d0d0dc,
                             vout: 0,
-                            txo_index: 0, // TODO: implement
+                            txo_index: 0,
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -346,7 +374,8 @@ pub fn block_24835() -> Block {
                         previous_output: OutPoint {
                             txid: 0x2c6b470d99c34ee64d0b1936ddf8e90897b8acbd8aea7b7ed48a746df0d854dd,
                             vout: 0,
-                            txo_index: 0, // TODO: implement
+                            txo_index: 0,
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -358,7 +387,8 @@ pub fn block_24835() -> Block {
                         previous_output: OutPoint {
                             txid: 0x39aa30043aa448ebcd5398d95ab4bae5d497998afeef4983e94813719e1d62dd,
                             vout: 0,
-                            txo_index: 0, // TODO: implement
+                            txo_index: 0,
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -370,7 +400,8 @@ pub fn block_24835() -> Block {
                         previous_output: OutPoint {
                             txid: 0x1d4790c0b35d2d5c9e66f7bd5acc70641e9ab0598cebcd68d3d186ad78ce8edd,
                             vout: 0,
-                            txo_index: 0, // TODO: implement
+                            txo_index: 0,
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -382,7 +413,8 @@ pub fn block_24835() -> Block {
                         previous_output: OutPoint {
                             txid: 0x9306bdce3f6f6e617770b78bfd6656f202da261d08ca80ce3787090b2373afdd,
                             vout: 0,
-                            txo_index: 0, // TODO: implement
+                            txo_index: 0,
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -394,7 +426,8 @@ pub fn block_24835() -> Block {
                         previous_output: OutPoint {
                             txid: 0xdd7282eb80be46364c2470eb9259b3add135b4b43e681a5e177f717dc11dc1dd,
                             vout: 0,
-                            txo_index: 0, // TODO: implement
+                            txo_index: 0,
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -406,7 +439,8 @@ pub fn block_24835() -> Block {
                         previous_output: OutPoint {
                             txid: 0xf57ad846d53060a5b222650c04ef718a6a3a6e8bccfbed918ff93df1c6be34df,
                             vout: 0,
-                            txo_index: 0, // TODO: implement
+                            txo_index: 0,
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -418,7 +452,8 @@ pub fn block_24835() -> Block {
                         previous_output: OutPoint {
                             txid: 0xe43a802cf13eeabe8998183f748b5026a3c4a4bc050bb972d69ee703d6d45adf,
                             vout: 0,
-                            txo_index: 0, // TODO: implement
+                            txo_index: 0,
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -430,7 +465,8 @@ pub fn block_24835() -> Block {
                         previous_output: OutPoint {
                             txid: 0xa3ad4b55976bcf6bd93416bfb3f2aa7374be874dbc454faf398ed8e8eff653e2,
                             vout: 0,
-                            txo_index: 0, // TODO: implement
+                            txo_index: 0,
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -442,7 +478,8 @@ pub fn block_24835() -> Block {
                         previous_output: OutPoint {
                             txid: 0xe6beafb2e9c27e7de79ec82ad19dda812a0fdba5a642bd702f9fb377735ea9e2,
                             vout: 0,
-                            txo_index: 0, // TODO: implement
+                            txo_index: 0,
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -454,7 +491,8 @@ pub fn block_24835() -> Block {
                         previous_output: OutPoint {
                             txid: 0x59df3a869c742ebd49b0fe5c9b0434965511ba364e03943d9aa76450aa52d2e4,
                             vout: 0,
-                            txo_index: 0, // TODO: implement
+                            txo_index: 0,
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -466,7 +504,8 @@ pub fn block_24835() -> Block {
                         previous_output: OutPoint {
                             txid: 0x783860b2be1c4f2693f3f3550cda85290d02bf384dcf1af42fdeb655e4f3e6e4,
                             vout: 0,
-                            txo_index: 0, // TODO: implement
+                            txo_index: 0,
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -478,7 +517,8 @@ pub fn block_24835() -> Block {
                         previous_output: OutPoint {
                             txid: 0x44902104842aa573f891d2192ab32aec82ae2b214aff2b8edd920ff6ed9ce7e4,
                             vout: 0,
-                            txo_index: 0, // TODO: implement
+                            txo_index: 0,
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -490,7 +530,8 @@ pub fn block_24835() -> Block {
                         previous_output: OutPoint {
                             txid: 0xd4239da37ccadf315a941053905b0c81cfc0f9e2f68d5d96dee03ae731f0f3e5,
                             vout: 0,
-                            txo_index: 0, // TODO: implement
+                            txo_index: 0,
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -502,7 +543,8 @@ pub fn block_24835() -> Block {
                         previous_output: OutPoint {
                             txid: 0x93e6672f34678b7c17a3bb79cbe1ba22657b29a6b68ad962af8f1ff6a053f9e5,
                             vout: 0,
-                            txo_index: 0, // TODO: implement
+                            txo_index: 0,
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -514,7 +556,8 @@ pub fn block_24835() -> Block {
                         previous_output: OutPoint {
                             txid: 0xd2a05c061b0afa7031f90169120c601f3eeb994884e904e74f1a21cd9362cce6,
                             vout: 0,
-                            txo_index: 0, // TODO: implement
+                            txo_index: 0,
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -526,7 +569,8 @@ pub fn block_24835() -> Block {
                         previous_output: OutPoint {
                             txid: 0x84fc3cc5def8a9aab4b0c24b6373b6fb9c31eb581e122740cf741fabb618ffe6,
                             vout: 0,
-                            txo_index: 0, // TODO: implement
+                            txo_index: 0,
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -538,7 +582,8 @@ pub fn block_24835() -> Block {
                         previous_output: OutPoint {
                             txid: 0xa81d0929eb263d57ddc42e051431dea8e0ded3da151f0ddeacfa593881ba2fe7,
                             vout: 0,
-                            txo_index: 0, // TODO: implement
+                            txo_index: 0,
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -550,7 +595,8 @@ pub fn block_24835() -> Block {
                         previous_output: OutPoint {
                             txid: 0x71b6f3f5501b982acc5eaa687dae5441f1bb72a5cb067ca0d831ab264bb34ee7,
                             vout: 0,
-                            txo_index: 0, // TODO: implement
+                            txo_index: 0,
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -562,7 +608,8 @@ pub fn block_24835() -> Block {
                         previous_output: OutPoint {
                             txid: 0x6526597d7e7293fc3201057569c79a88b1b357aafa1d93503c74b3e350600dea,
                             vout: 0,
-                            txo_index: 0, // TODO: implement
+                            txo_index: 0,
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -574,7 +621,8 @@ pub fn block_24835() -> Block {
                         previous_output: OutPoint {
                             txid: 0xc9d5a6b939edaeda6bd0b9e3c08614644f2ef4f3afe7e4eb68bc4d7c88809dea,
                             vout: 0,
-                            txo_index: 0, // TODO: implement
+                            txo_index: 0,
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -586,7 +634,8 @@ pub fn block_24835() -> Block {
                         previous_output: OutPoint {
                             txid: 0x4b4037c615cd2faa213679a5c83d5f5c338f5cfe00ac9944a4fac30543dd97eb,
                             vout: 0,
-                            txo_index: 0, // TODO: implement
+                            txo_index: 0,
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -598,7 +647,8 @@ pub fn block_24835() -> Block {
                         previous_output: OutPoint {
                             txid: 0x0a28db164ae746a2bd7d7d234044d341e66a1196b71c307c49e127165fd7a9eb,
                             vout: 0,
-                            txo_index: 0, // TODO: implement
+                            txo_index: 0,
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -610,7 +660,8 @@ pub fn block_24835() -> Block {
                         previous_output: OutPoint {
                             txid: 0xa7d5f7e26ec4c3aacd42dbf83ffba4848ab9af1212a7d799b27fba4ca17ef0eb,
                             vout: 0,
-                            txo_index: 0, // TODO: implement
+                            txo_index: 0,
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -622,7 +673,8 @@ pub fn block_24835() -> Block {
                         previous_output: OutPoint {
                             txid: 0xaa7b5e1d47d4d2f434dd34f7ee779afae0237399df1055fd80d8f1e2535bdcec,
                             vout: 0,
-                            txo_index: 0, // TODO: implement
+                            txo_index: 0,
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -634,7 +686,8 @@ pub fn block_24835() -> Block {
                         previous_output: OutPoint {
                             txid: 0x0f6ad89fec32bfeb710b988762c4a74175aeb857f1f050c5a60fa1a87c9ee5ec,
                             vout: 0,
-                            txo_index: 0, // TODO: implement
+                            txo_index: 0,
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -646,7 +699,8 @@ pub fn block_24835() -> Block {
                         previous_output: OutPoint {
                             txid: 0x9e02bdc12407ec7dbf90a10ef3daac80004e73c26cedfe9e61a64956879520ed,
                             vout: 0,
-                            txo_index: 0, // TODO: implement
+                            txo_index: 0,
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -658,7 +712,8 @@ pub fn block_24835() -> Block {
                         previous_output: OutPoint {
                             txid: 0x9239353d5886c83f5dda6eb875a7f999a0b7b5fb21be272836013547a027fbed,
                             vout: 0,
-                            txo_index: 0, // TODO: implement
+                            txo_index: 0,
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -670,7 +725,8 @@ pub fn block_24835() -> Block {
                         previous_output: OutPoint {
                             txid: 0x405a3b936a213ddf72b84b7efadb05b6922a488f3a4dd8fab6a6fff053ce57ee,
                             vout: 0,
-                            txo_index: 0, // TODO: implement
+                            txo_index: 0,
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -682,7 +738,8 @@ pub fn block_24835() -> Block {
                         previous_output: OutPoint {
                             txid: 0xa0cf8f3bfd71c460bf6346ff9270f30e90fb7b9d91f3f3d1166959c90887b5ef,
                             vout: 0,
-                            txo_index: 0, // TODO: implement
+                            txo_index: 0,
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -694,7 +751,8 @@ pub fn block_24835() -> Block {
                         previous_output: OutPoint {
                             txid: 0x7d338350a0ba8e3c9b91dd733439474509828ed73e81bb44a860953190c4f2ef,
                             vout: 0,
-                            txo_index: 0, // TODO: implement
+                            txo_index: 0,
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -706,7 +764,8 @@ pub fn block_24835() -> Block {
                         previous_output: OutPoint {
                             txid: 0xd1d93d08900473bfcf5986d7752b724bf343a0195bacba4acc0b1cd559fe81f2,
                             vout: 0,
-                            txo_index: 0, // TODO: implement
+                            txo_index: 0,
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -718,7 +777,8 @@ pub fn block_24835() -> Block {
                         previous_output: OutPoint {
                             txid: 0x467ba8e7d5a10f820441b2f4f403d4bf24876e9365c1724e9ca95114b6adc6f2,
                             vout: 0,
-                            txo_index: 0, // TODO: implement
+                            txo_index: 0,
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -730,7 +790,8 @@ pub fn block_24835() -> Block {
                         previous_output: OutPoint {
                             txid: 0x4626bd7c085ffe44e12c0bc2045072c6e21dc25f177c3d07e840030d3986e0f4,
                             vout: 0,
-                            txo_index: 0, // TODO: implement
+                            txo_index: 0,
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -742,7 +803,8 @@ pub fn block_24835() -> Block {
                         previous_output: OutPoint {
                             txid: 0x8a5c68c640ebb398249c73211447a986d641144eb9c95025521a47ec2785eaf4,
                             vout: 0,
-                            txo_index: 0, // TODO: implement
+                            txo_index: 0,
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -754,7 +816,8 @@ pub fn block_24835() -> Block {
                         previous_output: OutPoint {
                             txid: 0x840802b95a5d4389c35632a0168668177663c3a4398bc974208f49444c06f4f6,
                             vout: 0,
-                            txo_index: 0, // TODO: implement
+                            txo_index: 0,
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -766,7 +829,8 @@ pub fn block_24835() -> Block {
                         previous_output: OutPoint {
                             txid: 0xeb65a60f45258791c9362dd5834cf470294001f54ecf0d7437e566829bdf1df7,
                             vout: 0,
-                            txo_index: 0, // TODO: implement
+                            txo_index: 0,
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -778,7 +842,8 @@ pub fn block_24835() -> Block {
                         previous_output: OutPoint {
                             txid: 0xce29b2407f6c0aa5b637b4e8e1cd05c8b63cae89f9ace7b39d8f5b1b49fe72f7,
                             vout: 0,
-                            txo_index: 0, // TODO: implement
+                            txo_index: 0,
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -790,7 +855,8 @@ pub fn block_24835() -> Block {
                         previous_output: OutPoint {
                             txid: 0xf8d5b3fb3980f9465619cbd11429e3379acc8274f4bcf190652c788f92efd0f7,
                             vout: 0,
-                            txo_index: 0, // TODO: implement
+                            txo_index: 0,
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -802,7 +868,8 @@ pub fn block_24835() -> Block {
                         previous_output: OutPoint {
                             txid: 0xc9bc40d1ad51d87280ea756f6527790cae3d786b2dbeae6e383154530dbf24f8,
                             vout: 0,
-                            txo_index: 0, // TODO: implement
+                            txo_index: 0,
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -814,7 +881,8 @@ pub fn block_24835() -> Block {
                         previous_output: OutPoint {
                             txid: 0x56514822f54b5451da8d4044a18686a60228b6b9c630f1aea51782b2316a6df8,
                             vout: 0,
-                            txo_index: 0, // TODO: implement
+                            txo_index: 0,
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -826,7 +894,8 @@ pub fn block_24835() -> Block {
                         previous_output: OutPoint {
                             txid: 0x695765e0ea83fd8e65f12464677ca0899a2e1995334d2065e27b20f218d69cf8,
                             vout: 0,
-                            txo_index: 0, // TODO: implement
+                            txo_index: 0,
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -838,7 +907,8 @@ pub fn block_24835() -> Block {
                         previous_output: OutPoint {
                             txid: 0xdcb93d52f006454f6b79c46e68ca49f21fda26f8470cf5d62552129296a0c9f9,
                             vout: 0,
-                            txo_index: 0, // TODO: implement
+                            txo_index: 0,
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -850,7 +920,8 @@ pub fn block_24835() -> Block {
                         previous_output: OutPoint {
                             txid: 0x571072067ed202d35c6fc74bb9431f374db8be1448a5660c98ab43766cb7d8f9,
                             vout: 0,
-                            txo_index: 0, // TODO: implement
+                            txo_index: 0,
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -862,7 +933,8 @@ pub fn block_24835() -> Block {
                         previous_output: OutPoint {
                             txid: 0xec06aaa81f014977739c231d23726c14d5acf1631e67b27117fd5dbd0f4128fa,
                             vout: 0,
-                            txo_index: 0, // TODO: implement
+                            txo_index: 0,
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -874,7 +946,8 @@ pub fn block_24835() -> Block {
                         previous_output: OutPoint {
                             txid: 0xb24c85639bdd86e7f3d94d8189e0f1b1527ddceca98004837e450f150c977efb,
                             vout: 0,
-                            txo_index: 0, // TODO: implement
+                            txo_index: 0,
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -886,7 +959,8 @@ pub fn block_24835() -> Block {
                         previous_output: OutPoint {
                             txid: 0x132d390b89c6d82d4e944273c26b0720f8b10def87aadd07a0e64a59d896c5fb,
                             vout: 0,
-                            txo_index: 0, // TODO: implement
+                            txo_index: 0,
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -898,7 +972,8 @@ pub fn block_24835() -> Block {
                         previous_output: OutPoint {
                             txid: 0x23be0784486f8783ace6947b136cb1e43b0bba926a12ee1be8f0221b8e9a1efe,
                             vout: 0,
-                            txo_index: 0, // TODO: implement
+                            txo_index: 0,
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -910,7 +985,8 @@ pub fn block_24835() -> Block {
                         previous_output: OutPoint {
                             txid: 0x1c73a79fee897f957a5dcd292060043b627b8e53d7228af64dae6d394e0816d3,
                             vout: 0,
-                            txo_index: 0, // TODO: implement
+                            txo_index: 0,
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     },
@@ -922,7 +998,8 @@ pub fn block_24835() -> Block {
                         previous_output: OutPoint {
                             txid: 0x92e4e20e902ce28aa5d207d9ab8e8a446d2bd1b87e2a3ea2020689ef47bd9ab7,
                             vout: 0,
-                            txo_index: 0, // TODO: implement
+                            txo_index: 0,
+                            amount: 0 // TODO: implement
                         },
                         witness: @""
                     }
