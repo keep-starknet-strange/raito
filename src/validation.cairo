@@ -42,7 +42,7 @@ impl BlockValidatorImpl of BlockValidator {
 pub impl TransactionValidatorImpl of TransactionValidator {
     // marker, flag, and witness fields in segwit transactions are not included
     // this means txid computation is the same for legacy and segwit tx
-    fn txid(self: @Transaction) -> u256 {
+    fn txid(self: @Transaction) -> Hash {
         // append version (4 bytes)
         let mut sha256_input: ByteArray = "";
         sha256_input.append_word_rev((*self.version).into(), 4);
@@ -54,9 +54,7 @@ pub impl TransactionValidatorImpl of TransactionValidator {
         let mut inputs: Span<TxIn> = *self.inputs;
         while let Option::Some(txin) = inputs.pop_front() {
             // append txid (32 bytes)
-            let txid: u256 = *(txin.previous_output.txid);
-            // passing low before high so that we end up with little endian byte representation of
-            // the u256, as input is big endian
+            let txid: u256 = (*(txin.previous_output.txid)).into();
             sha256_input.append_word_rev(txid.low.into(), 16);
             sha256_input.append_word_rev(txid.high.into(), 16);
 
@@ -83,7 +81,7 @@ pub impl TransactionValidatorImpl of TransactionValidator {
             // append amount (8 bytes)
             sha256_input.append_word_rev((*txout.value).into(), 8);
 
-            // append ScriptPubKey size (1 byte)
+            // append ScriptPubKey size (1 byte) - could this be more than 1 byte if a lot of sig?
             sha256_input.append_word_rev((*txout.pk_script).len().into(), 1);
 
             // append ScriptPubKey (variable size)
@@ -107,7 +105,7 @@ pub impl TransactionValidatorImpl of TransactionValidator {
             i += 1;
         };
 
-        txid
+        txid.into()
     }
 
     fn fee(self: @Transaction) -> u64 {
@@ -326,7 +324,7 @@ fn compute_block_reward(block_height: u32) -> u64 {
 #[cfg(test)]
 mod tests {
     use raito::state::{Header, Transaction, TxIn, TxOut, OutPoint};
-    use raito::utils::from_base16;
+    use raito::utils::{from_base16, Hash};
     use super::{
         validate_timestamp, validate_proof_of_work, compute_block_reward, compute_total_work,
         compute_work_from_target, shr, shl, Block, ChainState, UtreexoState, next_prev_timestamps,
@@ -507,48 +505,6 @@ mod tests {
 
         let last_reward = compute_block_reward(max_halvings * block_height);
         assert_eq!(last_reward, 0);
-    }
-
-    #[test]
-    fn test_txid() {
-        let tx: Transaction = Transaction {
-            version: 1,
-            is_segwit: false,
-            inputs: array![
-                TxIn {
-                    script: from_base16(
-                        "01091d8d76a82122082246acbb6cc51c839d9012ddaca46048de07ca8eec221518200241cdb85fab4815c6c624d6e932774f3fdf5fa2a1d3a1614951afb83269e1454e2002443047"
-                    ),
-                    sequence: 0xffffffff,
-                    previous_output: OutPoint {
-                        txid: 0x0437cd7f8525ceed2324359c2d0ba26006d92d856a9c20fa0241106ee5a597c9,
-                        vout: 0x00000000,
-                        txo_index: 0,
-                    },
-                    witness: from_base16("")
-                }
-            ]
-                .span(),
-            outputs: array![
-                TxOut {
-                    value: 0x000000003b9aca00,
-                    pk_script: from_base16(
-                        "ac4cd86c7e4f702ac7d5debaf126068a3b30b7c1212c145fdfa754f59773b3aae71484a22f30718d37cd74f325229b15f7a2996bf0075f90131bf5c509fe621aae0441"
-                    ),
-                },
-                TxOut {
-                    value: 0x00000000ee6b2800,
-                    pk_script: from_base16(
-                        "aca312b456f643869b993fc0d4f9648b9bfa0b162ef8644474f9cc84fbddeae0b25c9a90a648b1d7ca2e48b1972e388ab61ebc538c0f84496b018adbdce193db110441"
-                    ),
-                }
-            ]
-                .span(),
-            lock_time: 0
-        };
-
-        let txid: u256 = TransactionValidatorImpl::txid(@tx);
-        assert_eq!(txid, 0x169e1e83e930853391bc6f35f605c6754cfead57cf8387639d3b4096c54f18f4);
     }
 
     #[test]
@@ -766,5 +722,51 @@ mod tests {
         let block_height = 856_563;
 
         validate_coinbase(@block, total_fees, block_height).unwrap();
+    }
+
+    #[test]
+    fn test_txid() {
+        let tx: Transaction = Transaction {
+            version: 1,
+            is_segwit: false,
+            inputs: array![
+                TxIn {
+                    script: from_base16(
+                        "47304402204e45e16932b8af514961a1d3a1a25fdf3f4f7732e9d624c6c61548ab5fb8cd410220181522ec8eca07de4860a4acdd12909d831cc56cbbac4622082221a8768d1d0901"
+                    ),
+                    sequence: 0xffffffff,
+                    previous_output: OutPoint {
+                        txid: 0x0437cd7f8525ceed2324359c2d0ba26006d92d856a9c20fa0241106ee5a597c9_u256
+                            .into(),
+                        vout: 0x00000000,
+                        txo_index: 0,
+                        amount: 0_64 // set to 0 for the test
+                    },
+                    witness: from_base16("")
+                }
+            ]
+                .span(),
+            outputs: array![
+                TxOut {
+                    value: 0x000000003b9aca00,
+                    pk_script: from_base16(
+                        "ac4cd86c7e4f702ac7d5debaf126068a3b30b7c1212c145fdfa754f59773b3aae71484a22f30718d37cd74f325229b15f7a2996bf0075f90131bf5c509fe621aae0441"
+                    ),
+                },
+                TxOut {
+                    value: 0x00000000ee6b2800,
+                    pk_script: from_base16(
+                        "aca312b456f643869b993fc0d4f9648b9bfa0b162ef8644474f9cc84fbddeae0b25c9a90a648b1d7ca2e48b1972e388ab61ebc538c0f84496b018adbdce193db110441"
+                    ),
+                }
+            ]
+                .span(),
+            lock_time: 0
+        };
+
+        let txid: Hash = TransactionValidatorImpl::txid(@tx);
+        assert_eq!(
+            txid, 0x169e1e83e930853391bc6f35f605c6754cfead57cf8387639d3b4096c54f18f4_u256.into()
+        );
     }
 }
