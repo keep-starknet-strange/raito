@@ -359,400 +359,399 @@ mod tests {
         TransactionValidatorImpl, validate_coinbase
     };
 
-    // #[test]
-    // fn test_validate_timestamp() {
-    //     let mut chain_state = ChainState {
-    //         block_height: 1,
-    //         total_work: 1,
-    //         best_block_hash: 1_u256.into(),
-    //         current_target: 1,
-    //         epoch_start_time: 1,
-    //         prev_timestamps: array![1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].span(),
-    //         utreexo_state: UtreexoState { roots: array![].span() },
-    //     };
-    //     let mut block = Block {
-    //         header: Header { version: 1, time: 12, nonce: 1, bits: 1 },
-    //         txs: ArrayTrait::new().span(),
-    //     };
+    #[test]
+    fn test_validate_timestamp() {
+        let mut chain_state = ChainState {
+            block_height: 1,
+            total_work: 1,
+            best_block_hash: 1_u256.into(),
+            current_target: 1,
+            epoch_start_time: 1,
+            prev_timestamps: array![1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].span(),
+            utreexo_state: UtreexoState { roots: array![].span() },
+        };
+        let mut block = Block {
+            header: Header { version: 1, time: 12, nonce: 1, bits: 1 },
+            txs: ArrayTrait::new().span(),
+        };
 
-    //     // new timestamp is greater than the last timestamp
-    //     let result = validate_timestamp(@chain_state, @block);
-    //     assert(result.is_ok(), 'Expected target to be valid');
+        // new timestamp is greater than the last timestamp
+        let result = validate_timestamp(@chain_state, @block);
+        assert(result.is_ok(), 'Expected target to be valid');
 
-    //     // new timestamp is strictly greater than the median of the last 11 timestamps
-    //     block.header.time = 7;
-    //     let result = validate_timestamp(@chain_state, @block);
-    //     assert(result.is_ok(), 'Expected target to be valid');
+        // new timestamp is strictly greater than the median of the last 11 timestamps
+        block.header.time = 7;
+        let result = validate_timestamp(@chain_state, @block);
+        assert(result.is_ok(), 'Expected target to be valid');
 
-    //     // new timestamp is equal to the median of the last 11 timestamps
-    //     block.header.time = 6;
-    //     let result = validate_timestamp(@chain_state, @block);
-    //     assert!(result.is_err(), "Median time is greater than block's timestamp");
-    // }
+        // new timestamp is equal to the median of the last 11 timestamps
+        block.header.time = 6;
+        let result = validate_timestamp(@chain_state, @block);
+        assert!(result.is_err(), "Median time is greater than block's timestamp");
+    }
 
-    // #[test]
-    // fn test_tx_fee() {
-    //     let tx = Transaction {
-    //         version: 1,
-    //         is_segwit: false,
-    //         inputs: array![
-    //             TxIn {
-    //                 script: from_base16(
-    //                     "01091d8d76a82122082246acbb6cc51c839d9012ddaca46048de07ca8eec221518200241cdb85fab4815c6c624d6e932774f3fdf5fa2a1d3a1614951afb83269e1454e2002443047"
-    //                 ),
-    //                 sequence: 0xffffffff,
-    //                 previous_output: OutPoint {
-    //                     txid:
-    //                     0x0437cd7f8525ceed2324359c2d0ba26006d92d856a9c20fa0241106ee5a597c9_u256
-    //                         .into(),
-    //                     vout: 0x00000000,
-    //                     txo_index: 0,
-    //                     amount: 100
-    //                 },
-    //                 witness: from_base16("")
-    //             }
-    //         ]
-    //             .span(),
-    //         outputs: array![
-    //             TxOut {
-    //                 value: 90,
-    //                 pk_script: from_base16(
-    //                     "ac4cd86c7e4f702ac7d5debaf126068a3b30b7c1212c145fdfa754f59773b3aae71484a22f30718d37cd74f325229b15f7a2996bf0075f90131bf5c509fe621aae0441"
-    //                 ),
-    //             }
-    //         ]
-    //             .span(),
-    //         lock_time: 0
-    //     };
+    #[test]
+    fn test_tx_fee() {
+        let tx = Transaction {
+            version: 1,
+            is_segwit: false,
+            inputs: array![
+                TxIn {
+                    script: from_base16(
+                        "01091d8d76a82122082246acbb6cc51c839d9012ddaca46048de07ca8eec221518200241cdb85fab4815c6c624d6e932774f3fdf5fa2a1d3a1614951afb83269e1454e2002443047"
+                    ),
+                    sequence: 0xffffffff,
+                    previous_output: OutPoint {
+                        txid: 0x0437cd7f8525ceed2324359c2d0ba26006d92d856a9c20fa0241106ee5a597c9_u256
+                            .into(),
+                        vout: 0x00000000,
+                        txo_index: 0,
+                        amount: 100
+                    },
+                    witness: from_base16("")
+                }
+            ]
+                .span(),
+            outputs: array![
+                TxOut {
+                    value: 90,
+                    pk_script: from_base16(
+                        "ac4cd86c7e4f702ac7d5debaf126068a3b30b7c1212c145fdfa754f59773b3aae71484a22f30718d37cd74f325229b15f7a2996bf0075f90131bf5c509fe621aae0441"
+                    ),
+                }
+            ]
+                .span(),
+            lock_time: 0
+        };
 
-    //     let fee = TransactionValidatorImpl::fee(@tx);
-    //     assert_eq!(fee, 10);
-    // }
+        let fee = TransactionValidatorImpl::fee(@tx);
+        assert_eq!(fee, 10);
+    }
 
-    // #[test]
-    // fn test_compute_work_from_target1() {
-    //     let expected_work = 0x0100010001;
-    //     let target: u256 = 0x00000000ffff0000000000000000000000000000000000000000000000000000;
-    //     let work = compute_work_from_target(target);
-    //     assert(expected_work == work, 'Failed to compute target');
-    // }
+    #[test]
+    fn test_compute_work_from_target1() {
+        let expected_work = 0x0100010001;
+        let target: u256 = 0x00000000ffff0000000000000000000000000000000000000000000000000000;
+        let work = compute_work_from_target(target);
+        assert(expected_work == work, 'Failed to compute target');
+    }
 
-    // #[test]
-    // fn test_compute_work_from_target2() {
-    //     let expected_work = 0x26d946e509ac00026d;
-    //     let target: u256 = 0x00000000000000000696f4000000000000000000000000000000000000000000;
-    //     let work = compute_work_from_target(target);
-    //     assert(expected_work == work, 'Failed to compute target');
-    // }
+    #[test]
+    fn test_compute_work_from_target2() {
+        let expected_work = 0x26d946e509ac00026d;
+        let target: u256 = 0x00000000000000000696f4000000000000000000000000000000000000000000;
+        let work = compute_work_from_target(target);
+        assert(expected_work == work, 'Failed to compute target');
+    }
 
-    // #[test]
-    // fn test_compute_work_from_target3() {
-    //     let expected_work = 0xe10005c64415f04ef3e387b97db388404db9fdfaab2b1918f6783471d;
-    //     let target: u256 = 0x12345600;
-    //     let work = compute_work_from_target(target);
-    //     assert(expected_work == work, 'Failed to compute target');
-    // }
+    #[test]
+    fn test_compute_work_from_target3() {
+        let expected_work = 0xe10005c64415f04ef3e387b97db388404db9fdfaab2b1918f6783471d;
+        let target: u256 = 0x12345600;
+        let work = compute_work_from_target(target);
+        assert(expected_work == work, 'Failed to compute target');
+    }
 
-    // #[test]
-    // fn test_compute_work_from_target4() {
-    //     let expected_work = 0x1c040c95a099201bcaf85db4e7f2e21e18707c8d55a887643b95afb2f;
-    //     let target: u256 = 0x92340000;
-    //     let work = compute_work_from_target(target);
-    //     assert(expected_work == work, 'Failed to compute target');
-    // }
+    #[test]
+    fn test_compute_work_from_target4() {
+        let expected_work = 0x1c040c95a099201bcaf85db4e7f2e21e18707c8d55a887643b95afb2f;
+        let target: u256 = 0x92340000;
+        let work = compute_work_from_target(target);
+        assert(expected_work == work, 'Failed to compute target');
+    }
 
-    // #[test]
-    // fn test_compute_work_from_target5() {
-    //     let expected_work = 0x21809b468faa88dbe34f;
-    //     let target: u256 = 0x00000000000000000007a4290000000000000000000000000000000000000000;
-    //     let work = compute_work_from_target(target);
-    //     assert(expected_work == work, 'Failed to compute target');
-    // }
+    #[test]
+    fn test_compute_work_from_target5() {
+        let expected_work = 0x21809b468faa88dbe34f;
+        let target: u256 = 0x00000000000000000007a4290000000000000000000000000000000000000000;
+        let work = compute_work_from_target(target);
+        assert(expected_work == work, 'Failed to compute target');
+    }
 
-    // #[test]
-    // fn test_validate_proof_of_work() {
-    //     // target is less than prev block hash
-    //     let result = validate_proof_of_work(0, 1_u256.into());
-    //     assert!(result.is_err(), "Expect target less than prev block hash");
+    #[test]
+    fn test_validate_proof_of_work() {
+        // target is less than prev block hash
+        let result = validate_proof_of_work(0, 1_u256.into());
+        assert!(result.is_err(), "Expect target less than prev block hash");
 
-    //     // target is greater than prev block hash
-    //     let result = validate_proof_of_work(2, 1_u256.into());
-    //     assert!(result.is_ok(), "Expect target gt prev block hash");
+        // target is greater than prev block hash
+        let result = validate_proof_of_work(2, 1_u256.into());
+        assert!(result.is_ok(), "Expect target gt prev block hash");
 
-    //     // target is equal to prev block hash
-    //     let result = validate_proof_of_work(1, 1_u256.into());
-    //     assert!(result.is_ok(), "Expect target equal to prev block hash");
+        // target is equal to prev block hash
+        let result = validate_proof_of_work(1, 1_u256.into());
+        assert!(result.is_ok(), "Expect target equal to prev block hash");
 
-    //     // block prev block hash is greater than target
-    //     let result = validate_proof_of_work(1, 2_u256.into());
-    //     assert!(result.is_err(), "Expect prev block hash gt target");
+        // block prev block hash is greater than target
+        let result = validate_proof_of_work(1, 2_u256.into());
+        assert!(result.is_err(), "Expect prev block hash gt target");
 
-    //     // block prev block hash is less than target
-    //     let result = validate_proof_of_work(10, 9_u256.into());
-    //     assert!(result.is_ok(), "Expect prev block hash lt target");
-    // }
+        // block prev block hash is less than target
+        let result = validate_proof_of_work(10, 9_u256.into());
+        assert!(result.is_ok(), "Expect prev block hash lt target");
+    }
 
-    // // Ref implementation here:
-    // //
+    // Ref implementation here:
+    //
     // https://github.com/bitcoin/bitcoin/blob/0f68a05c084bef3e53e3f549c403bc90b1db319c/src/test/validation_tests.cpp#L24
-    // #[test]
-    // fn test_compute_block_reward() {
-    //     let max_halvings: u32 = 64;
-    //     let reward_initial: u256 = 5000000000;
-    //     let mut block_height = 210_000; // halving every 210 000 blocks
-    //     // Before first halving
-    //     let genesis_halving_reward = compute_block_reward(0);
-    //     assert_eq!(genesis_halving_reward, reward_initial.try_into().unwrap());
+    #[test]
+    fn test_compute_block_reward() {
+        let max_halvings: u32 = 64;
+        let reward_initial: u256 = 5000000000;
+        let mut block_height = 210_000; // halving every 210 000 blocks
+        // Before first halving
+        let genesis_halving_reward = compute_block_reward(0);
+        assert_eq!(genesis_halving_reward, reward_initial.try_into().unwrap());
 
-    //     // Before first halving
-    //     assert_eq!(compute_block_reward(209999), reward_initial.try_into().unwrap());
+        // Before first halving
+        assert_eq!(compute_block_reward(209999), reward_initial.try_into().unwrap());
 
-    //     // First halving
-    //     let first_halving_reward = compute_block_reward(block_height);
-    //     assert_eq!(first_halving_reward, reward_initial.try_into().unwrap() / 2);
+        // First halving
+        let first_halving_reward = compute_block_reward(block_height);
+        assert_eq!(first_halving_reward, reward_initial.try_into().unwrap() / 2);
 
-    //     // Second halving
-    //     assert_eq!(compute_block_reward(420000), 1250000000); // 12.5 BTC
+        // Second halving
+        assert_eq!(compute_block_reward(420000), 1250000000); // 12.5 BTC
 
-    //     // Third halving
-    //     assert_eq!(compute_block_reward(630000), 625000000); // 6.25
+        // Third halving
+        assert_eq!(compute_block_reward(630000), 625000000); // 6.25
 
-    //     // Just after fourth halving
-    //     assert_eq!(compute_block_reward(840001), 312500000); // 3.125
+        // Just after fourth halving
+        assert_eq!(compute_block_reward(840001), 312500000); // 3.125
 
-    //     // Fight halving
-    //     assert_eq!(compute_block_reward(1050000), 156250000); // 1.5625
+        // Fight halving
+        assert_eq!(compute_block_reward(1050000), 156250000); // 1.5625
 
-    //     // Seventh halving
-    //     assert_eq!(compute_block_reward(1470000), 39062500); // 0.390625
+        // Seventh halving
+        assert_eq!(compute_block_reward(1470000), 39062500); // 0.390625
 
-    //     // Ninth halving
-    //     assert_eq!(compute_block_reward(1890000), 9765625); // 0.09765625
+        // Ninth halving
+        assert_eq!(compute_block_reward(1890000), 9765625); // 0.09765625
 
-    //     // Tenth halving
-    //     let tenth_reward = compute_block_reward(10 * block_height);
-    //     assert_eq!(tenth_reward, 4882812); // 0.048828125
+        // Tenth halving
+        let tenth_reward = compute_block_reward(10 * block_height);
+        assert_eq!(tenth_reward, 4882812); // 0.048828125
 
-    //     let last_reward = compute_block_reward(max_halvings * block_height);
-    //     assert_eq!(last_reward, 0);
-    // }
+        let last_reward = compute_block_reward(max_halvings * block_height);
+        assert_eq!(last_reward, 0);
+    }
 
-    // #[test]
-    // fn test_next_prev_timstamps() {
-    //     let chain_state = ChainState {
-    //         block_height: 1,
-    //         total_work: 1,
-    //         best_block_hash: 1_u256.into(),
-    //         current_target: 1,
-    //         epoch_start_time: 1,
-    //         prev_timestamps: array![0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10].span(),
-    //         utreexo_state: UtreexoState { roots: array![].span() },
-    //     };
-    //     let block = Block {
-    //         header: Header { version: 1, time: 12, nonce: 1, bits: 1 },
-    //         txs: ArrayTrait::new().span(),
-    //     };
-    //     let next_prev_timestamps = next_prev_timestamps(@chain_state, @block);
-    //     assert_eq!(*next_prev_timestamps[0], 1);
-    //     assert_eq!(*next_prev_timestamps[1], 2);
-    //     assert_eq!(*next_prev_timestamps[2], 3);
-    //     assert_eq!(*next_prev_timestamps[3], 4);
-    //     assert_eq!(*next_prev_timestamps[4], 5);
-    //     assert_eq!(*next_prev_timestamps[5], 6);
-    //     assert_eq!(*next_prev_timestamps[6], 7);
-    //     assert_eq!(*next_prev_timestamps[7], 8);
-    //     assert_eq!(*next_prev_timestamps[8], 9);
-    //     assert_eq!(*next_prev_timestamps[9], 10);
-    //     assert_eq!(*next_prev_timestamps[10], 12);
-    // }
+    #[test]
+    fn test_next_prev_timstamps() {
+        let chain_state = ChainState {
+            block_height: 1,
+            total_work: 1,
+            best_block_hash: 1_u256.into(),
+            current_target: 1,
+            epoch_start_time: 1,
+            prev_timestamps: array![0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10].span(),
+            utreexo_state: UtreexoState { roots: array![].span() },
+        };
+        let block = Block {
+            header: Header { version: 1, time: 12, nonce: 1, bits: 1 },
+            txs: ArrayTrait::new().span(),
+        };
+        let next_prev_timestamps = next_prev_timestamps(@chain_state, @block);
+        assert_eq!(*next_prev_timestamps[0], 1);
+        assert_eq!(*next_prev_timestamps[1], 2);
+        assert_eq!(*next_prev_timestamps[2], 3);
+        assert_eq!(*next_prev_timestamps[3], 4);
+        assert_eq!(*next_prev_timestamps[4], 5);
+        assert_eq!(*next_prev_timestamps[5], 6);
+        assert_eq!(*next_prev_timestamps[6], 7);
+        assert_eq!(*next_prev_timestamps[7], 8);
+        assert_eq!(*next_prev_timestamps[8], 9);
+        assert_eq!(*next_prev_timestamps[9], 10);
+        assert_eq!(*next_prev_timestamps[10], 12);
+    }
 
-    // #[test]
-    // #[should_panic(expected: ('Input count should be 1',))]
-    // fn test_validate_coinbase_with_multiple_input() {
-    //     let block = Block {
-    //         header: Header { version: 1_u32, time: 1231006505_u32, bits: 1, nonce: 2083236893_u32
-    //         }, txs: array![
-    //             Transaction {
-    //                 version: 1,
-    //                 is_segwit: false,
-    //                 inputs: array![
-    //                     TxIn {
-    //                         script: from_base16(""),
-    //                         sequence: 4294967295,
-    //                         previous_output: OutPoint {
-    //                             txid: 0_u256.into(),
-    //                             vout: 0xffffffff_u32,
-    //                             txo_index: 0,
-    //                             amount: 0_64
-    //                         },
-    //                         witness: from_base16("0")
-    //                     },
-    //                     TxIn {
-    //                         script: from_base16(""),
-    //                         sequence: 4294967295,
-    //                         previous_output: OutPoint {
-    //                             txid: 0_u256.into(),
-    //                             vout: 0xffffffff_u32,
-    //                             txo_index: 0,
-    //                             amount: 0_64
-    //                         },
-    //                         witness: from_base16("0")
-    //                     }
-    //                 ]
-    //                     .span(),
-    //                 outputs: array![TxOut { value: 5000000000_u64, pk_script: from_base16(""), }]
-    //                     .span(),
-    //                 lock_time: 0
-    //             }
-    //         ]
-    //             .span()
-    //     };
-    //     let total_fees = 5000000000_u64;
-    //     let block_height = 1;
+    #[test]
+    #[should_panic(expected: ('Input count should be 1',))]
+    fn test_validate_coinbase_with_multiple_input() {
+        let block = Block {
+            header: Header { version: 1_u32, time: 1231006505_u32, bits: 1, nonce: 2083236893_u32 },
+            txs: array![
+                Transaction {
+                    version: 1,
+                    is_segwit: false,
+                    inputs: array![
+                        TxIn {
+                            script: from_base16(""),
+                            sequence: 4294967295,
+                            previous_output: OutPoint {
+                                txid: 0_u256.into(),
+                                vout: 0xffffffff_u32,
+                                txo_index: 0,
+                                amount: 0_64
+                            },
+                            witness: from_base16("0")
+                        },
+                        TxIn {
+                            script: from_base16(""),
+                            sequence: 4294967295,
+                            previous_output: OutPoint {
+                                txid: 0_u256.into(),
+                                vout: 0xffffffff_u32,
+                                txo_index: 0,
+                                amount: 0_64
+                            },
+                            witness: from_base16("0")
+                        }
+                    ]
+                        .span(),
+                    outputs: array![TxOut { value: 5000000000_u64, pk_script: from_base16(""), }]
+                        .span(),
+                    lock_time: 0
+                }
+            ]
+                .span()
+        };
+        let total_fees = 5000000000_u64;
+        let block_height = 1;
 
-    //     validate_coinbase(@block, total_fees, block_height).unwrap();
-    // }
+        validate_coinbase(@block, total_fees, block_height).unwrap();
+    }
 
-    // #[test]
-    // #[should_panic(expected: ('vout should be 0xFFFFFFFF',))]
-    // fn test_validate_coinbase_with_wrong_vout() {
-    //     let block = Block {
-    //         header: Header { version: 1_u32, time: 1231006505_u32, bits: 1, nonce: 2083236893_u32
-    //         }, txs: array![
-    //             Transaction {
-    //                 version: 1,
-    //                 is_segwit: false,
-    //                 inputs: array![
-    //                     TxIn {
-    //                         script: from_base16(""),
-    //                         sequence: 4294967295,
-    //                         previous_output: OutPoint {
-    //                             txid: 0_u256.into(), vout: 0x1_u32, txo_index: 0, amount: 0_64
-    //                         },
-    //                         witness: from_base16("0")
-    //                     }
-    //                 ]
-    //                     .span(),
-    //                 outputs: array![TxOut { value: 5000000000_u64, pk_script: from_base16(""), }]
-    //                     .span(),
-    //                 lock_time: 0
-    //             }
-    //         ]
-    //             .span()
-    //     };
-    //     let total_fees = 5000000000_u64;
-    //     let block_height = 1;
+    #[test]
+    #[should_panic(expected: ('vout should be 0xFFFFFFFF',))]
+    fn test_validate_coinbase_with_wrong_vout() {
+        let block = Block {
+            header: Header { version: 1_u32, time: 1231006505_u32, bits: 1, nonce: 2083236893_u32 },
+            txs: array![
+                Transaction {
+                    version: 1,
+                    is_segwit: false,
+                    inputs: array![
+                        TxIn {
+                            script: from_base16(""),
+                            sequence: 4294967295,
+                            previous_output: OutPoint {
+                                txid: 0_u256.into(), vout: 0x1_u32, txo_index: 0, amount: 0_64
+                            },
+                            witness: from_base16("0")
+                        }
+                    ]
+                        .span(),
+                    outputs: array![TxOut { value: 5000000000_u64, pk_script: from_base16(""), }]
+                        .span(),
+                    lock_time: 0
+                }
+            ]
+                .span()
+        };
+        let total_fees = 5000000000_u64;
+        let block_height = 1;
 
-    //     validate_coinbase(@block, total_fees, block_height).unwrap();
-    // }
+        validate_coinbase(@block, total_fees, block_height).unwrap();
+    }
 
-    // #[test]
-    // #[should_panic(expected: ('txid should be 0',))]
-    // fn test_validate_coinbase_with_txid_not_zero() {
-    //     let block = Block {
-    //         header: Header { version: 1_u32, time: 1231006505_u32, bits: 1, nonce: 2083236893_u32
-    //         }, txs: array![
-    //             Transaction {
-    //                 version: 1,
-    //                 is_segwit: false,
-    //                 inputs: array![
-    //                     TxIn {
-    //                         script: from_base16(""),
-    //                         sequence: 4294967295,
-    //                         previous_output: OutPoint {
-    //                             txid: 0x2_u256.into(),
-    //                             vout: 0xFFFFFFFF_u32,
-    //                             txo_index: 0,
-    //                             amount: 0_64
-    //                         },
-    //                         witness: from_base16("0")
-    //                     }
-    //                 ]
-    //                     .span(),
-    //                 outputs: array![TxOut { value: 5000000000_u64, pk_script: from_base16(""), }]
-    //                     .span(),
-    //                 lock_time: 0
-    //             }
-    //         ]
-    //             .span()
-    //     };
-    //     let total_fees = 5000000000_u64;
-    //     let block_height = 1;
+    #[test]
+    #[should_panic(expected: ('txid should be 0',))]
+    fn test_validate_coinbase_with_txid_not_zero() {
+        let block = Block {
+            header: Header { version: 1_u32, time: 1231006505_u32, bits: 1, nonce: 2083236893_u32 },
+            txs: array![
+                Transaction {
+                    version: 1,
+                    is_segwit: false,
+                    inputs: array![
+                        TxIn {
+                            script: from_base16(""),
+                            sequence: 4294967295,
+                            previous_output: OutPoint {
+                                txid: 0x2_u256.into(),
+                                vout: 0xFFFFFFFF_u32,
+                                txo_index: 0,
+                                amount: 0_64
+                            },
+                            witness: from_base16("0")
+                        }
+                    ]
+                        .span(),
+                    outputs: array![TxOut { value: 5000000000_u64, pk_script: from_base16(""), }]
+                        .span(),
+                    lock_time: 0
+                }
+            ]
+                .span()
+        };
+        let total_fees = 5000000000_u64;
+        let block_height = 1;
 
-    //     validate_coinbase(@block, total_fees.into(), block_height).unwrap();
-    // }
-    // #[test]
-    // #[should_panic(expected: ('total output > block rwd + fees',))]
-    // fn test_validate_coinbase_outputs_amount() {
-    //     let block = Block {
-    //         header: Header { version: 1_u32, time: 1231006505_u32, bits: 1, nonce: 2083236893_u32
-    //         }, txs: array![
-    //             Transaction {
-    //                 version: 1,
-    //                 is_segwit: false,
-    //                 inputs: array![
-    //                     TxIn {
-    //                         script: from_base16(""),
-    //                         sequence: 4294967295,
-    //                         previous_output: OutPoint {
-    //                             txid: 0_u256.into(),
-    //                             vout: 0xffffffff_u32,
-    //                             txo_index: 0,
-    //                             amount: 0_64
-    //                         },
-    //                         witness: from_base16("0")
-    //                     }
-    //                 ]
-    //                     .span(),
-    //                 outputs: array![TxOut { value: 5000000000_u64, pk_script: from_base16(""), }]
-    //                     .span(),
-    //                 lock_time: 0
-    //             }
-    //         ]
-    //             .span()
-    //     };
+        validate_coinbase(@block, total_fees.into(), block_height).unwrap();
+    }
+    #[test]
+    #[should_panic(expected: ('total output > block rwd + fees',))]
+    fn test_validate_coinbase_outputs_amount() {
+        let block = Block {
+            header: Header { version: 1_u32, time: 1231006505_u32, bits: 1, nonce: 2083236893_u32 },
+            txs: array![
+                Transaction {
+                    version: 1,
+                    is_segwit: false,
+                    inputs: array![
+                        TxIn {
+                            script: from_base16(""),
+                            sequence: 4294967295,
+                            previous_output: OutPoint {
+                                txid: 0_u256.into(),
+                                vout: 0xffffffff_u32,
+                                txo_index: 0,
+                                amount: 0_64
+                            },
+                            witness: from_base16("0")
+                        }
+                    ]
+                        .span(),
+                    outputs: array![TxOut { value: 5000000000_u64, pk_script: from_base16(""), }]
+                        .span(),
+                    lock_time: 0
+                }
+            ]
+                .span()
+        };
 
-    //     let total_fees = 0_u64;
-    //     let block_height = 856_563;
+        let total_fees = 0_u64;
+        let block_height = 856_563;
 
-    //     validate_coinbase(@block, total_fees, block_height).unwrap();
-    // }
+        validate_coinbase(@block, total_fees, block_height).unwrap();
+    }
 
-    // #[test]
-    // fn test_validate_coinbase() {
-    //     let block = Block {
-    //         header: Header { version: 1_u32, time: 1231006505_u32, bits: 1, nonce: 2083236893_u32
-    //         }, txs: array![
-    //             Transaction {
-    //                 version: 1,
-    //                 is_segwit: false,
-    //                 inputs: array![
-    //                     TxIn {
-    //                         script: from_base16(""),
-    //                         sequence: 4294967295,
-    //                         previous_output: OutPoint {
-    //                             txid: 0_u256.into(),
-    //                             vout: 0xffffffff_u32,
-    //                             txo_index: 0,
-    //                             amount: 0_64
-    //                         },
-    //                         witness: from_base16("0")
-    //                     }
-    //                 ]
-    //                     .span(),
-    //                 outputs: array![TxOut { value: 5000000000_u64, pk_script: from_base16(""), }]
-    //                     .span(),
-    //                 lock_time: 0
-    //             }
-    //         ]
-    //             .span()
-    //     };
+    #[test]
+    fn test_validate_coinbase() {
+        let block = Block {
+            header: Header { version: 1_u32, time: 1231006505_u32, bits: 1, nonce: 2083236893_u32 },
+            txs: array![
+                Transaction {
+                    version: 1,
+                    is_segwit: false,
+                    inputs: array![
+                        TxIn {
+                            script: from_base16(""),
+                            sequence: 4294967295,
+                            previous_output: OutPoint {
+                                txid: 0_u256.into(),
+                                vout: 0xffffffff_u32,
+                                txo_index: 0,
+                                amount: 0_64
+                            },
+                            witness: from_base16("0")
+                        }
+                    ]
+                        .span(),
+                    outputs: array![TxOut { value: 5000000000_u64, pk_script: from_base16(""), }]
+                        .span(),
+                    lock_time: 0
+                }
+            ]
+                .span()
+        };
 
-    //     let total_fees = 5000000000_u64;
-    //     let block_height = 856_563;
+        let total_fees = 5000000000_u64;
+        let block_height = 856_563;
 
-    //     validate_coinbase(@block, total_fees, block_height).unwrap();
-    // }
+        validate_coinbase(@block, total_fees, block_height).unwrap();
+    }
 
     #[test]
     fn test_txid() {
