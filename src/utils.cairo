@@ -32,6 +32,32 @@ impl HashPartialEq of PartialEq<Hash> {
     }
 }
 
+impl HashPartialOrd of PartialOrd<Hash> {
+    fn le(lhs: Hash, rhs: Hash) -> bool {
+        let lhs_value: u256 = lhs.into();
+        let rhs_value: u256 = rhs.into();
+        lhs_value <= rhs_value
+    }
+
+    fn ge(lhs: Hash, rhs: Hash) -> bool {
+        let lhs_value: u256 = lhs.into();
+        let rhs_value: u256 = rhs.into();
+        lhs_value >= rhs_value
+    }
+
+    fn lt(lhs: Hash, rhs: Hash) -> bool {
+        let lhs_value: u256 = lhs.into();
+        let rhs_value: u256 = rhs.into();
+        lhs_value < rhs_value
+    }
+
+    fn gt(lhs: Hash, rhs: Hash) -> bool {
+        let lhs_value: u256 = lhs.into();
+        let rhs_value: u256 = rhs.into();
+        lhs_value > rhs_value
+    }
+}
+
 pub impl U256IntoHash of Into<u256, Hash> {
     fn into(self: u256) -> Hash {
         let mut result: Array<u32> = array![];

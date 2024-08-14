@@ -12,6 +12,7 @@ mod block_210000;
 // mod block_774628;
 // mod block_840000;
 
-// Blocks that are commented are too big and make compilation when running tests almost impossible
+// Blocks that are commented out are too big and make compilation when running tests almost
+// impossible.
 
 
