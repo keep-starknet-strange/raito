@@ -3,7 +3,7 @@ use core::num::traits::{Zero, One, BitSize};
 use core::sha256::{compute_sha256_byte_array, compute_sha256_u32_array};
 use core::to_byte_array::AppendFormattedToByteArray;
 
-#[derive(Copy, Drop, Debug)]
+#[derive(Copy, Drop, Debug, Default)]
 // pub is required here as we define Hash in utils and we need to import Hash in merkle_tree.cairo
 // for arguments to merkle_root function
 pub struct Hash {
@@ -29,32 +29,6 @@ impl HashDisplay of Display<Hash> {
 impl HashPartialEq of PartialEq<Hash> {
     fn eq(lhs: @Hash, rhs: @Hash) -> bool {
         lhs.value == rhs.value
-    }
-}
-
-impl HashPartialOrd of PartialOrd<Hash> {
-    fn le(lhs: Hash, rhs: Hash) -> bool {
-        let lhs_value: u256 = lhs.into();
-        let rhs_value: u256 = rhs.into();
-        lhs_value <= rhs_value
-    }
-
-    fn ge(lhs: Hash, rhs: Hash) -> bool {
-        let lhs_value: u256 = lhs.into();
-        let rhs_value: u256 = rhs.into();
-        lhs_value >= rhs_value
-    }
-
-    fn lt(lhs: Hash, rhs: Hash) -> bool {
-        let lhs_value: u256 = lhs.into();
-        let rhs_value: u256 = rhs.into();
-        lhs_value < rhs_value
-    }
-
-    fn gt(lhs: Hash, rhs: Hash) -> bool {
-        let lhs_value: u256 = lhs.into();
-        let rhs_value: u256 = rhs.into();
-        lhs_value > rhs_value
     }
 }
 

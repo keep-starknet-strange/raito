@@ -44,7 +44,7 @@ impl BlockValidatorImpl of BlockValidator {
 impl TransactionValidatorImpl of TransactionValidator {
     fn txid(self: @Transaction) -> Hash {
         // TODO: implement
-        Hash { value: [0; 8] }
+        Default::default()
     }
     fn fee(self: @Transaction) -> u64 {
         let mut total_input_amount = 0;
@@ -72,11 +72,13 @@ impl TransactionValidatorImpl of TransactionValidator {
 
 fn block_hash(self: @ChainState, block: @Block, merkle_root: Hash) -> Result<Hash, ByteArray> {
     // TODO: implement
-    Result::Ok(Hash { value: [0; 8] })
+    Result::Ok(Default::default())
 }
 
 fn validate_proof_of_work(target: u256, block_hash: Hash) -> Result<(), ByteArray> {
-    if block_hash <= target.into() {
+    println!("{}", target);
+    println!("{}", block_hash);
+    if block_hash.into() <= target {
         Result::Ok(())
     } else {
         Result::Err(
@@ -229,7 +231,7 @@ fn validate_coinbase(block: @Block, total_fees: u64, block_height: u32) -> Resul
     assert(*tx.inputs[0].previous_output.vout == 0xFFFFFFFF, 'vout should be 0xFFFFFFFF');
 
     // Ensure the input's TXID is zero
-    assert(*tx.inputs[0].previous_output.txid == Hash { value: [0; 8] }, 'txid should be 0');
+    assert(*tx.inputs[0].previous_output.txid == Default::default(), 'txid should be 0');
 
     // Validate the outputs' amounts
     // Sum up the total amount of all outputs
