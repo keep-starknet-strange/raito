@@ -210,11 +210,11 @@ fn fee_and_merkle_root(block: @Block) -> Result<(u64, Hash), ByteArray> {
     let mut txids: Array<Hash> = array![];
     let mut total_fee = 0;
 
-    // skipping the coinbase transaction
     let mut i = 0;
-    while (i < (*block).txs.len()) {
+    while (i < (*block.txs).len()) {
         let tx = block.txs[i];
-        txids.append(tx.txid().into());
+        txids.append(tx.txid());
+        // skipping the coinbase transaction
         if (i != 0) {
             total_fee += tx.fee();
         }
