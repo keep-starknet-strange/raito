@@ -210,9 +210,13 @@ fn fee_and_merkle_root(block: @Block) -> Result<(u64, Hash), ByteArray> {
     let mut txids: Array<Hash> = array![];
     let mut total_fee = 0;
 
-    for tx in *block.txs {
+    // skipping the coinbase transaction
+    let mut i = 1;
+    while (i < (*block).txs.len()) {
+        let tx = block.txs[i];
         txids.append(tx.txid().into());
         total_fee += tx.fee();
+        i += 1;
     };
 
     Result::Ok((total_fee, merkle_root(ref txids)))
