@@ -274,7 +274,7 @@ mod tests {
         let mut chain_state = ChainState {
             block_height: 1,
             total_work: 1,
-            best_block_hash: 1,
+            best_block_hash: 1_u256.into(),
             current_target: 1,
             epoch_start_time: 1,
             prev_timestamps: array![1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].span(),
@@ -312,7 +312,8 @@ mod tests {
                     ),
                     sequence: 0xffffffff,
                     previous_output: OutPoint {
-                        txid: 0x0437cd7f8525ceed2324359c2d0ba26006d92d856a9c20fa0241106ee5a597c9,
+                        txid: 0x0437cd7f8525ceed2324359c2d0ba26006d92d856a9c20fa0241106ee5a597c9_u256
+                            .into(),
                         vout: 0x00000000,
                         txo_index: 0,
                         amount: 100
@@ -380,23 +381,23 @@ mod tests {
     #[test]
     fn test_validate_proof_of_work() {
         // target is less than prev block hash
-        let result = validate_proof_of_work(0, 1);
+        let result = validate_proof_of_work(0, 1_u256.into());
         assert!(result.is_err(), "Expect target less than prev block hash");
 
         // target is greater than prev block hash
-        let result = validate_proof_of_work(2, 1);
+        let result = validate_proof_of_work(2, 1_u256.into());
         assert!(result.is_ok(), "Expect target gt prev block hash");
 
         // target is equal to prev block hash
-        let result = validate_proof_of_work(1, 1);
+        let result = validate_proof_of_work(1, 1_u256.into());
         assert!(result.is_ok(), "Expect target equal to prev block hash");
 
         // block prev block hash is greater than target
-        let result = validate_proof_of_work(1, 2);
+        let result = validate_proof_of_work(1, 2_u256.into());
         assert!(result.is_err(), "Expect prev block hash gt target");
 
         // block prev block hash is less than target
-        let result = validate_proof_of_work(10, 9);
+        let result = validate_proof_of_work(10, 9_u256.into());
         assert!(result.is_ok(), "Expect prev block hash lt target");
     }
 
@@ -449,7 +450,7 @@ mod tests {
         let chain_state = ChainState {
             block_height: 1,
             total_work: 1,
-            best_block_hash: 1,
+            best_block_hash: 1_u256.into(),
             current_target: 1,
             epoch_start_time: 1,
             prev_timestamps: array![0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10].span(),
@@ -487,7 +488,10 @@ mod tests {
                             script: from_base16(""),
                             sequence: 4294967295,
                             previous_output: OutPoint {
-                                txid: 0_u256, vout: 0xffffffff_u32, txo_index: 0, amount: 0_64
+                                txid: 0_u256.into(),
+                                vout: 0xffffffff_u32,
+                                txo_index: 0,
+                                amount: 0_64
                             },
                             witness: from_base16("0")
                         },
@@ -495,7 +499,10 @@ mod tests {
                             script: from_base16(""),
                             sequence: 4294967295,
                             previous_output: OutPoint {
-                                txid: 0_u256, vout: 0xffffffff_u32, txo_index: 0, amount: 0_64
+                                txid: 0_u256.into(),
+                                vout: 0xffffffff_u32,
+                                txo_index: 0,
+                                amount: 0_64
                             },
                             witness: from_base16("0")
                         }
@@ -528,7 +535,7 @@ mod tests {
                             script: from_base16(""),
                             sequence: 4294967295,
                             previous_output: OutPoint {
-                                txid: 0_u256, vout: 0x1_u32, txo_index: 0, amount: 0_64
+                                txid: 0_u256.into(), vout: 0x1_u32, txo_index: 0, amount: 0_64
                             },
                             witness: from_base16("0")
                         }
@@ -561,7 +568,10 @@ mod tests {
                             script: from_base16(""),
                             sequence: 4294967295,
                             previous_output: OutPoint {
-                                txid: 0x2_u256, vout: 0xFFFFFFFF_u32, txo_index: 0, amount: 0_64
+                                txid: 0x2_u256.into(),
+                                vout: 0xFFFFFFFF_u32,
+                                txo_index: 0,
+                                amount: 0_64
                             },
                             witness: from_base16("0")
                         }
@@ -593,7 +603,10 @@ mod tests {
                             script: from_base16(""),
                             sequence: 4294967295,
                             previous_output: OutPoint {
-                                txid: 0_u256, vout: 0xffffffff_u32, txo_index: 0, amount: 0_64
+                                txid: 0_u256.into(),
+                                vout: 0xffffffff_u32,
+                                txo_index: 0,
+                                amount: 0_64
                             },
                             witness: from_base16("0")
                         }
@@ -626,7 +639,10 @@ mod tests {
                             script: from_base16(""),
                             sequence: 4294967295,
                             previous_output: OutPoint {
-                                txid: 0_u256, vout: 0xffffffff_u32, txo_index: 0, amount: 0_64
+                                txid: 0_u256.into(),
+                                vout: 0xffffffff_u32,
+                                txo_index: 0,
+                                amount: 0_64
                             },
                             witness: from_base16("0")
                         }
