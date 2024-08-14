@@ -9,41 +9,41 @@ const MAX_TARGET: u256 = 0x00000000FFFF00000000000000000000000000000000000000000
 pub impl BlockValidatorImpl of BlockValidator {
     fn validate_and_apply(self: ChainState, block: Block) -> Result<ChainState, ByteArray> {
         validate_timestamp(@self, @block)?;
-        println!("Validated timestamp");
+        // println!("Validated timestamp");
         let (total_fees, merkle_root) = fee_and_merkle_root(@block)?;
-        println!("Calculated total fees and merkle root");
+        // println!("Calculated total fees and merkle root");
         validate_coinbase(@block, total_fees, self.block_height)?;
-        println!("Validated coinbase");
+        // println!("Validated coinbase");
         let prev_timestamps = next_prev_timestamps(@self, @block);
-        println!("Calculated next prev timestamps");
+        // println!("Calculated next prev timestamps");
         let (current_target, epoch_start_time) = adjust_difficulty(@self, @block);
-        println!(
-            "Adjusted difficulty: curent target: {}, epoch start time: {}",
-            current_target,
-            epoch_start_time
-        );
+        // println!(
+        //     "Adjusted difficulty: curent target: {}, epoch start time: {}",
+        //     current_target,
+        //     epoch_start_time
+        // );
         let total_work = compute_total_work(self.total_work, current_target);
-        println!("Computed total work");
+        // println!("Computed total work");
         let block_height = self.block_height + 1;
-        println!("Incremented block height");
+        // println!("Incremented block height");
 
         let best_block_hash = block_hash(@self, @block, merkle_root)?;
-        println!("Computed block hash");
+        // println!("Computed block hash");
 
         validate_proof_of_work(current_target, best_block_hash)?;
-        println!("Validated proof of work");
+        // println!("Validated proof of work");
         validate_bits(@block, current_target)?;
-        println!("Validated bits");
+        // println!("Validated bits");
 
         Result::Ok(
             ChainState {
-                block_height,
-                total_work,
-                best_block_hash,
-                current_target,
-                epoch_start_time,
-                prev_timestamps,
-                ..self,
+                block_height, // ok
+                total_work, // ok
+                best_block_hash, // to impl
+                current_target, // to impl
+                epoch_start_time, // to impl
+                prev_timestamps, // ok
+                ..self, // = utreexo state
             }
         )
     }
@@ -122,17 +122,12 @@ pub impl TransactionValidatorImpl of TransactionValidator {
             total_input_amount += amount;
         };
 
-        let mut i = 1;
-        while (i < outputs.len()) {
-            total_output_amount += *outputs[i].value;
-            i += 1;
+        for output in outputs {
+            let value = *output.value;
+            total_output_amount += value;
         };
-        // for output in outputs {
-        //     let value = *output.value;
-        //     total_output_amount += value;
-        // };
-        println!("total_input_amount: {}", total_input_amount);
-        println!("total_output_amount: {}", total_output_amount);
+        // println!("total_input_amount: {}", total_input_amount);
+        // println!("total_output_amount: {}", total_output_amount);
 
         let tx_fee = total_input_amount - total_output_amount;
 
@@ -269,8 +264,8 @@ pub fn target_to_bits(target: u256) -> Result<u32, ByteArray> {
 }
 
 fn validate_bits(block: @Block, target: u256) -> Result<(), ByteArray> {
-    println!("block.header.bits: {}", *block.header.bits);
-    println!("target_to_bits(target): {}", target_to_bits(target)?);
+    // println!("block.header.bits: {}", *block.header.bits);
+    // println!("target_to_bits(target): {}", target_to_bits(target)?);
     if *block.header.bits == target_to_bits(target)? {
         Result::Ok(())
     } else {
@@ -318,9 +313,9 @@ fn validate_coinbase(block: @Block, total_fees: u64, block_height: u32) -> Resul
 
     // Ensure the total output amount is at most the block reward + TX fees
     let block_reward = compute_block_reward(block_height);
-    println!("total_fees: {}", total_fees);
-    println!("block_reward: {}", block_reward);
-    println!("total_output_amount: {}", total_output_amount);
+    // println!("total_fees: {}", total_fees);
+    // println!("block_reward: {}", block_reward);
+    // println!("total_output_amount: {}", total_output_amount);
     assert(total_output_amount <= total_fees + block_reward, 'total output > block rwd + fees');
 
     Result::Ok(())
@@ -340,7 +335,7 @@ mod tests {
     use super::{
         validate_timestamp, validate_proof_of_work, compute_block_reward, compute_total_work,
         compute_work_from_target, shr, shl, Block, ChainState, UtreexoState, next_prev_timestamps,
-        TransactionValidatorImpl, validate_coinbase
+        TransactionValidatorImpl, validate_coinbase, target_to_bits
     };
 
     #[test]
@@ -409,7 +404,7 @@ mod tests {
         };
 
         let fee = TransactionValidatorImpl::fee(@tx);
-        assert_eq!(fee, 100);
+        assert_eq!(fee, 10);
     }
 
     #[test]
@@ -546,6 +541,13 @@ mod tests {
         assert_eq!(*next_prev_timestamps[8], 9);
         assert_eq!(*next_prev_timestamps[9], 10);
         assert_eq!(*next_prev_timestamps[10], 12);
+    }
+
+    #[test]
+    fn test_target_to_bits() {
+        let target = 486604799_u256;
+        let bits = target_to_bits(target).unwrap();
+        assert_eq!(bits, 69009663);
     }
 
     #[test]

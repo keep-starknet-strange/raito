@@ -9,7 +9,7 @@ fn test_block0() {
         block_height: 0,
         total_work: 0,
         best_block_hash: 0_u256.into(),
-        current_target: 486604799,
+        current_target: 26959535291011309493156476344723991336010898738574164086137773096960_u256,
         epoch_start_time: 1231006505,
         prev_timestamps: [
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
@@ -49,20 +49,24 @@ fn test_block0() {
 
     };
 
-    // println!("hash: {}", block.header.time);
     let next_chain_state = BlockValidatorImpl::validate_and_apply(prev_chain_state, block);
-
     assert!(next_chain_state.is_ok(), "Error: {:?}", next_chain_state.err());
-    // match BlockValidatorImpl::validate_and_apply(prev_chain_state, block) {
-//     Result::Ok(next_chain_state) => {
-//         println!("result block height: {:?}", next_chain_state.block_height);
-//         println!("result total work: {:?}", next_chain_state.total_work);
-//     },
-//     Result::Err(e) => println!("Error: {}", e),
-// }
-// println!("result: {:?}", next_chain_state);
-// let next_chain_state = chain_state.validate_and_apply(block);
 
-    // assertions
+    let result = next_chain_state.unwrap();
+    assert_eq!(result.block_height, prev_chain_state.block_height + 1);
+    assert_eq!(result.total_work, 4295032833);
+    assert_eq!(result.prev_timestamps, [1231006505, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0].span());
+    //to impl
+// assert_eq!(
+//     result.best_block_hash,
+//     0x000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f_u256.into()
+// );
+// assert_eq!(
+//     result.current_target,
+//     26959535291011309493156476344723991336010898738574164086137773096960_u256
+// );
+// assert_eq!(result.epoch_start_time, 1231006505);
+// assert_eq!(result.utreexo_state.roots, [...]);
+
 }
 
