@@ -1,7 +1,7 @@
 use core::sha256::{compute_sha256_byte_array, compute_sha256_u32_array};
-use super::state::{Block, ChainState, Transaction, UtreexoState, TxIn, TxOut, OutPoint};
 use super::merkle_tree::merkle_root;
-use super::utils::{shl, shr, from_base16};
+use super::utils::{shl, shr, Hash, from_base16};
+use super::state::{Block, ChainState, Transaction, UtreexoState, UtreexoSet, TxIn, TxOut, OutPoint};
 
 const MAX_TARGET: u256 = 0x00000000FFFF0000000000000000000000000000000000000000000000000000;
 
@@ -12,7 +12,7 @@ impl BlockValidatorImpl of BlockValidator {
 
         let (total_fees, merkle_root) = fee_and_merkle_root(@block)?;
 
-        validate_coinbase(@block, total_fees)?;
+        validate_coinbase(@block, total_fees, self.block_height)?;
 
         let prev_timestamps = next_prev_timestamps(@self, @block);
         let (current_target, epoch_start_time) = adjust_difficulty(@self, @block);
@@ -134,13 +134,13 @@ pub impl TransactionValidatorImpl of TransactionValidator {
     }
 }
 
-fn block_hash(self: @ChainState, block: @Block, merkle_root: u256) -> Result<u256, ByteArray> {
+fn block_hash(self: @ChainState, block: @Block, merkle_root: Hash) -> Result<Hash, ByteArray> {
     // TODO: implement
-    Result::Ok(0)
+    Result::Ok(Default::default())
 }
 
-fn validate_proof_of_work(target: u256, block_hash: u256) -> Result<(), ByteArray> {
-    if block_hash <= target {
+fn validate_proof_of_work(target: u256, block_hash: Hash) -> Result<(), ByteArray> {
+    if block_hash.into() <= target {
         Result::Ok(())
     } else {
         Result::Err(
@@ -160,8 +160,9 @@ fn validate_timestamp(self: @ChainState, block: @Block) -> Result<(), ByteArray>
 fn next_prev_timestamps(self: @ChainState, block: @Block) -> Span<u32> {
     let mut prev_timestamps = *self.prev_timestamps;
     prev_timestamps.pop_front().unwrap(); //keep only 10 most recent previous timestamps
-    let mut timestamps: Array<u32> = array![*block.header.time];
+    let mut timestamps: Array<u32> = array![];
     timestamps.append_span(prev_timestamps);
+    timestamps.append(*block.header.time);
     timestamps.span()
 }
 
@@ -269,20 +270,50 @@ fn validate_bits(block: @Block, target: u256) -> Result<(), ByteArray> {
     }
 }
 
-fn fee_and_merkle_root(block: @Block) -> Result<(u64, u256), ByteArray> {
-    let mut txids = ArrayTrait::new();
+fn fee_and_merkle_root(block: @Block) -> Result<(u64, Hash), ByteArray> {
+    let mut txids: Array<Hash> = array![];
     let mut total_fee = 0;
 
     for tx in *block.txs {
-        txids.append(tx.txid());
+        txids.append(tx.txid().into());
         total_fee += tx.fee();
     };
 
     Result::Ok((total_fee, merkle_root(ref txids)))
 }
 
-fn validate_coinbase(block: @Block, total_fees: u64) -> Result<(), ByteArray> {
-    //TODO implement
+fn validate_coinbase(block: @Block, total_fees: u64, block_height: u32) -> Result<(), ByteArray> {
+    let tx = block.txs[0];
+
+    // Validate the coinbase input
+    // Ensure there is exactly one coinbase input
+    assert((*tx.inputs).len() == 1, 'Input count should be 1');
+
+    // Ensure the input's vout is 0xFFFFFFFF
+    assert(*tx.inputs[0].previous_output.vout == 0xFFFFFFFF, 'vout should be 0xFFFFFFFF');
+
+    // Ensure the input's TXID is zero
+    assert(*tx.inputs[0].previous_output.txid == Default::default(), 'txid should be 0');
+
+    // Validate the outputs' amounts
+    // Sum up the total amount of all outputs
+    // and also add the outputs to the UtreexoSet.
+    let mut total_output_amount = 0;
+
+    for txs in *block
+        .txs {
+            for output in *txs
+                .outputs {
+                    total_output_amount = total_output_amount + *output.value;
+                    //TODO add outputs to UtreexoSet
+
+                };
+        };
+
+    // Ensure the total output amount is at most the block reward + TX fees
+    let block_reward = compute_block_reward(block_height);
+    assert(total_output_amount <= total_fees + block_reward, 'total output > block rwd + fees');
+
     Result::Ok(())
 }
 
@@ -299,7 +330,7 @@ mod tests {
     use super::{
         validate_timestamp, validate_proof_of_work, compute_block_reward, compute_total_work,
         compute_work_from_target, shr, shl, Block, ChainState, UtreexoState, next_prev_timestamps,
-        TransactionValidatorImpl
+        TransactionValidatorImpl, validate_coinbase
     };
 
     #[test]
@@ -307,7 +338,7 @@ mod tests {
         let mut chain_state = ChainState {
             block_height: 1,
             total_work: 1,
-            best_block_hash: 1,
+            best_block_hash: 1_u256.into(),
             current_target: 1,
             epoch_start_time: 1,
             prev_timestamps: array![1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].span(),
@@ -345,7 +376,8 @@ mod tests {
                     ),
                     sequence: 0xffffffff,
                     previous_output: OutPoint {
-                        txid: 0x0437cd7f8525ceed2324359c2d0ba26006d92d856a9c20fa0241106ee5a597c9,
+                        txid: 0x0437cd7f8525ceed2324359c2d0ba26006d92d856a9c20fa0241106ee5a597c9_u256
+                            .into(),
                         vout: 0x00000000,
                         txo_index: 0,
                         amount: 100
@@ -413,23 +445,23 @@ mod tests {
     #[test]
     fn test_validate_proof_of_work() {
         // target is less than prev block hash
-        let result = validate_proof_of_work(0, 1);
+        let result = validate_proof_of_work(0, 1_u256.into());
         assert!(result.is_err(), "Expect target less than prev block hash");
 
         // target is greater than prev block hash
-        let result = validate_proof_of_work(2, 1);
+        let result = validate_proof_of_work(2, 1_u256.into());
         assert!(result.is_ok(), "Expect target gt prev block hash");
 
         // target is equal to prev block hash
-        let result = validate_proof_of_work(1, 1);
+        let result = validate_proof_of_work(1, 1_u256.into());
         assert!(result.is_ok(), "Expect target equal to prev block hash");
 
         // block prev block hash is greater than target
-        let result = validate_proof_of_work(1, 2);
+        let result = validate_proof_of_work(1, 2_u256.into());
         assert!(result.is_err(), "Expect prev block hash gt target");
 
         // block prev block hash is less than target
-        let result = validate_proof_of_work(10, 9);
+        let result = validate_proof_of_work(10, 9_u256.into());
         assert!(result.is_ok(), "Expect prev block hash lt target");
     }
 
@@ -524,7 +556,7 @@ mod tests {
         let chain_state = ChainState {
             block_height: 1,
             total_work: 1,
-            best_block_hash: 1,
+            best_block_hash: 1_u256.into(),
             current_target: 1,
             epoch_start_time: 1,
             prev_timestamps: array![0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10].span(),
@@ -535,9 +567,204 @@ mod tests {
             txs: ArrayTrait::new().span(),
         };
         let next_prev_timestamps = next_prev_timestamps(@chain_state, @block);
-        assert(*next_prev_timestamps[0] == 12, 'Failed to compute');
-        assert(*next_prev_timestamps[6] == 6, 'Failed to compute');
-        assert(*next_prev_timestamps[8] == 8, 'Failed to compute');
-        assert(*next_prev_timestamps[9] == 9, 'Failed to compute');
+        assert_eq!(*next_prev_timestamps[0], 1);
+        assert_eq!(*next_prev_timestamps[1], 2);
+        assert_eq!(*next_prev_timestamps[2], 3);
+        assert_eq!(*next_prev_timestamps[3], 4);
+        assert_eq!(*next_prev_timestamps[4], 5);
+        assert_eq!(*next_prev_timestamps[5], 6);
+        assert_eq!(*next_prev_timestamps[6], 7);
+        assert_eq!(*next_prev_timestamps[7], 8);
+        assert_eq!(*next_prev_timestamps[8], 9);
+        assert_eq!(*next_prev_timestamps[9], 10);
+        assert_eq!(*next_prev_timestamps[10], 12);
+    }
+
+    #[test]
+    #[should_panic(expected: ('Input count should be 1',))]
+    fn test_validate_coinbase_with_multiple_input() {
+        let block = Block {
+            header: Header { version: 1_u32, time: 1231006505_u32, bits: 1, nonce: 2083236893_u32 },
+            txs: array![
+                Transaction {
+                    version: 1,
+                    is_segwit: false,
+                    inputs: array![
+                        TxIn {
+                            script: from_base16(""),
+                            sequence: 4294967295,
+                            previous_output: OutPoint {
+                                txid: 0_u256.into(),
+                                vout: 0xffffffff_u32,
+                                txo_index: 0,
+                                amount: 0_64
+                            },
+                            witness: from_base16("0")
+                        },
+                        TxIn {
+                            script: from_base16(""),
+                            sequence: 4294967295,
+                            previous_output: OutPoint {
+                                txid: 0_u256.into(),
+                                vout: 0xffffffff_u32,
+                                txo_index: 0,
+                                amount: 0_64
+                            },
+                            witness: from_base16("0")
+                        }
+                    ]
+                        .span(),
+                    outputs: array![TxOut { value: 5000000000_u64, pk_script: from_base16(""), }]
+                        .span(),
+                    lock_time: 0
+                }
+            ]
+                .span()
+        };
+        let total_fees = 5000000000_u64;
+        let block_height = 1;
+
+        validate_coinbase(@block, total_fees, block_height).unwrap();
+    }
+
+    #[test]
+    #[should_panic(expected: ('vout should be 0xFFFFFFFF',))]
+    fn test_validate_coinbase_with_wrong_vout() {
+        let block = Block {
+            header: Header { version: 1_u32, time: 1231006505_u32, bits: 1, nonce: 2083236893_u32 },
+            txs: array![
+                Transaction {
+                    version: 1,
+                    is_segwit: false,
+                    inputs: array![
+                        TxIn {
+                            script: from_base16(""),
+                            sequence: 4294967295,
+                            previous_output: OutPoint {
+                                txid: 0_u256.into(), vout: 0x1_u32, txo_index: 0, amount: 0_64
+                            },
+                            witness: from_base16("0")
+                        }
+                    ]
+                        .span(),
+                    outputs: array![TxOut { value: 5000000000_u64, pk_script: from_base16(""), }]
+                        .span(),
+                    lock_time: 0
+                }
+            ]
+                .span()
+        };
+        let total_fees = 5000000000_u64;
+        let block_height = 1;
+
+        validate_coinbase(@block, total_fees, block_height).unwrap();
+    }
+
+    #[test]
+    #[should_panic(expected: ('txid should be 0',))]
+    fn test_validate_coinbase_with_txid_not_zero() {
+        let block = Block {
+            header: Header { version: 1_u32, time: 1231006505_u32, bits: 1, nonce: 2083236893_u32 },
+            txs: array![
+                Transaction {
+                    version: 1,
+                    is_segwit: false,
+                    inputs: array![
+                        TxIn {
+                            script: from_base16(""),
+                            sequence: 4294967295,
+                            previous_output: OutPoint {
+                                txid: 0x2_u256.into(),
+                                vout: 0xFFFFFFFF_u32,
+                                txo_index: 0,
+                                amount: 0_64
+                            },
+                            witness: from_base16("0")
+                        }
+                    ]
+                        .span(),
+                    outputs: array![TxOut { value: 5000000000_u64, pk_script: from_base16(""), }]
+                        .span(),
+                    lock_time: 0
+                }
+            ]
+                .span()
+        };
+        let total_fees = 5000000000_u64;
+        let block_height = 1;
+
+        validate_coinbase(@block, total_fees.into(), block_height).unwrap();
+    }
+    #[test]
+    #[should_panic(expected: ('total output > block rwd + fees',))]
+    fn test_validate_coinbase_outputs_amount() {
+        let block = Block {
+            header: Header { version: 1_u32, time: 1231006505_u32, bits: 1, nonce: 2083236893_u32 },
+            txs: array![
+                Transaction {
+                    version: 1,
+                    is_segwit: false,
+                    inputs: array![
+                        TxIn {
+                            script: from_base16(""),
+                            sequence: 4294967295,
+                            previous_output: OutPoint {
+                                txid: 0_u256.into(),
+                                vout: 0xffffffff_u32,
+                                txo_index: 0,
+                                amount: 0_64
+                            },
+                            witness: from_base16("0")
+                        }
+                    ]
+                        .span(),
+                    outputs: array![TxOut { value: 5000000000_u64, pk_script: from_base16(""), }]
+                        .span(),
+                    lock_time: 0
+                }
+            ]
+                .span()
+        };
+
+        let total_fees = 0_u64;
+        let block_height = 856_563;
+
+        validate_coinbase(@block, total_fees, block_height).unwrap();
+    }
+
+    #[test]
+    fn test_validate_coinbase() {
+        let block = Block {
+            header: Header { version: 1_u32, time: 1231006505_u32, bits: 1, nonce: 2083236893_u32 },
+            txs: array![
+                Transaction {
+                    version: 1,
+                    is_segwit: false,
+                    inputs: array![
+                        TxIn {
+                            script: from_base16(""),
+                            sequence: 4294967295,
+                            previous_output: OutPoint {
+                                txid: 0_u256.into(),
+                                vout: 0xffffffff_u32,
+                                txo_index: 0,
+                                amount: 0_64
+                            },
+                            witness: from_base16("0")
+                        }
+                    ]
+                        .span(),
+                    outputs: array![TxOut { value: 5000000000_u64, pk_script: from_base16(""), }]
+                        .span(),
+                    lock_time: 0
+                }
+            ]
+                .span()
+        };
+
+        let total_fees = 5000000000_u64;
+        let block_height = 856_563;
+
+        validate_coinbase(@block, total_fees, block_height).unwrap();
     }
 }
