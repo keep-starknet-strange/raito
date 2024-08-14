@@ -76,8 +76,6 @@ fn block_hash(self: @ChainState, block: @Block, merkle_root: Hash) -> Result<Has
 }
 
 fn validate_proof_of_work(target: u256, block_hash: Hash) -> Result<(), ByteArray> {
-    println!("{}", target);
-    println!("{}", block_hash);
     if block_hash.into() <= target {
         Result::Ok(())
     } else {
