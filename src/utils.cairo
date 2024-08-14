@@ -3,7 +3,7 @@ use core::num::traits::{Zero, One, BitSize};
 use core::sha256::{compute_sha256_byte_array, compute_sha256_u32_array};
 use core::to_byte_array::AppendFormattedToByteArray;
 
-#[derive(Copy, Drop, Debug)]
+#[derive(Copy, Drop, Debug, Default)]
 // pub is required here as we define Hash in utils and we need to import Hash in merkle_tree.cairo
 // for arguments to merkle_root function
 pub struct Hash {
@@ -80,15 +80,15 @@ pub impl HashIntoU256 of Into<Hash, u256> {
         let mut low: u128 = 0;
         let mut high: u128 = 0;
 
-        low += (a.into());
-        low += shl((b.into()), 32_u32);
-        low += shl((c.into()), 64_u32);
-        low += shl((d.into()), 96_u32);
+        low += (h.into());
+        low += shl((g.into()), 32_u32);
+        low += shl((f.into()), 64_u32);
+        low += shl((e.into()), 96_u32);
 
-        high += (e.into());
-        high += shl((f.into()), 32_u32);
-        high += shl((g.into()), 64_u32);
-        high += shl((h.into()), 96_u32);
+        high += (d.into());
+        high += shl((c.into()), 32_u32);
+        high += shl((b.into()), 64_u32);
+        high += shl((a.into()), 96_u32);
 
         u256 { low, high }
     }

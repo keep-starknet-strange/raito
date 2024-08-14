@@ -3,7 +3,7 @@ def txin_coinbase:
         script: from_base16(\"\(.coinbase)\"),
         sequence: \(.sequence),
         previous_output: OutPoint {
-            txid: 0_u256,
+            txid: 0x\(0)_u256.into(),
             vout: 0xffffffff_u32,
             txo_index: 0, 
             amount: 0 
@@ -17,7 +17,7 @@ def txin_regular:
         script: from_base16(\"\(.scriptSig.hex)\"),
         sequence: \(.sequence),
         previous_output: OutPoint {
-            txid: 0x\(.txid),
+            txid: 0x\(.txid)_u256.into(),
             vout: \(.vout),
             txo_index: 0, // TODO: implement
             amount: 0 // TODO: implement

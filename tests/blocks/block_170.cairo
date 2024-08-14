@@ -17,7 +17,7 @@ pub fn block_170() -> Block {
                         script: from_base16("04ffff001d0102"),
                         sequence: 4294967295,
                         previous_output: OutPoint {
-                            txid: 0_u256, vout: 0xffffffff_u32, txo_index: 0, amount: 0
+                            txid: 0x0_u256.into(), vout: 0xffffffff_u32, txo_index: 0, amount: 0
                         },
                         witness: @""
                     }
@@ -44,7 +44,8 @@ pub fn block_170() -> Block {
                         ),
                         sequence: 4294967295,
                         previous_output: OutPoint {
-                            txid: 0x0437cd7f8525ceed2324359c2d0ba26006d92d856a9c20fa0241106ee5a597c9,
+                            txid: 0x0437cd7f8525ceed2324359c2d0ba26006d92d856a9c20fa0241106ee5a597c9_u256
+                                .into(),
                             vout: 0,
                             txo_index: 0, // TODO: implement
                             amount: 0 // TODO: implement
