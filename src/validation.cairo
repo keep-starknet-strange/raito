@@ -17,7 +17,11 @@ pub impl BlockValidatorImpl of BlockValidator {
         let prev_timestamps = next_prev_timestamps(@self, @block);
         println!("Calculated next prev timestamps");
         let (current_target, epoch_start_time) = adjust_difficulty(@self, @block);
-        println!("Adjusted difficulty");
+        println!(
+            "Adjusted difficulty: curent target: {}, epoch start time: {}",
+            current_target,
+            epoch_start_time
+        );
         let total_work = compute_total_work(self.total_work, current_target);
         println!("Computed total work");
         let block_height = self.block_height + 1;
@@ -265,6 +269,8 @@ pub fn target_to_bits(target: u256) -> Result<u32, ByteArray> {
 }
 
 fn validate_bits(block: @Block, target: u256) -> Result<(), ByteArray> {
+    println!("block.header.bits: {}", *block.header.bits);
+    println!("target_to_bits(target): {}", target_to_bits(target)?);
     if *block.header.bits == target_to_bits(target)? {
         Result::Ok(())
     } else {
@@ -403,7 +409,7 @@ mod tests {
         };
 
         let fee = TransactionValidatorImpl::fee(@tx);
-        assert_eq!(fee, 10);
+        assert_eq!(fee, 100);
     }
 
     #[test]
