@@ -10,7 +10,7 @@ use raito::utils::Hash;
 #[derive(Drop, Copy)]
 pub struct ChainState {
     /// Height of the current block.
-    pub block_height: u32, // not u256? // max u32 > 80'000years
+    pub block_height: u32,
     /// Total work done.
     pub total_work: u256,
     /// Best block.

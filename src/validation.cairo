@@ -21,6 +21,8 @@ pub impl BlockValidatorImpl of BlockValidator {
         validate_proof_of_work(current_target, best_block_hash)?;
         validate_bits(@block, current_target)?;
 
+        let utreexo_state = UtreexoState { roots: [].span() };
+
         Result::Ok(
             ChainState {
                 block_height,
@@ -29,7 +31,7 @@ pub impl BlockValidatorImpl of BlockValidator {
                 current_target,
                 epoch_start_time,
                 prev_timestamps,
-                ..self, // = utreexo state?
+                utreexo_state
             }
         )
     }
