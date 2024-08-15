@@ -235,7 +235,7 @@ pub fn double_sha256_byte_array(bytes: @ByteArray) -> Hash {
 
 /// Calculate double sha256 digest of an array of full 4 byte words
 ///
-/// It's imporant that there are no trailing bytes, otherwise the
+/// It's important that there are no trailing bytes, otherwise the
 /// data will be truncated.
 pub fn double_sha256_u32_array(words: Array<u32>) -> Hash {
     let mut input2: Array<u32> = array![];
