@@ -1,4 +1,4 @@
-use super::utils::{double_sha256, Hash};
+use super::utils::{double_sha256_parent, Hash};
 
 pub fn merkle_root(ref hashes: Array<Hash>) -> Hash {
     let len = hashes.len();
@@ -17,7 +17,7 @@ pub fn merkle_root(ref hashes: Array<Hash>) -> Hash {
     let mut next_hashes: Array<Hash> = array![];
     let mut i = 0;
     while i < len {
-        next_hashes.append(double_sha256(hashes[i], hashes[i + 1]));
+        next_hashes.append(double_sha256_parent(hashes[i], hashes[i + 1]));
         i += 2;
     };
 
