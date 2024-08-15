@@ -313,7 +313,7 @@ mod tests {
     use super::{
         validate_timestamp, validate_proof_of_work, compute_block_reward, compute_total_work,
         compute_work_from_target, shr, shl, Block, ChainState, UtreexoState, next_prev_timestamps,
-        TransactionValidatorImpl, validate_coinbase, target_to_bits
+        TransactionValidatorImpl, validate_coinbase, bits_to_target, target_to_bits
     };
 
     #[test]
