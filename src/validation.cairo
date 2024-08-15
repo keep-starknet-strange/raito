@@ -530,6 +530,7 @@ mod tests {
             txs: ArrayTrait::new().span(),
         };
         let next_prev_timestamps = next_prev_timestamps(@chain_state, @block);
+        assert_eq!(next_prev_timestamps.len(), 11);
         assert_eq!(*next_prev_timestamps[0], 1);
         assert_eq!(*next_prev_timestamps[1], 2);
         assert_eq!(*next_prev_timestamps[2], 3);
