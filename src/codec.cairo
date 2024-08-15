@@ -31,7 +31,7 @@ pub impl EncodeByteArrayImpl of Encode<@ByteArray> {
 }
 
 /// Variable size codec.
-/// Coverts value into bytes and appends to the buffer.
+/// Converts value into bytes and appends to the buffer.
 ///
 /// https://learnmeabitcoin.com/technical/general/compact-size/
 pub fn encode_compact_size(value: usize, ref dest: ByteArray) { // TODO:
