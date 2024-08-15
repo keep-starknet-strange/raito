@@ -41,5 +41,6 @@ mod tests {
     #[test]
     fn test_bytes_from_hex() {
         assert_eq!(@"hello starknet", @from_hex("68656c6c6f20737461726b6e6574"));
+        assert_eq!(@"hello starknet", @from_hex("68656C6C6F20737461726B6E6574"));
     }
 }
