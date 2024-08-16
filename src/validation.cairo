@@ -74,7 +74,8 @@ pub impl TransactionValidatorImpl of TransactionValidator {
             sha256_input.append_word_rev((*txin.sequence).into(), 4);
         };
 
-        // append outputs count (1 byte) - needs to be adapted, size might be bigger
+        // append outputs count (1 byte in our example) - TODO : use Encode<Span<TxOut>> once
+        // implemented
         sha256_input.append_word_rev((*self.outputs).len().into(), 1);
 
         // append outputs -  TODO this is also included in Encode<Span<TxOut>>
@@ -83,7 +84,7 @@ pub impl TransactionValidatorImpl of TransactionValidator {
             // append amount (8 bytes)
             sha256_input.append_word_rev((*txout.value).into(), 8);
 
-            // append ScriptPubKey size (1 byte) - could this be more than 1 byte if a lot of sig?
+            // append ScriptPubKey size (1 byte in our exmaple)
             sha256_input.append_word_rev((*txout.pk_script).len().into(), 1);
 
             // append ScriptPubKey (variable size)
