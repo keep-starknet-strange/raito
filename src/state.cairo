@@ -5,12 +5,13 @@
 //! and to avoid repetitive computations.
 
 use raito::utils::Hash;
+use raito::test_utils::from_hex;
 
 /// Represents the state of the blockchain.
 #[derive(Drop, Copy)]
 pub struct ChainState {
     /// Height of the current block.
-    pub block_height: i32,
+    pub block_height: Option<u32>,
     /// Total work done.
     pub total_work: u256,
     /// Best block.
@@ -26,10 +27,11 @@ pub struct ChainState {
 }
 
 /// Represents the initial state before genesis block.
+/// https://github.com/bitcoin/bitcoin/blob/ee367170cb2acf82b6ff8e0ccdbc1cce09730662/src/kernel/chainparams.cpp#L99
 impl ChainStateDefault of Default<ChainState> {
     fn default() -> ChainState {
         ChainState {
-            block_height: -1,
+            block_height: Option::None,
             total_work: 0,
             best_block_hash: 0_u256.into(),
             current_target: 26959535291011309493156476344723991336010898738574164086137773096960,

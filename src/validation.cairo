@@ -15,7 +15,7 @@ pub impl BlockValidatorImpl of BlockValidator {
         let prev_timestamps = next_prev_timestamps(@self, @block);
         let (current_target, epoch_start_time) = adjust_difficulty(@self, @block);
         let total_work = compute_total_work(self.total_work, current_target);
-        let block_height = self.block_height + 1;
+        let block_height = compute_block_height(self.block_height);
         let best_block_hash = block_hash(@self, @block, merkle_root)?;
 
         validate_proof_of_work(current_target, best_block_hash)?;
@@ -152,6 +152,13 @@ fn next_prev_timestamps(self: @ChainState, block: @Block) -> Span<u32> {
     timestamps.span()
 }
 
+fn compute_block_height(block_height: Option<u32>) -> Option<u32> {
+    match block_height {
+        Option::Some(height) => Option::Some(height + 1),
+        Option::None => Option::Some(0),
+    }
+}
+
 fn compute_total_work(current_total_work: u256, target: u256) -> u256 {
     current_total_work + compute_work_from_target(target)
 }
@@ -274,7 +281,9 @@ fn fee_and_merkle_root(block: @Block) -> Result<(u64, Hash), ByteArray> {
     Result::Ok((total_fee, merkle_root(ref txids)))
 }
 
-fn validate_coinbase(block: @Block, total_fees: u64, block_height: i32) -> Result<(), ByteArray> {
+fn validate_coinbase(
+    block: @Block, total_fees: u64, block_height: Option<u32>
+) -> Result<(), ByteArray> {
     let tx = block.txs[0];
 
     // Validate the coinbase input
@@ -302,13 +311,8 @@ fn validate_coinbase(block: @Block, total_fees: u64, block_height: i32) -> Resul
 }
 
 // Return BTC reward in SATS
-fn compute_block_reward(block_height: i32) -> u64 {
-    let block_height_unsigned: u32 = if (block_height < 0) {
-        0
-    } else {
-        block_height.try_into().unwrap()
-    };
-    shr(5000000000_u64, (block_height_unsigned / 210000_u32))
+fn compute_block_reward(block_height: Option<u32>) -> u64 {
+    shr(5000000000_u64, (block_height.unwrap_or(0) / 210000_u32))
 }
 
 
@@ -326,7 +330,7 @@ mod tests {
     #[test]
     fn test_validate_timestamp() {
         let mut chain_state = ChainState {
-            block_height: 1,
+            block_height: Option::Some(1),
             total_work: 1,
             best_block_hash: 1_u256.into(),
             current_target: 1,
@@ -459,50 +463,50 @@ mod tests {
     // https://github.com/bitcoin/bitcoin/blob/0f68a05c084bef3e53e3f549c403bc90b1db319c/src/test/validation_tests.cpp#L24
     #[test]
     fn test_compute_block_reward() {
-        let max_halvings: i32 = 64;
+        let max_halvings: u32 = 64;
         let reward_initial: u256 = 5000000000;
-        let mut block_height: i32 = 210_000; // halving every 210 000 blocks
+        let mut block_height: u32 = 210_000; // halving every 210 000 blocks
         // Before first halving
-        let genesis_halving_reward = compute_block_reward(0);
+        let genesis_halving_reward = compute_block_reward(Option::Some(0));
         assert_eq!(genesis_halving_reward, reward_initial.try_into().unwrap());
 
         // Before first halving
-        assert_eq!(compute_block_reward(209999), reward_initial.try_into().unwrap());
+        assert_eq!(compute_block_reward(Option::Some(209999)), reward_initial.try_into().unwrap());
 
         // First halving
-        let first_halving_reward = compute_block_reward(block_height);
+        let first_halving_reward = compute_block_reward(Option::Some(block_height));
         assert_eq!(first_halving_reward, reward_initial.try_into().unwrap() / 2);
 
         // Second halving
-        assert_eq!(compute_block_reward(420000), 1250000000); // 12.5 BTC
+        assert_eq!(compute_block_reward(Option::Some(420000)), 1250000000); // 12.5 BTC
 
         // Third halving
-        assert_eq!(compute_block_reward(630000), 625000000); // 6.25
+        assert_eq!(compute_block_reward(Option::Some(630000)), 625000000); // 6.25
 
         // Just after fourth halving
-        assert_eq!(compute_block_reward(840001), 312500000); // 3.125
+        assert_eq!(compute_block_reward(Option::Some(840001)), 312500000); // 3.125
 
         // Fight halving
-        assert_eq!(compute_block_reward(1050000), 156250000); // 1.5625
+        assert_eq!(compute_block_reward(Option::Some(1050000)), 156250000); // 1.5625
 
         // Seventh halving
-        assert_eq!(compute_block_reward(1470000), 39062500); // 0.390625
+        assert_eq!(compute_block_reward(Option::Some(1470000)), 39062500); // 0.390625
 
         // Ninth halving
-        assert_eq!(compute_block_reward(1890000), 9765625); // 0.09765625
+        assert_eq!(compute_block_reward(Option::Some(1890000)), 9765625); // 0.09765625
 
         // Tenth halving
-        let tenth_reward = compute_block_reward(10 * block_height);
+        let tenth_reward = compute_block_reward(Option::Some(10 * block_height));
         assert_eq!(tenth_reward, 4882812); // 0.048828125
 
-        let last_reward = compute_block_reward(max_halvings * block_height);
+        let last_reward = compute_block_reward(Option::Some(max_halvings * block_height));
         assert_eq!(last_reward, 0);
     }
 
     #[test]
     fn test_next_prev_timstamps() {
         let chain_state = ChainState {
-            block_height: 1,
+            block_height: Option::Some(1),
             total_work: 1,
             best_block_hash: 1_u256.into(),
             current_target: 1,
@@ -571,7 +575,7 @@ mod tests {
                 .span()
         };
         let total_fees = 5000000000_u64;
-        let block_height = 1;
+        let block_height = Option::Some(1);
 
         validate_coinbase(@block, total_fees, block_height).unwrap();
     }
@@ -604,7 +608,7 @@ mod tests {
                 .span()
         };
         let total_fees = 5000000000_u64;
-        let block_height = 1;
+        let block_height = Option::Some(1);
 
         validate_coinbase(@block, total_fees, block_height).unwrap();
     }
@@ -640,7 +644,7 @@ mod tests {
                 .span()
         };
         let total_fees = 5000000000_u64;
-        let block_height = 1;
+        let block_height = Option::Some(1);
 
         validate_coinbase(@block, total_fees.into(), block_height).unwrap();
     }
@@ -676,7 +680,7 @@ mod tests {
         };
 
         let total_fees = 0_u64;
-        let block_height = 856_563;
+        let block_height = Option::Some(856_563);
 
         validate_coinbase(@block, total_fees, block_height).unwrap();
     }
@@ -712,7 +716,7 @@ mod tests {
         };
 
         let total_fees = 5000000000_u64;
-        let block_height = 856_563;
+        let block_height = Option::Some(856_563);
 
         validate_coinbase(@block, total_fees, block_height).unwrap();
     }
