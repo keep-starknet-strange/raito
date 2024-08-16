@@ -114,10 +114,49 @@ fn compute_work_from_target(target: u256) -> u256 {
     (~target / (target + 1_u256)) + 1_u256
 }
 
-fn adjust_difficulty(self: @ChainState, block: @Block) -> (u256, u32) {
-    // TODO: implement
-    (*self.current_target, *self.epoch_start_time)
+fn adjust_difficulty(self: @ChainState, block: @Block) -> (u32, u32) {
+    let current_target = *self.current_target;
+    
+    // Calculate the position within the current epoch
+    let position_in_epoch = block.height % BLOCKS_PER_EPOCH;
+    
+    if position_in_epoch == BLOCKS_PER_EPOCH - 1 {
+        // This is the last block of the current epoch, so adjust the difficulty.
+
+        let state = *self;
+
+        let fe_actual_timespan = block.time - state.epoch_start_time;
+
+        // Limit adjustment step
+        let adjusted_timespan = if fe_actual_timespan > EXPECTED_EPOCH_TIMESPAN * 4 {
+            EXPECTED_EPOCH_TIMESPAN * 4
+        } else if fe_actual_timespan < EXPECTED_EPOCH_TIMESPAN / 4 {
+            EXPECTED_EPOCH_TIMESPAN / 4
+        } else {
+            fe_actual_timespan
+        };
+
+        // Retarget calculation
+        let bn_pow_limit = MAX_TARGET;
+        let fe_target = bits_to_target(state.current_target);
+        let bn_new = u256_mul(fe_target, adjusted_timespan);
+        let bn_new = u256_div(bn_new, EXPECTED_EPOCH_TIMESPAN);
+        
+        // Check if the new target is below the limit
+        if bn_new <= bn_pow_limit {
+            let next_target = target_to_bits(bn_new);
+            // Return the new target and reset the epoch start time
+            (next_target, block.time)
+        } else {
+            // Return the maximum target and reset the epoch start time
+            (MAX_BITS, block.time)
+        }
+    } else {
+        // No adjustment needed, return current target and epoch start time
+        (current_target, state.epoch_start_time)
+    }
 }
+
 
 // Helper functions
 pub fn bits_to_target(bits: u32) -> Result<u256, ByteArray> {
