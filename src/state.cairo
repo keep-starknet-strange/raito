@@ -25,6 +25,22 @@ pub struct ChainState {
     pub utreexo_state: UtreexoState,
 }
 
+/// Default implementation for ChainState.
+impl ChainStateDefault of Default<ChainState> {
+    fn default() -> ChainState {
+        ChainState {
+            block_height: 0,
+            total_work: 0,
+            best_block_hash: 0_u256.into(),
+            current_target: 26959535291011309493156476344723991336010898738574164086137773096960,
+            epoch_start_time: 0,
+            prev_timestamps: [
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+            ].span(), utreexo_state: UtreexoState { roots: [].span() },
+        }
+    }
+}
+
 /// Represents a block in the blockchain.
 #[derive(Drop, Copy)]
 pub struct Block {
