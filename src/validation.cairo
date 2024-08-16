@@ -44,58 +44,58 @@ pub impl TransactionValidatorImpl of TransactionValidator {
     // this means txid computation is the same for legacy and segwit tx
     fn txid(self: @Transaction) -> Hash {
         // append version (4 bytes)
-        let mut sha256_input: ByteArray = "";
-        sha256_input.append_word_rev((*self.version).into(), 4);
+        let mut hash256_input: ByteArray = "";
+        hash256_input.append_word_rev((*self.version).into(), 4);
 
         // append inputs count (1 byte in our example) - TODO : use Encode<Span<TxIn>> once
         // implemented
-        sha256_input.append_word_rev((*self.inputs).len().into(), 1);
+        hash256_input.append_word_rev((*self.inputs).len().into(), 1);
 
         // append inputs - TODO : this is also included in Encode<Span<TxIn>>
         let mut inputs: Span<TxIn> = *self.inputs;
         while let Option::Some(txin) = inputs.pop_front() {
             // append txid (32 bytes)
             let txid: u256 = (*(txin.previous_output.txid)).into();
-            sha256_input.append_word_rev(txid.low.into(), 16);
-            sha256_input.append_word_rev(txid.high.into(), 16);
+            hash256_input.append_word_rev(txid.low.into(), 16);
+            hash256_input.append_word_rev(txid.high.into(), 16);
 
             // append VOUT (4 bytes)
-            sha256_input.append_word_rev((*txin.previous_output.vout).into(), 4);
+            hash256_input.append_word_rev((*txin.previous_output.vout).into(), 4);
 
             // append ScriptSig size (1 byte in our example)
-            sha256_input.append_word_rev((*txin.script).len().into(), 1);
+            hash256_input.append_word_rev((*txin.script).len().into(), 1);
 
             // append ScriptSig (variable size)
             let rev_script = (*txin.script).rev();
-            sha256_input.append(@rev_script);
+            hash256_input.append(@rev_script);
 
             // append Sequence (4 bytes)
-            sha256_input.append_word_rev((*txin.sequence).into(), 4);
+            hash256_input.append_word_rev((*txin.sequence).into(), 4);
         };
 
         // append outputs count (1 byte in our example) - TODO : use Encode<Span<TxOut>> once
         // implemented
-        sha256_input.append_word_rev((*self.outputs).len().into(), 1);
+        hash256_input.append_word_rev((*self.outputs).len().into(), 1);
 
         // append outputs -  TODO this is also included in Encode<Span<TxOut>>
         let mut outputs: Span<TxOut> = *self.outputs;
         while let Option::Some(txout) = outputs.pop_front() {
             // append amount (8 bytes)
-            sha256_input.append_word_rev((*txout.value).into(), 8);
+            hash256_input.append_word_rev((*txout.value).into(), 8);
 
             // append ScriptPubKey size (1 byte in our exmaple)
-            sha256_input.append_word_rev((*txout.pk_script).len().into(), 1);
+            hash256_input.append_word_rev((*txout.pk_script).len().into(), 1);
 
             // append ScriptPubKey (variable size)
             let rev_pk_script = (*txout.pk_script).rev();
-            sha256_input.append(@rev_pk_script);
+            hash256_input.append(@rev_pk_script);
         };
 
         // append locktime (4 bytes)
-        sha256_input.append_word_rev((*self.lock_time).into(), 4);
+        hash256_input.append_word_rev((*self.lock_time).into(), 4);
 
         // Compute double sha256 and return the Hash result
-        double_sha256_byte_array(@sha256_input)
+        double_sha256_byte_array(@hash256_input)
     }
 
     fn fee(self: @Transaction) -> u64 {
