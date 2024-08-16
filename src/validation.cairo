@@ -290,19 +290,11 @@ fn validate_coinbase(block: @Block, total_fees: u64, block_height: u32) -> Resul
     assert(*tx.inputs[0].previous_output.txid == Default::default(), 'txid should be 0');
 
     // Validate the outputs' amounts
-    // Sum up the total amount of all outputs
-    // and also add the outputs to the UtreexoSet.
+    // Sum up the total amount of all outputs of the coinbase transaction
     let mut total_output_amount = 0;
-
-    for txs in *block
-        .txs {
-            for output in *txs
-                .outputs {
-                    total_output_amount = total_output_amount + *output.value;
-                    //TODO add outputs to UtreexoSet
-
-                };
-        };
+    for output in *tx.outputs {
+        total_output_amount = total_output_amount + *output.value;
+    };
 
     // Ensure the total output amount is at most the block reward + TX fees
     let block_reward = compute_block_reward(block_height);
@@ -717,6 +709,83 @@ mod tests {
 
         let total_fees = 5000000000_u64;
         let block_height = 856_563;
+
+        validate_coinbase(@block, total_fees, block_height).unwrap();
+    }
+
+    #[test]
+    fn test_validate_coinbase_block170() {
+        let block = Block {
+            header: Header { version: 1_u32, time: 1231731025_u32, bits: 0, nonce: 1889418792_u32 },
+            txs: array![
+                Transaction {
+                    version: 1,
+                    is_segwit: false,
+                    inputs: array![
+                        TxIn {
+                            script: @from_hex("04ffff001d0102"),
+                            sequence: 4294967295,
+                            previous_output: OutPoint {
+                                txid: 0x0_u256.into(), vout: 0xffffffff_u32, txo_index: 0, amount: 0
+                            },
+                            witness: @""
+                        }
+                    ]
+                        .span(),
+                    outputs: array![
+                        TxOut {
+                            value: 5000000000_u64,
+                            pk_script: @from_hex(
+                                "4104d46c4968bde02899d2aa0963367c7a6ce34eec332b32e42e5f3407e052d64ac625da6f0718e7b302140434bd725706957c092db53805b821a85b23a7ac61725bac"
+                            ),
+                        }
+                    ]
+                        .span(),
+                    lock_time: 0
+                },
+                Transaction {
+                    version: 1,
+                    is_segwit: false,
+                    inputs: array![
+                        TxIn {
+                            script: @from_hex(
+                                "47304402204e45e16932b8af514961a1d3a1a25fdf3f4f7732e9d624c6c61548ab5fb8cd410220181522ec8eca07de4860a4acdd12909d831cc56cbbac4622082221a8768d1d0901"
+                            ),
+                            sequence: 4294967295,
+                            previous_output: OutPoint {
+                                txid: 0x0437cd7f8525ceed2324359c2d0ba26006d92d856a9c20fa0241106ee5a597c9_u256
+                                    .into(),
+                                vout: 0,
+                                txo_index: 0,
+                                amount: 5000000000_u64
+                            },
+                            witness: @""
+                        }
+                    ]
+                        .span(),
+                    outputs: array![
+                        TxOut {
+                            value: 1000000000_u64,
+                            pk_script: @from_hex(
+                                "4104ae1a62fe09c5f51b13905f07f06b99a2f7159b2225f374cd378d71302fa28414e7aab37397f554a7df5f142c21c1b7303b8a0626f1baded5c72a704f7e6cd84cac"
+                            ),
+                        },
+                        TxOut {
+                            value: 4000000000_u64,
+                            pk_script: @from_hex(
+                                "410411db93e1dcdb8a016b49840f8c53bc1eb68a382e97b1482ecad7b148a6909a5cb2e0eaddfb84ccf9744464f82e160bfa9b8b64f9d4c03f999b8643f656b412a3ac"
+                            ),
+                        }
+                    ]
+                        .span(),
+                    lock_time: 0
+                }
+            ]
+                .span()
+        };
+
+        let total_fees = 0_u64;
+        let block_height = 170;
 
         validate_coinbase(@block, total_fees, block_height).unwrap();
     }
