@@ -461,7 +461,6 @@ mod tests {
     }
 
     // Ref implementation here:
-    //
     // https://github.com/bitcoin/bitcoin/blob/0f68a05c084bef3e53e3f549c403bc90b1db319c/src/test/validation_tests.cpp#L24
     #[test]
     fn test_compute_block_reward() {
