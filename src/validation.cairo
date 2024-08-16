@@ -1,6 +1,7 @@
 use core::sha256::{compute_sha256_byte_array, compute_sha256_u32_array};
+use super::codec::Encode;
 use super::merkle_tree::merkle_root;
-use super::utils::{shl, shr, Hash, HashImpl, from_base16};
+use super::utils::{double_sha256_byte_array, shl, shr, Hash, HashImpl};
 use super::state::{Block, ChainState, Transaction, UtreexoState, UtreexoSet, TxIn, TxOut, OutPoint};
 
 const MAX_TARGET: u256 = 0x00000000FFFF0000000000000000000000000000000000000000000000000000;
@@ -47,10 +48,11 @@ pub impl TransactionValidatorImpl of TransactionValidator {
         let mut sha256_input: ByteArray = "";
         sha256_input.append_word_rev((*self.version).into(), 4);
 
-        // append inputs count (1 byte) - needs to be adapted, size might be bigger
+        // append inputs count (1 byte in our example) - TODO : use Encode<Span<TxIn>> once
+        // implemented
         sha256_input.append_word_rev((*self.inputs).len().into(), 1);
 
-        // append inputs
+        // append inputs - TODO : this is also included in Encode<Span<TxIn>>
         let mut inputs: Span<TxIn> = *self.inputs;
         while let Option::Some(txin) = inputs.pop_front() {
             // append txid (32 bytes)
@@ -61,7 +63,7 @@ pub impl TransactionValidatorImpl of TransactionValidator {
             // append VOUT (4 bytes)
             sha256_input.append_word_rev((*txin.previous_output.vout).into(), 4);
 
-            // append ScriptSig size (1 byte)
+            // append ScriptSig size (1 byte in our example)
             sha256_input.append_word_rev((*txin.script).len().into(), 1);
 
             // append ScriptSig (variable size)
@@ -75,7 +77,7 @@ pub impl TransactionValidatorImpl of TransactionValidator {
         // append outputs count (1 byte) - needs to be adapted, size might be bigger
         sha256_input.append_word_rev((*self.outputs).len().into(), 1);
 
-        // append outputs
+        // append outputs -  TODO this is also included in Encode<Span<TxOut>>
         let mut outputs: Span<TxOut> = *self.outputs;
         while let Option::Some(txout) = outputs.pop_front() {
             // append amount (8 bytes)
@@ -92,48 +94,8 @@ pub impl TransactionValidatorImpl of TransactionValidator {
         // append locktime (4 bytes)
         sha256_input.append_word_rev((*self.lock_time).into(), 4);
 
-        // let formatted_input = format!("{}", sha256_input);
-        // println!("{}", formatted_input);
-
-        // sha256_input is supposed to be this value
-        let txid_input: @ByteArray = from_base16(
-            "0100000001c997a5e56e104102fa209c6a852dd90660a20b2d9c352423edce25857fcd3704000000004847304402204e45e16932b8af514961a1d3a1a25fdf3f4f7732e9d624c6c61548ab5fb8cd410220181522ec8eca07de4860a4acdd12909d831cc56cbbac4622082221a8768d1d0901ffffffff0200ca9a3b00000000434104ae1a62fe09c5f51b13905f07f06b99a2f7159b2225f374cd378d71302fa28414e7aab37397f554a7df5f142c21c1b7303b8a0626f1baded5c72a704f7e6cd84cac00286bee0000000043410411db93e1dcdb8a016b49840f8c53bc1eb68a382e97b1482ecad7b148a6909a5cb2e0eaddfb84ccf9744464f82e160bfa9b8b64f9d4c03f999b8643f656b412a3ac00000000"
-        );
-
-        // let txid_input = txid_input.rev();
-
-        // println!("{:?}", txid_input);
-        // println!("{}", txid_input);
-
-        // Compute double sha256
-        let firstHash = compute_sha256_byte_array(txid_input).span();
-        let secondHash = compute_sha256_u32_array(firstHash.into(), 0, 0).span();
-
-        println!("{:?}", secondHash);
-
-        // let txidarr: [u32; 8] = [
-        //     (*secondHash[7]),
-        //     (*secondHash[6]),
-        //     (*secondHash[5]),
-        //     (*secondHash[4]),
-        //     (*secondHash[3]),
-        //     (*secondHash[2]),
-        //     (*secondHash[1]),
-        //     (*secondHash[0])
-        // ];
-
-        // HashImpl::to_hash(txidarr)
-
-        let mut txid: u256 = 0;
-        let mut i: u32 = 0;
-        while i != 8 {
-            let element: u256 = (*secondHash[i]).into();
-            txid += shl(element, (32 * (7 - i)));
-
-            i += 1;
-        };
-
-        txid.into()
+        // Compute double sha256 and return the Hash result
+        double_sha256_byte_array(@sha256_input)
     }
 
     fn fee(self: @Transaction) -> u64 {
@@ -358,6 +320,7 @@ fn compute_block_reward(block_height: u32) -> u64 {
 #[cfg(test)]
 mod tests {
     use raito::state::{Header, Transaction, TxIn, TxOut, OutPoint};
+    use raito::utils::Hash;
     use raito::test_utils::from_hex;
     use super::{
         validate_timestamp, validate_proof_of_work, compute_block_reward, compute_total_work,
@@ -766,7 +729,7 @@ mod tests {
             is_segwit: false,
             inputs: array![
                 TxIn {
-                    script: from_base16(
+                    script: @from_hex(
                         "01091d8d76a82122082246acbb6cc51c839d9012ddaca46048de07ca8eec221518200241cdb85fab4815c6c624d6e932774f3fdf5fa2a1d3a1614951afb83269e1454e2002443047"
                     ),
                     sequence: 0xffffffff,
@@ -777,20 +740,20 @@ mod tests {
                         txo_index: 0,
                         amount: 0_64 // set to 0 for the test
                     },
-                    witness: from_base16("")
+                    witness: @from_hex("")
                 }
             ]
                 .span(),
             outputs: array![
                 TxOut {
                     value: 0x000000003b9aca00,
-                    pk_script: from_base16(
+                    pk_script: @from_hex(
                         "ac4cd86c7e4f702ac7d5debaf126068a3b30b7c1212c145fdfa754f59773b3aae71484a22f30718d37cd74f325229b15f7a2996bf0075f90131bf5c509fe621aae0441"
                     ),
                 },
                 TxOut {
                     value: 0x00000000ee6b2800,
-                    pk_script: from_base16(
+                    pk_script: @from_hex(
                         "aca312b456f643869b993fc0d4f9648b9bfa0b162ef8644474f9cc84fbddeae0b25c9a90a648b1d7ca2e48b1972e388ab61ebc538c0f84496b018adbdce193db110441"
                     ),
                 }
