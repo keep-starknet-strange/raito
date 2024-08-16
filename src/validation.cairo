@@ -293,7 +293,7 @@ fn validate_coinbase(block: @Block, total_fees: u64, block_height: u32) -> Resul
     // Sum up the total amount of all outputs of the coinbase transaction
     let mut total_output_amount = 0;
     for output in *tx.outputs {
-        total_output_amount = total_output_amount + *output.value;
+        total_output_amount += *output.value;
     };
 
     // Ensure the total output amount is at most the block reward + TX fees
