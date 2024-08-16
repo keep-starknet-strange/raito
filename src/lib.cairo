@@ -5,3 +5,5 @@ pub mod codec;
 
 mod main;
 mod merkle_tree;
+
+pub mod test_utils;
