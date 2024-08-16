@@ -21,7 +21,7 @@ fn test_block0() {
 // assert_eq!(result.utreexo_state.roots, [...]);
 
 }
-// need impl of TransactionValidator::txid() for UtreexoState
+// need impl of TransactionValidator::txid() for merkle root
 // #[test]
 // fn test_block170() {
 //     let block170 = block_170();

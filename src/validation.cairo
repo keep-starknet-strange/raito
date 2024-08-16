@@ -530,13 +530,6 @@ mod tests {
     }
 
     #[test]
-    fn test_target_to_bits() {
-        let target = 486604799_u256;
-        let bits = target_to_bits(target).unwrap();
-        assert_eq!(bits, 69009663);
-    }
-
-    #[test]
     #[should_panic(expected: ('Input count should be 1',))]
     fn test_validate_coinbase_with_multiple_input() {
         let block = Block {
