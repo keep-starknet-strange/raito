@@ -1,6 +1,6 @@
 def txin_coinbase:
     "TxIn {
-        script: from_base16(\"\(.coinbase)\"),
+        script: @from_hex(\"\(.coinbase)\"),
         sequence: \(.sequence),
         previous_output: OutPoint {
             txid: 0x\(0)_u256.into(),
@@ -14,7 +14,7 @@ def txin_coinbase:
 
 def txin_regular:
     "TxIn {
-        script: from_base16(\"\(.scriptSig.hex)\"),
+        script: @from_hex(\"\(.scriptSig.hex)\"),
         sequence: \(.sequence),
         previous_output: OutPoint {
             txid: 0x\(.txid)_u256.into(),
@@ -37,7 +37,7 @@ def txin:
 def txout:
     "TxOut {
         value: \((.value*100000000) | round)_u64,
-        pk_script: from_base16(\"\(.scriptPubKey.hex)\"),
+        pk_script: @from_hex(\"\(.scriptPubKey.hex)\"),
     }"
 ;
 
@@ -65,7 +65,7 @@ def block:
 
 def fixture:
 "use raito::state::{Block, Header, Transaction, OutPoint, TxIn, TxOut};
-use super::super::utils::from_base16;
+use raito::test_utils::from_hex;
 
 pub fn block_\(.height)() -> Block {
     // block hash: \(.hash)

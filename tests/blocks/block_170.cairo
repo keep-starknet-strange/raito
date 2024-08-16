@@ -1,5 +1,5 @@
 use raito::state::{Block, Header, Transaction, OutPoint, TxIn, TxOut};
-use super::super::utils::from_base16;
+use raito::test_utils::from_hex;
 
 pub fn block_170() -> Block {
     // block hash: 00000000d1145790a8694403d4063f323d499e655c83426834d4ce2f8dd4a2ee
@@ -14,7 +14,7 @@ pub fn block_170() -> Block {
                 is_segwit: false,
                 inputs: array![
                     TxIn {
-                        script: from_base16("04ffff001d0102"),
+                        script: @from_hex("04ffff001d0102"),
                         sequence: 4294967295,
                         previous_output: OutPoint {
                             txid: 0x0_u256.into(), vout: 0xffffffff_u32, txo_index: 0, amount: 0
@@ -26,7 +26,7 @@ pub fn block_170() -> Block {
                 outputs: array![
                     TxOut {
                         value: 5000000000_u64,
-                        pk_script: from_base16(
+                        pk_script: @from_hex(
                             "4104d46c4968bde02899d2aa0963367c7a6ce34eec332b32e42e5f3407e052d64ac625da6f0718e7b302140434bd725706957c092db53805b821a85b23a7ac61725bac"
                         ),
                     }
@@ -39,7 +39,7 @@ pub fn block_170() -> Block {
                 is_segwit: false,
                 inputs: array![
                     TxIn {
-                        script: from_base16(
+                        script: @from_hex(
                             "47304402204e45e16932b8af514961a1d3a1a25fdf3f4f7732e9d624c6c61548ab5fb8cd410220181522ec8eca07de4860a4acdd12909d831cc56cbbac4622082221a8768d1d0901"
                         ),
                         sequence: 4294967295,
@@ -57,13 +57,13 @@ pub fn block_170() -> Block {
                 outputs: array![
                     TxOut {
                         value: 1000000000_u64,
-                        pk_script: from_base16(
+                        pk_script: @from_hex(
                             "4104ae1a62fe09c5f51b13905f07f06b99a2f7159b2225f374cd378d71302fa28414e7aab37397f554a7df5f142c21c1b7303b8a0626f1baded5c72a704f7e6cd84cac"
                         ),
                     },
                     TxOut {
                         value: 4000000000_u64,
-                        pk_script: from_base16(
+                        pk_script: @from_hex(
                             "410411db93e1dcdb8a016b49840f8c53bc1eb68a382e97b1482ecad7b148a6909a5cb2e0eaddfb84ccf9744464f82e160bfa9b8b64f9d4c03f999b8643f656b412a3ac"
                         ),
                     }
