@@ -10,7 +10,7 @@ use raito::utils::Hash;
 #[derive(Drop, Copy)]
 pub struct ChainState {
     /// Height of the current block.
-    pub block_height: u32,
+    pub block_height: i32,
     /// Total work done.
     pub total_work: u256,
     /// Best block.
@@ -25,11 +25,11 @@ pub struct ChainState {
     pub utreexo_state: UtreexoState,
 }
 
-/// Default implementation for ChainState.
+/// Represents the initial state before genesis block.
 impl ChainStateDefault of Default<ChainState> {
     fn default() -> ChainState {
         ChainState {
-            block_height: 0,
+            block_height: -1,
             total_work: 0,
             best_block_hash: 0_u256.into(),
             current_target: 26959535291011309493156476344723991336010898738574164086137773096960,

@@ -274,7 +274,7 @@ fn fee_and_merkle_root(block: @Block) -> Result<(u64, Hash), ByteArray> {
     Result::Ok((total_fee, merkle_root(ref txids)))
 }
 
-fn validate_coinbase(block: @Block, total_fees: u64, block_height: u32) -> Result<(), ByteArray> {
+fn validate_coinbase(block: @Block, total_fees: u64, block_height: i32) -> Result<(), ByteArray> {
     let tx = block.txs[0];
 
     // Validate the coinbase input
@@ -302,8 +302,13 @@ fn validate_coinbase(block: @Block, total_fees: u64, block_height: u32) -> Resul
 }
 
 // Return BTC reward in SATS
-fn compute_block_reward(block_height: u32) -> u64 {
-    shr(5000000000_u64, (block_height / 210000_u32))
+fn compute_block_reward(block_height: i32) -> u64 {
+    let block_height_unsigned: u32 = if (block_height < 0) {
+        0
+    } else {
+        block_height.try_into().unwrap()
+    };
+    shr(5000000000_u64, (block_height_unsigned / 210000_u32))
 }
 
 
@@ -454,9 +459,9 @@ mod tests {
     // https://github.com/bitcoin/bitcoin/blob/0f68a05c084bef3e53e3f549c403bc90b1db319c/src/test/validation_tests.cpp#L24
     #[test]
     fn test_compute_block_reward() {
-        let max_halvings: u32 = 64;
+        let max_halvings: i32 = 64;
         let reward_initial: u256 = 5000000000;
-        let mut block_height = 210_000; // halving every 210 000 blocks
+        let mut block_height: i32 = 210_000; // halving every 210 000 blocks
         // Before first halving
         let genesis_halving_reward = compute_block_reward(0);
         assert_eq!(genesis_halving_reward, reward_initial.try_into().unwrap());

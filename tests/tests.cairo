@@ -11,7 +11,7 @@ fn test_block0() {
     assert!(next_chain_state.is_ok(), "Error: {:?}", next_chain_state.err());
 
     let result = next_chain_state.unwrap();
-    assert_eq!(result.block_height, 1);
+    assert_eq!(result.block_height, 0);
     assert_eq!(result.total_work, 4295032833);
     assert_eq!(result.prev_timestamps, [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1231006505].span());
     //to impl
