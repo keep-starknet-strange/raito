@@ -1,7 +1,6 @@
-use core::sha256::{compute_sha256_byte_array, compute_sha256_u32_array};
 use super::codec::Encode;
 use super::merkle_tree::merkle_root;
-use super::utils::{double_sha256_byte_array, shl, shr, Hash, HashImpl};
+use super::utils::{double_sha256_byte_array, shl, shr, Hash};
 use super::state::{Block, ChainState, Transaction, UtreexoState, UtreexoSet, TxIn, TxOut, OutPoint};
 
 const MAX_TARGET: u256 = 0x00000000FFFF0000000000000000000000000000000000000000000000000000;
