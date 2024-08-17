@@ -6,23 +6,22 @@ use super::state::{Block, ChainState, Transaction, UtreexoState, UtreexoSet, TxI
 const MAX_TARGET: u256 = 0x00000000FFFF0000000000000000000000000000000000000000000000000000;
 
 #[generate_trait]
-impl BlockValidatorImpl of BlockValidator {
+pub impl BlockValidatorImpl of BlockValidator {
     fn validate_and_apply(self: ChainState, block: Block) -> Result<ChainState, ByteArray> {
         validate_timestamp(@self, @block)?;
-
         let (total_fees, merkle_root) = fee_and_merkle_root(@block)?;
-
-        validate_coinbase(@block, total_fees, self.block_height)?;
+        validate_coinbase(@block, total_fees, self.block_height.unwrap_or(0))?;
 
         let prev_timestamps = next_prev_timestamps(@self, @block);
         let (current_target, epoch_start_time) = adjust_difficulty(@self, @block);
         let total_work = compute_total_work(self.total_work, current_target);
-        let block_height = self.block_height + 1;
-
+        let block_height = next_block_height(self.block_height);
         let best_block_hash = block_hash(@self, @block, merkle_root)?;
 
         validate_proof_of_work(current_target, best_block_hash)?;
         validate_bits(@block, current_target)?;
+
+        let utreexo_state = UtreexoState { roots: [].span() };
 
         Result::Ok(
             ChainState {
@@ -32,7 +31,7 @@ impl BlockValidatorImpl of BlockValidator {
                 current_target,
                 epoch_start_time,
                 prev_timestamps,
-                ..self,
+                utreexo_state
             }
         )
     }
@@ -117,7 +116,6 @@ pub impl TransactionValidatorImpl of TransactionValidator {
         };
 
         let tx_fee = total_input_amount - total_output_amount;
-
         tx_fee
     }
 }
@@ -152,6 +150,15 @@ fn next_prev_timestamps(self: @ChainState, block: @Block) -> Span<u32> {
     timestamps.append_span(prev_timestamps);
     timestamps.append(*block.header.time);
     timestamps.span()
+}
+
+// Returns the next block height
+// If the block height is None (Genesis block), it returns 0
+fn next_block_height(block_height: Option<u32>) -> Option<u32> {
+    match block_height {
+        Option::Some(height) => Option::Some(height + 1),
+        Option::None => Option::Some(0),
+    }
 }
 
 fn compute_total_work(current_total_work: u256, target: u256) -> u256 {
@@ -317,13 +324,13 @@ mod tests {
     use super::{
         validate_timestamp, validate_proof_of_work, compute_block_reward, compute_total_work,
         compute_work_from_target, shr, shl, Block, ChainState, UtreexoState, next_prev_timestamps,
-        TransactionValidatorImpl, validate_coinbase
+        TransactionValidatorImpl, validate_coinbase, bits_to_target, target_to_bits
     };
 
     #[test]
     fn test_validate_timestamp() {
         let mut chain_state = ChainState {
-            block_height: 1,
+            block_height: Option::Some(1),
             total_work: 1,
             best_block_hash: 1_u256.into(),
             current_target: 1,
@@ -458,7 +465,7 @@ mod tests {
     fn test_compute_block_reward() {
         let max_halvings: u32 = 64;
         let reward_initial: u256 = 5000000000;
-        let mut block_height = 210_000; // halving every 210 000 blocks
+        let mut block_height: u32 = 210_000; // halving every 210 000 blocks
         // Before first halving
         let genesis_halving_reward = compute_block_reward(0);
         assert_eq!(genesis_halving_reward, reward_initial.try_into().unwrap());
@@ -499,7 +506,7 @@ mod tests {
     #[test]
     fn test_next_prev_timstamps() {
         let chain_state = ChainState {
-            block_height: 1,
+            block_height: Option::Some(1),
             total_work: 1,
             best_block_hash: 1_u256.into(),
             current_target: 1,
@@ -512,6 +519,7 @@ mod tests {
             txs: ArrayTrait::new().span(),
         };
         let next_prev_timestamps = next_prev_timestamps(@chain_state, @block);
+        assert_eq!(next_prev_timestamps.len(), 11);
         assert_eq!(*next_prev_timestamps[0], 1);
         assert_eq!(*next_prev_timestamps[1], 2);
         assert_eq!(*next_prev_timestamps[2], 3);
@@ -523,6 +531,146 @@ mod tests {
         assert_eq!(*next_prev_timestamps[8], 9);
         assert_eq!(*next_prev_timestamps[9], 10);
         assert_eq!(*next_prev_timestamps[10], 12);
+    }
+
+    #[test]
+    fn test_bits_to_target_01003456() {
+        let result = bits_to_target(0x01003456);
+        assert!(result.is_ok(), "Should be valid");
+        assert!(result.unwrap() == 0x00_u256, "Incorrect target for 0x01003456");
+    }
+
+    #[test]
+    fn test_bits_to_target_01123456() {
+        let result = bits_to_target(0x01123456);
+        assert!(result.is_ok(), "Should be valid");
+        assert!(result.unwrap() == 0x12_u256, "Incorrect target for 0x01123456");
+    }
+
+    #[test]
+    fn test_bits_to_target_02008000() {
+        let result = bits_to_target(0x02008000);
+        assert!(result.is_ok(), "Should be valid");
+        assert!(result.unwrap() == 0x80_u256, "Incorrect target for 0x02008000");
+    }
+
+    #[test]
+    fn test_bits_to_target_181bc330() {
+        let result = bits_to_target(0x181bc330);
+        assert!(result.is_ok(), "Should be valid");
+        assert!(
+            result.unwrap() == 0x1bc330000000000000000000000000000000000000000000_u256,
+            "Incorrect target for 0x181bc330"
+        );
+    }
+
+    #[test]
+    fn test_bits_to_target_05009234() {
+        let result = bits_to_target(0x05009234);
+        assert!(result.is_ok(), "Should be valid");
+        assert!(result.unwrap() == 0x92340000_u256, "Incorrect target for 0x05009234");
+    }
+
+    #[test]
+    fn test_bits_to_target_04123456() {
+        let result = bits_to_target(0x04123456);
+        assert!(result.is_ok(), "Should be valid");
+        assert!(result.unwrap() == 0x12345600_u256, "Incorrect target for 0x04123456");
+    }
+
+    #[test]
+    fn test_bits_to_target_1d00ffff() {
+        let result = bits_to_target(0x1d00ffff);
+        assert!(result.is_ok(), "Should be valid");
+        assert!(
+            result
+                .unwrap() == 0x00000000ffff0000000000000000000000000000000000000000000000000000_u256,
+            "Incorrect target for 0x1d00ffff"
+        );
+    }
+
+    #[test]
+    fn test_bits_to_target_1c0d3142() {
+        let result = bits_to_target(0x1c0d3142);
+        assert!(result.is_ok(), "Should be valid");
+        assert!(
+            result
+                .unwrap() == 0x000000000d314200000000000000000000000000000000000000000000000000_u256,
+            "Incorrect target for 0x1c0d3142"
+        );
+    }
+
+    #[test]
+    fn test_bits_to_target_1707a429() {
+        let result = bits_to_target(0x1707a429);
+        assert!(result.is_ok(), "Should be valid");
+        assert!(
+            result
+                .unwrap() == 0x00000000000000000007a4290000000000000000000000000000000000000000_u256,
+            "Incorrect target for 0x1707a429"
+        );
+    }
+
+    #[test]
+    fn test_target_to_bits_large_target() {
+        let target: u256 = 0x1bc330000000000000000000000000000000000000000000;
+        let result = target_to_bits(target).unwrap();
+        assert!(result == 0x181bc330, "Incorrect bits for large target");
+    }
+
+    #[test]
+    fn test_target_to_bits_small_target() {
+        let target: u256 = 0x92340000;
+        let result = target_to_bits(target).unwrap();
+        assert!(result == 0x05009234, "Incorrect bits for small target");
+    }
+
+    #[test]
+    fn test_target_to_bits_medium_target() {
+        let target: u256 = 0x12345600;
+        let result = target_to_bits(target).unwrap();
+        assert!(result == 0x04123456, "Incorrect bits for medium target");
+    }
+
+    #[test]
+    fn test_target_to_bits_max_target() {
+        let max_target: u256 = 0x00000000ffff0000000000000000000000000000000000000000000000000000;
+        let result = target_to_bits(max_target).unwrap();
+        assert!(result == 0x1d00ffff, "Incorrect bits for max target");
+    }
+
+    #[test]
+    fn test_target_to_bits_high_precision_target() {
+        let target: u256 = 0x000000000d314200000000000000000000000000000000000000000000000000;
+        let result = target_to_bits(target).unwrap();
+        assert!(result == 0x1c0d3142, "Incorrect bits for high precision target");
+    }
+
+    #[test]
+    fn test_target_to_bits_low_precision_target() {
+        let target: u256 = 0x00000000000000000007a4290000000000000000000000000000000000000000;
+        let result = target_to_bits(target).unwrap();
+        assert!(result == 0x1707a429, "Incorrect bits for low precision target");
+    }
+
+    #[test]
+    fn test_target_to_bits_full_mantissa() {
+        let target: u256 = 0xd86a528bc8bc8bc8bc8bc8bc8bc8bc8bc8bc8bc8bc8bc8bc8bc8bc8b;
+        let result = target_to_bits(target).unwrap();
+        assert!(result == 0x1d00d86a, "Incorrect bits for full mantissa target");
+    }
+
+    #[test]
+    fn test_target_to_bits_zero_target() {
+        let result = target_to_bits(0.into());
+        assert!(result.is_err(), "Should error on zero target");
+    }
+
+    #[test]
+    fn test_target_to_bits_overflow_target() {
+        let target: u256 = 0x01000000000000000000000000000000000000000000000000000000000000000;
+        let result = target_to_bits(target);
+        assert!(result.is_err(), "Should error on overflow target");
     }
 
     #[test]

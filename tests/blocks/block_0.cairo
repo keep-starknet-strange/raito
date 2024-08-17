@@ -5,7 +5,7 @@ pub fn block_0() -> Block {
     // block hash: 000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f
     Block {
         header: Header {
-            version: 1_u32, time: 1231006505_u32, bits: 0, // TODO
+            version: 1_u32, time: 1231006505_u32, bits: 486604799_u32, // TODO
              nonce: 2083236893_u32
         },
         txs: array![
