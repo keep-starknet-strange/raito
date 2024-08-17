@@ -1,7 +1,6 @@
 use super::blocks::{block_0::block_0, block_170::block_170};
 use raito::state::{ChainState, UtreexoState};
 use raito::validation::{BlockValidatorImpl};
-use core::option::Option::Some;
 
 #[test]
 fn test_block0() {

@@ -31,7 +31,7 @@ pub struct ChainState {
 impl ChainStateDefault of Default<ChainState> {
     fn default() -> ChainState {
         ChainState {
-            block_height: Option::None,
+            block_height: Default::default(),
             total_work: 0,
             best_block_hash: 0_u256.into(),
             current_target: 26959535291011309493156476344723991336010898738574164086137773096960,
