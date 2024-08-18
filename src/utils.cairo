@@ -247,7 +247,8 @@ pub fn double_sha256_u32_array(words: Array<u32>) -> Hash {
 #[cfg(test)]
 mod tests {
     use super::{
-        double_sha256_byte_array, double_sha256_u32_array, double_sha256_parent, Hash, fast_pow, shl
+        double_sha256_byte_array, double_sha256_u32_array, double_sha256_parent, Hash, fast_pow,
+        shl, shr
     };
     use super::super::test_utils::from_hex;
 
@@ -313,6 +314,7 @@ mod tests {
         };
         assert_eq!(result_hash, expected_hash, "invalid results");
     }
+
     #[test]
     fn test_shl() {
         let value1: u32 = 3;
@@ -324,5 +326,22 @@ mod tests {
         let shift2: u32 = 0;
         let result = shl(value2, shift2);
         assert_eq!(result, 5);
+    }
+
+    #[test]
+    fn test_shr() {
+        // Assuming T and U are u32 for simplicity
+        let x: u32 = 32;
+        let shift: u32 = 2;
+        let result = shr(x, shift);
+        assert_eq!(result, 8);
+
+        let shift: u32 = 32;
+        let result = shr(x, shift);
+        assert_eq!(result, 0);
+
+        let shift: u32 = 0;
+        let result = shr(x, shift);
+        assert_eq!(result, 32);
     }
 }
