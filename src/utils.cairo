@@ -247,7 +247,7 @@ pub fn double_sha256_u32_array(words: Array<u32>) -> Hash {
 #[cfg(test)]
 mod tests {
     use super::{
-        double_sha256_byte_array, double_sha256_u32_array, double_sha256_parent, Hash, fast_pow
+        double_sha256_byte_array, double_sha256_u32_array, double_sha256_parent, Hash, fast_pow, shl
     };
     use super::super::test_utils::from_hex;
 
@@ -281,12 +281,48 @@ mod tests {
 
     #[test]
     #[available_gas(1000000000)]
-    fn fast_pow_test() {
+    fn test_fast_pow() {
         assert_eq!(fast_pow(2_u128, 3_u128), 8, "invalid result");
         assert_eq!(fast_pow(3_u128, 4_u128), 81, "invalid result");
 
         // Test with larger exponents
         assert_eq!(fast_pow(2_u128, 10_u128), 1024, "invalid result");
         assert_eq!(fast_pow(10_u128, 5_u128), 100000, "invalid result");
+    }
+
+    #[test]
+    fn test_u256_into_hash() {
+        let u256_value = u256 {
+            low: 0x1234567890abcdef1234567890abcdef_u128,
+            high: 0xfedcba0987654321fedcba0987654321_u128,
+        };
+
+        let result_hash = u256_value.into();
+
+        let expected_hash = Hash {
+            value: [
+                0x90abcdef_u32,
+                0x12345678_u32,
+                0xabcdef12_u32,
+                0x567890ab_u32,
+                0x87654321_u32,
+                0xfedcba09_u32,
+                0x4321fedc_u32,
+                0xba098765_u32
+            ],
+        };
+        assert_eq!(result_hash, expected_hash, "invalid results");
+    }
+    #[test]
+    fn test_shl() {
+        let value1: u32 = 3;
+        let shift1: u32 = 2;
+        let result = shl(value1, shift1);
+        assert_eq!(result, 12, "invalid result");
+
+        let value2: u32 = 5;
+        let shift2: u32 = 0;
+        let result = shl(value2, shift2);
+        assert_eq!(result, 5);
     }
 }
