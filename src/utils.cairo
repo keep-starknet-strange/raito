@@ -246,7 +246,9 @@ pub fn double_sha256_u32_array(words: Array<u32>) -> Hash {
 
 #[cfg(test)]
 mod tests {
-    use super::{double_sha256_byte_array, double_sha256_u32_array, double_sha256_parent, Hash};
+    use super::{
+        double_sha256_byte_array, double_sha256_u32_array, double_sha256_parent, Hash, fast_pow
+    };
     use super::super::test_utils::from_hex;
 
     #[test]
@@ -275,5 +277,16 @@ mod tests {
             double_sha256_parent(@Hash { value: [1; 8] }, @Hash { value: [2; 8] }).into(),
             from_hex("14a6e4a4caef969126944266724d11866b39b3390cee070b0aa4c9390cd77f47")
         )
+    }
+
+    #[test]
+    #[available_gas(1000000000)]
+    fn fast_pow_test() {
+        assert_eq!(fast_pow(2_u128, 3_u128), 8, "invalid result");
+        assert_eq!(fast_pow(3_u128, 4_u128), 81, "invalid result");
+
+        // Test with larger exponents
+        assert_eq!(fast_pow(2_u128, 10_u128), 1024, "invalid result");
+        assert_eq!(fast_pow(10_u128, 5_u128), 100000, "invalid result");
     }
 }
