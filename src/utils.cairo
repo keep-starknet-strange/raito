@@ -302,16 +302,17 @@ mod tests {
 
         let expected_hash = Hash {
             value: [
-                0x90abcdef_u32,
-                0x12345678_u32,
-                0xabcdef12_u32,
-                0x567890ab_u32,
-                0x87654321_u32,
-                0xfedcba09_u32,
-                0x4321fedc_u32,
-                0xba098765_u32
+                0xfedcba09,
+                0x87654321,
+                0xfedcba09,
+                0x87654321,
+                0x12345678,
+                0x90abcdef,
+                0x12345678,
+                0x90abcdef,
             ],
         };
+
         assert_eq!(result_hash, expected_hash, "invalid results");
     }
 
