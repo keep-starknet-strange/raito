@@ -65,6 +65,19 @@ def block:
     }"
 ;
 
+def chain_state:
+    "ChainState {
+        block_height: \(.prev_block.height)_u32,
+        total_work: \(.prev_block.chainwork)_u256, 
+        best_block_hash: 0x\(.prev_block.hash)_u256.into(),
+        current_target: 0x\(.prev_block.bits)_u256, 
+        epoch_start_time: \(.prev_block.time)_u32, 
+        prev_timestamps: array![\(.prev_block.prev_timestamps | join(", "))].span(), 
+        utreexo_state: UtreexoState { roots: array![].span() },
+    }"
+;
+
+
 def fixture:
 "use raito::state::{Block, Header, Transaction, OutPoint, TxIn, TxOut, ChainState, UtreexoState};
 use raito::test_utils::from_hex;
