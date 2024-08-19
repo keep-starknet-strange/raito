@@ -345,4 +345,28 @@ mod tests {
         let result = shr(x, shift);
         assert_eq!(result, 32);
     }
+
+    fn test_hash_to_u256() {
+        let hash_value = Hash {
+            value: [
+                0xfedcba09,
+                0x87654321,
+                0xfedcba09,
+                0x87654321,
+                0x12345678,
+                0x90abcdef,
+                0x12345678,
+                0x90abcdef,
+            ],
+        };
+
+        let result_u256 = hash_value.into();
+
+        let expected_u256 = u256 {
+            high: 0xfedcba0987654321fedcba0987654321_u128,
+            low: 0x1234567890abcdef1234567890abcdef_u128,
+        };
+
+        assert_eq!(result_u256, expected_u256, "invalid results");
+    }
 }
