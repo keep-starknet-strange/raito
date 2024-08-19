@@ -18,6 +18,7 @@ pub impl HashImpl of HashTrait {
     }
 }
 
+/// Formats a `Hash` value for display.
 impl HashDisplay of Display<Hash> {
     fn fmt(self: @Hash, ref f: Formatter) -> Result<(), Error> {
         let hash: u256 = (*self).into();
@@ -26,12 +27,14 @@ impl HashDisplay of Display<Hash> {
     }
 }
 
+/// Compares two `Hash` values for equality.
 impl HashPartialEq of PartialEq<Hash> {
     fn eq(lhs: @Hash, rhs: @Hash) -> bool {
         lhs.value == rhs.value
     }
 }
 
+/// Converts a `Hash` value into a `ByteArray`.
 pub impl HashIntoByteArray of Into<Hash, ByteArray> {
     fn into(self: Hash) -> ByteArray {
         let mut bytes: ByteArray = Default::default();
@@ -42,6 +45,7 @@ pub impl HashIntoByteArray of Into<Hash, ByteArray> {
     }
 }
 
+/// Converts a `u256` value into a `Hash` type.
 pub impl U256IntoHash of Into<u256, Hash> {
     fn into(self: u256) -> Hash {
         let mut result: Array<u32> = array![];
@@ -83,6 +87,7 @@ pub impl U256IntoHash of Into<u256, Hash> {
     }
 }
 
+/// Converts a `Hash` value into a `u256` type.
 pub impl HashIntoU256 of Into<Hash, u256> {
     fn into(self: Hash) -> u256 {
         let [a, b, c, d, e, f, g, h] = self.value;
@@ -104,6 +109,7 @@ pub impl HashIntoU256 of Into<Hash, u256> {
     }
 }
 
+/// Performs a bitwise left shift on the given value by a specified number of bits.
 pub fn shl<
     T,
     U,
