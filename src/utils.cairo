@@ -135,6 +135,7 @@ pub fn shl<
     self * fast_pow(two, shift)
 }
 
+/// Performs a bitwise right shift on the given value by a specified number of bits.
 pub fn shr<
     T,
     U,
@@ -371,12 +372,18 @@ mod tests {
     }
 
     fn test_hash_into_bytearray() {
-        let hash = Hash { value: [
-             0x12345678_u32, 0x9abcdef0_u32,
-            0x11223344_u32, 0x55667788_u32,
-            0xaabbccdd_u32, 0xeeff0011_u32,
-            0x22334455_u32, 0x66778899_u32
-        ] };
+        let hash = Hash {
+            value: [
+                0x12345678_u32,
+                0x9abcdef0_u32,
+                0x11223344_u32,
+                0x55667788_u32,
+                0xaabbccdd_u32,
+                0xeeff0011_u32,
+                0x22334455_u32,
+                0x66778899_u32
+            ]
+        };
 
         let byte_array: ByteArray = hash.into();
 
