@@ -353,6 +353,7 @@ mod tests {
         assert_eq!(result, 32);
     }
 
+    #[test]
     fn test_hash_to_u256() {
         let hash_value = Hash {
             value: [
@@ -377,6 +378,7 @@ mod tests {
         assert_eq!(result_u256, expected_u256, "invalid results");
     }
 
+    #[test]
     fn test_hash_into_bytearray() {
         let hash = Hash {
             value: [
@@ -393,18 +395,9 @@ mod tests {
 
         let byte_array: ByteArray = hash.into();
 
-        let expected_byte_array = {
-            let mut bytes = Default::default();
-            bytes.append_word(0x12345678_u32.into(), 4);
-            bytes.append_word(0x9abcdef0_u32.into(), 4);
-            bytes.append_word(0x11223344_u32.into(), 4);
-            bytes.append_word(0x55667788_u32.into(), 4);
-            bytes.append_word(0xaabbccdd_u32.into(), 4);
-            bytes.append_word(0xeeff0011_u32.into(), 4);
-            bytes.append_word(0x22334455_u32.into(), 4);
-            bytes.append_word(0x66778899_u32.into(), 4);
-            bytes
-        };
+        let expected_byte_array = from_hex(
+            "123456789abcdef01122334455667788aabbccddeeff00112233445566778899"
+        );
 
         assert_eq!(byte_array, expected_byte_array, "invalid results");
     }
