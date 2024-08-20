@@ -56,7 +56,6 @@ pub impl EncodeOutpoint of Encode<OutPoint> {
         let txids_rev = txids.rev();
         dest.append(@txids_rev);
         encode_compact_size(self.vout, ref dest);
-        encode_compact_size(self.block_time, ref dest);
     }
 }
 
@@ -97,4 +96,18 @@ pub fn encode_compact_size(value: usize, ref dest: ByteArray) {
         dest = from_hex("fe");
         dest.append_word_rev(val, 4);
     }
+}
+
+pub fn encode_test() {
+
+    let mut bytes : ByteArray = Default::default();
+    let txout =  TxOut {
+        value: 1000,
+        pk_script: @from_hex(
+            "4104d46c4968bde02899d2aa0963367c7a6ce34eec332b32e42e5f3407e052d64ac625da6f0718e7b302140434bd725706957c092db53805b821a85b23a7ac61725bac"
+        ),
+        cached: false,
+    } ;
+    txout.encode_to(ref bytes) ; 
+    println!("Encoded bytes: {:?}", bytes);
 }
