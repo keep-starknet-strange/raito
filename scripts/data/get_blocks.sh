@@ -21,7 +21,7 @@ main() {
         # "000000000000000000024bead8df69990852c202db0e0097c1a12ea637d7e96d"  # Third halving block (630000)
         # "0000000000000000000687bca986194dc2c1f949318629b44bb54ec0a94d8244"  # Taproot soft fort block (709632)
         # "0000000000000000000515e202c8ae73c8155fc472422d7593af87aa74f2cf3d"  # Biggest block in Bitcoin history - Taproot Wizards (774628)
-        # "0000000000000000000320283a032748cef8227873ff4872689bf23f1cda83a5"  # Fourth halving block (840000)
+        "0000000000000000000320283a032748cef8227873ff4872689bf23f1cda83a5"  # Fourth halving block (840000)
     )
 
     # Loop through the block hashes and call get_block.sh for each

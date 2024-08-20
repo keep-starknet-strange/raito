@@ -47,7 +47,7 @@ def txout:
 def tx:
     "Transaction {
         version: \(.version),
-        is_segwit: false,
+        is_segwit: \(if .vin[].txinwitness then true else false end),
         inputs: array![\(.vin | map(txin) | join(",\n"))].span(),
         outputs: array![\(.vout | map(txout) | join(",\n"))].span(),
         lock_time: \(.locktime)
