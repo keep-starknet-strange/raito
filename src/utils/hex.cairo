@@ -1,4 +1,4 @@
-//! Test helpers
+//! Hex helpers
 
 /// Get bytes from hex (base16)
 pub fn from_hex(hex_string: ByteArray) -> ByteArray {
