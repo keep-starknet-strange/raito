@@ -34,7 +34,7 @@ pub impl EncodeByteArrayImpl of Encode<@ByteArray> {
 pub impl EncodeTxIn of Encode<TxIn> {
     fn encode_to(self: TxIn, ref dest: ByteArray) {
         encode_compact_size(self.script.len(), ref dest);
-        dest.append(self.script);
+        self.script.encode_to(ref dest);
         encode_compact_size(self.sequence, ref dest);
         self.previous_output.encode_to(ref dest);
         encode_compact_size(self.witness.len(), ref dest);
@@ -46,7 +46,7 @@ pub impl EncodeTxOut of Encode<TxOut> {
     fn encode_to(self: TxOut, ref dest: ByteArray) {
         encode_compact_size(self.value.try_into().unwrap(), ref dest);
         encode_compact_size(self.pk_script.len(), ref dest);
-        dest.append(self.pk_script);
+        self.pk_script.encode_to(ref dest);
     }
 }
 
