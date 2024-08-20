@@ -1,11 +1,11 @@
 //! Bitcoin binary codec traits, implementations, and helpers.
+
 use super::state::{Block, ChainState, Transaction, UtreexoState, TxIn, TxOut, OutPoint};
 use super::test_utils::from_hex;
 use super::utils::{Hash};
 pub trait Encode<T> {
     /// Convert into bytes and append to the buffer
     fn encode_to(self: T, ref dest: ByteArray);
-
     /// Convert into bytes and return
     fn encode(
         self: T
