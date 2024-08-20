@@ -2,7 +2,12 @@
 set -e;
 set -o pipefail;
 
-HEIGHT=$(curl -s --user $USERPWD -s -d '{"jsonrpc": "1.0", "id":"curltest", "method": "getblockheader", "params": ["'${1}'"] }' -H 'content-type: text/plain;' $BITCOIN_RPC | jq -r '.result.height')
+if [ -f .env ]
+then
+  export $(cat .env | xargs)
+fi
+
+HEIGHT=$(curl -s --user $USERPWD -d '{"jsonrpc": "1.0", "id":"curltest", "method": "getblockheader", "params": ["'${1}'"] }' -H 'content-type: text/plain;' $BITCOIN_RPC | jq -r '.result.height')
 
 curl \
  -s \

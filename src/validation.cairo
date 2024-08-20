@@ -1,7 +1,7 @@
 use super::codec::Encode;
 use super::merkle_tree::merkle_root;
 use super::utils::{double_sha256_byte_array, shl, shr, Hash};
-use super::state::{Block, ChainState, Transaction, UtreexoState, UtreexoSet, TxIn, TxOut, OutPoint};
+use super::state::{Block, ChainState, Transaction, UtreexoState, TxIn, TxOut, OutPoint};
 
 const MAX_TARGET: u256 = 0x00000000FFFF0000000000000000000000000000000000000000000000000000;
 
@@ -21,7 +21,7 @@ pub impl BlockValidatorImpl of BlockValidator {
         validate_proof_of_work(current_target, best_block_hash)?;
         validate_bits(@block, current_target)?;
 
-        let utreexo_state = UtreexoState { roots: [].span() };
+        let utreexo_state = Default::default();
 
         Result::Ok(
             ChainState {
@@ -106,7 +106,7 @@ pub impl TransactionValidatorImpl of TransactionValidator {
         let outputs = *self.outputs;
 
         for input in inputs {
-            let amount = *input.previous_output.amount;
+            let amount = *input.previous_output.data.value;
             total_input_amount += amount;
         };
 
@@ -321,6 +321,7 @@ mod tests {
     use raito::state::{Header, Transaction, TxIn, TxOut, OutPoint};
     use raito::utils::Hash;
     use raito::test_utils::from_hex;
+    use raito::utreexo::UtreexoStateDefault;
     use super::{
         validate_timestamp, validate_proof_of_work, compute_block_reward, compute_total_work,
         compute_work_from_target, shr, shl, Block, ChainState, UtreexoState, next_prev_timestamps,
@@ -336,7 +337,7 @@ mod tests {
             current_target: 1,
             epoch_start_time: 1,
             prev_timestamps: array![1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].span(),
-            utreexo_state: UtreexoState { roots: array![].span() },
+            utreexo_state: Default::default(),
         };
         let mut block = Block {
             header: Header { version: 1, time: 12, nonce: 1, bits: 1 },
@@ -373,10 +374,11 @@ mod tests {
                         txid: 0x0437cd7f8525ceed2324359c2d0ba26006d92d856a9c20fa0241106ee5a597c9_u256
                             .into(),
                         vout: 0x00000000,
-                        txo_index: 0,
-                        amount: 100
+                        data: TxOut { value: 100, ..Default::default() },
+                        block_height: Default::default(),
+                        block_time: Default::default(),
                     },
-                    witness: @from_hex("")
+                    witness: array![].span(),
                 }
             ]
                 .span(),
@@ -386,6 +388,7 @@ mod tests {
                     pk_script: @from_hex(
                         "ac4cd86c7e4f702ac7d5debaf126068a3b30b7c1212c145fdfa754f59773b3aae71484a22f30718d37cd74f325229b15f7a2996bf0075f90131bf5c509fe621aae0441"
                     ),
+                    cached: false,
                 }
             ]
                 .span(),
@@ -512,7 +515,7 @@ mod tests {
             current_target: 1,
             epoch_start_time: 1,
             prev_timestamps: array![0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10].span(),
-            utreexo_state: UtreexoState { roots: array![].span() },
+            utreexo_state: Default::default(),
         };
         let block = Block {
             header: Header { version: 1, time: 12, nonce: 1, bits: 1 },
@@ -689,10 +692,11 @@ mod tests {
                             previous_output: OutPoint {
                                 txid: 0_u256.into(),
                                 vout: 0xffffffff_u32,
-                                txo_index: 0,
-                                amount: 0_64
+                                data: TxOut { value: 0_64, ..Default::default(), },
+                                block_height: Default::default(),
+                                block_time: Default::default(),
                             },
-                            witness: @from_hex("")
+                            witness: array![].span(),
                         },
                         TxIn {
                             script: @from_hex(""),
@@ -700,14 +704,17 @@ mod tests {
                             previous_output: OutPoint {
                                 txid: 0_u256.into(),
                                 vout: 0xffffffff_u32,
-                                txo_index: 0,
-                                amount: 0_64
+                                data: TxOut { value: 0_64, ..Default::default(), },
+                                block_height: Default::default(),
+                                block_time: Default::default(),
                             },
-                            witness: @from_hex("")
+                            witness: array![].span(),
                         }
                     ]
                         .span(),
-                    outputs: array![TxOut { value: 5000000000_u64, pk_script: @from_hex(""), }]
+                    outputs: array![
+                        TxOut { value: 5000000000_u64, pk_script: @from_hex(""), cached: false, }
+                    ]
                         .span(),
                     lock_time: 0
                 }
@@ -734,13 +741,19 @@ mod tests {
                             script: @from_hex(""),
                             sequence: 4294967295,
                             previous_output: OutPoint {
-                                txid: 0_u256.into(), vout: 0x1_u32, txo_index: 0, amount: 0_64
+                                txid: 0_u256.into(),
+                                vout: 0x1_u32,
+                                data: TxOut { value: 0_64, ..Default::default(), },
+                                block_height: Default::default(),
+                                block_time: Default::default(),
                             },
-                            witness: @from_hex("")
+                            witness: array![].span(),
                         }
                     ]
                         .span(),
-                    outputs: array![TxOut { value: 5000000000_u64, pk_script: @from_hex(""), }]
+                    outputs: array![
+                        TxOut { value: 5000000000_u64, pk_script: @from_hex(""), cached: false, }
+                    ]
                         .span(),
                     lock_time: 0
                 }
@@ -769,14 +782,17 @@ mod tests {
                             previous_output: OutPoint {
                                 txid: 0x2_u256.into(),
                                 vout: 0xFFFFFFFF_u32,
-                                txo_index: 0,
-                                amount: 0_64
+                                data: TxOut { value: 0_64, ..Default::default(), },
+                                block_height: Default::default(),
+                                block_time: Default::default(),
                             },
-                            witness: @from_hex("")
+                            witness: array![].span(),
                         }
                     ]
                         .span(),
-                    outputs: array![TxOut { value: 5000000000_u64, pk_script: @from_hex(""), }]
+                    outputs: array![
+                        TxOut { value: 5000000000_u64, pk_script: @from_hex(""), cached: false, }
+                    ]
                         .span(),
                     lock_time: 0
                 }
@@ -804,14 +820,17 @@ mod tests {
                             previous_output: OutPoint {
                                 txid: 0_u256.into(),
                                 vout: 0xffffffff_u32,
-                                txo_index: 0,
-                                amount: 0_64
+                                data: TxOut { value: 0_64, ..Default::default(), },
+                                block_height: Default::default(),
+                                block_time: Default::default(),
                             },
-                            witness: @from_hex("")
+                            witness: array![].span(),
                         }
                     ]
                         .span(),
-                    outputs: array![TxOut { value: 5000000000_u64, pk_script: @from_hex(""), }]
+                    outputs: array![
+                        TxOut { value: 5000000000_u64, pk_script: @from_hex(""), cached: false, }
+                    ]
                         .span(),
                     lock_time: 0
                 }
@@ -840,14 +859,17 @@ mod tests {
                             previous_output: OutPoint {
                                 txid: 0_u256.into(),
                                 vout: 0xffffffff_u32,
-                                txo_index: 0,
-                                amount: 0_64
+                                data: TxOut { value: 0_64, ..Default::default(), },
+                                block_height: Default::default(),
+                                block_time: Default::default(),
                             },
-                            witness: @from_hex("")
+                            witness: array![].span(),
                         }
                     ]
                         .span(),
-                    outputs: array![TxOut { value: 5000000000_u64, pk_script: @from_hex(""), }]
+                    outputs: array![
+                        TxOut { value: 5000000000_u64, pk_script: @from_hex(""), cached: false, }
+                    ]
                         .span(),
                     lock_time: 0
                 }
@@ -874,9 +896,13 @@ mod tests {
                             script: @from_hex("04ffff001d0102"),
                             sequence: 4294967295,
                             previous_output: OutPoint {
-                                txid: 0x0_u256.into(), vout: 0xffffffff_u32, txo_index: 0, amount: 0
+                                txid: 0x0_u256.into(),
+                                vout: 0xffffffff_u32,
+                                data: Default::default(),
+                                block_height: Default::default(),
+                                block_time: Default::default(),
                             },
-                            witness: @""
+                            witness: array![].span(),
                         }
                     ]
                         .span(),
@@ -886,6 +912,7 @@ mod tests {
                             pk_script: @from_hex(
                                 "4104d46c4968bde02899d2aa0963367c7a6ce34eec332b32e42e5f3407e052d64ac625da6f0718e7b302140434bd725706957c092db53805b821a85b23a7ac61725bac"
                             ),
+                            cached: false,
                         }
                     ]
                         .span(),
@@ -904,10 +931,11 @@ mod tests {
                                 txid: 0x0437cd7f8525ceed2324359c2d0ba26006d92d856a9c20fa0241106ee5a597c9_u256
                                     .into(),
                                 vout: 0,
-                                txo_index: 0,
-                                amount: 5000000000_u64
+                                data: TxOut { value: 5000000000_u64, ..Default::default() },
+                                block_height: Default::default(),
+                                block_time: Default::default(),
                             },
-                            witness: @""
+                            witness: array![].span(),
                         }
                     ]
                         .span(),
@@ -917,12 +945,14 @@ mod tests {
                             pk_script: @from_hex(
                                 "4104ae1a62fe09c5f51b13905f07f06b99a2f7159b2225f374cd378d71302fa28414e7aab37397f554a7df5f142c21c1b7303b8a0626f1baded5c72a704f7e6cd84cac"
                             ),
+                            cached: false,
                         },
                         TxOut {
                             value: 4000000000_u64,
                             pk_script: @from_hex(
                                 "410411db93e1dcdb8a016b49840f8c53bc1eb68a382e97b1482ecad7b148a6909a5cb2e0eaddfb84ccf9744464f82e160bfa9b8b64f9d4c03f999b8643f656b412a3ac"
                             ),
+                            cached: false,
                         }
                     ]
                         .span(),
@@ -953,10 +983,11 @@ mod tests {
                         txid: 0x0437cd7f8525ceed2324359c2d0ba26006d92d856a9c20fa0241106ee5a597c9_u256
                             .into(),
                         vout: 0x00000000,
-                        txo_index: 0,
-                        amount: 0_64 // set to 0 for the test
+                        data: Default::default(),
+                        block_height: Default::default(),
+                        block_time: Default::default(),
                     },
-                    witness: @from_hex("")
+                    witness: array![].span(),
                 }
             ]
                 .span(),
@@ -966,12 +997,14 @@ mod tests {
                     pk_script: @from_hex(
                         "ac4cd86c7e4f702ac7d5debaf126068a3b30b7c1212c145fdfa754f59773b3aae71484a22f30718d37cd74f325229b15f7a2996bf0075f90131bf5c509fe621aae0441"
                     ),
+                    cached: false,
                 },
                 TxOut {
                     value: 0x00000000ee6b2800,
                     pk_script: @from_hex(
                         "aca312b456f643869b993fc0d4f9648b9bfa0b162ef8644474f9cc84fbddeae0b25c9a90a648b1d7ca2e48b1972e388ab61ebc538c0f84496b018adbdce193db110441"
                     ),
+                    cached: false,
                 }
             ]
                 .span(),

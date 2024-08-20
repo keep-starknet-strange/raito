@@ -5,5 +5,6 @@ pub mod codec;
 
 mod main;
 mod merkle_tree;
+mod utreexo;
 
 pub mod test_utils;
