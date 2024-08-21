@@ -86,6 +86,7 @@ use raito::test_utils::from_hex;
 pub fn block_\(.height)() -> Block {
      \( . | block )
 }"
+;
 
 pub fn chain_state_for_block_\(.height)() -> ChainState {
     // State for block \(.height - 1)
