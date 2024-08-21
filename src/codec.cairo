@@ -86,10 +86,10 @@ pub fn encode_compact_size(value: usize, ref dest: ByteArray) {
     if (value < 253) {
         dest.append_word_rev(val, 1);
     } else if (value < 65536) {
-        dest.append(@"xfd");
+        dest.append_byte(253);
         dest.append_word_rev(val, 2);
     } else {
-        dest.append(@"xfe");
+        dest.append_byte(254);
         dest.append_word_rev(val, 4);
     }
 }
