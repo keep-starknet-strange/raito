@@ -111,6 +111,12 @@ This will run the test-suite:
 scarb test
 ```
 
+Re-generate test data:
+
+```base
+scarb run get_blocks
+```
+
 ## References
 
 * [STWO](https://github.com/starkware-libs/stwo)
