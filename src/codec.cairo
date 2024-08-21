@@ -1,8 +1,7 @@
 //! Bitcoin binary codec traits, implementations, and helpers.
 
 use super::state::{Block, ChainState, Transaction, UtreexoState, TxIn, TxOut, OutPoint};
-use super::test_utils::from_hex;
-use super::utils::{Hash};
+use raito::utils::hash::Hash;
 pub trait Encode<T> {
     /// Convert into bytes and append to the buffer
     fn encode_to(self: T, ref dest: ByteArray);
@@ -87,10 +86,10 @@ pub fn encode_compact_size(value: usize, ref dest: ByteArray) {
     if (value < 253) {
         dest.append_word_rev(val, 1);
     } else if (value < 65536) {
-        dest = from_hex("fd");
+        dest.append(@"xfd");
         dest.append_word_rev(val, 2);
     } else {
-        dest = from_hex("fe");
+        dest.append(@"xfe");
         dest.append_word_rev(val, 4);
     }
 }
