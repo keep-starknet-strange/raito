@@ -1,7 +1,6 @@
 //! Bitcoin binary codec traits, implementations, and helpers.
 
 use super::state::{Block, ChainState, Transaction, UtreexoState, TxIn, TxOut, OutPoint};
-use raito::utils::hex::from_hex;
 use raito::utils::hash::Hash;
 pub trait Encode<T> {
     /// Convert into bytes and append to the buffer
