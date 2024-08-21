@@ -1,6 +1,7 @@
 use super::codec::Encode;
-use super::merkle_tree::merkle_root;
-use super::utils::{double_sha256_byte_array, shl, shr, Hash};
+use super::utils::{
+    merkle_tree::merkle_root, sha256::double_sha256_byte_array, bit_shifts::{shl, shr}, hash::Hash
+};
 use super::state::{Block, ChainState, Transaction, UtreexoState, TxIn, TxOut, OutPoint};
 
 const MAX_TARGET: u256 = 0x00000000FFFF0000000000000000000000000000000000000000000000000000;
@@ -319,8 +320,8 @@ fn compute_block_reward(block_height: u32) -> u64 {
 #[cfg(test)]
 mod tests {
     use raito::state::{Header, Transaction, TxIn, TxOut, OutPoint};
-    use raito::utils::Hash;
-    use raito::test_utils::from_hex;
+    use raito::utils::hash::Hash;
+    use raito::utils::hex::from_hex;
     use raito::utreexo::UtreexoStateDefault;
     use super::{
         validate_timestamp, validate_proof_of_work, compute_block_reward, compute_total_work,
