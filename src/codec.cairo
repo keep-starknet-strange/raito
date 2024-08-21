@@ -92,4 +92,5 @@ pub fn encode_compact_size(value: usize, ref dest: ByteArray) {
         dest.append_byte(254);
         dest.append_word_rev(val, 4);
     }
+    // Note: `usize` is a `u32` alias, so values >= 4,294,967,296 are not handled.
 }
