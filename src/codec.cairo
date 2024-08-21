@@ -33,12 +33,10 @@ pub impl EncodeByteArrayImpl of Encode<@ByteArray> {
 }
 pub impl EncodeTxIn of Encode<TxIn> {
     fn encode_to(self: TxIn, ref dest: ByteArray) {
-        encode_compact_size(self.script.len(), ref dest);
         self.script.encode_to(ref dest);
         encode_compact_size(self.sequence, ref dest);
         self.previous_output.encode_to(ref dest);
-        encode_compact_size(self.witness.len(), ref dest);
-        // now we have to serialize the witness
+        self.witness.encode_to(ref dest);
     }
 }
 
