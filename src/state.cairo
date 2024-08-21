@@ -4,7 +4,7 @@
 //! The extended set of fields allows to recursively validate entities in a stateless manner,
 //! and to avoid repetitive computations.
 
-use raito::utils::Hash;
+use raito::utils::hash::Hash;
 pub use super::utreexo::UtreexoState;
 
 /// Represents the state of the blockchain.

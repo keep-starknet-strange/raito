@@ -19,4 +19,4 @@ curl \
     "params": ["'${1}'", 2]
     }' \
  -H 'content-type: text/plain;' $BITCOIN_RPC \
- | jq -r -f scripts/data/block_filter.jq | sed 's/LITERAL_AT_QUOTES/@""/g' > tests/blocks/block_${HEIGHT}.cairo
+ | jq -r -f scripts/data/block_filter.jq > tests/blocks/block_${HEIGHT}.cairo

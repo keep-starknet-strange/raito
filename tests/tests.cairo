@@ -2,7 +2,7 @@ use super::blocks::block_0::block_0;
 use raito::state::{ChainState, UtreexoState};
 use raito::validation::{BlockValidatorImpl};
 use raito::state::{Block, Header, Transaction, OutPoint, TxIn, TxOut};
-use raito::test_utils::from_hex;
+use raito::utils::hex::from_hex;
 
 #[test]
 fn test_block0() {
