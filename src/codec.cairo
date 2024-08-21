@@ -1,6 +1,7 @@
 //! Bitcoin binary codec traits, implementations, and helpers.
 
 use super::state::{Block, ChainState, Transaction, UtreexoState, TxIn, TxOut, OutPoint};
+use raito::utils::hex::from_hex;
 use raito::utils::hash::Hash;
 pub trait Encode<T> {
     /// Convert into bytes and append to the buffer
@@ -33,7 +34,7 @@ pub impl EncodeByteArrayImpl of Encode<@ByteArray> {
 pub impl EncodeTxIn of Encode<TxIn> {
     fn encode_to(self: TxIn, ref dest: ByteArray) {
         self.script.encode_to(ref dest);
-        encode_compact_size(self.sequence, ref dest);
+        dest.append_word_rev(self.sequence.try_into().unwrap(), 4);
         self.previous_output.encode_to(ref dest);
         self.witness.encode_to(ref dest);
     }
@@ -41,7 +42,7 @@ pub impl EncodeTxIn of Encode<TxIn> {
 
 pub impl EncodeTxOut of Encode<TxOut> {
     fn encode_to(self: TxOut, ref dest: ByteArray) {
-        encode_compact_size(self.value.try_into().unwrap(), ref dest);
+        dest.append_word_rev(self.value.try_into().unwrap(), 8);
         self.pk_script.encode_to(ref dest);
     }
 }
@@ -51,14 +52,14 @@ pub impl EncodeOutpoint of Encode<OutPoint> {
         let txids: ByteArray = self.txid.into();
         let txids_rev = txids.rev();
         dest.append(@txids_rev);
-        encode_compact_size(self.vout, ref dest);
+        dest.append_word_rev(self.vout.try_into().unwrap(), 4);
     }
 }
 
 
 pub impl EncodeTx of Encode<Transaction> {
     fn encode_to(self: Transaction, ref dest: ByteArray) {
-        encode_compact_size(self.version, ref dest);
+        dest.append_word_rev(self.version.try_into().unwrap(), 4);
         // if we have to find the wxtid then we have to serilaize according to the segeit
         // transaction
         encode_compact_size(self.inputs.len(), ref dest);
@@ -71,7 +72,8 @@ pub impl EncodeTx of Encode<Transaction> {
         for txout in outputs {
             txout.clone().encode_to(ref dest);
         };
-        encode_compact_size(self.lock_time, ref dest);
+        // we have to changed that the locktime is the u32
+        dest.append_word_rev(self.lock_time.try_into().unwrap(), 4);
     }
 }
 
