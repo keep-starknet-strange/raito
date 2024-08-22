@@ -45,7 +45,7 @@ def tx_output(tx):
     for txoutput in tx['vout']:
         payload += f'''
                     TxOut {{
-                        value: {int(txoutput["value"] * 100000000)}_64,
+                        value: {int(txoutput["value"] * 100000000)}_u64,
                         pk_script: @from_hex(\"{txoutput["scriptPubKey"]["hex"]}\"),
                         cached: {cached},
                     }},
