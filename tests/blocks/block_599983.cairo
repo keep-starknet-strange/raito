@@ -6,10 +6,10 @@ use raito::utils::hash::Hash;
 pub fn block_599983() -> Block {
     Block {
         header: Header {
-                version: 536870912_u32,
-                time: 1571432655_u32,
-                bits: 387294044_u32,
-                nonce: 3937493358_u32,
+            version: 536870912_u32,
+            time: 1571432655_u32,
+            bits: 387294044_u32,
+            nonce: 3937493358_u32,
         },
         txs: array![
             Transaction {
@@ -18,9 +18,16 @@ pub fn block_599983() -> Block {
                 lock_time: 0,
                 inputs: array![
                     TxIn {
-                        script: @from_hex("03af270904bc28aa5d535a30322f4254432e434f4d2ffabe6d6d00452cd2f720f9c5dc63d87db91fc8e8d45564b72c834b46266071a7e8b8c81e080000007296cd10da01a4fcbc05000000000000"),
+                        script: @from_hex(
+                            "03af270904bc28aa5d535a30322f4254432e434f4d2ffabe6d6d00452cd2f720f9c5dc63d87db91fc8e8d45564b72c834b46266071a7e8b8c81e080000007296cd10da01a4fcbc05000000000000"
+                        ),
                         sequence: 4294967295,
-                        witness: array![from_hex("0000000000000000000000000000000000000000000000000000000000000000")].span(),
+                        witness: array![
+                            from_hex(
+                                "0000000000000000000000000000000000000000000000000000000000000000"
+                            )
+                        ]
+                            .span(),
                         previous_output: OutPoint {
                             txid: 0_u256.into(),
                             vout: 0xffffffff_u32,
@@ -28,2179 +35,2478 @@ pub fn block_599983() -> Block {
                             block_height: Default::default(),
                             block_time: Default::default(),
                         },
-                    }].span(),
+                    }
+                ]
+                    .span(),
                 outputs: array![
                     TxOut {
-                        value: 1250253085_64,
+                        value: 1250253085_u64,
                         pk_script: @from_hex("001497cfc76442fe717f2a3f0cc9c175f7561b661997"),
                         cached: false,
                     },
-                    
                     TxOut {
-                        value: 0_64,
-                        pk_script: @from_hex("6a24aa21a9ed6a73ede880eebb923f51419bf68d876d65872f7f60061deaca97b8dc3d525d27"),
+                        value: 0_u64,
+                        pk_script: @from_hex(
+                            "6a24aa21a9ed6a73ede880eebb923f51419bf68d876d65872f7f60061deaca97b8dc3d525d27"
+                        ),
                         cached: false,
                     },
-                    
                     TxOut {
-                        value: 0_64,
-                        pk_script: @from_hex("6a24b9e11b6d27e1442e0c8a4e76157cc3c36d8c8cc78885346363591aec97b6a09f7e204662"),
+                        value: 0_u64,
+                        pk_script: @from_hex(
+                            "6a24b9e11b6d27e1442e0c8a4e76157cc3c36d8c8cc78885346363591aec97b6a09f7e204662"
+                        ),
                         cached: false,
                     },
-                    ].span(),
-                },
-                
+                ]
+                    .span(),
+            },
             Transaction {
                 version: 1,
                 is_segwit: false,
                 lock_time: 0,
                 inputs: array![
-                        TxIn {
-                            script: @from_hex("4730440220043953049774555258751f3278062717fd1262cf05d969d2837113340716091e02202cf71cd9e3b2cd42b738d178fa2d3ee8a5d2c00df7195424a1056c398b08181c012103803d3288f5e4966ead14f3f45860b0aaafd41865fc641c85a90c6854184ec461"),
-                            sequence: 4294967295,
-                            witness: array![].span(),
-                            previous_output: 
-                                OutPoint {
-                                    txid: 0x62120a36d6324a8d666b3be031ddcb29275943232c16c10ffc361843240a0d59_u256.into(),
-                                    vout: 17_u32,
-                                    data: 
-                    TxOut {
-                        value: 14169370_64,
-                        pk_script: @from_hex("76a914c7ca2758db77315290fe3f3e5b96f6b165e8d98788ac"),
-                        cached: false,
-                    },
-                    
-                                    block_height: 599973_u32,
-                                    block_time: 1571428474_u32,
-                                },
+                    TxIn {
+                        script: @from_hex(
+                            "4730440220043953049774555258751f3278062717fd1262cf05d969d2837113340716091e02202cf71cd9e3b2cd42b738d178fa2d3ee8a5d2c00df7195424a1056c398b08181c012103803d3288f5e4966ead14f3f45860b0aaafd41865fc641c85a90c6854184ec461"
+                        ),
+                        sequence: 4294967295,
+                        witness: array![].span(),
+                        previous_output: OutPoint {
+                            txid: 0x62120a36d6324a8d666b3be031ddcb29275943232c16c10ffc361843240a0d59_u256
+                                .into(),
+                            vout: 17_u32,
+                            data: TxOut {
+                                value: 14169370_u64,
+                                pk_script: @from_hex(
+                                    "76a914c7ca2758db77315290fe3f3e5b96f6b165e8d98788ac"
+                                ),
+                                cached: false,
+                            },
+                            block_height: 599973_u32,
+                            block_time: 1571428474_u32,
                         },
-                        
-                        TxIn {
-                            script: @from_hex("483045022100acc9e41e08126d5bfdda2b8e51d6821ca0fffeed046ec7de6012193dae29527a02207b9e5bafa76f0febc9d09f0192ece67b524bb6a4c4b9c2c3ee92d6723a0a0d370121034f54f6236df286afe7000d07ad98ff0679b4b5a5635b16ad2753d732af7b358a"),
-                            sequence: 4294967295,
-                            witness: array![].span(),
-                            previous_output: 
-                                OutPoint {
-                                    txid: 0x957c34332e78d9360b51803d0c3b30de25dbcadc2e9c12c02220b67714848e41_u256.into(),
-                                    vout: 1516_u32,
-                                    data: 
-                    TxOut {
-                        value: 243668_64,
-                        pk_script: @from_hex("76a9143a3b4608ef13192f3a10a46094b8376b263ac38d88ac"),
-                        cached: false,
                     },
-                    
-                                    block_height: 583549_u32,
-                                    block_time: 1562118409_u32,
-                                },
+                    TxIn {
+                        script: @from_hex(
+                            "483045022100acc9e41e08126d5bfdda2b8e51d6821ca0fffeed046ec7de6012193dae29527a02207b9e5bafa76f0febc9d09f0192ece67b524bb6a4c4b9c2c3ee92d6723a0a0d370121034f54f6236df286afe7000d07ad98ff0679b4b5a5635b16ad2753d732af7b358a"
+                        ),
+                        sequence: 4294967295,
+                        witness: array![].span(),
+                        previous_output: OutPoint {
+                            txid: 0x957c34332e78d9360b51803d0c3b30de25dbcadc2e9c12c02220b67714848e41_u256
+                                .into(),
+                            vout: 1516_u32,
+                            data: TxOut {
+                                value: 243668_u64,
+                                pk_script: @from_hex(
+                                    "76a9143a3b4608ef13192f3a10a46094b8376b263ac38d88ac"
+                                ),
+                                cached: false,
+                            },
+                            block_height: 583549_u32,
+                            block_time: 1562118409_u32,
                         },
-                        
-                        TxIn {
-                            script: @from_hex("483045022100f095ad9a46de74a01f5dcae9528b6baaf9f4f81cf40d698f413c74e3bfc7689c022041210a65aa6c940fac300ed2a4e7a317a841c37e1b2a527bd8f29a028c128aba01210234e9d3e385f1a7767b6f8e2c2569afd801e98e3c79a96da0bf0a38926fcf75d2"),
-                            sequence: 4294967295,
-                            witness: array![].span(),
-                            previous_output: 
-                                OutPoint {
-                                    txid: 0x957c34332e78d9360b51803d0c3b30de25dbcadc2e9c12c02220b67714848e41_u256.into(),
-                                    vout: 1462_u32,
-                                    data: 
-                    TxOut {
-                        value: 158165_64,
-                        pk_script: @from_hex("76a914d56508a94e7799e41029670dd751f71e2c622b3488ac"),
-                        cached: false,
                     },
-                    
-                                    block_height: 583549_u32,
-                                    block_time: 1562118409_u32,
-                                },
+                    TxIn {
+                        script: @from_hex(
+                            "483045022100f095ad9a46de74a01f5dcae9528b6baaf9f4f81cf40d698f413c74e3bfc7689c022041210a65aa6c940fac300ed2a4e7a317a841c37e1b2a527bd8f29a028c128aba01210234e9d3e385f1a7767b6f8e2c2569afd801e98e3c79a96da0bf0a38926fcf75d2"
+                        ),
+                        sequence: 4294967295,
+                        witness: array![].span(),
+                        previous_output: OutPoint {
+                            txid: 0x957c34332e78d9360b51803d0c3b30de25dbcadc2e9c12c02220b67714848e41_u256
+                                .into(),
+                            vout: 1462_u32,
+                            data: TxOut {
+                                value: 158165_u64,
+                                pk_script: @from_hex(
+                                    "76a914d56508a94e7799e41029670dd751f71e2c622b3488ac"
+                                ),
+                                cached: false,
+                            },
+                            block_height: 583549_u32,
+                            block_time: 1562118409_u32,
                         },
-                        
-                        TxIn {
-                            script: @from_hex("47304402200701e2be6d7d02257d92d98f97c00191001559236c8654f67b555c68d364bd1102207a64420b71ea0ec5bab7cedab3a54017381b0780a8142cec08bdc4f6765244d60121025dc81c3ecd0c7b2de8fa9469a70b37da4ee0abed7e7289cf203489d0e84cda4b"),
-                            sequence: 4294967295,
-                            witness: array![].span(),
-                            previous_output: 
-                                OutPoint {
-                                    txid: 0x957c34332e78d9360b51803d0c3b30de25dbcadc2e9c12c02220b67714848e41_u256.into(),
-                                    vout: 1463_u32,
-                                    data: 
-                    TxOut {
-                        value: 157869_64,
-                        pk_script: @from_hex("76a91482d768dc23dcb3dd67c48c19c43b7776a29a479c88ac"),
-                        cached: false,
                     },
-                    
-                                    block_height: 583549_u32,
-                                    block_time: 1562118409_u32,
-                                },
+                    TxIn {
+                        script: @from_hex(
+                            "47304402200701e2be6d7d02257d92d98f97c00191001559236c8654f67b555c68d364bd1102207a64420b71ea0ec5bab7cedab3a54017381b0780a8142cec08bdc4f6765244d60121025dc81c3ecd0c7b2de8fa9469a70b37da4ee0abed7e7289cf203489d0e84cda4b"
+                        ),
+                        sequence: 4294967295,
+                        witness: array![].span(),
+                        previous_output: OutPoint {
+                            txid: 0x957c34332e78d9360b51803d0c3b30de25dbcadc2e9c12c02220b67714848e41_u256
+                                .into(),
+                            vout: 1463_u32,
+                            data: TxOut {
+                                value: 157869_u64,
+                                pk_script: @from_hex(
+                                    "76a91482d768dc23dcb3dd67c48c19c43b7776a29a479c88ac"
+                                ),
+                                cached: false,
+                            },
+                            block_height: 583549_u32,
+                            block_time: 1562118409_u32,
                         },
-                        
-                        TxIn {
-                            script: @from_hex("47304402206a5197d3eb3b72fce9d761abd97a3968f417024511a53d7d10f1f57b9cea367102201d46b4e267123142a07f1322788ef449660977fe95b17d4eb5037c1fca98692f01210372928ce02fb7388be64515ecffc8d5acfcea0d61bd00f64d21dbd332aa6d7498"),
-                            sequence: 4294967295,
-                            witness: array![].span(),
-                            previous_output: 
-                                OutPoint {
-                                    txid: 0x957c34332e78d9360b51803d0c3b30de25dbcadc2e9c12c02220b67714848e41_u256.into(),
-                                    vout: 1470_u32,
-                                    data: 
-                    TxOut {
-                        value: 157091_64,
-                        pk_script: @from_hex("76a914bf31b61bb9b48936978aa30d0427160dd1ed655f88ac"),
-                        cached: false,
                     },
-                    
-                                    block_height: 583549_u32,
-                                    block_time: 1562118409_u32,
-                                },
+                    TxIn {
+                        script: @from_hex(
+                            "47304402206a5197d3eb3b72fce9d761abd97a3968f417024511a53d7d10f1f57b9cea367102201d46b4e267123142a07f1322788ef449660977fe95b17d4eb5037c1fca98692f01210372928ce02fb7388be64515ecffc8d5acfcea0d61bd00f64d21dbd332aa6d7498"
+                        ),
+                        sequence: 4294967295,
+                        witness: array![].span(),
+                        previous_output: OutPoint {
+                            txid: 0x957c34332e78d9360b51803d0c3b30de25dbcadc2e9c12c02220b67714848e41_u256
+                                .into(),
+                            vout: 1470_u32,
+                            data: TxOut {
+                                value: 157091_u64,
+                                pk_script: @from_hex(
+                                    "76a914bf31b61bb9b48936978aa30d0427160dd1ed655f88ac"
+                                ),
+                                cached: false,
+                            },
+                            block_height: 583549_u32,
+                            block_time: 1562118409_u32,
                         },
-                        
-                        TxIn {
-                            script: @from_hex("483045022100fd27d742909f18d1f125508bd704af2142bea7e84e1c7f6b8cc61af74f3f4727022023dcce8fe4d4910e17833a23550b4963556d82d2bf18e4da19a6b047dd69185f01210243305221867a5d09b6e458b726ed6801c5bcd91838e80f6b51e19315ffcae36d"),
-                            sequence: 4294967295,
-                            witness: array![].span(),
-                            previous_output: 
-                                OutPoint {
-                                    txid: 0x957c34332e78d9360b51803d0c3b30de25dbcadc2e9c12c02220b67714848e41_u256.into(),
-                                    vout: 1473_u32,
-                                    data: 
-                    TxOut {
-                        value: 156805_64,
-                        pk_script: @from_hex("76a914ae0de9e7920858ff8830a9b9e8d66547d215ef9588ac"),
-                        cached: false,
                     },
-                    
-                                    block_height: 583549_u32,
-                                    block_time: 1562118409_u32,
-                                },
+                    TxIn {
+                        script: @from_hex(
+                            "483045022100fd27d742909f18d1f125508bd704af2142bea7e84e1c7f6b8cc61af74f3f4727022023dcce8fe4d4910e17833a23550b4963556d82d2bf18e4da19a6b047dd69185f01210243305221867a5d09b6e458b726ed6801c5bcd91838e80f6b51e19315ffcae36d"
+                        ),
+                        sequence: 4294967295,
+                        witness: array![].span(),
+                        previous_output: OutPoint {
+                            txid: 0x957c34332e78d9360b51803d0c3b30de25dbcadc2e9c12c02220b67714848e41_u256
+                                .into(),
+                            vout: 1473_u32,
+                            data: TxOut {
+                                value: 156805_u64,
+                                pk_script: @from_hex(
+                                    "76a914ae0de9e7920858ff8830a9b9e8d66547d215ef9588ac"
+                                ),
+                                cached: false,
+                            },
+                            block_height: 583549_u32,
+                            block_time: 1562118409_u32,
                         },
-                        
-                        TxIn {
-                            script: @from_hex("4730440220328161321cea4cd08604af0eb7e3b4a5dad1854a0a6110c69cdf503569fcf6110220577e2610dae7fd514b96f672438d162af3781c9efc5e0dbc8e8e7bb3bcf3432c012102df5c6a7b578f05103da7b2fa81b6ac5773216c653107fe15b838f6d94298edbf"),
-                            sequence: 4294967295,
-                            witness: array![].span(),
-                            previous_output: 
-                                OutPoint {
-                                    txid: 0x957c34332e78d9360b51803d0c3b30de25dbcadc2e9c12c02220b67714848e41_u256.into(),
-                                    vout: 1475_u32,
-                                    data: 
-                    TxOut {
-                        value: 156650_64,
-                        pk_script: @from_hex("76a9143aaa512ec5568d6a828f2a79a5a497c66385d76e88ac"),
-                        cached: false,
                     },
-                    
-                                    block_height: 583549_u32,
-                                    block_time: 1562118409_u32,
-                                },
+                    TxIn {
+                        script: @from_hex(
+                            "4730440220328161321cea4cd08604af0eb7e3b4a5dad1854a0a6110c69cdf503569fcf6110220577e2610dae7fd514b96f672438d162af3781c9efc5e0dbc8e8e7bb3bcf3432c012102df5c6a7b578f05103da7b2fa81b6ac5773216c653107fe15b838f6d94298edbf"
+                        ),
+                        sequence: 4294967295,
+                        witness: array![].span(),
+                        previous_output: OutPoint {
+                            txid: 0x957c34332e78d9360b51803d0c3b30de25dbcadc2e9c12c02220b67714848e41_u256
+                                .into(),
+                            vout: 1475_u32,
+                            data: TxOut {
+                                value: 156650_u64,
+                                pk_script: @from_hex(
+                                    "76a9143aaa512ec5568d6a828f2a79a5a497c66385d76e88ac"
+                                ),
+                                cached: false,
+                            },
+                            block_height: 583549_u32,
+                            block_time: 1562118409_u32,
                         },
-                        
-                        TxIn {
-                            script: @from_hex("4830450221008705a734f60eb498550de45b677f6375959c417031558f92bb051e036def8cfe02206131e90182545bb34546ad4ef3f6f2261d26e219bd7ad672c1e17849b1d50a8c0121027d23a5a329d11e2e215887118e464855ee4ccffceabccfe93bcd1026fac7ea51"),
-                            sequence: 4294967295,
-                            witness: array![].span(),
-                            previous_output: 
-                                OutPoint {
-                                    txid: 0x957c34332e78d9360b51803d0c3b30de25dbcadc2e9c12c02220b67714848e41_u256.into(),
-                                    vout: 1485_u32,
-                                    data: 
-                    TxOut {
-                        value: 154857_64,
-                        pk_script: @from_hex("76a91455d5f5f8743b6c5426b87e5ea075422d6a35f7a588ac"),
-                        cached: false,
                     },
-                    
-                                    block_height: 583549_u32,
-                                    block_time: 1562118409_u32,
-                                },
+                    TxIn {
+                        script: @from_hex(
+                            "4830450221008705a734f60eb498550de45b677f6375959c417031558f92bb051e036def8cfe02206131e90182545bb34546ad4ef3f6f2261d26e219bd7ad672c1e17849b1d50a8c0121027d23a5a329d11e2e215887118e464855ee4ccffceabccfe93bcd1026fac7ea51"
+                        ),
+                        sequence: 4294967295,
+                        witness: array![].span(),
+                        previous_output: OutPoint {
+                            txid: 0x957c34332e78d9360b51803d0c3b30de25dbcadc2e9c12c02220b67714848e41_u256
+                                .into(),
+                            vout: 1485_u32,
+                            data: TxOut {
+                                value: 154857_u64,
+                                pk_script: @from_hex(
+                                    "76a91455d5f5f8743b6c5426b87e5ea075422d6a35f7a588ac"
+                                ),
+                                cached: false,
+                            },
+                            block_height: 583549_u32,
+                            block_time: 1562118409_u32,
                         },
-                        ].span(),
+                    },
+                ]
+                    .span(),
                 outputs: array![
                     TxOut {
-                        value: 1738295_64,
+                        value: 1738295_u64,
                         pk_script: @from_hex("76a914bd1f71e0dddeea99407662cf022e2e019c4024fb88ac"),
                         cached: false,
                     },
-                    
                     TxOut {
-                        value: 886076_64,
+                        value: 886076_u64,
                         pk_script: @from_hex("a91471f4b0a48c7e44cccc20dde29f4efa15067ca92087"),
                         cached: false,
                     },
-                    
                     TxOut {
-                        value: 378000_64,
+                        value: 378000_u64,
                         pk_script: @from_hex("a9144a03545a000374e9ac6c33452f0179ccfa075ead87"),
                         cached: false,
                     },
-                    
                     TxOut {
-                        value: 63000_64,
+                        value: 63000_u64,
                         pk_script: @from_hex("a91493f88d0654449ce3db25f2aa92166d8dd7f724c587"),
                         cached: false,
                     },
-                    
                     TxOut {
-                        value: 12169104_64,
+                        value: 12169104_u64,
                         pk_script: @from_hex("76a91431c32fc6d8fb5b64c2f80c1ca06a09510712c1d888ac"),
                         cached: false,
                     },
-                    ].span(),
-                },
-                
+                ]
+                    .span(),
+            },
             Transaction {
                 version: 1,
                 is_segwit: false,
                 lock_time: 0,
                 inputs: array![
-                        TxIn {
-                            script: @from_hex("483045022100901e9a30246d5205fc2922fa89a9eceac7cbf76e22db4efbbf706bc1c125f32002205f99ecddee7ea81ff3d500b8f421fad072e8efcf08c7d6735d28d20833fe83eb012103277af45cdea6e041f53406eda3c35d1ab51ff61b9d437e00785bce769adb4a5f"),
-                            sequence: 4294967295,
-                            witness: array![].span(),
-                            previous_output: 
-                                OutPoint {
-                                    txid: 0x6cb5341bfe43aff1e8cf705b1a8f0e8ee582dc319a26056e31e8c0b5701563cc_u256.into(),
-                                    vout: 1_u32,
-                                    data: 
-                    TxOut {
-                        value: 14457322_64,
-                        pk_script: @from_hex("76a9140fd6a6cbe51995d5fb8c81b7ebbf3e3d9248e21e88ac"),
-                        cached: false,
-                    },
-                    
-                                    block_height: 599982_u32,
-                                    block_time: 1571432630_u32,
-                                },
+                    TxIn {
+                        script: @from_hex(
+                            "483045022100901e9a30246d5205fc2922fa89a9eceac7cbf76e22db4efbbf706bc1c125f32002205f99ecddee7ea81ff3d500b8f421fad072e8efcf08c7d6735d28d20833fe83eb012103277af45cdea6e041f53406eda3c35d1ab51ff61b9d437e00785bce769adb4a5f"
+                        ),
+                        sequence: 4294967295,
+                        witness: array![].span(),
+                        previous_output: OutPoint {
+                            txid: 0x6cb5341bfe43aff1e8cf705b1a8f0e8ee582dc319a26056e31e8c0b5701563cc_u256
+                                .into(),
+                            vout: 1_u32,
+                            data: TxOut {
+                                value: 14457322_u64,
+                                pk_script: @from_hex(
+                                    "76a9140fd6a6cbe51995d5fb8c81b7ebbf3e3d9248e21e88ac"
+                                ),
+                                cached: false,
+                            },
+                            block_height: 599982_u32,
+                            block_time: 1571432630_u32,
                         },
-                        ].span(),
+                    },
+                ]
+                    .span(),
                 outputs: array![
                     TxOut {
-                        value: 500000_64,
+                        value: 500000_u64,
                         pk_script: @from_hex("76a914c9038c1e64fdf2d2610dc885e0b8de7e03c363c488ac"),
                         cached: false,
                     },
-                    
                     TxOut {
-                        value: 13947151_64,
+                        value: 13947151_u64,
                         pk_script: @from_hex("76a91471c402264e1eeb6a9624da9c55cadb6cf1c6ba5188ac"),
                         cached: false,
                     },
-                    ].span(),
-                },
-                
+                ]
+                    .span(),
+            },
             Transaction {
                 version: 2,
                 is_segwit: true,
                 lock_time: 599981,
                 inputs: array![
-                        TxIn {
-                            script: @from_hex("47304402201a18a38938d8fa4c960343de9e01ddcaa3578272eef4732ca858cc02dfacedb002202e1af877523a9856039f213d16c949019e1fcc46a0fff2f8c5dc1cb8ea89a238012103da654e8c7f9580a4de49785afc8716a34023bae7becd39e3f5ac874198f1f82f"),
-                            sequence: 4294967293,
-                            witness: array![].span(),
-                            previous_output: 
-                                OutPoint {
-                                    txid: 0x1652ea920e5f89f14f55565097ec6c31423514109530638d73b3f333dd3b4b2f_u256.into(),
-                                    vout: 1_u32,
-                                    data: 
-                    TxOut {
-                        value: 23282292_64,
-                        pk_script: @from_hex("76a91461f5833060f8bc947cb2e719bf5b95317cecd18788ac"),
-                        cached: false,
-                    },
-                    
-                                    block_height: 599982_u32,
-                                    block_time: 1571432630_u32,
-                                },
+                    TxIn {
+                        script: @from_hex(
+                            "47304402201a18a38938d8fa4c960343de9e01ddcaa3578272eef4732ca858cc02dfacedb002202e1af877523a9856039f213d16c949019e1fcc46a0fff2f8c5dc1cb8ea89a238012103da654e8c7f9580a4de49785afc8716a34023bae7becd39e3f5ac874198f1f82f"
+                        ),
+                        sequence: 4294967293,
+                        witness: array![].span(),
+                        previous_output: OutPoint {
+                            txid: 0x1652ea920e5f89f14f55565097ec6c31423514109530638d73b3f333dd3b4b2f_u256
+                                .into(),
+                            vout: 1_u32,
+                            data: TxOut {
+                                value: 23282292_u64,
+                                pk_script: @from_hex(
+                                    "76a91461f5833060f8bc947cb2e719bf5b95317cecd18788ac"
+                                ),
+                                cached: false,
+                            },
+                            block_height: 599982_u32,
+                            block_time: 1571432630_u32,
                         },
-                        ].span(),
+                    },
+                ]
+                    .span(),
                 outputs: array![
                     TxOut {
-                        value: 6392987_64,
+                        value: 6392987_u64,
                         pk_script: @from_hex("76a914fc0df2dd796421d1055f40828626a506975a384988ac"),
                         cached: false,
                     },
-                    
                     TxOut {
-                        value: 16883134_64,
+                        value: 16883134_u64,
                         pk_script: @from_hex("76a914fe44abb365b65ba174a068f61ef1bd29503a8c6588ac"),
                         cached: false,
                     },
-                    ].span(),
-                },
-                
+                ]
+                    .span(),
+            },
             Transaction {
                 version: 1,
                 is_segwit: false,
                 lock_time: 0,
                 inputs: array![
-                        TxIn {
-                            script: @from_hex("483045022100bb9187e60a5c65c4e34e815e48bd9a8a9bf81562ad62ba58a221639b76080251022046329f3d27d36a8292da0356add9a311bbbc942c1cb40974996648095562b204012102c399844056839953ece2c6b4a4d116f30c70b36bc1ccd192a24ab5ed6aaf7273"),
-                            sequence: 4294967295,
-                            witness: array![].span(),
-                            previous_output: 
-                                OutPoint {
-                                    txid: 0xbfefdb47671e982360208fe2751800d5e99a0d57319889e9a715c46af6edabd3_u256.into(),
-                                    vout: 25_u32,
-                                    data: 
-                    TxOut {
-                        value: 3664281_64,
-                        pk_script: @from_hex("76a914e7bd99fa9671b8ae65112aadf0d2111c5196c4da88ac"),
-                        cached: false,
-                    },
-                    
-                                    block_height: 599978_u32,
-                                    block_time: 1571430963_u32,
-                                },
+                    TxIn {
+                        script: @from_hex(
+                            "483045022100bb9187e60a5c65c4e34e815e48bd9a8a9bf81562ad62ba58a221639b76080251022046329f3d27d36a8292da0356add9a311bbbc942c1cb40974996648095562b204012102c399844056839953ece2c6b4a4d116f30c70b36bc1ccd192a24ab5ed6aaf7273"
+                        ),
+                        sequence: 4294967295,
+                        witness: array![].span(),
+                        previous_output: OutPoint {
+                            txid: 0xbfefdb47671e982360208fe2751800d5e99a0d57319889e9a715c46af6edabd3_u256
+                                .into(),
+                            vout: 25_u32,
+                            data: TxOut {
+                                value: 3664281_u64,
+                                pk_script: @from_hex(
+                                    "76a914e7bd99fa9671b8ae65112aadf0d2111c5196c4da88ac"
+                                ),
+                                cached: false,
+                            },
+                            block_height: 599978_u32,
+                            block_time: 1571430963_u32,
                         },
-                        ].span(),
+                    },
+                ]
+                    .span(),
                 outputs: array![
                     TxOut {
-                        value: 3659848_64,
+                        value: 3659848_u64,
                         pk_script: @from_hex("a914c47dc6b2e3dd687af49672a52b07b2c46e4a684187"),
                         cached: false,
                     },
-                    ].span(),
-                },
-                
+                ]
+                    .span(),
+            },
             Transaction {
                 version: 2,
                 is_segwit: true,
                 lock_time: 0,
                 inputs: array![
-                        TxIn {
-                            script: @from_hex("1600149f40f9ecf21e8abd54bbbe342adb86f71627bf56"),
-                            sequence: 4294967295,
-                            witness: array![from_hex("3044022049d9f1f350c30db5a5906b9f8951413f1f77b21829f3ce1e3d22dd23552cfab302201cc1d7d5158e0b3f950fc8fb826a3fcd979d8ed51f0f050f5883329297c82ef001"), from_hex("0294c5500e0358a7c56f602a22b62cd8783b7e50aff71ef36fc094922a0169351f")].span(),
-                            previous_output: 
-                                OutPoint {
-                                    txid: 0xd476797271ab02ee42b3b582dc46e4a9fce308e5a1f3bcc479554f8c14bf2cd6_u256.into(),
-                                    vout: 1_u32,
-                                    data: 
-                    TxOut {
-                        value: 1475091_64,
-                        pk_script: @from_hex("a914667e5625bfc9f2839e0bb4d61e7c35f8ede5551b87"),
-                        cached: false,
-                    },
-                    
-                                    block_height: 599978_u32,
-                                    block_time: 1571430963_u32,
-                                },
+                    TxIn {
+                        script: @from_hex("1600149f40f9ecf21e8abd54bbbe342adb86f71627bf56"),
+                        sequence: 4294967295,
+                        witness: array![
+                            from_hex(
+                                "3044022049d9f1f350c30db5a5906b9f8951413f1f77b21829f3ce1e3d22dd23552cfab302201cc1d7d5158e0b3f950fc8fb826a3fcd979d8ed51f0f050f5883329297c82ef001"
+                            ),
+                            from_hex(
+                                "0294c5500e0358a7c56f602a22b62cd8783b7e50aff71ef36fc094922a0169351f"
+                            )
+                        ]
+                            .span(),
+                        previous_output: OutPoint {
+                            txid: 0xd476797271ab02ee42b3b582dc46e4a9fce308e5a1f3bcc479554f8c14bf2cd6_u256
+                                .into(),
+                            vout: 1_u32,
+                            data: TxOut {
+                                value: 1475091_u64,
+                                pk_script: @from_hex(
+                                    "a914667e5625bfc9f2839e0bb4d61e7c35f8ede5551b87"
+                                ),
+                                cached: false,
+                            },
+                            block_height: 599978_u32,
+                            block_time: 1571430963_u32,
                         },
-                        ].span(),
+                    },
+                ]
+                    .span(),
                 outputs: array![
                     TxOut {
-                        value: 1407348_64,
+                        value: 1407348_u64,
                         pk_script: @from_hex("76a9146737a7e45ede4e6ae75cbaaee6bdbab5cf54610388ac"),
                         cached: false,
                     },
-                    
                     TxOut {
-                        value: 64342_64,
+                        value: 64342_u64,
                         pk_script: @from_hex("a914667e5625bfc9f2839e0bb4d61e7c35f8ede5551b87"),
                         cached: false,
                     },
-                    ].span(),
-                },
-                
+                ]
+                    .span(),
+            },
             Transaction {
                 version: 2,
                 is_segwit: true,
                 lock_time: 599981,
                 inputs: array![
-                        TxIn {
-                            script: @from_hex("473044022011653bdf518e81350f5cf44b23970ece5600c4219e876997362bbcfb068991b302205aaeb19f3b0be6869be7ea43dac16184cbb66e8a0bfa14ed872bf2f53468eaad0121028eac464789bd98dcaf56b22b9637030323caf8401f71b40517a63c765fc52869"),
-                            sequence: 4294967294,
-                            witness: array![].span(),
-                            previous_output: 
-                                OutPoint {
-                                    txid: 0x955fafc69af5bf0b907425772637f4cbd4c23b25eeead4887f5b9d0ae04f922c_u256.into(),
-                                    vout: 0_u32,
-                                    data: 
-                    TxOut {
-                        value: 3723617_64,
-                        pk_script: @from_hex("76a9143051d221751ffbc9eed604dbd0f5cad92ccaf19288ac"),
-                        cached: false,
-                    },
-                    
-                                    block_height: 599981_u32,
-                                    block_time: 1571432085_u32,
-                                },
+                    TxIn {
+                        script: @from_hex(
+                            "473044022011653bdf518e81350f5cf44b23970ece5600c4219e876997362bbcfb068991b302205aaeb19f3b0be6869be7ea43dac16184cbb66e8a0bfa14ed872bf2f53468eaad0121028eac464789bd98dcaf56b22b9637030323caf8401f71b40517a63c765fc52869"
+                        ),
+                        sequence: 4294967294,
+                        witness: array![].span(),
+                        previous_output: OutPoint {
+                            txid: 0x955fafc69af5bf0b907425772637f4cbd4c23b25eeead4887f5b9d0ae04f922c_u256
+                                .into(),
+                            vout: 0_u32,
+                            data: TxOut {
+                                value: 3723617_u64,
+                                pk_script: @from_hex(
+                                    "76a9143051d221751ffbc9eed604dbd0f5cad92ccaf19288ac"
+                                ),
+                                cached: false,
+                            },
+                            block_height: 599981_u32,
+                            block_time: 1571432085_u32,
                         },
-                        ].span(),
+                    },
+                ]
+                    .span(),
                 outputs: array![
                     TxOut {
-                        value: 538270_64,
+                        value: 538270_u64,
                         pk_script: @from_hex("a9147459f2c4ef7e764d91b19f0693429d001e5e04aa87"),
                         cached: false,
                     },
-                    
                     TxOut {
-                        value: 3180897_64,
+                        value: 3180897_u64,
                         pk_script: @from_hex("76a914fac8344d20cd360e14e080263c4f966c3151f75688ac"),
                         cached: false,
                     },
-                    ].span(),
-                },
-                
+                ]
+                    .span(),
+            },
             Transaction {
                 version: 1,
                 is_segwit: false,
                 lock_time: 0,
                 inputs: array![
-                        TxIn {
-                            script: @from_hex("220020eb88913aa80a1ea71b9cfc4bb817f464f20040db90a897aaa2869d8da82c2466"),
-                            sequence: 4294967295,
-                            witness: array![from_hex(""), from_hex("3045022100d884d7a5a2b110ee3a7cddd191596b268ec22fccc7dfb3e2ddd36bce0896d2f602205d13272f702c711ec0a64690a6778d931f3a0f947a5a500b6d53946a00bf467a01"), from_hex("3044022029256664179dc8a9d235c2207435b16595c218d2791662ea750864777e0b7cc1022052589ad9c457acb7adb32602f514dbadd7808f708fde8cbfb5f77f2ca8a893e201"), from_hex("522102d68b5971d1c8858f8da40ee0c8e893cb5ebcc01c366dad25746983e64be40d2321028312cbde477706605f3dfaeb2e5806c4d842df00a1a7d15593af68ffbb3739b72102c158419209b4579f1b6797898f21bf65d5768affa3780f793703aa941dced91c53ae")].span(),
-                            previous_output: 
-                                OutPoint {
-                                    txid: 0x3487128f648c8b0abbc349e57e6ce946460f8f8ef1bb7d4c3e069c109d30fdaf_u256.into(),
-                                    vout: 8_u32,
-                                    data: 
-                    TxOut {
-                        value: 75000000_64,
-                        pk_script: @from_hex("a914177b1e2ed34866ddd4bc8d432594ba2f936873ea87"),
-                        cached: false,
-                    },
-                    
-                                    block_height: 599978_u32,
-                                    block_time: 1571430963_u32,
-                                },
+                    TxIn {
+                        script: @from_hex(
+                            "220020eb88913aa80a1ea71b9cfc4bb817f464f20040db90a897aaa2869d8da82c2466"
+                        ),
+                        sequence: 4294967295,
+                        witness: array![
+                            from_hex(""),
+                            from_hex(
+                                "3045022100d884d7a5a2b110ee3a7cddd191596b268ec22fccc7dfb3e2ddd36bce0896d2f602205d13272f702c711ec0a64690a6778d931f3a0f947a5a500b6d53946a00bf467a01"
+                            ),
+                            from_hex(
+                                "3044022029256664179dc8a9d235c2207435b16595c218d2791662ea750864777e0b7cc1022052589ad9c457acb7adb32602f514dbadd7808f708fde8cbfb5f77f2ca8a893e201"
+                            ),
+                            from_hex(
+                                "522102d68b5971d1c8858f8da40ee0c8e893cb5ebcc01c366dad25746983e64be40d2321028312cbde477706605f3dfaeb2e5806c4d842df00a1a7d15593af68ffbb3739b72102c158419209b4579f1b6797898f21bf65d5768affa3780f793703aa941dced91c53ae"
+                            )
+                        ]
+                            .span(),
+                        previous_output: OutPoint {
+                            txid: 0x3487128f648c8b0abbc349e57e6ce946460f8f8ef1bb7d4c3e069c109d30fdaf_u256
+                                .into(),
+                            vout: 8_u32,
+                            data: TxOut {
+                                value: 75000000_u64,
+                                pk_script: @from_hex(
+                                    "a914177b1e2ed34866ddd4bc8d432594ba2f936873ea87"
+                                ),
+                                cached: false,
+                            },
+                            block_height: 599978_u32,
+                            block_time: 1571430963_u32,
                         },
-                        ].span(),
+                    },
+                ]
+                    .span(),
                 outputs: array![
                     TxOut {
-                        value: 9799684_64,
+                        value: 9799684_u64,
                         pk_script: @from_hex("76a9144bb238fee1c6cda58eb3e224c08bfaf563d2376288ac"),
                         cached: false,
                     },
-                    
                     TxOut {
-                        value: 65185910_64,
+                        value: 65185910_u64,
                         pk_script: @from_hex("a914a44ed23068213cf3a1f99bbb668a97afaec6b71287"),
                         cached: false,
                     },
-                    
                     TxOut {
-                        value: 9799_64,
+                        value: 9799_u64,
                         pk_script: @from_hex("a9141b9e4d7407bd65a9ed3e928c76289d1e3b63b4a487"),
                         cached: false,
                     },
-                    ].span(),
-                },
-                
+                ]
+                    .span(),
+            },
             Transaction {
                 version: 1,
                 is_segwit: false,
                 lock_time: 0,
                 inputs: array![
-                        TxIn {
-                            script: @from_hex("1600147685508157beb175c49a57dc46c4ffb2eb175d12"),
-                            sequence: 4294967295,
-                            witness: array![from_hex("3045022100cc97f25bd66476a66bad7775f8fc5d7affb2363a8408a5e1a4cc2f48ea3d117e02205bee078cdac45ca26af42fc350e618f68432a2504c965923aafa9c100b1ff25501"), from_hex("031abc05e18d55d66029b926af44dcf7d3e4a5322e43ba7802a722bb161b7fe055")].span(),
-                            previous_output: 
-                                OutPoint {
-                                    txid: 0xc474d6d455be7c9cca2ef5ed4eb61cca859f7737c2d93f00d38846613d624fe6_u256.into(),
-                                    vout: 0_u32,
-                                    data: 
-                    TxOut {
-                        value: 183330_64,
-                        pk_script: @from_hex("a914df124362e334c96536789d1ef0837673cda7f0a587"),
-                        cached: false,
-                    },
-                    
-                                    block_height: 599981_u32,
-                                    block_time: 1571432085_u32,
-                                },
+                    TxIn {
+                        script: @from_hex("1600147685508157beb175c49a57dc46c4ffb2eb175d12"),
+                        sequence: 4294967295,
+                        witness: array![
+                            from_hex(
+                                "3045022100cc97f25bd66476a66bad7775f8fc5d7affb2363a8408a5e1a4cc2f48ea3d117e02205bee078cdac45ca26af42fc350e618f68432a2504c965923aafa9c100b1ff25501"
+                            ),
+                            from_hex(
+                                "031abc05e18d55d66029b926af44dcf7d3e4a5322e43ba7802a722bb161b7fe055"
+                            )
+                        ]
+                            .span(),
+                        previous_output: OutPoint {
+                            txid: 0xc474d6d455be7c9cca2ef5ed4eb61cca859f7737c2d93f00d38846613d624fe6_u256
+                                .into(),
+                            vout: 0_u32,
+                            data: TxOut {
+                                value: 183330_u64,
+                                pk_script: @from_hex(
+                                    "a914df124362e334c96536789d1ef0837673cda7f0a587"
+                                ),
+                                cached: false,
+                            },
+                            block_height: 599981_u32,
+                            block_time: 1571432085_u32,
                         },
-                        
-                        TxIn {
-                            script: @from_hex("473044022014a3afa9b2e897a4256284e0db04626da13d04e928305bda00501e6865fad0f5022058094955d7b34a636436f3bb27540f8463fd9fd4ca0c2ba22e1ea8e1b2346267012102bab8d1b9eec954b3802a6c5c727ecfe2991020c1ba6435047c0a9efdb2040a85"),
-                            sequence: 4294967295,
-                            witness: array![].span(),
-                            previous_output: 
-                                OutPoint {
-                                    txid: 0x46c7db2183cb35495f7e5668972033e53b58a793c563456cee109758abd8944a_u256.into(),
-                                    vout: 1_u32,
-                                    data: 
-                    TxOut {
-                        value: 126312_64,
-                        pk_script: @from_hex("76a914515f9bc592aee7cf30a878ae65fd4b9d42e4a8f488ac"),
-                        cached: false,
                     },
-                    
-                                    block_height: 599963_u32,
-                                    block_time: 1571423207_u32,
-                                },
+                    TxIn {
+                        script: @from_hex(
+                            "473044022014a3afa9b2e897a4256284e0db04626da13d04e928305bda00501e6865fad0f5022058094955d7b34a636436f3bb27540f8463fd9fd4ca0c2ba22e1ea8e1b2346267012102bab8d1b9eec954b3802a6c5c727ecfe2991020c1ba6435047c0a9efdb2040a85"
+                        ),
+                        sequence: 4294967295,
+                        witness: array![].span(),
+                        previous_output: OutPoint {
+                            txid: 0x46c7db2183cb35495f7e5668972033e53b58a793c563456cee109758abd8944a_u256
+                                .into(),
+                            vout: 1_u32,
+                            data: TxOut {
+                                value: 126312_u64,
+                                pk_script: @from_hex(
+                                    "76a914515f9bc592aee7cf30a878ae65fd4b9d42e4a8f488ac"
+                                ),
+                                cached: false,
+                            },
+                            block_height: 599963_u32,
+                            block_time: 1571423207_u32,
                         },
-                        ].span(),
+                    },
+                ]
+                    .span(),
                 outputs: array![
                     TxOut {
-                        value: 304387_64,
+                        value: 304387_u64,
                         pk_script: @from_hex("76a914c9f59f9bcc392bf9303e9306976193f960eac96c88ac"),
                         cached: false,
                     },
-                    ].span(),
-                },
-                
+                ]
+                    .span(),
+            },
             Transaction {
                 version: 1,
                 is_segwit: false,
                 lock_time: 599982,
                 inputs: array![
-                        TxIn {
-                            script: @from_hex("2200206c0d777f026822ff449f7be1974356e82878750504c097657d7e17f80600f437"),
-                            sequence: 4294967295,
-                            witness: array![from_hex(""), from_hex("3044022067e92037cd6a27b3110e9c533677ff4360b130cf476760254093d0e11370f297022062659f8ffe0e12f045e67f8b427a88ac40b650df183f277c2a859390cc4b905101"), from_hex("304402203b342007dff39893286d435f071897e3266db62253951c23ad5ecd0b88e42272022057934eb69dfbb66744edeedafe64fcd181fa942084eeb0775230538c32889e2a01"), from_hex("52210394387c3880042e9d8cb535f92ddc22472072b6798a8e5d756f68d67760c69afc210236903ec5849b84ee751299f1170cf4b1fb155671ee44e3f2266fc3b87089bfb4210295a83af1869426fd251c486ea61424b8c0d2a2ec2f78bc5b7275e28d456306a153ae")].span(),
-                            previous_output: 
-                                OutPoint {
-                                    txid: 0x3da47be12d9c6cb4baa2b18fa6d663703b436ca57f921e6965b88752ba10884c_u256.into(),
-                                    vout: 0_u32,
-                                    data: 
-                    TxOut {
-                        value: 13929233_64,
-                        pk_script: @from_hex("a914b3f5c71cd525aba59ad5f3c248881e9ce49746ce87"),
-                        cached: false,
-                    },
-                    
-                                    block_height: 599981_u32,
-                                    block_time: 1571432085_u32,
-                                },
+                    TxIn {
+                        script: @from_hex(
+                            "2200206c0d777f026822ff449f7be1974356e82878750504c097657d7e17f80600f437"
+                        ),
+                        sequence: 4294967295,
+                        witness: array![
+                            from_hex(""),
+                            from_hex(
+                                "3044022067e92037cd6a27b3110e9c533677ff4360b130cf476760254093d0e11370f297022062659f8ffe0e12f045e67f8b427a88ac40b650df183f277c2a859390cc4b905101"
+                            ),
+                            from_hex(
+                                "304402203b342007dff39893286d435f071897e3266db62253951c23ad5ecd0b88e42272022057934eb69dfbb66744edeedafe64fcd181fa942084eeb0775230538c32889e2a01"
+                            ),
+                            from_hex(
+                                "52210394387c3880042e9d8cb535f92ddc22472072b6798a8e5d756f68d67760c69afc210236903ec5849b84ee751299f1170cf4b1fb155671ee44e3f2266fc3b87089bfb4210295a83af1869426fd251c486ea61424b8c0d2a2ec2f78bc5b7275e28d456306a153ae"
+                            )
+                        ]
+                            .span(),
+                        previous_output: OutPoint {
+                            txid: 0x3da47be12d9c6cb4baa2b18fa6d663703b436ca57f921e6965b88752ba10884c_u256
+                                .into(),
+                            vout: 0_u32,
+                            data: TxOut {
+                                value: 13929233_u64,
+                                pk_script: @from_hex(
+                                    "a914b3f5c71cd525aba59ad5f3c248881e9ce49746ce87"
+                                ),
+                                cached: false,
+                            },
+                            block_height: 599981_u32,
+                            block_time: 1571432085_u32,
                         },
-                        ].span(),
+                    },
+                ]
+                    .span(),
                 outputs: array![
                     TxOut {
-                        value: 13753839_64,
+                        value: 13753839_u64,
                         pk_script: @from_hex("a9145bbd67d294ff1ccdc7f26e57ed0971a88aaca76b87"),
                         cached: false,
                     },
-                    
                     TxOut {
-                        value: 171442_64,
+                        value: 171442_u64,
                         pk_script: @from_hex("76a914bdb92e88ce0451dc782a85f4790bad806c70303388ac"),
                         cached: false,
                     },
-                    ].span(),
-                },
-                
+                ]
+                    .span(),
+            },
             Transaction {
                 version: 1,
                 is_segwit: false,
                 lock_time: 0,
                 inputs: array![
-                        TxIn {
-                            script: @from_hex("473044022014c15649e702a89f6f164f0bcbcf0cea005ff0a92eea052d06381754c60a2c8302204f40c344d53b56ac8c507ee1a0d0efcdad54622f888afca628f38fe46bfae25c012102259a9748288430441f3611ed4e2f341471f6120e4e6b391bfa0763188c78d6d3"),
-                            sequence: 4294967295,
-                            witness: array![].span(),
-                            previous_output: 
-                                OutPoint {
-                                    txid: 0xb55fc982aab95c10c4be8c448e570b96d7a8dbb7ac384df68f06a2781cbc9a09_u256.into(),
-                                    vout: 7_u32,
-                                    data: 
-                    TxOut {
-                        value: 8684053_64,
-                        pk_script: @from_hex("76a9141498c9ecceb73cfc62bfd5b8ff78aa2c56dfabb588ac"),
-                        cached: false,
-                    },
-                    
-                                    block_height: 599981_u32,
-                                    block_time: 1571432085_u32,
-                                },
+                    TxIn {
+                        script: @from_hex(
+                            "473044022014c15649e702a89f6f164f0bcbcf0cea005ff0a92eea052d06381754c60a2c8302204f40c344d53b56ac8c507ee1a0d0efcdad54622f888afca628f38fe46bfae25c012102259a9748288430441f3611ed4e2f341471f6120e4e6b391bfa0763188c78d6d3"
+                        ),
+                        sequence: 4294967295,
+                        witness: array![].span(),
+                        previous_output: OutPoint {
+                            txid: 0xb55fc982aab95c10c4be8c448e570b96d7a8dbb7ac384df68f06a2781cbc9a09_u256
+                                .into(),
+                            vout: 7_u32,
+                            data: TxOut {
+                                value: 8684053_u64,
+                                pk_script: @from_hex(
+                                    "76a9141498c9ecceb73cfc62bfd5b8ff78aa2c56dfabb588ac"
+                                ),
+                                cached: false,
+                            },
+                            block_height: 599981_u32,
+                            block_time: 1571432085_u32,
                         },
-                        ].span(),
+                    },
+                ]
+                    .span(),
                 outputs: array![
                     TxOut {
-                        value: 4060692_64,
+                        value: 4060692_u64,
                         pk_script: @from_hex("a914245b30709b36bcd0e2b44d0f486e3c391e04794187"),
                         cached: false,
                     },
-                    
                     TxOut {
-                        value: 4619337_64,
+                        value: 4619337_u64,
                         pk_script: @from_hex("0014ca608cd054f5fd74f350adf44a18f5767ffb5e34"),
                         cached: false,
                     },
-                    ].span(),
-                },
-                
+                ]
+                    .span(),
+            },
             Transaction {
                 version: 1,
                 is_segwit: false,
                 lock_time: 0,
                 inputs: array![
-                        TxIn {
-                            script: @from_hex("47304402205092ff40a3aa8e47c39b15d1a11c1802b95bf8d94c98c1bf1102850d07aa4dc102200dfe3ec823c9a1e88ab816381f59829639050ca2d9b1912877df836ba23f25c50121038070498a41ce65dcaefc8ad8adf99356f48485cbe97f542ee85b773db698a102"),
-                            sequence: 4294967295,
-                            witness: array![].span(),
-                            previous_output: 
-                                OutPoint {
-                                    txid: 0x156a8af3dddc3c2559a7778dafe1b66b22b121a1eff01e3d2d93634d96edcbc4_u256.into(),
-                                    vout: 43_u32,
-                                    data: 
-                    TxOut {
-                        value: 9549723_64,
-                        pk_script: @from_hex("76a914ffa4d5def62673bc787758b3e32557a6ab872c1788ac"),
-                        cached: false,
-                    },
-                    
-                                    block_height: 599981_u32,
-                                    block_time: 1571432085_u32,
-                                },
+                    TxIn {
+                        script: @from_hex(
+                            "47304402205092ff40a3aa8e47c39b15d1a11c1802b95bf8d94c98c1bf1102850d07aa4dc102200dfe3ec823c9a1e88ab816381f59829639050ca2d9b1912877df836ba23f25c50121038070498a41ce65dcaefc8ad8adf99356f48485cbe97f542ee85b773db698a102"
+                        ),
+                        sequence: 4294967295,
+                        witness: array![].span(),
+                        previous_output: OutPoint {
+                            txid: 0x156a8af3dddc3c2559a7778dafe1b66b22b121a1eff01e3d2d93634d96edcbc4_u256
+                                .into(),
+                            vout: 43_u32,
+                            data: TxOut {
+                                value: 9549723_u64,
+                                pk_script: @from_hex(
+                                    "76a914ffa4d5def62673bc787758b3e32557a6ab872c1788ac"
+                                ),
+                                cached: false,
+                            },
+                            block_height: 599981_u32,
+                            block_time: 1571432085_u32,
                         },
-                        ].span(),
+                    },
+                ]
+                    .span(),
                 outputs: array![
                     TxOut {
-                        value: 711547_64,
+                        value: 711547_u64,
                         pk_script: @from_hex("a914fbbef5ef94f8afcdd98ba33ba7c49ed9c27d770c87"),
                         cached: false,
                     },
-                    
                     TxOut {
-                        value: 8834152_64,
+                        value: 8834152_u64,
                         pk_script: @from_hex("00143abb4e6e3d7a08aa81382322f74c378ee958dd4a"),
                         cached: false,
                     },
-                    ].span(),
-                },
-                
+                ]
+                    .span(),
+            },
             Transaction {
                 version: 1,
                 is_segwit: false,
                 lock_time: 0,
                 inputs: array![
-                        TxIn {
-                            script: @from_hex(""),
-                            sequence: 4294967295,
-                            witness: array![from_hex("3045022100edee0dc502462c63c0d1f871e2572e2e5da905788a39e21465ede5c4fd6fa047022010121243c44b6207918adcae7d0d2d56a7d9f4a86fb32619821523370b8f343a01"), from_hex("02ba6e60c9851a4065a2b94ce9b8c6622c99345a704b955dd5172252cd84acf6fd")].span(),
-                            previous_output: 
-                                OutPoint {
-                                    txid: 0xf1c079bfc1c07b24e8fa6e91bab7fd98387bbc27fb933224c0a3924ccb62dca7_u256.into(),
-                                    vout: 0_u32,
-                                    data: 
-                    TxOut {
-                        value: 9499072_64,
-                        pk_script: @from_hex("0014f5366de062a15433d47b35e390cbb9f489d2dd9e"),
-                        cached: false,
-                    },
-                    
-                                    block_height: 599981_u32,
-                                    block_time: 1571432085_u32,
-                                },
+                    TxIn {
+                        script: @from_hex(""),
+                        sequence: 4294967295,
+                        witness: array![
+                            from_hex(
+                                "3045022100edee0dc502462c63c0d1f871e2572e2e5da905788a39e21465ede5c4fd6fa047022010121243c44b6207918adcae7d0d2d56a7d9f4a86fb32619821523370b8f343a01"
+                            ),
+                            from_hex(
+                                "02ba6e60c9851a4065a2b94ce9b8c6622c99345a704b955dd5172252cd84acf6fd"
+                            )
+                        ]
+                            .span(),
+                        previous_output: OutPoint {
+                            txid: 0xf1c079bfc1c07b24e8fa6e91bab7fd98387bbc27fb933224c0a3924ccb62dca7_u256
+                                .into(),
+                            vout: 0_u32,
+                            data: TxOut {
+                                value: 9499072_u64,
+                                pk_script: @from_hex(
+                                    "0014f5366de062a15433d47b35e390cbb9f489d2dd9e"
+                                ),
+                                cached: false,
+                            },
+                            block_height: 599981_u32,
+                            block_time: 1571432085_u32,
                         },
-                        ].span(),
+                    },
+                ]
+                    .span(),
                 outputs: array![
                     TxOut {
-                        value: 2520000_64,
+                        value: 2520000_u64,
                         pk_script: @from_hex("76a914c8b89febf21978f8e82b2f90f8b119d99d72f6fc88ac"),
                         cached: false,
                     },
-                    
                     TxOut {
-                        value: 6976449_64,
+                        value: 6976449_u64,
                         pk_script: @from_hex("0014d723edac242b3f24b7f68f640fec7d21e6f21462"),
                         cached: false,
                     },
-                    ].span(),
-                },
-                
+                ]
+                    .span(),
+            },
             Transaction {
                 version: 1,
                 is_segwit: false,
                 lock_time: 0,
                 inputs: array![
-                        TxIn {
-                            script: @from_hex(""),
-                            sequence: 4294967295,
-                            witness: array![from_hex("304402202595a7ad0e642942146cfb09b0b0a09982a3d25326d9c3365050c070cf395d4602202408b439a9df23474ea168b9b2d22c9f03b61958effd6e79ced9b30e44716e7501"), from_hex("029581bdbbd2020b7f5f9dfcb6b95da0a161371f16e6b55c7289619a127fee3b57")].span(),
-                            previous_output: 
-                                OutPoint {
-                                    txid: 0x6cc42ddcbe8137495e015a0d1155364abbbfcd98990606932b9eed1baa01132b_u256.into(),
-                                    vout: 1_u32,
-                                    data: 
-                    TxOut {
-                        value: 9709197_64,
-                        pk_script: @from_hex("00147ecef5efe8cd539a3495ba00d4ba1eafd286b91c"),
-                        cached: false,
-                    },
-                    
-                                    block_height: 599981_u32,
-                                    block_time: 1571432085_u32,
-                                },
+                    TxIn {
+                        script: @from_hex(""),
+                        sequence: 4294967295,
+                        witness: array![
+                            from_hex(
+                                "304402202595a7ad0e642942146cfb09b0b0a09982a3d25326d9c3365050c070cf395d4602202408b439a9df23474ea168b9b2d22c9f03b61958effd6e79ced9b30e44716e7501"
+                            ),
+                            from_hex(
+                                "029581bdbbd2020b7f5f9dfcb6b95da0a161371f16e6b55c7289619a127fee3b57"
+                            )
+                        ]
+                            .span(),
+                        previous_output: OutPoint {
+                            txid: 0x6cc42ddcbe8137495e015a0d1155364abbbfcd98990606932b9eed1baa01132b_u256
+                                .into(),
+                            vout: 1_u32,
+                            data: TxOut {
+                                value: 9709197_u64,
+                                pk_script: @from_hex(
+                                    "00147ecef5efe8cd539a3495ba00d4ba1eafd286b91c"
+                                ),
+                                cached: false,
+                            },
+                            block_height: 599981_u32,
+                            block_time: 1571432085_u32,
                         },
-                        ].span(),
+                    },
+                ]
+                    .span(),
                 outputs: array![
                     TxOut {
-                        value: 8446675_64,
+                        value: 8446675_u64,
                         pk_script: @from_hex("001462ab34575ae643071be3495d475fef7921c35331"),
                         cached: false,
                     },
-                    
                     TxOut {
-                        value: 1259900_64,
+                        value: 1259900_u64,
                         pk_script: @from_hex("76a9147bd0072a0b9d17644085484f63a1dab367a70d6288ac"),
                         cached: false,
                     },
-                    ].span(),
-                },
-                
+                ]
+                    .span(),
+            },
             Transaction {
                 version: 1,
                 is_segwit: false,
                 lock_time: 0,
                 inputs: array![
-                        TxIn {
-                            script: @from_hex(""),
-                            sequence: 4294967295,
-                            witness: array![from_hex("304402206890f11b5dde41375f620717a1f58bb87f4d3f99830d23691c0a701df5a67bff02207d8d86e9ede67a1f9b92036d6fb073538537d3c97dd0f25d09c8de663dfc10ab01"), from_hex("02b7b180fcf6a5b280ddcacbb79ee8759adef483ed3558ba3be9a9f66065dec11a")].span(),
-                            previous_output: 
-                                OutPoint {
-                                    txid: 0xb10c51485c41f900a309b73a18164952fe342ef7eb9411f09f4d3ba8a33a3beb_u256.into(),
-                                    vout: 1_u32,
-                                    data: 
-                    TxOut {
-                        value: 9068585_64,
-                        pk_script: @from_hex("0014a3ecd6b622b4b8225cd46f66bc63fd60282ec711"),
-                        cached: false,
-                    },
-                    
-                                    block_height: 599981_u32,
-                                    block_time: 1571432085_u32,
-                                },
+                    TxIn {
+                        script: @from_hex(""),
+                        sequence: 4294967295,
+                        witness: array![
+                            from_hex(
+                                "304402206890f11b5dde41375f620717a1f58bb87f4d3f99830d23691c0a701df5a67bff02207d8d86e9ede67a1f9b92036d6fb073538537d3c97dd0f25d09c8de663dfc10ab01"
+                            ),
+                            from_hex(
+                                "02b7b180fcf6a5b280ddcacbb79ee8759adef483ed3558ba3be9a9f66065dec11a"
+                            )
+                        ]
+                            .span(),
+                        previous_output: OutPoint {
+                            txid: 0xb10c51485c41f900a309b73a18164952fe342ef7eb9411f09f4d3ba8a33a3beb_u256
+                                .into(),
+                            vout: 1_u32,
+                            data: TxOut {
+                                value: 9068585_u64,
+                                pk_script: @from_hex(
+                                    "0014a3ecd6b622b4b8225cd46f66bc63fd60282ec711"
+                                ),
+                                cached: false,
+                            },
+                            block_height: 599981_u32,
+                            block_time: 1571432085_u32,
                         },
-                        ].span(),
+                    },
+                ]
+                    .span(),
                 outputs: array![
                     TxOut {
-                        value: 8121865_64,
+                        value: 8121865_u64,
                         pk_script: @from_hex("00141fd304a873d1be496f36fec724989b5920a3f660"),
                         cached: false,
                     },
-                    
                     TxOut {
-                        value: 944098_64,
+                        value: 944098_u64,
                         pk_script: @from_hex("76a9146e92fe225f9d806e2bca6e965e37965c933a1fa588ac"),
                         cached: false,
                     },
-                    ].span(),
-                },
-                
+                ]
+                    .span(),
+            },
             Transaction {
                 version: 2,
                 is_segwit: true,
                 lock_time: 599981,
                 inputs: array![
-                        TxIn {
-                            script: @from_hex("160014ab08be644da873f8f06381087988850a8dc7a469"),
-                            sequence: 4294967294,
-                            witness: array![from_hex("304402204bf1b33784acc7c413111adb91bb8a819c244825072672a3c9dc2ea32dec59d4022045626717d84403f06b85fd05f98a14a09c5edb9b9773be52adf663aea2c0d60c01"), from_hex("0309f3a018bd64f1b10568983851eccd90cc1ba161c5c27d0ee0b034cf00b84733")].span(),
-                            previous_output: 
-                                OutPoint {
-                                    txid: 0x9aaa0b6807a8b88e9d587d284ae28f002974adc6bc51c17e7f9646a3d39196f2_u256.into(),
-                                    vout: 1_u32,
-                                    data: 
-                    TxOut {
-                        value: 7000000_64,
-                        pk_script: @from_hex("a914d59cf1d45225df4199d1e5e79d16cb7a6cb17fdb87"),
-                        cached: false,
-                    },
-                    
-                                    block_height: 599978_u32,
-                                    block_time: 1571430963_u32,
-                                },
+                    TxIn {
+                        script: @from_hex("160014ab08be644da873f8f06381087988850a8dc7a469"),
+                        sequence: 4294967294,
+                        witness: array![
+                            from_hex(
+                                "304402204bf1b33784acc7c413111adb91bb8a819c244825072672a3c9dc2ea32dec59d4022045626717d84403f06b85fd05f98a14a09c5edb9b9773be52adf663aea2c0d60c01"
+                            ),
+                            from_hex(
+                                "0309f3a018bd64f1b10568983851eccd90cc1ba161c5c27d0ee0b034cf00b84733"
+                            )
+                        ]
+                            .span(),
+                        previous_output: OutPoint {
+                            txid: 0x9aaa0b6807a8b88e9d587d284ae28f002974adc6bc51c17e7f9646a3d39196f2_u256
+                                .into(),
+                            vout: 1_u32,
+                            data: TxOut {
+                                value: 7000000_u64,
+                                pk_script: @from_hex(
+                                    "a914d59cf1d45225df4199d1e5e79d16cb7a6cb17fdb87"
+                                ),
+                                cached: false,
+                            },
+                            block_height: 599978_u32,
+                            block_time: 1571430963_u32,
                         },
-                        ].span(),
+                    },
+                ]
+                    .span(),
                 outputs: array![
                     TxOut {
-                        value: 6638532_64,
+                        value: 6638532_u64,
                         pk_script: @from_hex("a914d8a88cdce4518656f87f8c14a933e3fd6cb242ac87"),
                         cached: false,
                     },
-                    
                     TxOut {
-                        value: 358446_64,
+                        value: 358446_u64,
                         pk_script: @from_hex("a914c97849d6947e983c3c93df0e8e9bae8bac2754b687"),
                         cached: false,
                     },
-                    ].span(),
-                },
-                
+                ]
+                    .span(),
+            },
             Transaction {
                 version: 2,
                 is_segwit: true,
                 lock_time: 599981,
                 inputs: array![
-                        TxIn {
-                            script: @from_hex("16001471b0282111eddcded87a4959126a1e9e6ad9ac27"),
-                            sequence: 4294967294,
-                            witness: array![from_hex("304402200f317bec66de7fddc57a96a38ed2775a9492e015968613b0d268a47b864cf05f022068c8ca0ea6679a86c9baa74810f25cfb2219bee68528c22ef7016131bc21702901"), from_hex("02f79e24917cb437b495020309dd7e11e3c067cd232bc0c2571536c3edcfad4154")].span(),
-                            previous_output: 
-                                OutPoint {
-                                    txid: 0x66c516aa3a436c8ba4ea77091ba7b26f6a8e26fcac3d70cdca3bd4e44cf3fe4f_u256.into(),
-                                    vout: 1_u32,
-                                    data: 
-                    TxOut {
-                        value: 281485936_64,
-                        pk_script: @from_hex("a9146fb6076e2642997ca96152be504f3685c3a2c41187"),
-                        cached: false,
-                    },
-                    
-                                    block_height: 599982_u32,
-                                    block_time: 1571432630_u32,
-                                },
+                    TxIn {
+                        script: @from_hex("16001471b0282111eddcded87a4959126a1e9e6ad9ac27"),
+                        sequence: 4294967294,
+                        witness: array![
+                            from_hex(
+                                "304402200f317bec66de7fddc57a96a38ed2775a9492e015968613b0d268a47b864cf05f022068c8ca0ea6679a86c9baa74810f25cfb2219bee68528c22ef7016131bc21702901"
+                            ),
+                            from_hex(
+                                "02f79e24917cb437b495020309dd7e11e3c067cd232bc0c2571536c3edcfad4154"
+                            )
+                        ]
+                            .span(),
+                        previous_output: OutPoint {
+                            txid: 0x66c516aa3a436c8ba4ea77091ba7b26f6a8e26fcac3d70cdca3bd4e44cf3fe4f_u256
+                                .into(),
+                            vout: 1_u32,
+                            data: TxOut {
+                                value: 281485936_u64,
+                                pk_script: @from_hex(
+                                    "a9146fb6076e2642997ca96152be504f3685c3a2c41187"
+                                ),
+                                cached: false,
+                            },
+                            block_height: 599982_u32,
+                            block_time: 1571432630_u32,
                         },
-                        ].span(),
+                    },
+                ]
+                    .span(),
                 outputs: array![
                     TxOut {
-                        value: 272665207_64,
+                        value: 272665207_u64,
                         pk_script: @from_hex("a914e173d64b9ff19f3a3491c13f3b1a43ad994fc06687"),
                         cached: false,
                     },
-                    
                     TxOut {
-                        value: 8817671_64,
+                        value: 8817671_u64,
                         pk_script: @from_hex("76a914d00288c8a0167830327abc32d7349a5c1608498f88ac"),
                         cached: false,
                     },
-                    ].span(),
-                },
-                
+                ]
+                    .span(),
+            },
             Transaction {
                 version: 2,
                 is_segwit: true,
                 lock_time: 599981,
                 inputs: array![
-                        TxIn {
-                            script: @from_hex(""),
-                            sequence: 4294967294,
-                            witness: array![from_hex("3044022014e33703194730522bc91219ab1ebdd20239cac7dbc809636b14a8ce0af7c5af02206ff9c2b7546bc9643b1cccb8fac363e620a6c0aac1cf5fb68608942f0a2400ba01"), from_hex("0302cc456e3d0260fb01de85ed27e67a6c8f3a83e962cab318e1bc9e7427eeef2e")].span(),
-                            previous_output: 
-                                OutPoint {
-                                    txid: 0xce7a62c17d2519b1b3dd05abdea686495b2e477a2a2b2dc6ce596eca7d4918a2_u256.into(),
-                                    vout: 1_u32,
-                                    data: 
-                    TxOut {
-                        value: 92145848_64,
-                        pk_script: @from_hex("00148878fd130c7d4e0cc9daf93379b7f357f4aaf106"),
-                        cached: false,
-                    },
-                    
-                                    block_height: 599981_u32,
-                                    block_time: 1571432085_u32,
-                                },
+                    TxIn {
+                        script: @from_hex(""),
+                        sequence: 4294967294,
+                        witness: array![
+                            from_hex(
+                                "3044022014e33703194730522bc91219ab1ebdd20239cac7dbc809636b14a8ce0af7c5af02206ff9c2b7546bc9643b1cccb8fac363e620a6c0aac1cf5fb68608942f0a2400ba01"
+                            ),
+                            from_hex(
+                                "0302cc456e3d0260fb01de85ed27e67a6c8f3a83e962cab318e1bc9e7427eeef2e"
+                            )
+                        ]
+                            .span(),
+                        previous_output: OutPoint {
+                            txid: 0xce7a62c17d2519b1b3dd05abdea686495b2e477a2a2b2dc6ce596eca7d4918a2_u256
+                                .into(),
+                            vout: 1_u32,
+                            data: TxOut {
+                                value: 92145848_u64,
+                                pk_script: @from_hex(
+                                    "00148878fd130c7d4e0cc9daf93379b7f357f4aaf106"
+                                ),
+                                cached: false,
+                            },
+                            block_height: 599981_u32,
+                            block_time: 1571432085_u32,
                         },
-                        ].span(),
+                    },
+                ]
+                    .span(),
                 outputs: array![
                     TxOut {
-                        value: 91110692_64,
+                        value: 91110692_u64,
                         pk_script: @from_hex("001475a78f9bf5eed3d5def953a7e13e711b811fd86d"),
                         cached: false,
                     },
-                    
                     TxOut {
-                        value: 1032535_64,
+                        value: 1032535_u64,
                         pk_script: @from_hex("76a91479e3da98d25c45c1d0037be3f54a19939b10c8e788ac"),
                         cached: false,
                     },
-                    ].span(),
-                },
-                
+                ]
+                    .span(),
+            },
             Transaction {
                 version: 1,
                 is_segwit: false,
                 lock_time: 0,
                 inputs: array![
-                        TxIn {
-                            script: @from_hex(""),
-                            sequence: 4294967295,
-                            witness: array![from_hex("304502210082ac5e7e5f7112192e5e8f3ec8b725da1b527fe521cd753040a8e007e309bc580220009d96aec0d2cf91e6a359dd7b00c96163fd8e9a023b5b07a432b81a1d7ab15201"), from_hex("033d8b39d146845c31a660842e20d3aebe4da7efe8c1891b99bff763bda82343cf")].span(),
-                            previous_output: 
-                                OutPoint {
-                                    txid: 0x67f8ac7b2333bdc2b27ac13d8e975bb9f051da6ab32ab758c67cbbbd384446d6_u256.into(),
-                                    vout: 1_u32,
-                                    data: 
-                    TxOut {
-                        value: 2819231_64,
-                        pk_script: @from_hex("0014528e48392e7d572cebcbf563299477f96c314bcb"),
-                        cached: false,
-                    },
-                    
-                                    block_height: 599961_u32,
-                                    block_time: 1571421569_u32,
-                                },
+                    TxIn {
+                        script: @from_hex(""),
+                        sequence: 4294967295,
+                        witness: array![
+                            from_hex(
+                                "304502210082ac5e7e5f7112192e5e8f3ec8b725da1b527fe521cd753040a8e007e309bc580220009d96aec0d2cf91e6a359dd7b00c96163fd8e9a023b5b07a432b81a1d7ab15201"
+                            ),
+                            from_hex(
+                                "033d8b39d146845c31a660842e20d3aebe4da7efe8c1891b99bff763bda82343cf"
+                            )
+                        ]
+                            .span(),
+                        previous_output: OutPoint {
+                            txid: 0x67f8ac7b2333bdc2b27ac13d8e975bb9f051da6ab32ab758c67cbbbd384446d6_u256
+                                .into(),
+                            vout: 1_u32,
+                            data: TxOut {
+                                value: 2819231_u64,
+                                pk_script: @from_hex(
+                                    "0014528e48392e7d572cebcbf563299477f96c314bcb"
+                                ),
+                                cached: false,
+                            },
+                            block_height: 599961_u32,
+                            block_time: 1571421569_u32,
                         },
-                        ].span(),
+                    },
+                ]
+                    .span(),
                 outputs: array![
                     TxOut {
-                        value: 1000000_64,
-                        pk_script: @from_hex("00209dddca88bb5a2fb594e42998c033f815c278bc955f7bb0d8b6c8b931872778bf"),
+                        value: 1000000_u64,
+                        pk_script: @from_hex(
+                            "00209dddca88bb5a2fb594e42998c033f815c278bc955f7bb0d8b6c8b931872778bf"
+                        ),
                         cached: false,
                     },
-                    
                     TxOut {
-                        value: 1816450_64,
+                        value: 1816450_u64,
                         pk_script: @from_hex("00145b58a0b4789d63924d9ad70e146b0b226d151ebf"),
                         cached: false,
                     },
-                    ].span(),
-                },
-                
+                ]
+                    .span(),
+            },
             Transaction {
                 version: 1,
                 is_segwit: false,
                 lock_time: 0,
                 inputs: array![
-                        TxIn {
-                            script: @from_hex("483045022100876a2f62394e425c84f6e652d22e9b5e7fa9c3d3f271764e9bee25bec5c21a22022055e2876ba8b80f6c0494c3f2388383ec1fa5b12ac4787b929046ccfa84a8166901210204a9b481acac9ba3e74e59115e0d6aa6bd9dbde367ae637ff5b603ccb00bce03"),
-                            sequence: 4294967295,
-                            witness: array![].span(),
-                            previous_output: 
-                                OutPoint {
-                                    txid: 0x052eb791ad89d15e48a2fa2295eab29fdb940482698118b29f3ea38310efad2c_u256.into(),
-                                    vout: 1_u32,
-                                    data: 
-                    TxOut {
-                        value: 6290000_64,
-                        pk_script: @from_hex("76a91456a6349df37adaae5a957fe66da10825ea0af08888ac"),
-                        cached: false,
-                    },
-                    
-                                    block_height: 599964_u32,
-                                    block_time: 1571424758_u32,
-                                },
+                    TxIn {
+                        script: @from_hex(
+                            "483045022100876a2f62394e425c84f6e652d22e9b5e7fa9c3d3f271764e9bee25bec5c21a22022055e2876ba8b80f6c0494c3f2388383ec1fa5b12ac4787b929046ccfa84a8166901210204a9b481acac9ba3e74e59115e0d6aa6bd9dbde367ae637ff5b603ccb00bce03"
+                        ),
+                        sequence: 4294967295,
+                        witness: array![].span(),
+                        previous_output: OutPoint {
+                            txid: 0x052eb791ad89d15e48a2fa2295eab29fdb940482698118b29f3ea38310efad2c_u256
+                                .into(),
+                            vout: 1_u32,
+                            data: TxOut {
+                                value: 6290000_u64,
+                                pk_script: @from_hex(
+                                    "76a91456a6349df37adaae5a957fe66da10825ea0af08888ac"
+                                ),
+                                cached: false,
+                            },
+                            block_height: 599964_u32,
+                            block_time: 1571424758_u32,
                         },
-                        ].span(),
+                    },
+                ]
+                    .span(),
                 outputs: array![
                     TxOut {
-                        value: 4248802_64,
+                        value: 4248802_u64,
                         pk_script: @from_hex("76a914a6b0a3ff39d71ed850020cb0bfcd8d3ec41290a988ac"),
                         cached: false,
                     },
-                    
                     TxOut {
-                        value: 2037169_64,
+                        value: 2037169_u64,
                         pk_script: @from_hex("76a91456a6349df37adaae5a957fe66da10825ea0af08888ac"),
                         cached: false,
                     },
-                    ].span(),
-                },
-                
+                ]
+                    .span(),
+            },
             Transaction {
                 version: 1,
                 is_segwit: false,
                 lock_time: 0,
                 inputs: array![
-                        TxIn {
-                            script: @from_hex("483045022100e0197777cbac450eebb2e2741d15cf7969809f9c12d17ac1fc3ec305e1ab97b302206b482f35edb98830a43b753ecc9fdd9ea8ec452c3770fa55ba80724971d2e670012102942d1450a25d2e15437ceab8382b49be7af41b5c135bd129cde5ed157ca696e9"),
-                            sequence: 4294967295,
-                            witness: array![].span(),
-                            previous_output: 
-                                OutPoint {
-                                    txid: 0x10aa8a7678b7cbf4d11b288c4ef59d572ce8ea18d24dc19da92135ce18595e5a_u256.into(),
-                                    vout: 28_u32,
-                                    data: 
-                    TxOut {
-                        value: 250263_64,
-                        pk_script: @from_hex("76a9140cf8cae16c0abb3f9d7c062cf66ad1c8ec6813e188ac"),
-                        cached: false,
-                    },
-                    
-                                    block_height: 599982_u32,
-                                    block_time: 1571432630_u32,
-                                },
+                    TxIn {
+                        script: @from_hex(
+                            "483045022100e0197777cbac450eebb2e2741d15cf7969809f9c12d17ac1fc3ec305e1ab97b302206b482f35edb98830a43b753ecc9fdd9ea8ec452c3770fa55ba80724971d2e670012102942d1450a25d2e15437ceab8382b49be7af41b5c135bd129cde5ed157ca696e9"
+                        ),
+                        sequence: 4294967295,
+                        witness: array![].span(),
+                        previous_output: OutPoint {
+                            txid: 0x10aa8a7678b7cbf4d11b288c4ef59d572ce8ea18d24dc19da92135ce18595e5a_u256
+                                .into(),
+                            vout: 28_u32,
+                            data: TxOut {
+                                value: 250263_u64,
+                                pk_script: @from_hex(
+                                    "76a9140cf8cae16c0abb3f9d7c062cf66ad1c8ec6813e188ac"
+                                ),
+                                cached: false,
+                            },
+                            block_height: 599982_u32,
+                            block_time: 1571432630_u32,
                         },
-                        ].span(),
+                    },
+                ]
+                    .span(),
                 outputs: array![
                     TxOut {
-                        value: 110725_64,
+                        value: 110725_u64,
                         pk_script: @from_hex("a9146498543ab6a031cfcd7fb5b438b7a1f02169ed5e87"),
                         cached: false,
                     },
-                    
                     TxOut {
-                        value: 135696_64,
+                        value: 135696_u64,
                         pk_script: @from_hex("76a914b29f25af45af72e46b64e84f638c159923bcd51a88ac"),
                         cached: false,
                     },
-                    ].span(),
-                },
-                
+                ]
+                    .span(),
+            },
             Transaction {
                 version: 1,
                 is_segwit: false,
                 lock_time: 0,
                 inputs: array![
-                        TxIn {
-                            script: @from_hex("48304502210080732aff05f8c743f8b8f6aa16f6a837973ae787a3bfb0812184bd48000f2e4902207c4fcc1179141bd55a0008a55909d35ed5935a23651d215b40650ec69809a84601210314dfccf1dc3999c05a7915e65657eb0b23fdf6d3ccdef3741b1b0af8994fd9e2"),
-                            sequence: 4294967295,
-                            witness: array![].span(),
-                            previous_output: 
-                                OutPoint {
-                                    txid: 0x87675af571076c0a18695d527f5eba04bb5300262c92c76f077c823641633b60_u256.into(),
-                                    vout: 0_u32,
-                                    data: 
-                    TxOut {
-                        value: 1672533_64,
-                        pk_script: @from_hex("76a914bb27d0a9f82b3bae8c787ca0d1bb986c419d577888ac"),
-                        cached: false,
-                    },
-                    
-                                    block_height: 599782_u32,
-                                    block_time: 1571329908_u32,
-                                },
+                    TxIn {
+                        script: @from_hex(
+                            "48304502210080732aff05f8c743f8b8f6aa16f6a837973ae787a3bfb0812184bd48000f2e4902207c4fcc1179141bd55a0008a55909d35ed5935a23651d215b40650ec69809a84601210314dfccf1dc3999c05a7915e65657eb0b23fdf6d3ccdef3741b1b0af8994fd9e2"
+                        ),
+                        sequence: 4294967295,
+                        witness: array![].span(),
+                        previous_output: OutPoint {
+                            txid: 0x87675af571076c0a18695d527f5eba04bb5300262c92c76f077c823641633b60_u256
+                                .into(),
+                            vout: 0_u32,
+                            data: TxOut {
+                                value: 1672533_u64,
+                                pk_script: @from_hex(
+                                    "76a914bb27d0a9f82b3bae8c787ca0d1bb986c419d577888ac"
+                                ),
+                                cached: false,
+                            },
+                            block_height: 599782_u32,
+                            block_time: 1571329908_u32,
                         },
-                        ].span(),
+                    },
+                ]
+                    .span(),
                 outputs: array![
                     TxOut {
-                        value: 629350_64,
+                        value: 629350_u64,
                         pk_script: @from_hex("76a9143e0eeb24fba3a4b6710dafb5430d1b5dee85ef7b88ac"),
                         cached: false,
                     },
-                    
                     TxOut {
-                        value: 1039341_64,
+                        value: 1039341_u64,
                         pk_script: @from_hex("76a9146c47ab8ffba66b275927b9ae5a174def553f10d988ac"),
                         cached: false,
                     },
-                    ].span(),
-                },
-                
+                ]
+                    .span(),
+            },
             Transaction {
                 version: 1,
                 is_segwit: false,
                 lock_time: 0,
                 inputs: array![
-                        TxIn {
-                            script: @from_hex("483045022100ba8c73c4327f4a613576babf08d0e805e2c82f982b4a35b21dcd13997b14f2f00220514eeb3aa1de59347a24e36549ba8f5c98eb307ce81563b2a16c6954274b39e3012103ce7ff5050f1d551ac397d64c04a843f2ddbb67b4b1babe595ec33c155b019b42"),
-                            sequence: 4294967295,
-                            witness: array![].span(),
-                            previous_output: 
-                                OutPoint {
-                                    txid: 0xd567dc98eb9887f7a2dc7fc75e3187d7ba748bccfcf74b699f73f7722e721435_u256.into(),
-                                    vout: 0_u32,
-                                    data: 
-                    TxOut {
-                        value: 1260000_64,
-                        pk_script: @from_hex("76a914854846727e876de0573e2b323ac92c7957a8f6d288ac"),
-                        cached: false,
-                    },
-                    
-                                    block_height: 599975_u32,
-                                    block_time: 1571429258_u32,
-                                },
+                    TxIn {
+                        script: @from_hex(
+                            "483045022100ba8c73c4327f4a613576babf08d0e805e2c82f982b4a35b21dcd13997b14f2f00220514eeb3aa1de59347a24e36549ba8f5c98eb307ce81563b2a16c6954274b39e3012103ce7ff5050f1d551ac397d64c04a843f2ddbb67b4b1babe595ec33c155b019b42"
+                        ),
+                        sequence: 4294967295,
+                        witness: array![].span(),
+                        previous_output: OutPoint {
+                            txid: 0xd567dc98eb9887f7a2dc7fc75e3187d7ba748bccfcf74b699f73f7722e721435_u256
+                                .into(),
+                            vout: 0_u32,
+                            data: TxOut {
+                                value: 1260000_u64,
+                                pk_script: @from_hex(
+                                    "76a914854846727e876de0573e2b323ac92c7957a8f6d288ac"
+                                ),
+                                cached: false,
+                            },
+                            block_height: 599975_u32,
+                            block_time: 1571429258_u32,
                         },
-                        ].span(),
+                    },
+                ]
+                    .span(),
                 outputs: array![
                     TxOut {
-                        value: 1200200_64,
+                        value: 1200200_u64,
                         pk_script: @from_hex("76a9141fa52dbd7fb71a2fd10a8b46b842eac9dc36ec8688ac"),
                         cached: false,
                     },
-                    
                     TxOut {
-                        value: 56052_64,
+                        value: 56052_u64,
                         pk_script: @from_hex("76a914bfb947a9934885ac5abf66ef3c4ffda5e9b6b7c788ac"),
                         cached: false,
                     },
-                    ].span(),
-                },
-                
+                ]
+                    .span(),
+            },
             Transaction {
                 version: 1,
                 is_segwit: false,
                 lock_time: 0,
                 inputs: array![
-                        TxIn {
-                            script: @from_hex(""),
-                            sequence: 4294967295,
-                            witness: array![from_hex("3045022100bb71bea17c4ce9a266de69ad172a74ea5c2d4af9e3e95f9a6eb6a75f699f0eef02203f351d0d78cf5f54fe250a3faba2d819473c1337d1a342ba5cfece3eaf2be70601"), from_hex("025bdf7afda52af952cf5a5bf4e5127fba0e0aa6fff7c98c65e0919bd0d958566c")].span(),
-                            previous_output: 
-                                OutPoint {
-                                    txid: 0x3827b4d97f68ccb048bea643d215cc6b0477edb608e37d1cc97a752773c1ee18_u256.into(),
-                                    vout: 0_u32,
-                                    data: 
-                    TxOut {
-                        value: 2052199_64,
-                        pk_script: @from_hex("001436d747e1e275789538bb24245861358f12c7be2e"),
-                        cached: false,
-                    },
-                    
-                                    block_height: 598734_u32,
-                                    block_time: 1570711404_u32,
-                                },
+                    TxIn {
+                        script: @from_hex(""),
+                        sequence: 4294967295,
+                        witness: array![
+                            from_hex(
+                                "3045022100bb71bea17c4ce9a266de69ad172a74ea5c2d4af9e3e95f9a6eb6a75f699f0eef02203f351d0d78cf5f54fe250a3faba2d819473c1337d1a342ba5cfece3eaf2be70601"
+                            ),
+                            from_hex(
+                                "025bdf7afda52af952cf5a5bf4e5127fba0e0aa6fff7c98c65e0919bd0d958566c"
+                            )
+                        ]
+                            .span(),
+                        previous_output: OutPoint {
+                            txid: 0x3827b4d97f68ccb048bea643d215cc6b0477edb608e37d1cc97a752773c1ee18_u256
+                                .into(),
+                            vout: 0_u32,
+                            data: TxOut {
+                                value: 2052199_u64,
+                                pk_script: @from_hex(
+                                    "001436d747e1e275789538bb24245861358f12c7be2e"
+                                ),
+                                cached: false,
+                            },
+                            block_height: 598734_u32,
+                            block_time: 1570711404_u32,
                         },
-                        ].span(),
+                    },
+                ]
+                    .span(),
                 outputs: array![
                     TxOut {
-                        value: 1260400_64,
+                        value: 1260400_u64,
                         pk_script: @from_hex("a9143e6266ca98fd1923b39083832702a1c09f09a33987"),
                         cached: false,
                     },
-                    
                     TxOut {
-                        value: 789600_64,
+                        value: 789600_u64,
                         pk_script: @from_hex("0014156271e67fe5767391b2f38e9355cfc26d3e813d"),
                         cached: false,
                     },
-                    ].span(),
-                },
-                
+                ]
+                    .span(),
+            },
             Transaction {
                 version: 2,
                 is_segwit: true,
                 lock_time: 0,
                 inputs: array![
-                        TxIn {
-                            script: @from_hex(""),
-                            sequence: 4294967295,
-                            witness: array![from_hex("3045022100be38793c05a76cf9dde463e92d6e95c75b8fd4e7d462f8e824a5ce79fbf1ab8a02200d236b87571b7f860d06b5bad16c3157655ec382d1f2dd6f98afcd4c1705a06901"), from_hex("035165fca0018bfa67d825c23be646860fd53eb635cb641cc3ffc0b2488b915d90")].span(),
-                            previous_output: 
-                                OutPoint {
-                                    txid: 0x156a8af3dddc3c2559a7778dafe1b66b22b121a1eff01e3d2d93634d96edcbc4_u256.into(),
-                                    vout: 36_u32,
-                                    data: 
-                    TxOut {
-                        value: 400000_64,
-                        pk_script: @from_hex("001487e2f17bacb9513e6d501a81c28bc6d2f8917733"),
-                        cached: false,
-                    },
-                    
-                                    block_height: 599981_u32,
-                                    block_time: 1571432085_u32,
-                                },
+                    TxIn {
+                        script: @from_hex(""),
+                        sequence: 4294967295,
+                        witness: array![
+                            from_hex(
+                                "3045022100be38793c05a76cf9dde463e92d6e95c75b8fd4e7d462f8e824a5ce79fbf1ab8a02200d236b87571b7f860d06b5bad16c3157655ec382d1f2dd6f98afcd4c1705a06901"
+                            ),
+                            from_hex(
+                                "035165fca0018bfa67d825c23be646860fd53eb635cb641cc3ffc0b2488b915d90"
+                            )
+                        ]
+                            .span(),
+                        previous_output: OutPoint {
+                            txid: 0x156a8af3dddc3c2559a7778dafe1b66b22b121a1eff01e3d2d93634d96edcbc4_u256
+                                .into(),
+                            vout: 36_u32,
+                            data: TxOut {
+                                value: 400000_u64,
+                                pk_script: @from_hex(
+                                    "001487e2f17bacb9513e6d501a81c28bc6d2f8917733"
+                                ),
+                                cached: false,
+                            },
+                            block_height: 599981_u32,
+                            block_time: 1571432085_u32,
                         },
-                        ].span(),
+                    },
+                ]
+                    .span(),
                 outputs: array![
                     TxOut {
-                        value: 315000_64,
+                        value: 315000_u64,
                         pk_script: @from_hex("a9143425c2d11c3b6a51b4d9aa7c7ef546e678b36d7287"),
                         cached: false,
                     },
-                    
                     TxOut {
-                        value: 82825_64,
+                        value: 82825_u64,
                         pk_script: @from_hex("0014e683feccbcfcf682285917ef130d198b71cd5714"),
                         cached: false,
                     },
-                    ].span(),
-                },
-                
+                ]
+                    .span(),
+            },
             Transaction {
                 version: 2,
                 is_segwit: true,
                 lock_time: 599981,
                 inputs: array![
-                        TxIn {
-                            script: @from_hex("4830450221009c4cacbdb98c0a2147f13406555eedd3d9ce5083a6ac88ecf94eecc31dc916eb02202b2717a885c1791929d41ec333d46c894ca8afceb4b884ba4440b22c53a2956b012103d038eb078c8c8d7d82473379b5ac1479561fa3352b0dc26423b86d531a668f45"),
-                            sequence: 4294967293,
-                            witness: array![].span(),
-                            previous_output: 
-                                OutPoint {
-                                    txid: 0x0da92ac0d0a65b5640b9cfec02c69afaf2217cf5caa9972acb94b8f25531c0f5_u256.into(),
-                                    vout: 0_u32,
-                                    data: 
-                    TxOut {
-                        value: 104585_64,
-                        pk_script: @from_hex("76a914a3dc4d073ae20a026666d21b859104bfa29bfcd188ac"),
-                        cached: false,
-                    },
-                    
-                                    block_height: 597561_u32,
-                                    block_time: 1570029191_u32,
-                                },
+                    TxIn {
+                        script: @from_hex(
+                            "4830450221009c4cacbdb98c0a2147f13406555eedd3d9ce5083a6ac88ecf94eecc31dc916eb02202b2717a885c1791929d41ec333d46c894ca8afceb4b884ba4440b22c53a2956b012103d038eb078c8c8d7d82473379b5ac1479561fa3352b0dc26423b86d531a668f45"
+                        ),
+                        sequence: 4294967293,
+                        witness: array![].span(),
+                        previous_output: OutPoint {
+                            txid: 0x0da92ac0d0a65b5640b9cfec02c69afaf2217cf5caa9972acb94b8f25531c0f5_u256
+                                .into(),
+                            vout: 0_u32,
+                            data: TxOut {
+                                value: 104585_u64,
+                                pk_script: @from_hex(
+                                    "76a914a3dc4d073ae20a026666d21b859104bfa29bfcd188ac"
+                                ),
+                                cached: false,
+                            },
+                            block_height: 597561_u32,
+                            block_time: 1570029191_u32,
                         },
-                        
-                        TxIn {
-                            script: @from_hex("483045022100feace9c78b28a6b20baedf103474aa087d972bb2851de49ac34cf710dae15354022079b608f0a5991ba83c9ebf82284a183d5a5e39d673006b54c794dd638e833913012102738e5ad35ad4cced70c530785a7443c8f98f174f51cfd8e6b74136097522b292"),
-                            sequence: 4294967293,
-                            witness: array![].span(),
-                            previous_output: 
-                                OutPoint {
-                                    txid: 0x3dda02756f34b1a9993ee337888b241ce4e8c148d6acac5f4854afa8fee4d210_u256.into(),
-                                    vout: 1_u32,
-                                    data: 
-                    TxOut {
-                        value: 851569_64,
-                        pk_script: @from_hex("76a914bba7ceaa34094b0345d18f43d35530825c02b4f588ac"),
-                        cached: false,
                     },
-                    
-                                    block_height: 599981_u32,
-                                    block_time: 1571432085_u32,
-                                },
+                    TxIn {
+                        script: @from_hex(
+                            "483045022100feace9c78b28a6b20baedf103474aa087d972bb2851de49ac34cf710dae15354022079b608f0a5991ba83c9ebf82284a183d5a5e39d673006b54c794dd638e833913012102738e5ad35ad4cced70c530785a7443c8f98f174f51cfd8e6b74136097522b292"
+                        ),
+                        sequence: 4294967293,
+                        witness: array![].span(),
+                        previous_output: OutPoint {
+                            txid: 0x3dda02756f34b1a9993ee337888b241ce4e8c148d6acac5f4854afa8fee4d210_u256
+                                .into(),
+                            vout: 1_u32,
+                            data: TxOut {
+                                value: 851569_u64,
+                                pk_script: @from_hex(
+                                    "76a914bba7ceaa34094b0345d18f43d35530825c02b4f588ac"
+                                ),
+                                cached: false,
+                            },
+                            block_height: 599981_u32,
+                            block_time: 1571432085_u32,
                         },
-                        ].span(),
+                    },
+                ]
+                    .span(),
                 outputs: array![
                     TxOut {
-                        value: 68862_64,
+                        value: 68862_u64,
                         pk_script: @from_hex("76a914148da5ee152fec06d0fbd4be5de159dbfded720688ac"),
                         cached: false,
                     },
-                    
                     TxOut {
-                        value: 882197_64,
+                        value: 882197_u64,
                         pk_script: @from_hex("a914e4254108bd863f3c9c67d81b7b528da0c89c27ff87"),
                         cached: false,
                     },
-                    ].span(),
-                },
-                
+                ]
+                    .span(),
+            },
             Transaction {
                 version: 2,
                 is_segwit: true,
                 lock_time: 599981,
                 inputs: array![
-                        TxIn {
-                            script: @from_hex("16001409c9ed7b17466c0808dec90118a7d68a31ebfefe"),
-                            sequence: 4294967294,
-                            witness: array![from_hex("304402202446bafba979517f4b89569fa2556e2c3a0e6a03034978405fe749b85bae8350022061db0615bae9344d96b55f07856878a4574a9d9a11cf22ab6b08150a14e565bb01"), from_hex("02a187324ffc3e01d606b101d7c6bf782aa71ac84c63402fb46ae3da0bd4d97844")].span(),
-                            previous_output: 
-                                OutPoint {
-                                    txid: 0x3b1f0fb12606080fe0bd3bcf934244fcf1e294354b86fe221a71eb6aa9f59ec2_u256.into(),
-                                    vout: 0_u32,
-                                    data: 
-                    TxOut {
-                        value: 49299_64,
-                        pk_script: @from_hex("a914707558bc5dcaa3928fbd4c53e65870927181df8387"),
-                        cached: false,
-                    },
-                    
-                                    block_height: 599978_u32,
-                                    block_time: 1571430963_u32,
-                                },
+                    TxIn {
+                        script: @from_hex("16001409c9ed7b17466c0808dec90118a7d68a31ebfefe"),
+                        sequence: 4294967294,
+                        witness: array![
+                            from_hex(
+                                "304402202446bafba979517f4b89569fa2556e2c3a0e6a03034978405fe749b85bae8350022061db0615bae9344d96b55f07856878a4574a9d9a11cf22ab6b08150a14e565bb01"
+                            ),
+                            from_hex(
+                                "02a187324ffc3e01d606b101d7c6bf782aa71ac84c63402fb46ae3da0bd4d97844"
+                            )
+                        ]
+                            .span(),
+                        previous_output: OutPoint {
+                            txid: 0x3b1f0fb12606080fe0bd3bcf934244fcf1e294354b86fe221a71eb6aa9f59ec2_u256
+                                .into(),
+                            vout: 0_u32,
+                            data: TxOut {
+                                value: 49299_u64,
+                                pk_script: @from_hex(
+                                    "a914707558bc5dcaa3928fbd4c53e65870927181df8387"
+                                ),
+                                cached: false,
+                            },
+                            block_height: 599978_u32,
+                            block_time: 1571430963_u32,
                         },
-                        
-                        TxIn {
-                            script: @from_hex("1600140349eca345ce813271232a256cba84c623206bab"),
-                            sequence: 4294967294,
-                            witness: array![from_hex("3044022025cba537024c0afbfd037860e157409ef211e336be98058f54cd9fd64ec6db48022016b4d514c6e6358a5686867f64a255f11613f2086a731b95524cfe3428cd823701"), from_hex("02a1b6943043a66fc732d245b5686a47b34cb9a505ca51018e32a7fd5abe65cb78")].span(),
-                            previous_output: 
-                                OutPoint {
-                                    txid: 0xbffb366a722585d241d77c0c301f4578e0cc08cae930b60e98d9c0f06106aa84_u256.into(),
-                                    vout: 10_u32,
-                                    data: 
-                    TxOut {
-                        value: 173572_64,
-                        pk_script: @from_hex("a91414840b75945d955f4ccab3c01db5d12bcbb84b1387"),
-                        cached: false,
                     },
-                    
-                                    block_height: 599969_u32,
-                                    block_time: 1571426413_u32,
-                                },
+                    TxIn {
+                        script: @from_hex("1600140349eca345ce813271232a256cba84c623206bab"),
+                        sequence: 4294967294,
+                        witness: array![
+                            from_hex(
+                                "3044022025cba537024c0afbfd037860e157409ef211e336be98058f54cd9fd64ec6db48022016b4d514c6e6358a5686867f64a255f11613f2086a731b95524cfe3428cd823701"
+                            ),
+                            from_hex(
+                                "02a1b6943043a66fc732d245b5686a47b34cb9a505ca51018e32a7fd5abe65cb78"
+                            )
+                        ]
+                            .span(),
+                        previous_output: OutPoint {
+                            txid: 0xbffb366a722585d241d77c0c301f4578e0cc08cae930b60e98d9c0f06106aa84_u256
+                                .into(),
+                            vout: 10_u32,
+                            data: TxOut {
+                                value: 173572_u64,
+                                pk_script: @from_hex(
+                                    "a91414840b75945d955f4ccab3c01db5d12bcbb84b1387"
+                                ),
+                                cached: false,
+                            },
+                            block_height: 599969_u32,
+                            block_time: 1571426413_u32,
                         },
-                        
-                        TxIn {
-                            script: @from_hex("160014fd9195f179a873985610e8f1bed494600f0a8bbd"),
-                            sequence: 4294967294,
-                            witness: array![from_hex("3044022017d6e6077552c9ecbbfa239245ae633aa85b2c64570fd2e39128396653b5a9ec02201559e1ab3c3e549f7b8837e08cf89b32b0c30d78f013101eb5bee8195b2410f701"), from_hex("02aa0965726d2d4d4603464de5098a2b2b6a037b3d4366e0b154057b9d8a1754c0")].span(),
-                            previous_output: 
-                                OutPoint {
-                                    txid: 0x51a2238618602557c44959c11917c62791cc1939a797c9581064e7ef7a10f78b_u256.into(),
-                                    vout: 0_u32,
-                                    data: 
-                    TxOut {
-                        value: 76200_64,
-                        pk_script: @from_hex("a9146243f6e599bdb53d33385a283fd7d4c1adea973587"),
-                        cached: false,
                     },
-                    
-                                    block_height: 599967_u32,
-                                    block_time: 1571425303_u32,
-                                },
+                    TxIn {
+                        script: @from_hex("160014fd9195f179a873985610e8f1bed494600f0a8bbd"),
+                        sequence: 4294967294,
+                        witness: array![
+                            from_hex(
+                                "3044022017d6e6077552c9ecbbfa239245ae633aa85b2c64570fd2e39128396653b5a9ec02201559e1ab3c3e549f7b8837e08cf89b32b0c30d78f013101eb5bee8195b2410f701"
+                            ),
+                            from_hex(
+                                "02aa0965726d2d4d4603464de5098a2b2b6a037b3d4366e0b154057b9d8a1754c0"
+                            )
+                        ]
+                            .span(),
+                        previous_output: OutPoint {
+                            txid: 0x51a2238618602557c44959c11917c62791cc1939a797c9581064e7ef7a10f78b_u256
+                                .into(),
+                            vout: 0_u32,
+                            data: TxOut {
+                                value: 76200_u64,
+                                pk_script: @from_hex(
+                                    "a9146243f6e599bdb53d33385a283fd7d4c1adea973587"
+                                ),
+                                cached: false,
+                            },
+                            block_height: 599967_u32,
+                            block_time: 1571425303_u32,
                         },
-                        
-                        TxIn {
-                            script: @from_hex("1600140349eca345ce813271232a256cba84c623206bab"),
-                            sequence: 4294967294,
-                            witness: array![from_hex("304402200acdc1e8e879b7f642f1c2892bd68e7b2951017e985bb7710f976fd8aa99e5890220151c04d8ecf4eaed3a6f4dc67dde47990fb4dbbdf10f4696af5a6d1572ec00d501"), from_hex("02a1b6943043a66fc732d245b5686a47b34cb9a505ca51018e32a7fd5abe65cb78")].span(),
-                            previous_output: 
-                                OutPoint {
-                                    txid: 0x9f5d876a2db874303fc30b7ab8a47282acababde9ae563d131e12c61e45c2769_u256.into(),
-                                    vout: 10_u32,
-                                    data: 
-                    TxOut {
-                        value: 175181_64,
-                        pk_script: @from_hex("a91414840b75945d955f4ccab3c01db5d12bcbb84b1387"),
-                        cached: false,
                     },
-                    
-                                    block_height: 599975_u32,
-                                    block_time: 1571429258_u32,
-                                },
+                    TxIn {
+                        script: @from_hex("1600140349eca345ce813271232a256cba84c623206bab"),
+                        sequence: 4294967294,
+                        witness: array![
+                            from_hex(
+                                "304402200acdc1e8e879b7f642f1c2892bd68e7b2951017e985bb7710f976fd8aa99e5890220151c04d8ecf4eaed3a6f4dc67dde47990fb4dbbdf10f4696af5a6d1572ec00d501"
+                            ),
+                            from_hex(
+                                "02a1b6943043a66fc732d245b5686a47b34cb9a505ca51018e32a7fd5abe65cb78"
+                            )
+                        ]
+                            .span(),
+                        previous_output: OutPoint {
+                            txid: 0x9f5d876a2db874303fc30b7ab8a47282acababde9ae563d131e12c61e45c2769_u256
+                                .into(),
+                            vout: 10_u32,
+                            data: TxOut {
+                                value: 175181_u64,
+                                pk_script: @from_hex(
+                                    "a91414840b75945d955f4ccab3c01db5d12bcbb84b1387"
+                                ),
+                                cached: false,
+                            },
+                            block_height: 599975_u32,
+                            block_time: 1571429258_u32,
                         },
-                        
-                        TxIn {
-                            script: @from_hex("16001414a67a1541853b8d93b55d4496b5177be8c3214c"),
-                            sequence: 4294967294,
-                            witness: array![from_hex("3044022041bb5115b625b25807cd10b9e21fef5796840e338c81cf74cb39846492c207660220256b883ab93fccf1cc0f448f1a7cb1773a75702c449630d52cc61b4a0bc7430201"), from_hex("029b2389a1b43e1b7625ebf975ebd3315045aab9b94600f71487b8d607e9ae9666")].span(),
-                            previous_output: 
-                                OutPoint {
-                                    txid: 0xcbf427af97d4951dd9ad4f43c629e63646c38efef571ae6061a8550e864d5a4e_u256.into(),
-                                    vout: 0_u32,
-                                    data: 
-                    TxOut {
-                        value: 168900_64,
-                        pk_script: @from_hex("a91408753b37197f820bf3a50876c090c27e25ded9e987"),
-                        cached: false,
                     },
-                    
-                                    block_height: 599973_u32,
-                                    block_time: 1571428474_u32,
-                                },
+                    TxIn {
+                        script: @from_hex("16001414a67a1541853b8d93b55d4496b5177be8c3214c"),
+                        sequence: 4294967294,
+                        witness: array![
+                            from_hex(
+                                "3044022041bb5115b625b25807cd10b9e21fef5796840e338c81cf74cb39846492c207660220256b883ab93fccf1cc0f448f1a7cb1773a75702c449630d52cc61b4a0bc7430201"
+                            ),
+                            from_hex(
+                                "029b2389a1b43e1b7625ebf975ebd3315045aab9b94600f71487b8d607e9ae9666"
+                            )
+                        ]
+                            .span(),
+                        previous_output: OutPoint {
+                            txid: 0xcbf427af97d4951dd9ad4f43c629e63646c38efef571ae6061a8550e864d5a4e_u256
+                                .into(),
+                            vout: 0_u32,
+                            data: TxOut {
+                                value: 168900_u64,
+                                pk_script: @from_hex(
+                                    "a91408753b37197f820bf3a50876c090c27e25ded9e987"
+                                ),
+                                cached: false,
+                            },
+                            block_height: 599973_u32,
+                            block_time: 1571428474_u32,
                         },
-                        
-                        TxIn {
-                            script: @from_hex("160014cce081caebca1cdebf60e1cb7c9429c2e76f54aa"),
-                            sequence: 4294967294,
-                            witness: array![from_hex("304402201a8ff2b231d38a2239664ad1f01a612b6da718654713efe8d13291f14131f9310220186bcd8fe17ae88763d85c30a3141d8cd420829342c1bf809777f86db1677e7501"), from_hex("021c3143d0a025aac4f9d063535812421b8b128837779232356982c1bd06538b7d")].span(),
-                            previous_output: 
-                                OutPoint {
-                                    txid: 0xe3b2ab396433dd2ee1ad5ae64663f91ea8d793cf1208efc988e43ec65c57e8ce_u256.into(),
-                                    vout: 1_u32,
-                                    data: 
-                    TxOut {
-                        value: 49400_64,
-                        pk_script: @from_hex("a914798ee3a8cfe442ff5047f802735cbb9f159ca1f187"),
-                        cached: false,
                     },
-                    
-                                    block_height: 599980_u32,
-                                    block_time: 1571431515_u32,
-                                },
+                    TxIn {
+                        script: @from_hex("160014cce081caebca1cdebf60e1cb7c9429c2e76f54aa"),
+                        sequence: 4294967294,
+                        witness: array![
+                            from_hex(
+                                "304402201a8ff2b231d38a2239664ad1f01a612b6da718654713efe8d13291f14131f9310220186bcd8fe17ae88763d85c30a3141d8cd420829342c1bf809777f86db1677e7501"
+                            ),
+                            from_hex(
+                                "021c3143d0a025aac4f9d063535812421b8b128837779232356982c1bd06538b7d"
+                            )
+                        ]
+                            .span(),
+                        previous_output: OutPoint {
+                            txid: 0xe3b2ab396433dd2ee1ad5ae64663f91ea8d793cf1208efc988e43ec65c57e8ce_u256
+                                .into(),
+                            vout: 1_u32,
+                            data: TxOut {
+                                value: 49400_u64,
+                                pk_script: @from_hex(
+                                    "a914798ee3a8cfe442ff5047f802735cbb9f159ca1f187"
+                                ),
+                                cached: false,
+                            },
+                            block_height: 599980_u32,
+                            block_time: 1571431515_u32,
                         },
-                        
-                        TxIn {
-                            script: @from_hex("160014766057db72ba3b55e7f022abb4e39a881aafc0e1"),
-                            sequence: 4294967294,
-                            witness: array![from_hex("304402204102f6672b40bd5509c0041ff1e13bd495ec311bea7946fd6c94341b648956a20220348c0a189a23e79acef542149d2a0627d73fa902b699eb1bdbe4188b28a02d1801"), from_hex("03fbccb73fbd46cdfa9cf4968654ba0b2de320d85768f149bcad7add4bbc7ad308")].span(),
-                            previous_output: 
-                                OutPoint {
-                                    txid: 0xc2f5ea1ae11c34f27cd1ca5edbc708adf966643e5b903da0ed4394c61eb2a19c_u256.into(),
-                                    vout: 0_u32,
-                                    data: 
-                    TxOut {
-                        value: 314200_64,
-                        pk_script: @from_hex("a914c177c809b2313e53101e3de3b40623a1d99c44a087"),
-                        cached: false,
                     },
-                    
-                                    block_height: 599967_u32,
-                                    block_time: 1571425303_u32,
-                                },
+                    TxIn {
+                        script: @from_hex("160014766057db72ba3b55e7f022abb4e39a881aafc0e1"),
+                        sequence: 4294967294,
+                        witness: array![
+                            from_hex(
+                                "304402204102f6672b40bd5509c0041ff1e13bd495ec311bea7946fd6c94341b648956a20220348c0a189a23e79acef542149d2a0627d73fa902b699eb1bdbe4188b28a02d1801"
+                            ),
+                            from_hex(
+                                "03fbccb73fbd46cdfa9cf4968654ba0b2de320d85768f149bcad7add4bbc7ad308"
+                            )
+                        ]
+                            .span(),
+                        previous_output: OutPoint {
+                            txid: 0xc2f5ea1ae11c34f27cd1ca5edbc708adf966643e5b903da0ed4394c61eb2a19c_u256
+                                .into(),
+                            vout: 0_u32,
+                            data: TxOut {
+                                value: 314200_u64,
+                                pk_script: @from_hex(
+                                    "a914c177c809b2313e53101e3de3b40623a1d99c44a087"
+                                ),
+                                cached: false,
+                            },
+                            block_height: 599967_u32,
+                            block_time: 1571425303_u32,
                         },
-                        ].span(),
+                    },
+                ]
+                    .span(),
                 outputs: array![
                     TxOut {
-                        value: 3200_64,
+                        value: 3200_u64,
                         pk_script: @from_hex("a914b04dfb4a8c05720dcda3c97d511b16461b40c69187"),
                         cached: false,
                     },
-                    
                     TxOut {
-                        value: 993856_64,
+                        value: 993856_u64,
                         pk_script: @from_hex("a9140f6598413bc5e8c0ff3661bd12cf5c16996987d987"),
                         cached: false,
                     },
-                    ].span(),
-                },
-                
+                ]
+                    .span(),
+            },
             Transaction {
                 version: 2,
                 is_segwit: true,
                 lock_time: 599981,
                 inputs: array![
-                        TxIn {
-                            script: @from_hex("1600143d52c01522721333cab8b1a1b391081ba9b55c28"),
-                            sequence: 4294967294,
-                            witness: array![from_hex("3044022067523db4cd37835954ca9d790c34939f435c1b61f833a72c620cc3521569dfa502200e1f62568606995be1186831e24c09cef52b375fa1082902f757669cfeaa821101"), from_hex("0340c4720ee2587d6a140cdb21e0ae8d510f98cecbda8e0b2226d383f522d049d7")].span(),
-                            previous_output: 
-                                OutPoint {
-                                    txid: 0xf8888581856bdcfb9167a3dbcebbacc7755db7e985cbab77908b2265bf7c557d_u256.into(),
-                                    vout: 1_u32,
-                                    data: 
-                    TxOut {
-                        value: 8527655_64,
-                        pk_script: @from_hex("a914cc53e99d1ec5bdbfed2011eaadb855b943bbcd3187"),
-                        cached: false,
-                    },
-                    
-                                    block_height: 599975_u32,
-                                    block_time: 1571429258_u32,
-                                },
+                    TxIn {
+                        script: @from_hex("1600143d52c01522721333cab8b1a1b391081ba9b55c28"),
+                        sequence: 4294967294,
+                        witness: array![
+                            from_hex(
+                                "3044022067523db4cd37835954ca9d790c34939f435c1b61f833a72c620cc3521569dfa502200e1f62568606995be1186831e24c09cef52b375fa1082902f757669cfeaa821101"
+                            ),
+                            from_hex(
+                                "0340c4720ee2587d6a140cdb21e0ae8d510f98cecbda8e0b2226d383f522d049d7"
+                            )
+                        ]
+                            .span(),
+                        previous_output: OutPoint {
+                            txid: 0xf8888581856bdcfb9167a3dbcebbacc7755db7e985cbab77908b2265bf7c557d_u256
+                                .into(),
+                            vout: 1_u32,
+                            data: TxOut {
+                                value: 8527655_u64,
+                                pk_script: @from_hex(
+                                    "a914cc53e99d1ec5bdbfed2011eaadb855b943bbcd3187"
+                                ),
+                                cached: false,
+                            },
+                            block_height: 599975_u32,
+                            block_time: 1571429258_u32,
                         },
-                        ].span(),
+                    },
+                ]
+                    .span(),
                 outputs: array![
                     TxOut {
-                        value: 7797113_64,
+                        value: 7797113_u64,
                         pk_script: @from_hex("a9143b8b00f2c928ed3457513713eccce3e2e4412b2d87"),
                         cached: false,
                     },
-                    
                     TxOut {
-                        value: 728275_64,
+                        value: 728275_u64,
                         pk_script: @from_hex("a914677deac4af28d05396cb6e68eb12bfd22e59852c87"),
                         cached: false,
                     },
-                    ].span(),
-                },
-                
+                ]
+                    .span(),
+            },
             Transaction {
                 version: 2,
                 is_segwit: true,
                 lock_time: 599981,
                 inputs: array![
-                        TxIn {
-                            script: @from_hex("1600147a15d6d54c98d56159da94826bdbf3028dfaeb85"),
-                            sequence: 4294967294,
-                            witness: array![from_hex("30440220235ab46baf3cb24b22e9b8adac53f9773ac75ccf14b1fa039dd4c5b847213e5d02206c99f9066d2384ffe4cf6c38743ceb01a5df12b3dc1c29fec14218584b47e21d01"), from_hex("037ee506ec55cb811ec3eef8c4bd822ad33a208cfaec6f872e271a441b5134143d")].span(),
-                            previous_output: 
-                                OutPoint {
-                                    txid: 0xe8a0ca3dbe332315039fd42ab39871ef3d65d833f7ab3b192fd61dfc5d0ab93d_u256.into(),
-                                    vout: 0_u32,
-                                    data: 
-                    TxOut {
-                        value: 46005190_64,
-                        pk_script: @from_hex("a914bb2fa64e771d513cdb9bafa1e99d8a547ccb254687"),
-                        cached: false,
-                    },
-                    
-                                    block_height: 599789_u32,
-                                    block_time: 1571333475_u32,
-                                },
+                    TxIn {
+                        script: @from_hex("1600147a15d6d54c98d56159da94826bdbf3028dfaeb85"),
+                        sequence: 4294967294,
+                        witness: array![
+                            from_hex(
+                                "30440220235ab46baf3cb24b22e9b8adac53f9773ac75ccf14b1fa039dd4c5b847213e5d02206c99f9066d2384ffe4cf6c38743ceb01a5df12b3dc1c29fec14218584b47e21d01"
+                            ),
+                            from_hex(
+                                "037ee506ec55cb811ec3eef8c4bd822ad33a208cfaec6f872e271a441b5134143d"
+                            )
+                        ]
+                            .span(),
+                        previous_output: OutPoint {
+                            txid: 0xe8a0ca3dbe332315039fd42ab39871ef3d65d833f7ab3b192fd61dfc5d0ab93d_u256
+                                .into(),
+                            vout: 0_u32,
+                            data: TxOut {
+                                value: 46005190_u64,
+                                pk_script: @from_hex(
+                                    "a914bb2fa64e771d513cdb9bafa1e99d8a547ccb254687"
+                                ),
+                                cached: false,
+                            },
+                            block_height: 599789_u32,
+                            block_time: 1571333475_u32,
                         },
-                        ].span(),
+                    },
+                ]
+                    .span(),
                 outputs: array![
                     TxOut {
-                        value: 627500_64,
+                        value: 627500_u64,
                         pk_script: @from_hex("a91493ec562e8521c5ed99c2bcec10071a7b3982bdfa87"),
                         cached: false,
                     },
-                    
                     TxOut {
-                        value: 45375423_64,
+                        value: 45375423_u64,
                         pk_script: @from_hex("a9144cf24ae5085c4a7815e1dc504a234049d61846c187"),
                         cached: false,
                     },
-                    ].span(),
-                },
-                
+                ]
+                    .span(),
+            },
             Transaction {
                 version: 2,
                 is_segwit: true,
                 lock_time: 599981,
                 inputs: array![
-                        TxIn {
-                            script: @from_hex("1600144920a20d66f0dfa694fec917fc0f4ab4194a1da9"),
-                            sequence: 4294967294,
-                            witness: array![from_hex("304402206b73376953a21eb23d42c6941aa250bb275b0090f8760d78f34e3ed1d12d1ed9022055299cdb5f3c9027fe8f6717aa71ea3edd3fa4da4f3002fb65feed50130532fb01"), from_hex("0366c5c8f13b8d440316542c4a604591281057012936a6848072156f01f57071f2")].span(),
-                            previous_output: 
-                                OutPoint {
-                                    txid: 0x911e1db268cba4c7f6c088268b048d3ab3083bb2c85aac3426b94a6f06069b4b_u256.into(),
-                                    vout: 0_u32,
-                                    data: 
-                    TxOut {
-                        value: 1066339_64,
-                        pk_script: @from_hex("a9148a919006c61241df38c79ddc06f4b9dc8687647687"),
-                        cached: false,
-                    },
-                    
-                                    block_height: 599973_u32,
-                                    block_time: 1571428474_u32,
-                                },
+                    TxIn {
+                        script: @from_hex("1600144920a20d66f0dfa694fec917fc0f4ab4194a1da9"),
+                        sequence: 4294967294,
+                        witness: array![
+                            from_hex(
+                                "304402206b73376953a21eb23d42c6941aa250bb275b0090f8760d78f34e3ed1d12d1ed9022055299cdb5f3c9027fe8f6717aa71ea3edd3fa4da4f3002fb65feed50130532fb01"
+                            ),
+                            from_hex(
+                                "0366c5c8f13b8d440316542c4a604591281057012936a6848072156f01f57071f2"
+                            )
+                        ]
+                            .span(),
+                        previous_output: OutPoint {
+                            txid: 0x911e1db268cba4c7f6c088268b048d3ab3083bb2c85aac3426b94a6f06069b4b_u256
+                                .into(),
+                            vout: 0_u32,
+                            data: TxOut {
+                                value: 1066339_u64,
+                                pk_script: @from_hex(
+                                    "a9148a919006c61241df38c79ddc06f4b9dc8687647687"
+                                ),
+                                cached: false,
+                            },
+                            block_height: 599973_u32,
+                            block_time: 1571428474_u32,
                         },
-                        ].span(),
+                    },
+                ]
+                    .span(),
                 outputs: array![
                     TxOut {
-                        value: 59200_64,
+                        value: 59200_u64,
                         pk_script: @from_hex("a914f12673b4248ad765d81f9673537c5aa28d65582787"),
                         cached: false,
                     },
-                    
                     TxOut {
-                        value: 1004872_64,
+                        value: 1004872_u64,
                         pk_script: @from_hex("a914886ad1e68103d2544b1e04104eec6451d6e515ac87"),
                         cached: false,
                     },
-                    ].span(),
-                },
-                
+                ]
+                    .span(),
+            },
             Transaction {
                 version: 2,
                 is_segwit: true,
                 lock_time: 599981,
                 inputs: array![
-                        TxIn {
-                            script: @from_hex("1600141b1220132d3d915a575074f4737cc684758725d7"),
-                            sequence: 4294967294,
-                            witness: array![from_hex("304402205182074460c8b62ee801c7b7edeac4c051b13b56fa038af230c34ad9bb8636f00220108ec9c59ffe64b93d5058361db9c994bdc940b918c2b8ba62e9387fdee3d61901"), from_hex("022836a0827d50a185e2aa57e4af933da5929f3ead6b2d1b21359b494a148f6f61")].span(),
-                            previous_output: 
-                                OutPoint {
-                                    txid: 0x207eb44df44e7228142799fc2734c4d2981f02521d18d6e7ad76f05c83dc31bc_u256.into(),
-                                    vout: 0_u32,
-                                    data: 
-                    TxOut {
-                        value: 997196_64,
-                        pk_script: @from_hex("a914d7ea9181021ddab0b8a8076875f01aeb02e6fbfb87"),
-                        cached: false,
-                    },
-                    
-                                    block_height: 599973_u32,
-                                    block_time: 1571428474_u32,
-                                },
+                    TxIn {
+                        script: @from_hex("1600141b1220132d3d915a575074f4737cc684758725d7"),
+                        sequence: 4294967294,
+                        witness: array![
+                            from_hex(
+                                "304402205182074460c8b62ee801c7b7edeac4c051b13b56fa038af230c34ad9bb8636f00220108ec9c59ffe64b93d5058361db9c994bdc940b918c2b8ba62e9387fdee3d61901"
+                            ),
+                            from_hex(
+                                "022836a0827d50a185e2aa57e4af933da5929f3ead6b2d1b21359b494a148f6f61"
+                            )
+                        ]
+                            .span(),
+                        previous_output: OutPoint {
+                            txid: 0x207eb44df44e7228142799fc2734c4d2981f02521d18d6e7ad76f05c83dc31bc_u256
+                                .into(),
+                            vout: 0_u32,
+                            data: TxOut {
+                                value: 997196_u64,
+                                pk_script: @from_hex(
+                                    "a914d7ea9181021ddab0b8a8076875f01aeb02e6fbfb87"
+                                ),
+                                cached: false,
+                            },
+                            block_height: 599973_u32,
+                            block_time: 1571428474_u32,
                         },
-                        
-                        TxIn {
-                            script: @from_hex("16001439a1e3031d847f1d6ca5e2ed148317c5b10aea9a"),
-                            sequence: 4294967294,
-                            witness: array![from_hex("304402205449f247f0056e7ae9434b75bedf5c6c70adeded70370ca238bc52a4985826b102207759fd70950d393eb39b33852be432ede2c57f1ce36ed17e46645423180c788001"), from_hex("02472910d7cafdd361bf5730965d196ec4b714772a2fed86fa0b1ffc0c8dcabc88")].span(),
-                            previous_output: 
-                                OutPoint {
-                                    txid: 0xe06d244c1e9a6cfb6915ba3777b8683e04fcc5e9e4ed3c4deca01e2d84361ac2_u256.into(),
-                                    vout: 0_u32,
-                                    data: 
-                    TxOut {
-                        value: 10300_64,
-                        pk_script: @from_hex("a914b04dfb4a8c05720dcda3c97d511b16461b40c69187"),
-                        cached: false,
                     },
-                    
-                                    block_height: 599980_u32,
-                                    block_time: 1571431515_u32,
-                                },
+                    TxIn {
+                        script: @from_hex("16001439a1e3031d847f1d6ca5e2ed148317c5b10aea9a"),
+                        sequence: 4294967294,
+                        witness: array![
+                            from_hex(
+                                "304402205449f247f0056e7ae9434b75bedf5c6c70adeded70370ca238bc52a4985826b102207759fd70950d393eb39b33852be432ede2c57f1ce36ed17e46645423180c788001"
+                            ),
+                            from_hex(
+                                "02472910d7cafdd361bf5730965d196ec4b714772a2fed86fa0b1ffc0c8dcabc88"
+                            )
+                        ]
+                            .span(),
+                        previous_output: OutPoint {
+                            txid: 0xe06d244c1e9a6cfb6915ba3777b8683e04fcc5e9e4ed3c4deca01e2d84361ac2_u256
+                                .into(),
+                            vout: 0_u32,
+                            data: TxOut {
+                                value: 10300_u64,
+                                pk_script: @from_hex(
+                                    "a914b04dfb4a8c05720dcda3c97d511b16461b40c69187"
+                                ),
+                                cached: false,
+                            },
+                            block_height: 599980_u32,
+                            block_time: 1571431515_u32,
                         },
-                        ].span(),
+                    },
+                ]
+                    .span(),
                 outputs: array![
                     TxOut {
-                        value: 996900_64,
+                        value: 996900_u64,
                         pk_script: @from_hex("a9145f006048ebadd7d9faf77db76099d6ecae8de20687"),
                         cached: false,
                     },
-                    
                     TxOut {
-                        value: 7100_64,
+                        value: 7100_u64,
                         pk_script: @from_hex("a9140941f77ffb1e77164e0a24c6a4c224824d20294887"),
                         cached: false,
                     },
-                    ].span(),
-                },
-                
+                ]
+                    .span(),
+            },
             Transaction {
                 version: 2,
                 is_segwit: true,
                 lock_time: 599981,
                 inputs: array![
-                        TxIn {
-                            script: @from_hex("160014ac019e9d4d2063f5c841532e9bd08bc1e60d4d85"),
-                            sequence: 4294967293,
-                            witness: array![from_hex("304402206f2e9ef4044987950540751e18dce4106d07b248e8b7bdd23c3c2e0baf2bc556022069e22400f701450349f2d3686eb1f61fff1e1c384c6f84159fc3be6519489d4601"), from_hex("03e33a88a93919008c4453a901b8afa3031e33577db28f1be9fd316087d1d6798a")].span(),
-                            previous_output: 
-                                OutPoint {
-                                    txid: 0x27c8f6cd1270ab9c62d1bda45fe71dd91c7e4e251d927daaa1c17003e05c320c_u256.into(),
-                                    vout: 0_u32,
-                                    data: 
-                    TxOut {
-                        value: 1324011_64,
-                        pk_script: @from_hex("a914a04543821af705a9b68f93152e3f459d5e0d3a1987"),
-                        cached: false,
-                    },
-                    
-                                    block_height: 599981_u32,
-                                    block_time: 1571432085_u32,
-                                },
+                    TxIn {
+                        script: @from_hex("160014ac019e9d4d2063f5c841532e9bd08bc1e60d4d85"),
+                        sequence: 4294967293,
+                        witness: array![
+                            from_hex(
+                                "304402206f2e9ef4044987950540751e18dce4106d07b248e8b7bdd23c3c2e0baf2bc556022069e22400f701450349f2d3686eb1f61fff1e1c384c6f84159fc3be6519489d4601"
+                            ),
+                            from_hex(
+                                "03e33a88a93919008c4453a901b8afa3031e33577db28f1be9fd316087d1d6798a"
+                            )
+                        ]
+                            .span(),
+                        previous_output: OutPoint {
+                            txid: 0x27c8f6cd1270ab9c62d1bda45fe71dd91c7e4e251d927daaa1c17003e05c320c_u256
+                                .into(),
+                            vout: 0_u32,
+                            data: TxOut {
+                                value: 1324011_u64,
+                                pk_script: @from_hex(
+                                    "a914a04543821af705a9b68f93152e3f459d5e0d3a1987"
+                                ),
+                                cached: false,
+                            },
+                            block_height: 599981_u32,
+                            block_time: 1571432085_u32,
                         },
-                        
-                        TxIn {
-                            script: @from_hex("1600144be485caf88c4921e255d92ee9b4333970079794"),
-                            sequence: 4294967293,
-                            witness: array![from_hex("30430220313df8a3692ab2cb5a1602a189e2d58eb6645a387a19a81555c2ff8bdab108ea021f0ab92de8a0eed1ddfec35c19a1f8d6843b40fbad8b5b41c4953881758b6e1401"), from_hex("039ffba910fbf60e8b5a9cc1c88f26a4f5d533de901a0360585329cee598681616")].span(),
-                            previous_output: 
-                                OutPoint {
-                                    txid: 0x640f0942c9f5328e89ecf8d854387fd30f5d95fbb4636a4bafce0bce0dc2d6dd_u256.into(),
-                                    vout: 1_u32,
-                                    data: 
-                    TxOut {
-                        value: 1128804_64,
-                        pk_script: @from_hex("a9141588607312ec650874fa33f973fae9ee6503f18487"),
-                        cached: false,
                     },
-                    
-                                    block_height: 599973_u32,
-                                    block_time: 1571428474_u32,
-                                },
+                    TxIn {
+                        script: @from_hex("1600144be485caf88c4921e255d92ee9b4333970079794"),
+                        sequence: 4294967293,
+                        witness: array![
+                            from_hex(
+                                "30430220313df8a3692ab2cb5a1602a189e2d58eb6645a387a19a81555c2ff8bdab108ea021f0ab92de8a0eed1ddfec35c19a1f8d6843b40fbad8b5b41c4953881758b6e1401"
+                            ),
+                            from_hex(
+                                "039ffba910fbf60e8b5a9cc1c88f26a4f5d533de901a0360585329cee598681616"
+                            )
+                        ]
+                            .span(),
+                        previous_output: OutPoint {
+                            txid: 0x640f0942c9f5328e89ecf8d854387fd30f5d95fbb4636a4bafce0bce0dc2d6dd_u256
+                                .into(),
+                            vout: 1_u32,
+                            data: TxOut {
+                                value: 1128804_u64,
+                                pk_script: @from_hex(
+                                    "a9141588607312ec650874fa33f973fae9ee6503f18487"
+                                ),
+                                cached: false,
+                            },
+                            block_height: 599973_u32,
+                            block_time: 1571428474_u32,
                         },
-                        ].span(),
+                    },
+                ]
+                    .span(),
                 outputs: array![
                     TxOut {
-                        value: 492100_64,
+                        value: 492100_u64,
                         pk_script: @from_hex("a9142c386348001d2c65abe9b2c65a83e05eead97d3587"),
                         cached: false,
                     },
-                    
                     TxOut {
-                        value: 1957308_64,
+                        value: 1957308_u64,
                         pk_script: @from_hex("a914b3aa54a0de8a2cca7db37d6fdc4c11ea26b3de7087"),
                         cached: false,
                     },
-                    ].span(),
-                },
-                
+                ]
+                    .span(),
+            },
             Transaction {
                 version: 1,
                 is_segwit: false,
                 lock_time: 0,
                 inputs: array![
-                        TxIn {
-                            script: @from_hex("473044022022df437451bdc241cbe6aae50c32152ac033b369b558420a2e8884665a955b1f02200b224216bdd57f3993df76097eb9eb9513de9fda6cc0450acc82934cd9fd373f01210393afd51fa7611127fecb7b22cc1f3e1d79f697f2bee81efb4d6a3666197bf712"),
-                            sequence: 4294967295,
-                            witness: array![].span(),
-                            previous_output: 
-                                OutPoint {
-                                    txid: 0x9ff776f2ce75ccffe72bbbc800afa4e31394b41daa12ff1e1f4dd5908db47050_u256.into(),
-                                    vout: 1_u32,
-                                    data: 
-                    TxOut {
-                        value: 46623881_64,
-                        pk_script: @from_hex("76a914821569b0fc9cb86b4a444450f3ea672a379e1c8c88ac"),
-                        cached: false,
-                    },
-                    
-                                    block_height: 599982_u32,
-                                    block_time: 1571432630_u32,
-                                },
+                    TxIn {
+                        script: @from_hex(
+                            "473044022022df437451bdc241cbe6aae50c32152ac033b369b558420a2e8884665a955b1f02200b224216bdd57f3993df76097eb9eb9513de9fda6cc0450acc82934cd9fd373f01210393afd51fa7611127fecb7b22cc1f3e1d79f697f2bee81efb4d6a3666197bf712"
+                        ),
+                        sequence: 4294967295,
+                        witness: array![].span(),
+                        previous_output: OutPoint {
+                            txid: 0x9ff776f2ce75ccffe72bbbc800afa4e31394b41daa12ff1e1f4dd5908db47050_u256
+                                .into(),
+                            vout: 1_u32,
+                            data: TxOut {
+                                value: 46623881_u64,
+                                pk_script: @from_hex(
+                                    "76a914821569b0fc9cb86b4a444450f3ea672a379e1c8c88ac"
+                                ),
+                                cached: false,
+                            },
+                            block_height: 599982_u32,
+                            block_time: 1571432630_u32,
                         },
-                        ].span(),
+                    },
+                ]
+                    .span(),
                 outputs: array![
                     TxOut {
-                        value: 550000_64,
+                        value: 550000_u64,
                         pk_script: @from_hex("a914c34e91c9d492b55318563736cfbc942447f7cff387"),
                         cached: false,
                     },
-                    
                     TxOut {
-                        value: 46073203_64,
+                        value: 46073203_u64,
                         pk_script: @from_hex("76a914e2777777147bd7de6f61f63e9f792061d54c97a288ac"),
                         cached: false,
                     },
-                    ].span(),
-                },
-                
+                ]
+                    .span(),
+            },
             Transaction {
                 version: 1,
                 is_segwit: false,
                 lock_time: 0,
                 inputs: array![
-                        TxIn {
-                            script: @from_hex("47304402203420682132bd071a7a15c27280142017c3745e11676b893dea605051a0add70f0220029d7eda29274982e84b900a86e7699dcce2eb04c9a83efa7f95d09dcbba3d9201210324755b14e876b8fac588a2d0324a0816171becb046c944fee996485c7ee5732f"),
-                            sequence: 4294967295,
-                            witness: array![].span(),
-                            previous_output: 
-                                OutPoint {
-                                    txid: 0x6d5d161e81356fb01d94bb04fc9b5e2ccf4dbbc4c84bfe255631c29ed6753d11_u256.into(),
-                                    vout: 1_u32,
-                                    data: 
-                    TxOut {
-                        value: 46073203_64,
-                        pk_script: @from_hex("76a914e2777777147bd7de6f61f63e9f792061d54c97a288ac"),
-                        cached: false,
-                    },
-                    
-                                    block_height: 599983_u32,
-                                    block_time: 1571432655_u32,
-                                },
+                    TxIn {
+                        script: @from_hex(
+                            "47304402203420682132bd071a7a15c27280142017c3745e11676b893dea605051a0add70f0220029d7eda29274982e84b900a86e7699dcce2eb04c9a83efa7f95d09dcbba3d9201210324755b14e876b8fac588a2d0324a0816171becb046c944fee996485c7ee5732f"
+                        ),
+                        sequence: 4294967295,
+                        witness: array![].span(),
+                        previous_output: OutPoint {
+                            txid: 0x6d5d161e81356fb01d94bb04fc9b5e2ccf4dbbc4c84bfe255631c29ed6753d11_u256
+                                .into(),
+                            vout: 1_u32,
+                            data: TxOut {
+                                value: 46073203_u64,
+                                pk_script: @from_hex(
+                                    "76a914e2777777147bd7de6f61f63e9f792061d54c97a288ac"
+                                ),
+                                cached: false,
+                            },
+                            block_height: 599983_u32,
+                            block_time: 1571432655_u32,
                         },
-                        ].span(),
+                    },
+                ]
+                    .span(),
                 outputs: array![
                     TxOut {
-                        value: 293000_64,
+                        value: 293000_u64,
                         pk_script: @from_hex("a914c2d825ab36b75a86469bfccc4398e71c90381cd987"),
                         cached: false,
                     },
-                    
                     TxOut {
-                        value: 45776361_64,
+                        value: 45776361_u64,
                         pk_script: @from_hex("76a914e2777777147bd7de6f61f63e9f792061d54c97a288ac"),
                         cached: false,
                     },
-                    ].span(),
-                },
-                
+                ]
+                    .span(),
+            },
             Transaction {
                 version: 1,
                 is_segwit: false,
                 lock_time: 0,
                 inputs: array![
-                        TxIn {
-                            script: @from_hex("483045022100f0a573dc704d6248eb2374c331207d8ced6e5de1d477256861485d00103f8b5d022007475143243cbf1b2efa468419872b4c96e7d48f638608da14e70775196aa378012103bd1a32cfdc895c6d902a06fe45ce146aa61884561710a00de6b1d31096ce6a17"),
-                            sequence: 4294967295,
-                            witness: array![].span(),
-                            previous_output: 
-                                OutPoint {
-                                    txid: 0xc38c72409ddd84e573e3fd0380ef4840b6be8a36c94fb0f6e9639b05729ca50f_u256.into(),
-                                    vout: 5_u32,
-                                    data: 
-                    TxOut {
-                        value: 9741256_64,
-                        pk_script: @from_hex("76a914bb6c94436df567c2db14bfbb1beb1213fb0c49d288ac"),
-                        cached: false,
-                    },
-                    
-                                    block_height: 599975_u32,
-                                    block_time: 1571429258_u32,
-                                },
+                    TxIn {
+                        script: @from_hex(
+                            "483045022100f0a573dc704d6248eb2374c331207d8ced6e5de1d477256861485d00103f8b5d022007475143243cbf1b2efa468419872b4c96e7d48f638608da14e70775196aa378012103bd1a32cfdc895c6d902a06fe45ce146aa61884561710a00de6b1d31096ce6a17"
+                        ),
+                        sequence: 4294967295,
+                        witness: array![].span(),
+                        previous_output: OutPoint {
+                            txid: 0xc38c72409ddd84e573e3fd0380ef4840b6be8a36c94fb0f6e9639b05729ca50f_u256
+                                .into(),
+                            vout: 5_u32,
+                            data: TxOut {
+                                value: 9741256_u64,
+                                pk_script: @from_hex(
+                                    "76a914bb6c94436df567c2db14bfbb1beb1213fb0c49d288ac"
+                                ),
+                                cached: false,
+                            },
+                            block_height: 599975_u32,
+                            block_time: 1571429258_u32,
                         },
-                        ].span(),
+                    },
+                ]
+                    .span(),
                 outputs: array![
                     TxOut {
-                        value: 8715746_64,
+                        value: 8715746_u64,
                         pk_script: @from_hex("a914a29f541f4cb0e509f1e813d93af8e36d0705cbd487"),
                         cached: false,
                     },
-                    
                     TxOut {
-                        value: 45498_64,
+                        value: 45498_u64,
                         pk_script: @from_hex("76a9144b7208cfa3afda7ad224c9aabd37b1d7e2868fbd88ac"),
                         cached: false,
                     },
-                    
                     TxOut {
-                        value: 977412_64,
+                        value: 977412_u64,
                         pk_script: @from_hex("76a91442e914e6f71e1dbded4e9db0a245ec44d644990c88ac"),
                         cached: false,
                     },
-                    ].span(),
-                },
-                
+                ]
+                    .span(),
+            },
             Transaction {
                 version: 1,
                 is_segwit: false,
                 lock_time: 0,
                 inputs: array![
-                        TxIn {
-                            script: @from_hex("47304402200a71e906b6c3e22abb7cd5da676585ace9a1cf43991aefe1b25d9681e11fa13c02201ef47c2f2b78e4b00b745029d4ef9dd826a38c49f132e0cd8a2ad007a501dbfd0121035cda990595197c60e3f23fd2e5aee1b185111401a41dd347ea630bcf7867dcea"),
-                            sequence: 4294967295,
-                            witness: array![].span(),
-                            previous_output: 
-                                OutPoint {
-                                    txid: 0x2f4214008b851e6b51c1ee6dee6000ca440b3b945e37a641dea6474530b591ae_u256.into(),
-                                    vout: 0_u32,
-                                    data: 
-                    TxOut {
-                        value: 700_64,
-                        pk_script: @from_hex("76a914e277fbfaa41b4e18250b43aa50879c2ec8c9587388ac"),
-                        cached: false,
-                    },
-                    
-                                    block_height: 599878_u32,
-                                    block_time: 1571376416_u32,
-                                },
+                    TxIn {
+                        script: @from_hex(
+                            "47304402200a71e906b6c3e22abb7cd5da676585ace9a1cf43991aefe1b25d9681e11fa13c02201ef47c2f2b78e4b00b745029d4ef9dd826a38c49f132e0cd8a2ad007a501dbfd0121035cda990595197c60e3f23fd2e5aee1b185111401a41dd347ea630bcf7867dcea"
+                        ),
+                        sequence: 4294967295,
+                        witness: array![].span(),
+                        previous_output: OutPoint {
+                            txid: 0x2f4214008b851e6b51c1ee6dee6000ca440b3b945e37a641dea6474530b591ae_u256
+                                .into(),
+                            vout: 0_u32,
+                            data: TxOut {
+                                value: 700_u64,
+                                pk_script: @from_hex(
+                                    "76a914e277fbfaa41b4e18250b43aa50879c2ec8c9587388ac"
+                                ),
+                                cached: false,
+                            },
+                            block_height: 599878_u32,
+                            block_time: 1571376416_u32,
                         },
-                        
-                        TxIn {
-                            script: @from_hex("483045022100d1c1a0ba6740c6483d84f40062d0b7b112bd5dfc987d84cd75602ce26156b74c02200521ead966c76ad3884da5deb71ad03d72af98b00daf714ef138d1399172f26001210258db09bbc7829cf8d204516ddee659289f99fad228c1c14270f08995d09bfadf"),
-                            sequence: 4294967295,
-                            witness: array![].span(),
-                            previous_output: 
-                                OutPoint {
-                                    txid: 0xed93c4647de621d905e8151c567e7119908e9a8906ef17624a39e78d561172c3_u256.into(),
-                                    vout: 0_u32,
-                                    data: 
-                    TxOut {
-                        value: 1511782_64,
-                        pk_script: @from_hex("76a9143becb09c39a2fafd1265ec78e287cb0b2bbf74c288ac"),
-                        cached: false,
                     },
-                    
-                                    block_height: 599948_u32,
-                                    block_time: 1571416829_u32,
-                                },
+                    TxIn {
+                        script: @from_hex(
+                            "483045022100d1c1a0ba6740c6483d84f40062d0b7b112bd5dfc987d84cd75602ce26156b74c02200521ead966c76ad3884da5deb71ad03d72af98b00daf714ef138d1399172f26001210258db09bbc7829cf8d204516ddee659289f99fad228c1c14270f08995d09bfadf"
+                        ),
+                        sequence: 4294967295,
+                        witness: array![].span(),
+                        previous_output: OutPoint {
+                            txid: 0xed93c4647de621d905e8151c567e7119908e9a8906ef17624a39e78d561172c3_u256
+                                .into(),
+                            vout: 0_u32,
+                            data: TxOut {
+                                value: 1511782_u64,
+                                pk_script: @from_hex(
+                                    "76a9143becb09c39a2fafd1265ec78e287cb0b2bbf74c288ac"
+                                ),
+                                cached: false,
+                            },
+                            block_height: 599948_u32,
+                            block_time: 1571416829_u32,
                         },
-                        ].span(),
+                    },
+                ]
+                    .span(),
                 outputs: array![
                     TxOut {
-                        value: 1511300_64,
+                        value: 1511300_u64,
                         pk_script: @from_hex("76a914397935e8444e052e7be793ecbbe50adaa55419ef88ac"),
                         cached: false,
                     },
-                    ].span(),
-                },
-                
+                ]
+                    .span(),
+            },
             Transaction {
                 version: 1,
                 is_segwit: false,
                 lock_time: 0,
                 inputs: array![
-                        TxIn {
-                            script: @from_hex("473044022005b23afdf70830305b863bcb5409363b0f712bbc229f6d0551a2cee4d2c66304022034c416c029b5a4361b161d2870f5be1fb9134ea150de306cba4aeff10ca0f3b60121025c634d34ca94257acd50badf6d8aebe24bc434f852ba0d3c7b57c3867fae0680"),
-                            sequence: 4294967295,
-                            witness: array![].span(),
-                            previous_output: 
-                                OutPoint {
-                                    txid: 0x427463b2d581580a8340baef9bd9ace588e92be95f9e919b51e45e82c290deba_u256.into(),
-                                    vout: 0_u32,
-                                    data: 
-                    TxOut {
-                        value: 70180_64,
-                        pk_script: @from_hex("76a914b974358c5ae7948905548e880b7975c1799a5e0888ac"),
-                        cached: false,
-                    },
-                    
-                                    block_height: 599982_u32,
-                                    block_time: 1571432630_u32,
-                                },
+                    TxIn {
+                        script: @from_hex(
+                            "473044022005b23afdf70830305b863bcb5409363b0f712bbc229f6d0551a2cee4d2c66304022034c416c029b5a4361b161d2870f5be1fb9134ea150de306cba4aeff10ca0f3b60121025c634d34ca94257acd50badf6d8aebe24bc434f852ba0d3c7b57c3867fae0680"
+                        ),
+                        sequence: 4294967295,
+                        witness: array![].span(),
+                        previous_output: OutPoint {
+                            txid: 0x427463b2d581580a8340baef9bd9ace588e92be95f9e919b51e45e82c290deba_u256
+                                .into(),
+                            vout: 0_u32,
+                            data: TxOut {
+                                value: 70180_u64,
+                                pk_script: @from_hex(
+                                    "76a914b974358c5ae7948905548e880b7975c1799a5e0888ac"
+                                ),
+                                cached: false,
+                            },
+                            block_height: 599982_u32,
+                            block_time: 1571432630_u32,
                         },
-                        ].span(),
+                    },
+                ]
+                    .span(),
                 outputs: array![
                     TxOut {
-                        value: 33494_64,
+                        value: 33494_u64,
                         pk_script: @from_hex("76a914c3a9d7dff7fc68da0fa0ed60d695ee305ef7154b88ac"),
                         cached: false,
                     },
-                    
                     TxOut {
-                        value: 36008_64,
+                        value: 36008_u64,
                         pk_script: @from_hex("a914f95ea436fe8cc678a5272e984ce496c71fe5b7fc87"),
                         cached: false,
                     },
-                    ].span(),
-                },
-                
+                ]
+                    .span(),
+            },
             Transaction {
                 version: 1,
                 is_segwit: false,
                 lock_time: 0,
                 inputs: array![
-                        TxIn {
-                            script: @from_hex("47304402202fc9152139cfb2a59900df79dd1051b6fdab6c83940ca6b5850232b4b19aa4e802207e614e26120050924a6147652c6858b4ae455514d3d7ccba70b6e651baa744c0012102ab95e2dc3bdafd9376b0863d381f98772cb7758db9518b6c7b26a0186f2cd691"),
-                            sequence: 4294967295,
-                            witness: array![].span(),
-                            previous_output: 
-                                OutPoint {
-                                    txid: 0xdea1180212af802358ccf51a8ccb3b91dfbb515c2ded4fe39343e8bc0ef034c8_u256.into(),
-                                    vout: 1_u32,
-                                    data: 
-                    TxOut {
-                        value: 4372544_64,
-                        pk_script: @from_hex("76a914058d116e0ff9d5b2b0067cca55e8ca41631394c288ac"),
-                        cached: false,
-                    },
-                    
-                                    block_height: 599982_u32,
-                                    block_time: 1571432630_u32,
-                                },
+                    TxIn {
+                        script: @from_hex(
+                            "47304402202fc9152139cfb2a59900df79dd1051b6fdab6c83940ca6b5850232b4b19aa4e802207e614e26120050924a6147652c6858b4ae455514d3d7ccba70b6e651baa744c0012102ab95e2dc3bdafd9376b0863d381f98772cb7758db9518b6c7b26a0186f2cd691"
+                        ),
+                        sequence: 4294967295,
+                        witness: array![].span(),
+                        previous_output: OutPoint {
+                            txid: 0xdea1180212af802358ccf51a8ccb3b91dfbb515c2ded4fe39343e8bc0ef034c8_u256
+                                .into(),
+                            vout: 1_u32,
+                            data: TxOut {
+                                value: 4372544_u64,
+                                pk_script: @from_hex(
+                                    "76a914058d116e0ff9d5b2b0067cca55e8ca41631394c288ac"
+                                ),
+                                cached: false,
+                            },
+                            block_height: 599982_u32,
+                            block_time: 1571432630_u32,
                         },
-                        ].span(),
+                    },
+                ]
+                    .span(),
                 outputs: array![
                     TxOut {
-                        value: 207801_64,
+                        value: 207801_u64,
                         pk_script: @from_hex("a914c9f06c5def190cd86ec98b266b56d3664ab0374487"),
                         cached: false,
                     },
-                    
                     TxOut {
-                        value: 4164065_64,
+                        value: 4164065_u64,
                         pk_script: @from_hex("76a91417a5b3e61bc93b748c700767677f0ca9f79b303b88ac"),
                         cached: false,
                     },
-                    ].span(),
-                },
-                
+                ]
+                    .span(),
+            },
             Transaction {
                 version: 1,
                 is_segwit: false,
                 lock_time: 0,
                 inputs: array![
-                        TxIn {
-                            script: @from_hex("4730440220461e87b25eaf5e5e352f5c2385ab11db8e5e79c86317e490be17e16bf3db956d02205d71e8871379c602d5bc256e5fc53d72f354d1cb5975f5033b8f7f1932871e6c0121027afcf3107b595b73415a39ca360452cc127437a6977a78ab3567486577ed0368"),
-                            sequence: 4294967295,
-                            witness: array![].span(),
-                            previous_output: 
-                                OutPoint {
-                                    txid: 0x0bd258bd607c9284971cdec0b1b1efe4d9c58811296714f06ec7abc45dc2db10_u256.into(),
-                                    vout: 1_u32,
-                                    data: 
-                    TxOut {
-                        value: 6570719_64,
-                        pk_script: @from_hex("76a9143ee484cf0acfd9e3432664034b20ff267ec2969c88ac"),
-                        cached: false,
-                    },
-                    
-                                    block_height: 599982_u32,
-                                    block_time: 1571432630_u32,
-                                },
+                    TxIn {
+                        script: @from_hex(
+                            "4730440220461e87b25eaf5e5e352f5c2385ab11db8e5e79c86317e490be17e16bf3db956d02205d71e8871379c602d5bc256e5fc53d72f354d1cb5975f5033b8f7f1932871e6c0121027afcf3107b595b73415a39ca360452cc127437a6977a78ab3567486577ed0368"
+                        ),
+                        sequence: 4294967295,
+                        witness: array![].span(),
+                        previous_output: OutPoint {
+                            txid: 0x0bd258bd607c9284971cdec0b1b1efe4d9c58811296714f06ec7abc45dc2db10_u256
+                                .into(),
+                            vout: 1_u32,
+                            data: TxOut {
+                                value: 6570719_u64,
+                                pk_script: @from_hex(
+                                    "76a9143ee484cf0acfd9e3432664034b20ff267ec2969c88ac"
+                                ),
+                                cached: false,
+                            },
+                            block_height: 599982_u32,
+                            block_time: 1571432630_u32,
                         },
-                        ].span(),
+                    },
+                ]
+                    .span(),
                 outputs: array![
                     TxOut {
-                        value: 300000_64,
+                        value: 300000_u64,
                         pk_script: @from_hex("a914d2db333f750bd098423622791653b2785b174b2187"),
                         cached: false,
                     },
-                    
                     TxOut {
-                        value: 6270041_64,
+                        value: 6270041_u64,
                         pk_script: @from_hex("76a91418c2c43278d315c8e2dfe4042688813635e6dcf088ac"),
                         cached: false,
                     },
-                    ].span(),
-                },
-                
+                ]
+                    .span(),
+            },
             Transaction {
                 version: 1,
                 is_segwit: false,
                 lock_time: 0,
                 inputs: array![
-                        TxIn {
-                            script: @from_hex("47304402203cf3b0fceb86af9a58ae69cd882e24eaf0cad1272734d7c570327b9157d49139022067b0cd866c93400c5e26d1fb403ecc6fa255c1994273d1efe4a05cde313b670f01210300f0dde9c4435193a97129aa47a9ad9345484040f946ce58b6b423f244e7a493"),
-                            sequence: 4294967295,
-                            witness: array![].span(),
-                            previous_output: 
-                                OutPoint {
-                                    txid: 0x80e6584daa71531978ed84a59ea8484ac9e1537c5c6be37002df2ff4782f914e_u256.into(),
-                                    vout: 0_u32,
-                                    data: 
-                    TxOut {
-                        value: 202785_64,
-                        pk_script: @from_hex("76a914d4922aefead32a2c65b7a79f398b961566e8c8c288ac"),
-                        cached: false,
-                    },
-                    
-                                    block_height: 599893_u32,
-                                    block_time: 1571382887_u32,
-                                },
+                    TxIn {
+                        script: @from_hex(
+                            "47304402203cf3b0fceb86af9a58ae69cd882e24eaf0cad1272734d7c570327b9157d49139022067b0cd866c93400c5e26d1fb403ecc6fa255c1994273d1efe4a05cde313b670f01210300f0dde9c4435193a97129aa47a9ad9345484040f946ce58b6b423f244e7a493"
+                        ),
+                        sequence: 4294967295,
+                        witness: array![].span(),
+                        previous_output: OutPoint {
+                            txid: 0x80e6584daa71531978ed84a59ea8484ac9e1537c5c6be37002df2ff4782f914e_u256
+                                .into(),
+                            vout: 0_u32,
+                            data: TxOut {
+                                value: 202785_u64,
+                                pk_script: @from_hex(
+                                    "76a914d4922aefead32a2c65b7a79f398b961566e8c8c288ac"
+                                ),
+                                cached: false,
+                            },
+                            block_height: 599893_u32,
+                            block_time: 1571382887_u32,
                         },
-                        
-                        TxIn {
-                            script: @from_hex("473044022027f5afd75c6a069f19f6613f12b5b5b7e8f7c580e154a28cf7c2d6c2a056fa45022054bfbb557c6a6d38cee18f0a483e8da51e70126d27a37747e953e73abb68bc5601210250635c97b61ecce7ff4e14eb6b790cf895d4ef22cd66d1739c45af463c099551"),
-                            sequence: 4294967295,
-                            witness: array![].span(),
-                            previous_output: 
-                                OutPoint {
-                                    txid: 0xbe74fe48fd88a6fddf9b754cc3dbfb700676e8ddfaa9f136db5c99250b02f062_u256.into(),
-                                    vout: 0_u32,
-                                    data: 
-                    TxOut {
-                        value: 162251_64,
-                        pk_script: @from_hex("76a9144665fc37d843d6cac5ad7e5ec5fb53088104a16088ac"),
-                        cached: false,
                     },
-                    
-                                    block_height: 599199_u32,
-                                    block_time: 1570967409_u32,
-                                },
+                    TxIn {
+                        script: @from_hex(
+                            "473044022027f5afd75c6a069f19f6613f12b5b5b7e8f7c580e154a28cf7c2d6c2a056fa45022054bfbb557c6a6d38cee18f0a483e8da51e70126d27a37747e953e73abb68bc5601210250635c97b61ecce7ff4e14eb6b790cf895d4ef22cd66d1739c45af463c099551"
+                        ),
+                        sequence: 4294967295,
+                        witness: array![].span(),
+                        previous_output: OutPoint {
+                            txid: 0xbe74fe48fd88a6fddf9b754cc3dbfb700676e8ddfaa9f136db5c99250b02f062_u256
+                                .into(),
+                            vout: 0_u32,
+                            data: TxOut {
+                                value: 162251_u64,
+                                pk_script: @from_hex(
+                                    "76a9144665fc37d843d6cac5ad7e5ec5fb53088104a16088ac"
+                                ),
+                                cached: false,
+                            },
+                            block_height: 599199_u32,
+                            block_time: 1570967409_u32,
                         },
-                        
-                        TxIn {
-                            script: @from_hex("483045022100f127b777cabc9ba2c4bb3a2c54e11ce81abf0485a83a1fa71440f8b3ceef0c1b02200c3ffe6d691b91e58cca97fbb369e9df9d42863b22b8cc294ec0fe21dc43d6da0121028eaf80ddb9f448d0813fa38777475c7a7d6bd6679ee12e64b9fab9f0d02173a4"),
-                            sequence: 4294967295,
-                            witness: array![].span(),
-                            previous_output: 
-                                OutPoint {
-                                    txid: 0xf3554279a6d7050926c3427e99fd4c1829b4fea7737f5f826fe80de39ab58924_u256.into(),
-                                    vout: 0_u32,
-                                    data: 
-                    TxOut {
-                        value: 188707_64,
-                        pk_script: @from_hex("76a91498971b112c3aa91875a8f8a7b7f73092da47222a88ac"),
-                        cached: false,
                     },
-                    
-                                    block_height: 599060_u32,
-                                    block_time: 1570888709_u32,
-                                },
+                    TxIn {
+                        script: @from_hex(
+                            "483045022100f127b777cabc9ba2c4bb3a2c54e11ce81abf0485a83a1fa71440f8b3ceef0c1b02200c3ffe6d691b91e58cca97fbb369e9df9d42863b22b8cc294ec0fe21dc43d6da0121028eaf80ddb9f448d0813fa38777475c7a7d6bd6679ee12e64b9fab9f0d02173a4"
+                        ),
+                        sequence: 4294967295,
+                        witness: array![].span(),
+                        previous_output: OutPoint {
+                            txid: 0xf3554279a6d7050926c3427e99fd4c1829b4fea7737f5f826fe80de39ab58924_u256
+                                .into(),
+                            vout: 0_u32,
+                            data: TxOut {
+                                value: 188707_u64,
+                                pk_script: @from_hex(
+                                    "76a91498971b112c3aa91875a8f8a7b7f73092da47222a88ac"
+                                ),
+                                cached: false,
+                            },
+                            block_height: 599060_u32,
+                            block_time: 1570888709_u32,
                         },
-                        
-                        TxIn {
-                            script: @from_hex("47304402206bf0eb40aaffd553635f3c5ccfae11406107ad158ba83a8166448fe82e19842a022004952e3c642439f51432e20328b8c0bddd346c0858abe8d449d72b5871212f22012103e820c207407607a2040978d07f0ebb1809b8e319ec4b08580af7449169a095b4"),
-                            sequence: 4294967295,
-                            witness: array![].span(),
-                            previous_output: 
-                                OutPoint {
-                                    txid: 0xf706990754516a1dba369aae21e056c412c9413305843b0fb935443a28a80804_u256.into(),
-                                    vout: 0_u32,
-                                    data: 
-                    TxOut {
-                        value: 204986_64,
-                        pk_script: @from_hex("76a9143112692b0a5636281504920d033e31c5aeb102fb88ac"),
-                        cached: false,
                     },
-                    
-                                    block_height: 599444_u32,
-                                    block_time: 1571124698_u32,
-                                },
+                    TxIn {
+                        script: @from_hex(
+                            "47304402206bf0eb40aaffd553635f3c5ccfae11406107ad158ba83a8166448fe82e19842a022004952e3c642439f51432e20328b8c0bddd346c0858abe8d449d72b5871212f22012103e820c207407607a2040978d07f0ebb1809b8e319ec4b08580af7449169a095b4"
+                        ),
+                        sequence: 4294967295,
+                        witness: array![].span(),
+                        previous_output: OutPoint {
+                            txid: 0xf706990754516a1dba369aae21e056c412c9413305843b0fb935443a28a80804_u256
+                                .into(),
+                            vout: 0_u32,
+                            data: TxOut {
+                                value: 204986_u64,
+                                pk_script: @from_hex(
+                                    "76a9143112692b0a5636281504920d033e31c5aeb102fb88ac"
+                                ),
+                                cached: false,
+                            },
+                            block_height: 599444_u32,
+                            block_time: 1571124698_u32,
                         },
-                        
-                        TxIn {
-                            script: @from_hex("48304502210090260544bbd3a3466952ca887002b67065afc8e3e165d73dcdb52683d861b3e702203cce720e5562e90dac3f8ec2a1107142ec8b5a66e64a1405adf9a1bccd3ed82601210322716fb880c0f5076b141c7fabde6b9c14c63494e4a7ed70e513ba941a8408e4"),
-                            sequence: 4294967295,
-                            witness: array![].span(),
-                            previous_output: 
-                                OutPoint {
-                                    txid: 0xf76543b8332ecce07b730cc66f231c514ebb63262bfd908a490c6a8ad44f8b1d_u256.into(),
-                                    vout: 1_u32,
-                                    data: 
-                    TxOut {
-                        value: 8880162_64,
-                        pk_script: @from_hex("76a914885fbbcc911dedc848d270286c14a448974d66f088ac"),
-                        cached: false,
                     },
-                    
-                                    block_height: 599981_u32,
-                                    block_time: 1571432085_u32,
-                                },
+                    TxIn {
+                        script: @from_hex(
+                            "48304502210090260544bbd3a3466952ca887002b67065afc8e3e165d73dcdb52683d861b3e702203cce720e5562e90dac3f8ec2a1107142ec8b5a66e64a1405adf9a1bccd3ed82601210322716fb880c0f5076b141c7fabde6b9c14c63494e4a7ed70e513ba941a8408e4"
+                        ),
+                        sequence: 4294967295,
+                        witness: array![].span(),
+                        previous_output: OutPoint {
+                            txid: 0xf76543b8332ecce07b730cc66f231c514ebb63262bfd908a490c6a8ad44f8b1d_u256
+                                .into(),
+                            vout: 1_u32,
+                            data: TxOut {
+                                value: 8880162_u64,
+                                pk_script: @from_hex(
+                                    "76a914885fbbcc911dedc848d270286c14a448974d66f088ac"
+                                ),
+                                cached: false,
+                            },
+                            block_height: 599981_u32,
+                            block_time: 1571432085_u32,
                         },
-                        ].span(),
+                    },
+                ]
+                    .span(),
                 outputs: array![
                     TxOut {
-                        value: 5090_64,
+                        value: 5090_u64,
                         pk_script: @from_hex("76a914510f48b9b74c0748635217ff2779024a9ee1479e88ac"),
                         cached: false,
                     },
-                    
                     TxOut {
-                        value: 9631347_64,
+                        value: 9631347_u64,
                         pk_script: @from_hex("a914cb5c75a115b99f855344436ef50349ee98cc8a5f87"),
                         cached: false,
                     },
-                    ].span(),
-                },
-                
+                ]
+                    .span(),
+            },
             Transaction {
                 version: 2,
                 is_segwit: true,
                 lock_time: 599981,
                 inputs: array![
-                        TxIn {
-                            script: @from_hex("160014bbdbe750b8e2bb93d7b08454c3819b868f68773d"),
-                            sequence: 4294967294,
-                            witness: array![from_hex("304402207aebd49c218c40eb3bd2c5e7f5276e80396f2afcadb682229191d29296d5413f02201be87bb5817f8d71cb33c0db156bda5f3d2dccfd3f13b1d7c7fa073fb116421d01"), from_hex("02d404bbb459cc7a74a94704bb450925442999e62bdbe4d341bdc3860b88b5b9cb")].span(),
-                            previous_output: 
-                                OutPoint {
-                                    txid: 0x6cbd1a96537ede81f462edd5f3bc62204adca0f6e11357d5977988651d78ae96_u256.into(),
-                                    vout: 1_u32,
-                                    data: 
-                    TxOut {
-                        value: 1159468_64,
-                        pk_script: @from_hex("a914d30b19c07a6c53f906772324302429c93c0efe8887"),
-                        cached: false,
-                    },
-                    
-                                    block_height: 599982_u32,
-                                    block_time: 1571432630_u32,
-                                },
+                    TxIn {
+                        script: @from_hex("160014bbdbe750b8e2bb93d7b08454c3819b868f68773d"),
+                        sequence: 4294967294,
+                        witness: array![
+                            from_hex(
+                                "304402207aebd49c218c40eb3bd2c5e7f5276e80396f2afcadb682229191d29296d5413f02201be87bb5817f8d71cb33c0db156bda5f3d2dccfd3f13b1d7c7fa073fb116421d01"
+                            ),
+                            from_hex(
+                                "02d404bbb459cc7a74a94704bb450925442999e62bdbe4d341bdc3860b88b5b9cb"
+                            )
+                        ]
+                            .span(),
+                        previous_output: OutPoint {
+                            txid: 0x6cbd1a96537ede81f462edd5f3bc62204adca0f6e11357d5977988651d78ae96_u256
+                                .into(),
+                            vout: 1_u32,
+                            data: TxOut {
+                                value: 1159468_u64,
+                                pk_script: @from_hex(
+                                    "a914d30b19c07a6c53f906772324302429c93c0efe8887"
+                                ),
+                                cached: false,
+                            },
+                            block_height: 599982_u32,
+                            block_time: 1571432630_u32,
                         },
-                        
-                        TxIn {
-                            script: @from_hex("160014b01cd3258c8d81896f91b59d829770355b6081d4"),
-                            sequence: 4294967294,
-                            witness: array![from_hex("3044022001906469cb41b793b1dd08a56369d32caa4c3d83e7f44c4f84968344105277bf0220570e0424c932cf95a386867d071d49420092e4b5715af83432006c90ce8eb84301"), from_hex("039c5d88a23bbd1e0b4bf5cdd63039f53e518759856e1f2a5fd7567c975000f864")].span(),
-                            previous_output: 
-                                OutPoint {
-                                    txid: 0x0a347e685ac165c808c083b0627adeefec229bc6d19d86041ea373f5cdd7ad4d_u256.into(),
-                                    vout: 0_u32,
-                                    data: 
-                    TxOut {
-                        value: 1098734_64,
-                        pk_script: @from_hex("a91477a5d5738a946363a7219b70012a85b2460f84aa87"),
-                        cached: false,
                     },
-                    
-                                    block_height: 599982_u32,
-                                    block_time: 1571432630_u32,
-                                },
+                    TxIn {
+                        script: @from_hex("160014b01cd3258c8d81896f91b59d829770355b6081d4"),
+                        sequence: 4294967294,
+                        witness: array![
+                            from_hex(
+                                "3044022001906469cb41b793b1dd08a56369d32caa4c3d83e7f44c4f84968344105277bf0220570e0424c932cf95a386867d071d49420092e4b5715af83432006c90ce8eb84301"
+                            ),
+                            from_hex(
+                                "039c5d88a23bbd1e0b4bf5cdd63039f53e518759856e1f2a5fd7567c975000f864"
+                            )
+                        ]
+                            .span(),
+                        previous_output: OutPoint {
+                            txid: 0x0a347e685ac165c808c083b0627adeefec229bc6d19d86041ea373f5cdd7ad4d_u256
+                                .into(),
+                            vout: 0_u32,
+                            data: TxOut {
+                                value: 1098734_u64,
+                                pk_script: @from_hex(
+                                    "a91477a5d5738a946363a7219b70012a85b2460f84aa87"
+                                ),
+                                cached: false,
+                            },
+                            block_height: 599982_u32,
+                            block_time: 1571432630_u32,
                         },
-                        ].span(),
+                    },
+                ]
+                    .span(),
                 outputs: array![
                     TxOut {
-                        value: 1138770_64,
+                        value: 1138770_u64,
                         pk_script: @from_hex("76a914b310c1e2529f7d419da1268cc372f61a4678928788ac"),
                         cached: false,
                     },
-                    
                     TxOut {
-                        value: 1118658_64,
+                        value: 1118658_u64,
                         pk_script: @from_hex("a91478851c9277156b301ddeaf963e9629ea7ff1f54587"),
                         cached: false,
                     },
-                    ].span(),
-                },
-                
+                ]
+                    .span(),
+            },
             Transaction {
                 version: 1,
                 is_segwit: false,
                 lock_time: 0,
                 inputs: array![
-                        TxIn {
-                            script: @from_hex("483045022100848e79ccd42e3f3169be2f60352a5eacfe75b64b263b26e2b2102a6d62256e14022014770dad5f759b87af130b89d8d1b78ba1a9d2abda871c36ab23ffc7b04b35600121038b627c56d282ae5441491ef427a2f28024562ae788a97c34c6ecb2e1c1f0b7f0"),
-                            sequence: 4294967295,
-                            witness: array![].span(),
-                            previous_output: 
-                                OutPoint {
-                                    txid: 0x0eda40e537965f46d517c30e087b72ec581c0ac9564ed0f6f45922502433b320_u256.into(),
-                                    vout: 1_u32,
-                                    data: 
-                    TxOut {
-                        value: 644509_64,
-                        pk_script: @from_hex("76a9149d4ffac1c4817997d48f4a45253fe6ef1a09e09d88ac"),
-                        cached: false,
-                    },
-                    
-                                    block_height: 599969_u32,
-                                    block_time: 1571426413_u32,
-                                },
+                    TxIn {
+                        script: @from_hex(
+                            "483045022100848e79ccd42e3f3169be2f60352a5eacfe75b64b263b26e2b2102a6d62256e14022014770dad5f759b87af130b89d8d1b78ba1a9d2abda871c36ab23ffc7b04b35600121038b627c56d282ae5441491ef427a2f28024562ae788a97c34c6ecb2e1c1f0b7f0"
+                        ),
+                        sequence: 4294967295,
+                        witness: array![].span(),
+                        previous_output: OutPoint {
+                            txid: 0x0eda40e537965f46d517c30e087b72ec581c0ac9564ed0f6f45922502433b320_u256
+                                .into(),
+                            vout: 1_u32,
+                            data: TxOut {
+                                value: 644509_u64,
+                                pk_script: @from_hex(
+                                    "76a9149d4ffac1c4817997d48f4a45253fe6ef1a09e09d88ac"
+                                ),
+                                cached: false,
+                            },
+                            block_height: 599969_u32,
+                            block_time: 1571426413_u32,
                         },
-                        ].span(),
+                    },
+                ]
+                    .span(),
                 outputs: array![
                     TxOut {
-                        value: 163631_64,
+                        value: 163631_u64,
                         pk_script: @from_hex("76a91426d74f1db2ff2644a6384722aea10ba19b3aea1688ac"),
                         cached: false,
                     },
-                    
                     TxOut {
-                        value: 480200_64,
+                        value: 480200_u64,
                         pk_script: @from_hex("76a914c45ef4874f883dbfef2f6f46af454cdb8bd6eae388ac"),
                         cached: false,
                     },
-                    ].span(),
-                },
-                
+                ]
+                    .span(),
+            },
             Transaction {
                 version: 1,
                 is_segwit: false,
                 lock_time: 0,
                 inputs: array![
-                        TxIn {
-                            script: @from_hex("483045022100d230f1f4496d86c76f4b220d0807d4cffff51ec45bd1bf39a817e2cad3ee29a60220577da2ab46dbf3ca9ce67425c151f016658614d77ded74b393f0df9db79b71710121027e992897d1c120cf8d6969dadc68b3bba6995c1530e9272b68f1a97a74851878"),
-                            sequence: 4294967295,
-                            witness: array![].span(),
-                            previous_output: 
-                                OutPoint {
-                                    txid: 0xb5071d8cfcb14a9dfe025271026edfb9d25e14db8472aa89442ecf4a22162ff1_u256.into(),
-                                    vout: 57_u32,
-                                    data: 
-                    TxOut {
-                        value: 4213370_64,
-                        pk_script: @from_hex("76a914e11e96004cc3ab91cdcc704d41c3d53f50c8be7988ac"),
-                        cached: false,
-                    },
-                    
-                                    block_height: 590431_u32,
-                                    block_time: 1565990475_u32,
-                                },
+                    TxIn {
+                        script: @from_hex(
+                            "483045022100d230f1f4496d86c76f4b220d0807d4cffff51ec45bd1bf39a817e2cad3ee29a60220577da2ab46dbf3ca9ce67425c151f016658614d77ded74b393f0df9db79b71710121027e992897d1c120cf8d6969dadc68b3bba6995c1530e9272b68f1a97a74851878"
+                        ),
+                        sequence: 4294967295,
+                        witness: array![].span(),
+                        previous_output: OutPoint {
+                            txid: 0xb5071d8cfcb14a9dfe025271026edfb9d25e14db8472aa89442ecf4a22162ff1_u256
+                                .into(),
+                            vout: 57_u32,
+                            data: TxOut {
+                                value: 4213370_u64,
+                                pk_script: @from_hex(
+                                    "76a914e11e96004cc3ab91cdcc704d41c3d53f50c8be7988ac"
+                                ),
+                                cached: false,
+                            },
+                            block_height: 590431_u32,
+                            block_time: 1565990475_u32,
                         },
-                        ].span(),
+                    },
+                ]
+                    .span(),
                 outputs: array![
                     TxOut {
-                        value: 755220_64,
+                        value: 755220_u64,
                         pk_script: @from_hex("76a9146f5597c3a0eb63af88c8a5df211e73c347adbfa288ac"),
                         cached: false,
                     },
-                    
                     TxOut {
-                        value: 3457472_64,
+                        value: 3457472_u64,
                         pk_script: @from_hex("76a914b70cb2e9abd935394fa64b43fc127f6d195dc47b88ac"),
                         cached: false,
                     },
-                    ].span(),
-                },
-                ].span(),
+                ]
+                    .span(),
+            },
+        ]
+            .span(),
     }
 }
