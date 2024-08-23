@@ -1,0 +1,11 @@
+certifi==2024.7.4
+charset-normalizer==3.3.2
+idna==3.7
+importjson==0.2.3
+progressbar2==4.4.2
+python-utils==3.8.2
+requests==2.32.3
+six==1.16.0
+templatelite==0.2.1.1
+typing_extensions==4.12.2
+urllib3==2.2.2
