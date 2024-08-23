@@ -115,7 +115,16 @@ Re-generate test data:
 
 ```base
 scarb run get_blocks
+scarb run get_block <BlockHash>
+scarb run get_block_py <BlockHash>
 ```
+
+- File will be created in [tests/blocks/](https://github.com/keep-starknet-strange/raito/blob/main/tests/blocks)block_\<block_height\>.cairo
+- If you want to modify the blockHash for get_blocks change [scripts/data/get_blocks.sh](https://github.com/keep-starknet-strange/raito/blob/main/scripts/data/get_blocks.sh#L11)
+
+## Build dependencies
+
+- ```get_blocks``` and ```get_block_py``` need [that Python dependencies](https://github.com/keep-starknet-strange/raito/tree/main/scripts/data/requirements.txt)
 
 ## References
 
