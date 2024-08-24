@@ -14,12 +14,21 @@ pub trait Encode<T> {
         dest
     }
 }
-
-pub impl EncodeSpanImpl<T, +Encode<@T>> of Encode<Span<T>> {
+// impl for the type which has non copy traits
+pub impl EncodeSpanNcopyImpl<T, +Encode<@T>> of Encode<Span<T>> {
     fn encode_to(self: Span<T>, ref dest: ByteArray) {
         encode_compact_size(self.len(), ref dest);
         for item in self {
             item.encode_to(ref dest);
+        }
+    }
+}
+
+pub impl EncodeSpanImpl<T, +Encode<T>, +Copy<T>> of Encode<Span<T>> {
+    fn encode_to(self: Span<T>, ref dest: ByteArray) {
+        encode_compact_size(self.len(), ref dest);
+        for item in self {
+            (*item).encode_to(ref dest);
         }
     }
 }
@@ -30,10 +39,31 @@ pub impl EncodeByteArrayImpl of Encode<@ByteArray> {
         dest.append(self);
     }
 }
+
+pub impl Encodeu32 of Encode<u32> {
+    fn encode_to(self: u32, ref dest: ByteArray) {
+        dest.append_word_rev(self.into(), 4);
+    }
+}
+
+pub impl Encodeu64 of Encode<u64> {
+    fn encode_to(self: u64, ref dest: ByteArray) {
+        dest.append_word_rev(self.into(), 8);
+    }
+}
+
+pub impl EncodeHash of Encode<Hash> {
+    fn encode_to(self: Hash, ref dest: ByteArray) {
+        let bytes: ByteArray = self.into();
+        let bytes_rev = bytes.rev();
+        dest.append(@bytes_rev);
+    }
+}
+
 pub impl EncodeTxIn of Encode<TxIn> {
     fn encode_to(self: TxIn, ref dest: ByteArray) {
         self.script.encode_to(ref dest);
-        dest.append_word_rev(self.sequence.try_into().unwrap(), 4);
+        dest.append_word_rev(self.sequence.into(), 4);
         self.previous_output.encode_to(ref dest);
         self.witness.encode_to(ref dest);
     }
@@ -41,40 +71,29 @@ pub impl EncodeTxIn of Encode<TxIn> {
 
 pub impl EncodeTxOut of Encode<TxOut> {
     fn encode_to(self: TxOut, ref dest: ByteArray) {
-        dest.append_word_rev(self.value.try_into().unwrap(), 8);
+        dest.append_word_rev(self.value.into(), 8);
         self.pk_script.encode_to(ref dest);
     }
 }
 
+
 pub impl EncodeOutpoint of Encode<OutPoint> {
     fn encode_to(self: OutPoint, ref dest: ByteArray) {
-        let txids: ByteArray = self.txid.into();
-        let txids_rev = txids.rev();
-        dest.append(@txids_rev);
-        dest.append_word_rev(self.vout.try_into().unwrap(), 4);
+        self.txid.encode_to(ref dest);
+        self.vout.encode_to(ref dest);
     }
 }
 
 
 pub impl EncodeTx of Encode<Transaction> {
     fn encode_to(self: Transaction, ref dest: ByteArray) {
-        dest.append_word_rev(self.version.try_into().unwrap(), 4);
-        // if we have to find the wxtid then we have to serilaize according to the segeit
-        // transaction
-        encode_compact_size(self.inputs.len(), ref dest);
-        let inputs: Span<TxIn> = self.inputs;
-        for txin in inputs {
-            txin.clone().encode_to(ref dest);
-        };
-        encode_compact_size(self.outputs.len(), ref dest);
-        let outputs: Span<TxOut> = self.outputs;
-        for txout in outputs {
-            txout.clone().encode_to(ref dest);
-        };
-        // we have to changed that the locktime is the u32
-        dest.append_word_rev(self.lock_time.try_into().unwrap(), 4);
+        self.version.encode_to(ref dest);
+        self.inputs.encode_to(ref dest);
+        self.outputs.encode_to(ref dest);
+        self.lock_time.encode_to(ref dest);
     }
 }
+
 
 /// Variable size codec.
 /// Converts value into bytes and appends to the buffer.
