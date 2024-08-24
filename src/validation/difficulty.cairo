@@ -8,6 +8,8 @@ use raito::utils::{hash::Hash, bit_shifts::{shl, shr}};
 
 /// Maximum difficulty target allowed
 const MAX_TARGET: u256 = 0x00000000FFFF0000000000000000000000000000000000000000000000000000;
+const BLOCKS_PER_EPOCH: u32 = 2016;
+const EXPECTED_EPOCH_TIMESPAN: u32 = 60 * 60 * 24 * 14; //2weekds
 
 /// Check if the given bits match the target difficulty.
 pub fn validate_bits(target: u256, bits: u32) -> Result<(), ByteArray> {
@@ -21,10 +23,38 @@ pub fn validate_bits(target: u256, bits: u32) -> Result<(), ByteArray> {
 /// Adjusts difficulty target given the block height and timestamp.
 /// Returns new difficulty target and new epoch start time.
 pub fn adjust_difficulty(
-    current_target: u256, epoch_start_time: u32, block_height: u32, block_time: u32
+    current_target: u256,
+    epoch_start_time: u32,
+    block_height: u32,
+    prev_block_time: u32,
+    block_time: u32
 ) -> (u256, u32) {
-    // TODO: implement
-    (current_target, epoch_start_time)
+    if block_height % BLOCKS_PER_EPOCH == BLOCKS_PER_EPOCH - 1 {
+        let mut time_between = prev_block_time - epoch_start_time;
+
+        // Limit adjustment step
+        let is_too_large = EXPECTED_EPOCH_TIMESPAN * 4 < time_between;
+        let is_too_small = EXPECTED_EPOCH_TIMESPAN / 4 > time_between;
+
+        if (is_too_large) {
+            time_between = EXPECTED_EPOCH_TIMESPAN * 4;
+        } else if (is_too_small) {
+            time_between = EXPECTED_EPOCH_TIMESPAN / 4;
+        }
+
+        // Retarget calculation
+        let mut bn_new: u256 = current_target;
+        bn_new *= time_between.into();
+        bn_new /= EXPECTED_EPOCH_TIMESPAN.into();
+
+        if bn_new <= MAX_TARGET {
+            return (bn_new, block_time);
+        } else {
+            return (MAX_TARGET, block_time);
+        }
+    } else { // No adjustment needed, return current target and epoch start time
+        (current_target, epoch_start_time)
+    }
 }
 
 /// Convert target value to the compact form (bits)
@@ -108,7 +138,97 @@ fn bits_to_target(bits: u32) -> Result<u256, ByteArray> {
 
 #[cfg(test)]
 mod tests {
-    use super::{bits_to_target, target_to_bits};
+    use super::{bits_to_target, target_to_bits, adjust_difficulty};
+
+    #[test]
+    fn test_adjust_difficulty_block_2016_no_retargeting() {
+        // chainstate before block 2016
+        let current_target: u256 =
+            0x00000000ffff0000000000000000000000000000000000000000000000000000_u256;
+        let epoch_start_time: u32 = 1231006505;
+        let block_height: u32 = 2015;
+        let prev_block_time: u32 = 1233061996;
+
+        // block 2016
+        let block_time: u32 = 1233063531;
+
+        let (new_target, new_epoch_start_time) = adjust_difficulty(
+            current_target, epoch_start_time, block_height, prev_block_time, block_time
+        );
+
+        assert_eq!(
+            new_target, 0x00000000ffff0000000000000000000000000000000000000000000000000000_u256
+        );
+        assert_eq!(new_epoch_start_time, 1233063531);
+    }
+
+    #[test]
+    fn test_adjust_difficulty_block_2017_no_retargeting_no_new_epoch() {
+        // chainstate before block 2017
+        let current_target: u256 =
+            0x00000000ffff0000000000000000000000000000000000000000000000000000_u256;
+        let epoch_start_time: u32 = 1233063531;
+        let block_height: u32 = 2016;
+        let prev_block_time: u32 = 1233063531;
+
+        // block 2017
+        let block_time: u32 = 1233064909;
+
+        let (new_target, new_epoch_start_time) = adjust_difficulty(
+            current_target, epoch_start_time, block_height, prev_block_time, block_time
+        );
+
+        assert_eq!(
+            new_target, 0x00000000ffff0000000000000000000000000000000000000000000000000000_u256
+        );
+        assert_eq!(new_epoch_start_time, 1233063531);
+    }
+
+    #[test]
+    fn test_adjust_difficulty_block_32256_decrease() {
+        // chainstate before block 32256
+        let current_target: u256 =
+            0x00000000ffff0000000000000000000000000000000000000000000000000000_u256;
+        let epoch_start_time: u32 = 1261130161;
+        let block_height: u32 = 32255;
+        let prev_block_time: u32 = 1262152739;
+
+        // block 32256
+        let block_time: u32 = 1262153464;
+
+        let (new_target, new_epoch_start_time) = adjust_difficulty(
+            current_target, epoch_start_time, block_height, prev_block_time, block_time
+        );
+
+        assert_eq!(
+            bits_to_target(target_to_bits(new_target).unwrap()).unwrap(),
+            0x00000000d86a0000000000000000000000000000000000000000000000000000_u256
+        );
+        assert_eq!(new_epoch_start_time, 1262153464);
+    }
+
+    #[test]
+    fn test_adjust_difficulty_block_56448_increase() {
+        // chainstate before block 56448
+        let current_target: u256 =
+            0x0000000013ec5300000000000000000000000000000000000000000000000000_u256;
+        let epoch_start_time: u32 = 1272966376;
+        let block_height: u32 = 56447;
+        let prev_block_time: u32 = 1274278387;
+
+        // block 56448
+        let block_time: u32 = 1274278435;
+
+        let (new_target, new_epoch_start_time) = adjust_difficulty(
+            current_target, epoch_start_time, block_height, prev_block_time, block_time
+        );
+
+        assert_eq!(
+            bits_to_target(target_to_bits(new_target).unwrap()).unwrap(),
+            0x00000000159c2400000000000000000000000000000000000000000000000000_u256
+        );
+        assert_eq!(new_epoch_start_time, 1274278435);
+    }
 
     #[test]
     fn test_bits_to_target_01003456() {

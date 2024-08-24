@@ -27,7 +27,11 @@ pub impl BlockValidatorImpl of BlockValidator {
         validate_coinbase(block.txs[0], total_fees, block_height, wtxid_root)?;
 
         let (current_target, epoch_start_time) = adjust_difficulty(
-            self.current_target, self.epoch_start_time, block_height, block.header.time
+            self.current_target,
+            self.epoch_start_time,
+            self.block_height.unwrap_or(0),
+            *self.prev_timestamps[self.prev_timestamps.len() - 1],
+            block.header.time
         );
         let total_work = compute_total_work(self.total_work, current_target);
         let best_block_hash = block.header.hash(self.best_block_hash, txid_root);
