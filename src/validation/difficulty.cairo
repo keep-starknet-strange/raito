@@ -30,25 +30,24 @@ pub fn adjust_difficulty(
     block_time: u32
 ) -> (u256, u32) {
     if block_height % BLOCKS_PER_EPOCH == BLOCKS_PER_EPOCH - 1 {
-        let mut time_between = prev_block_time - epoch_start_time;
+        let mut time_span = prev_block_time - epoch_start_time;
 
         // Limit adjustment step
-        let is_too_large = EXPECTED_EPOCH_TIMESPAN * 4 < time_between;
-        let is_too_small = EXPECTED_EPOCH_TIMESPAN / 4 > time_between;
-
-        if (is_too_large) {
-            time_between = EXPECTED_EPOCH_TIMESPAN * 4;
-        } else if (is_too_small) {
-            time_between = EXPECTED_EPOCH_TIMESPAN / 4;
+        if (time_span < EXPECTED_EPOCH_TIMESPAN / 4) {
+            time_span = EXPECTED_EPOCH_TIMESPAN / 4;
+        }
+        if (time_span > EXPECTED_EPOCH_TIMESPAN * 4) {
+            time_span = EXPECTED_EPOCH_TIMESPAN * 4;
         }
 
         // Retarget calculation
         let mut bn_new: u256 = current_target;
-        bn_new *= time_between.into();
+        bn_new *= time_span.into();
         bn_new /= EXPECTED_EPOCH_TIMESPAN.into();
 
         if bn_new <= MAX_TARGET {
-            return (bn_new, block_time);
+            // bits_to_target(target_to_bits(x)) to reduce difficulty precision
+            return (bits_to_target(target_to_bits(bn_new).unwrap()).unwrap(), block_time);
         } else {
             return (MAX_TARGET, block_time);
         }
@@ -201,8 +200,7 @@ mod tests {
         );
 
         assert_eq!(
-            bits_to_target(target_to_bits(new_target).unwrap()).unwrap(),
-            0x00000000d86a0000000000000000000000000000000000000000000000000000_u256
+            new_target, 0x00000000d86a0000000000000000000000000000000000000000000000000000_u256
         );
         assert_eq!(new_epoch_start_time, 1262153464);
     }
@@ -224,8 +222,7 @@ mod tests {
         );
 
         assert_eq!(
-            bits_to_target(target_to_bits(new_target).unwrap()).unwrap(),
-            0x00000000159c2400000000000000000000000000000000000000000000000000_u256
+            new_target, 0x00000000159c2400000000000000000000000000000000000000000000000000_u256
         );
         assert_eq!(new_epoch_start_time, 1274278435);
     }
