@@ -1,5 +1,4 @@
-// fn main() {
-//     println!("Running Raito Bitcoin ZK client");
-// }
-
+fn main() {
+    println!("Running Raito Bitcoin ZK client");
+}
 
