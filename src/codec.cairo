@@ -61,14 +61,14 @@ pub impl EncodeHash of Encode<Hash> {
 pub impl EncodeTxIn of Encode<TxIn> {
     fn encode_to(self: TxIn, ref dest: ByteArray) {
         self.script.encode_to(ref dest);
-        dest.append_word_rev(self.sequence.into(), 4);
+        self.sequence.encode_to(ref dest);
         self.previous_output.encode_to(ref dest);
     }
 }
 
 pub impl EncodeTxOut of Encode<TxOut> {
     fn encode_to(self: TxOut, ref dest: ByteArray) {
-        dest.append_word_rev(self.value.into(), 8);
+        self.value.encode_to(ref dest);
         self.pk_script.encode_to(ref dest);
     }
 }
@@ -111,3 +111,7 @@ pub fn encode_compact_size(value: usize, ref dest: ByteArray) {
     }
     // Note: `usize` is a `u32` alias, so values >= 4,294,967,296 are not handled.
 }
+
+
+// Can you please rebase and swap encode_transaction (remove it) with tx.encode() in txid computation? Also please find a transaction with many inputs/outputs and larger scripts and add it as an additional txid unit test.
+
