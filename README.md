@@ -49,37 +49,54 @@ Although this is a highly experimental project without immediate plans for deplo
 
 ## Roadmap
 
-### Milestone 1 - Block Verification
+### Milestone 1 - Block header verification
 
-* header verification
-   * [ ] block hash
-   * [ ] proof-of-work
-   * [ ] median time
-   * [ ] difficulty adjustment
-* transaction verification
-   * [ ] tx hash
-   * [ ] tx merkle root
-   * [ ] verify transaction fee
-* block verification
-   * [ ] verify coinbase tx
-* verify scripts
-   * integration with Shinigami, tbd
-* integration testing
-   * [ ] test on individual historical blocks
+Implement a reduced light client that can verify a range of blocks starting at genesis.  
+It does not have to validate execution, just check that the block header fields follow the protocol.
 
-### Milestone 2 - Utreexo
+Tasks:
 
-* [ ] fetch utreexo from some kind of bridge node, tbd
-* [ ] use utreexo to verify tx inputs
+* [ ] block hash computation
+* [x] proof-of-work validation/computation
+* [x] block time validation/computation
+* [ ] block difficulty adjustment
+* [ ] transaction ID calculation
+* [x] transaction root computation
+* [x] script for fetching arbitrary block data
+* [ ] script for running the program e2e for a span of blocks
 
-### Milestone 3 - Real Data
+### Milestone 2 - Partial transaction verification
 
-* [ ] feed it with real data
-* [ ] test that you can produce and verify proofs of individual blocks
+Extend light client with partial transaction validation, but without UTXO checks.
 
-### Milestone 4 - Recursive Verification
+Tasks:
 
-* verify chain proofs with cairo verifier, tbd
+* [x] validate transaction fee
+* [x] validate coinbase transaction
+* [ ] validate segwit specific data
+* [x] script that fetches blocks extended with references UTXOs
+* [ ] script that runs the program e2e for a span of blocks
+
+### Milestone 3 - UTXO set verification
+
+Add inclusion proofs for the UTXOs included in the block.
+
+Tasks:
+
+* [ ] implement cache for UTXOs spent in the same block they are created
+* [ ] implement Utreexo accumulator (addition)
+* [ ] implement Utreexo single inclusion proof verification
+* [ ] implement Utreexo single output removal
+* [ ] implement Utreexo bridge node that generates individual inclusion proofs
+* [ ] implement script that runs the program e2e for a span of blocks
+
+### Milestone 4 - Full consensus verification
+
+Verify full execution, including the Bitcoin scripts check.
+
+### Milestone 5 - Incrementally verifiable computation
+
+Recursively verify STARK proofs of chain state updates.
 
 ## Name reference
 

@@ -1,6 +1,6 @@
 //! Transaction validation helpers.
 
-use raito::state::Transaction;
+use raito::types::transaction::Transaction;
 
 /// Validate transaction and return transaction fee.
 ///
@@ -30,19 +30,22 @@ pub fn validate_transaction(
     //      - https://github.com/bitcoin/bitcoin/blob/master/src/validation.cpp
 
     let mut total_input_amount = 0;
-    let mut total_output_amount = 0;
-
-    for input in *tx
-        .inputs {
-            let amount = *input.previous_output.data.value;
-            total_input_amount += amount;
-        };
-
-    for output in *tx.outputs {
-        let value = *output.value;
-        total_output_amount += value;
+    for input in *tx.inputs {
+        total_input_amount += *input.previous_output.data.value;
     };
 
+    let mut total_output_amount = 0;
+    for output in *tx.outputs {
+        total_output_amount += *output.value;
+    };
+
+    if total_output_amount > total_input_amount {
+        return Result::Err(
+            format!(
+                "[validate_transaction] negative fee (output {total_output_amount} > input {total_input_amount})"
+            )
+        );
+    }
     let tx_fee = total_input_amount - total_output_amount;
 
     Result::Ok(tx_fee)
@@ -50,7 +53,7 @@ pub fn validate_transaction(
 
 #[cfg(test)]
 mod tests {
-    use raito::state::{Transaction, TxIn, TxOut, OutPoint};
+    use raito::types::transaction::{Transaction, TxIn, TxOut, OutPoint};
     use raito::utils::hex::from_hex;
     use super::{validate_transaction};
 

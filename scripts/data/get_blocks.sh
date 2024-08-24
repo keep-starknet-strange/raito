@@ -2,6 +2,11 @@
 set -e;
 set -o pipefail;
 
+if [ -f .env ]
+then
+  export $(cat .env | xargs)
+fi
+
 get_single_block() {
     local block_hash=$1
     python3 ./scripts/data/get_block.py "$block_hash"
@@ -9,12 +14,12 @@ get_single_block() {
 
 main() {
     local block_hashes=(
-        # "000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f"  # Genesis block (0)
-        # "0000000000000000001057553daff768a3f7b03a43a4d12f2eaf814adcbfa35b"  # Block containing first P2P tx to Hal Finney (170)
-        # "00000000132fbe8314fc571c0be60b31ccd461c9ee85f42bde8c6d160a9dacc0"  # Bloc containing first off ramp tx from Martti Malmi (24835)
-        # "00000000152340ca42227603908689183edc47355204e7aca59383b0aaac1fd8"  # Block containing pizza tx (57043)
-        # "000000000000011f9791dcfdfe0e402b79a165a3b781bafcc918b6f2166d577c" # Small Block (150013)
-        # "000000000000048b95347e83192f69cf0366076336c639f9b7228e9ba171342e"  # First halving block (210000)
+        "000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f"  # Genesis block (0)
+        "00000000d1145790a8694403d4063f323d499e655c83426834d4ce2f8dd4a2ee"  # Block containing first P2P tx to Hal Finney (170)
+        "00000000132fbe8314fc571c0be60b31ccd461c9ee85f42bde8c6d160a9dacc0"  # Bloc containing first off ramp tx from Martti Malmi (24835)
+        "00000000152340ca42227603908689183edc47355204e7aca59383b0aaac1fd8"  # Block containing pizza tx (57043)
+        "000000000000011f9791dcfdfe0e402b79a165a3b781bafcc918b6f2166d577c" # Small Block (150013)
+        "000000000000048b95347e83192f69cf0366076336c639f9b7228e9ba171342e"  # First halving block (210000)
         # "000000000000000002cce816c0ab2c5c269cb081896b7dcb34b8422d6b74ffa1"  # Second halving block (420000)
         # "0000000000000000011865af4122fe3b144e2cbeea86142e8ff2fb4107352d43"  # Bitcoin Cash hard fork block (478558)
         # "0000000000000000001c8018d9cb3b742ef25114f27563e3fc4a1902167f9893"  # Segwit soft fork block (481824)
