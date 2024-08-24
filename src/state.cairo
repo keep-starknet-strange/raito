@@ -41,7 +41,7 @@ impl ChainStateDefault of Default<ChainState> {
             total_work: 0,
             best_block_hash: 0_u256.into(),
             current_target: 26959535291011309493156476344723991336010898738574164086137773096960,
-            epoch_start_time: 0,
+            epoch_start_time: 1231006505,
             prev_timestamps: [
                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
             ].span(), utreexo_state: Default::default(),

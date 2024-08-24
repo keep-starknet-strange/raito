@@ -8,8 +8,10 @@ use raito::utils::{hash::Hash, bit_shifts::{shl, shr}};
 
 /// Maximum difficulty target allowed
 const MAX_TARGET: u256 = 0x00000000FFFF0000000000000000000000000000000000000000000000000000;
+/// Number of blocks per epoch
 const BLOCKS_PER_EPOCH: u32 = 2016;
-const EXPECTED_EPOCH_TIMESPAN: u32 = 60 * 60 * 24 * 14; //2weekds
+/// Duration in second of an expected epoch of 2 weeks
+const EXPECTED_EPOCH_TIMESPAN: u32 = 60 * 60 * 24 * 14;
 
 /// Check if the given bits match the target difficulty.
 pub fn validate_bits(target: u256, bits: u32) -> Result<(), ByteArray> {
@@ -21,6 +23,8 @@ pub fn validate_bits(target: u256, bits: u32) -> Result<(), ByteArray> {
 }
 
 /// Adjusts difficulty target given the block height and timestamp.
+/// Previous block time is needed to calculate the time span.
+/// Actual block time is needed to calculate the new epoch start time.
 /// Returns new difficulty target and new epoch start time.
 pub fn adjust_difficulty(
     current_target: u256,
@@ -45,7 +49,7 @@ pub fn adjust_difficulty(
         bn_new *= time_span.into();
         bn_new /= EXPECTED_EPOCH_TIMESPAN.into();
 
-        if bn_new <= MAX_TARGET {
+        if bn_new < MAX_TARGET {
             // bits_to_target(target_to_bits(x)) to reduce difficulty precision
             return (bits_to_target(target_to_bits(bn_new).unwrap()).unwrap(), block_time);
         } else {
