@@ -10,7 +10,7 @@ use raito::utils::{hash::Hash, bit_shifts::{shl, shr}};
 const MAX_TARGET: u256 = 0x00000000FFFF0000000000000000000000000000000000000000000000000000;
 /// Number of blocks per epoch
 const BLOCKS_PER_EPOCH: u32 = 2016;
-/// Duration in second of an expected epoch of 2 weeks
+/// Duration in seconds of an expected epoch of 2 weeks
 const EXPECTED_EPOCH_TIMESPAN: u32 = 60 * 60 * 24 * 14;
 
 /// Check if the given bits match the target difficulty.
