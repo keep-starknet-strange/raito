@@ -54,9 +54,7 @@ pub impl Encodeu64 of Encode<u64> {
 
 pub impl EncodeHash of Encode<Hash> {
     fn encode_to(self: Hash, ref dest: ByteArray) {
-        let bytes: ByteArray = self.into();
-        let bytes_rev = bytes.rev();
-        dest.append(@bytes_rev);
+        dest.append(@self.into());
     }
 }
 
@@ -65,7 +63,6 @@ pub impl EncodeTxIn of Encode<TxIn> {
         self.script.encode_to(ref dest);
         dest.append_word_rev(self.sequence.into(), 4);
         self.previous_output.encode_to(ref dest);
-        self.witness.encode_to(ref dest);
     }
 }
 
