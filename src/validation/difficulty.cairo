@@ -27,6 +27,7 @@ pub fn validate_bits(target: u256, bits: u32) -> Result<(), ByteArray> {
 /// Actual block time is needed to calculate the new epoch start time.
 /// Returns new difficulty target and new epoch start time.
 pub fn adjust_difficulty(
+    /// TODO: Split this function into smaller functions
     current_target: u256,
     epoch_start_time: u32,
     block_height: u32,
