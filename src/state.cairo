@@ -4,7 +4,9 @@
 //! The extended set of fields allows to recursively validate entities in a stateless manner,
 //! and to avoid repetitive computations.
 
-use raito::utils::{hash::{Hash, HashTrait}, sha256::double_sha256_byte_array};
+use raito::utils::{
+    hash::{Hash, HashTrait}, hex::{print_bytearray_hex}, sha256::double_sha256_byte_array
+};
 use super::codec::encode_transaction;
 pub use super::utreexo::UtreexoState;
 
@@ -214,14 +216,59 @@ pub impl TransactionImpl of TransactionTrait {
 pub impl HeaderImpl of HeaderTrait {
     /// Compute hash of the block header given the missing fields.
     fn hash(self: @Header, _prev_block_hash: Hash, _merkle_root: Hash) -> Hash {
-        Default::default()
+        let mut header_data_bytes: ByteArray = Default::default();
+
+        header_data_bytes.append_word_rev((*self.version).into(), 4);
+        let best_block_hash: ByteArray = _prev_block_hash.into();
+        header_data_bytes.append(@best_block_hash);
+        let merkle_root: ByteArray = _merkle_root.into();
+        header_data_bytes.append(@merkle_root);
+        header_data_bytes.append_word_rev((*self.time).into(), 4);
+        header_data_bytes.append_word_rev((*self.bits).into(), 4);
+        header_data_bytes.append_word_rev((*self.nonce).into(), 4);
+
+        // print!("header_data_bytes: ");
+        // print_bytearray_hex(@header_data_bytes);
+        double_sha256_byte_array(@header_data_bytes)
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use super::{Transaction, TransactionTrait, TxIn, TxOut, OutPoint};
-    use raito::utils::hex::from_hex;
+    use super::{
+        Transaction, TransactionTrait, TxIn, TxOut, OutPoint, ChainState, Block, Header, HeaderTrait
+    };
+    use raito::utils::{hex::from_hex, hash::Hash};
+
+    #[test]
+    fn test_block_hash() {
+        let mut chain_state: ChainState = Default::default();
+        chain_state
+            .best_block_hash =
+                0x000000002a22cfee1f2c846adbd12b3e183d4f97683f85dad08a79780a84bd55_u256
+            .into();
+        // block 170
+        let block = Block {
+            header: Header {
+                version: 1_u32, time: 1231731025_u32, bits: 0x1d00ffff_u32, nonce: 1889418792_u32
+            },
+            txs: ArrayTrait::new().span(),
+        };
+        let merkle_root: Hash =
+            0x7dac2c5666815c17a3b36427de37bb9d2e2c5ccec3f8633eb91a4205cb4c10ff_u256
+            .into();
+
+        let block_hash_result: Hash = block.header.hash(chain_state.best_block_hash, merkle_root);
+        // let block_hash_result: Hash = HeaderTrait::hash(chain_state.best_block_hash,
+        // merkle_root);
+
+        //0x00000000d1145790a8694403d4063f323d499e655c83426834d4ce2f8dd4a2ee
+        let expected_block_hash: Hash =
+            0xeea2d48d2fced4346842835c659e493d323f06d4034469a8905714d100000000_u256
+            .into();
+
+        assert_eq!(expected_block_hash, block_hash_result);
+    }
 
     #[test]
     fn test_txid() {

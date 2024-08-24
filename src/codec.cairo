@@ -1,6 +1,7 @@
 //! Bitcoin binary codec traits, implementations, and helpers.
 
 use super::state::{Transaction, TxIn, TxOut};
+use super::utils::hex::{print_bytearray_hex};
 
 pub trait Encode<T> {
     /// Convert into bytes and append to the buffer
@@ -65,8 +66,8 @@ pub fn encode_transaction(tx: @Transaction, _segwit: bool) -> ByteArray {
         hash256_input.append_word_rev((*txin.script).len().into(), 1);
 
         // append ScriptSig (variable size)
-        let rev_script = (*txin.script).rev();
-        hash256_input.append(@rev_script);
+        // let rev_script = (*txin.script).rev();
+        hash256_input.append(*txin.script);
 
         // append Sequence (4 bytes)
         hash256_input.append_word_rev((*txin.sequence).into(), 4);
@@ -86,11 +87,15 @@ pub fn encode_transaction(tx: @Transaction, _segwit: bool) -> ByteArray {
         hash256_input.append_word_rev((*txout.pk_script).len().into(), 1);
 
         // append ScriptPubKey (variable size)
-        let rev_pk_script = (*txout.pk_script).rev();
-        hash256_input.append(@rev_pk_script);
+        // let rev_pk_script = (*txout.pk_script).rev();
+        hash256_input.append(*txout.pk_script);
     };
 
     // append locktime (4 bytes)
     hash256_input.append_word_rev((*tx.lock_time).into(), 4);
+    // println!("Raw transaction: {}", hash256_input);
+
+    print_bytearray_hex(@hash256_input);
+
     hash256_input
 }

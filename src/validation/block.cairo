@@ -34,7 +34,9 @@ pub fn fee_and_merkle_roots(
         }
 
         let tx = txs[i];
-        txids.append(tx.txid());
+        let tmp = tx.txid();
+        println!("append txid: {tmp}");
+        txids.append(tmp);
         // TODO: only do that for blocks after Segwit upgrade
         wtxids.append(tx.wtxid());
 
