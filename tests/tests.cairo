@@ -16,10 +16,13 @@ fn test_block0() {
     assert_eq!(result.block_height.unwrap(), 0);
     assert_eq!(result.total_work, 4295032833);
     assert_eq!(result.prev_timestamps, [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1231006505].span());
+    assert_eq!(
+        result.current_target, 0x00000000ffff0000000000000000000000000000000000000000000000000000
+    );
+    println!("result.epoch_start_time: {:?}", result.epoch_start_time);
+    assert_eq!(result.epoch_start_time, 1231006505);
     //to impl
 // assert_eq!(result.best_block_hash, 0_u256.into());
-// assert_eq!(result.current_target, 0_u256);
-// assert_eq!(result.epoch_start_time, 0);
 // assert_eq!(result.utreexo_state.roots, [...]);
 
 }
@@ -32,7 +35,7 @@ fn test_block170() {
         total_work: 0,
         best_block_hash: 0_u256.into(),
         current_target: 26959535291011309493156476344723991336010898738574164086137773096960,
-        epoch_start_time: 0,
+        epoch_start_time: 1231006505,
         prev_timestamps: [
             1231702618,
             1231703466,
@@ -73,10 +76,12 @@ fn test_block170() {
             1231731025
         ].span()
     );
-    // //to impl
+    assert_eq!(
+        result.current_target, 0x00000000ffff0000000000000000000000000000000000000000000000000000
+    );
+    assert_eq!(result.epoch_start_time, 1231006505);
+    //to impl
 // assert_eq!(result.best_block_hash, 0_u256.into());
-// assert_eq!(result.current_target, 0_u256);
-// assert_eq!(result.epoch_start_time, 0);
 // assert_eq!(result.utreexo_state.roots, [...]);
 }
 
