@@ -17,6 +17,24 @@ pub impl HashImpl of HashTrait {
     fn new(array: [u32; 8]) -> Hash {
         Hash { value: array }
     }
+    fn hash_rev_to_u256(self: Hash) -> u256 {
+        let [a, b, c, d, e, f, g, h] = self.value;
+
+        let mut low: u128 = 0;
+        let mut high: u128 = 0;
+
+        low += (a.into());
+        low += shl((b.into()), 32_u32);
+        low += shl((c.into()), 64_u32);
+        low += shl((d.into()), 96_u32);
+
+        high += (e.into());
+        high += shl((f.into()), 32_u32);
+        high += shl((g.into()), 64_u32);
+        high += shl((h.into()), 96_u32);
+
+        u256 { low, high }
+    }
 }
 
 /// Formats a `Hash` value for display.
