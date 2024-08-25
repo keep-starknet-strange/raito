@@ -23,7 +23,7 @@ pub impl HashImpl of HashTrait {
     fn reverse_bytes_order(self: Hash) -> Hash {
         let hashByteArray: ByteArray = self.into();
         let mut arr: Array<u32> = array![];
-        
+
         let mut i = 0;
         while (i < hashByteArray.len()) {
             let mut j = 0;
