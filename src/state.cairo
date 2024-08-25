@@ -4,9 +4,7 @@
 //! The extended set of fields allows to recursively validate entities in a stateless manner,
 //! and to avoid repetitive computations.
 
-use raito::utils::{
-    hash::{Hash, HashTrait}, hex::{print_bytearray_hex}, sha256::double_sha256_byte_array
-};
+use raito::utils::{hash::Hash, sha256::double_sha256_byte_array};
 use super::codec::encode_transaction;
 pub use super::utreexo::UtreexoState;
 
