@@ -272,7 +272,7 @@ mod tests {
             inputs: array![
                 TxIn {
                     script: @from_hex(
-                        "01091d8d76a82122082246acbb6cc51c839d9012ddaca46048de07ca8eec221518200241cdb85fab4815c6c624d6e932774f3fdf5fa2a1d3a1614951afb83269e1454e2002443047"
+                        "47304402204e45e16932b8af514961a1d3a1a25fdf3f4f7732e9d624c6c61548ab5fb8cd410220181522ec8eca07de4860a4acdd12909d831cc56cbbac4622082221a8768d1d0901"
                     ),
                     sequence: 0xffffffff,
                     previous_output: OutPoint {
@@ -291,14 +291,14 @@ mod tests {
                 TxOut {
                     value: 0x000000003b9aca00,
                     pk_script: @from_hex(
-                        "ac4cd86c7e4f702ac7d5debaf126068a3b30b7c1212c145fdfa754f59773b3aae71484a22f30718d37cd74f325229b15f7a2996bf0075f90131bf5c509fe621aae0441"
+                        "4104ae1a62fe09c5f51b13905f07f06b99a2f7159b2225f374cd378d71302fa28414e7aab37397f554a7df5f142c21c1b7303b8a0626f1baded5c72a704f7e6cd84cac"
                     ),
                     cached: false,
                 },
                 TxOut {
                     value: 0x00000000ee6b2800,
                     pk_script: @from_hex(
-                        "aca312b456f643869b993fc0d4f9648b9bfa0b162ef8644474f9cc84fbddeae0b25c9a90a648b1d7ca2e48b1972e388ab61ebc538c0f84496b018adbdce193db110441"
+                        "410411db93e1dcdb8a016b49840f8c53bc1eb68a382e97b1482ecad7b148a6909a5cb2e0eaddfb84ccf9744464f82e160bfa9b8b64f9d4c03f999b8643f656b412a3ac"
                     ),
                     cached: false,
                 }
@@ -306,9 +306,9 @@ mod tests {
                 .span(),
             lock_time: 0
         };
-        // assert_eq!(
-    //     tx.txid(),
-    //     0x169e1e83e930853391bc6f35f605c6754cfead57cf8387639d3b4096c54f18f4_u256.into()
-    // );
+        assert_eq!(
+            tx.txid(),
+            0x169e1e83e930853391bc6f35f605c6754cfead57cf8387639d3b4096c54f18f4_u256.into()
+        );
     }
 }
