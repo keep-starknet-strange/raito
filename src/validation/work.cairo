@@ -4,9 +4,8 @@ use raito::utils::hash::{Hash, HashTrait};
 
 /// Check if the work done (by calculating the block hash) satisfies the difficulty target.
 pub fn validate_proof_of_work(target: u256, block_hash: Hash) -> Result<(), ByteArray> {
-    // println!("block_hash: {block_hash}");
-    
-    if HashTrait::hash_rev_to_u256(block_hash) <= target {
+    let hash_to_reverse_order: Hash = HashTrait::reverse_bytes_order(block_hash);
+    if hash_to_reverse_order.into() <= target {
         Result::Ok(())
     } else {
         Result::Err(
@@ -35,23 +34,33 @@ mod tests {
     #[test]
     fn test_validate_proof_of_work() {
         // target is less than prev block hash
-        let result = validate_proof_of_work(0, 1_u256.into());
+        let result = validate_proof_of_work(
+            0, 0x0100000000000000000000000000000000000000000000000000000000000000_u256.into()
+        );
         assert!(result.is_err(), "Expect target less than prev block hash");
 
         // target is greater than prev block hash
-        let result = validate_proof_of_work(2, 1_u256.into());
+        let result = validate_proof_of_work(
+            2, 0x0100000000000000000000000000000000000000000000000000000000000000_u256.into()
+        );
         assert!(result.is_ok(), "Expect target gt prev block hash");
 
         // target is equal to prev block hash
-        let result = validate_proof_of_work(1, 1_u256.into());
+        let result = validate_proof_of_work(
+            1, 0x0100000000000000000000000000000000000000000000000000000000000000_u256.into()
+        );
         assert!(result.is_ok(), "Expect target equal to prev block hash");
 
         // block prev block hash is greater than target
-        let result = validate_proof_of_work(1, 2_u256.into());
+        let result = validate_proof_of_work(
+            1, 0x0200000000000000000000000000000000000000000000000000000000000000_u256.into()
+        );
         assert!(result.is_err(), "Expect prev block hash gt target");
 
         // block prev block hash is less than target
-        let result = validate_proof_of_work(10, 9_u256.into());
+        let result = validate_proof_of_work(
+            10, 0x0900000000000000000000000000000000000000000000000000000000000000_u256.into()
+        );
         assert!(result.is_ok(), "Expect prev block hash lt target");
     }
 

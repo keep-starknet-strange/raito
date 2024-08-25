@@ -34,7 +34,6 @@ pub impl BlockValidatorImpl of BlockValidator {
             block.header.time
         );
         let total_work = compute_total_work(self.total_work, current_target);
-        println!("merkle root: {txid_root}");
         let best_block_hash = block.header.hash(self.best_block_hash, txid_root);
 
         validate_proof_of_work(current_target, best_block_hash)?;

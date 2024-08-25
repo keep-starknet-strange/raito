@@ -1,7 +1,6 @@
 //! Bitcoin binary codec traits, implementations, and helpers.
 
 use super::state::{Transaction, TxIn, TxOut};
-use super::utils::hex::{print_bytearray_hex};
 
 pub trait Encode<T> {
     /// Convert into bytes and append to the buffer
@@ -91,11 +90,6 @@ pub fn encode_transaction(tx: @Transaction, _segwit: bool) -> ByteArray {
         hash256_input.append(*txout.pk_script);
     };
 
-    // append locktime (4 bytes)
     hash256_input.append_word_rev((*tx.lock_time).into(), 4);
-    // println!("Raw transaction: {}", hash256_input);
-
-    print_bytearray_hex(@hash256_input);
-
     hash256_input
 }

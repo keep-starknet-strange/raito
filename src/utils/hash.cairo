@@ -17,23 +17,28 @@ pub impl HashImpl of HashTrait {
     fn new(array: [u32; 8]) -> Hash {
         Hash { value: array }
     }
-    fn hash_rev_to_u256(self: Hash) -> u256 {
-        let [a, b, c, d, e, f, g, h] = self.value;
 
-        let mut low: u128 = 0;
-        let mut high: u128 = 0;
+    /// Reverse Hash Bytes Order
+    /// Natural Order (0x1234..0000) to Reverse Order (0x0000..3412) and vice versa
+    fn reverse_bytes_order(self: Hash) -> Hash {
+        let hashByteArray: ByteArray = self.into();
+        let mut arr: Array<u32> = array![];
+        
+        let mut i = 0;
+        while (i < hashByteArray.len()) {
+            let mut j = 0;
+            let mut tmp_u32: u32 = 0;
+            while (j < 4) {
+                let elem: u8 = hashByteArray[hashByteArray.len() - i - j - 1];
+                tmp_u32 += shl(elem.into(), (8 * (3 - j)));
+                j += 1;
+            };
+            arr.append(tmp_u32);
+            i += 4;
+        };
 
-        low += (a.into());
-        low += shl((b.into()), 32_u32);
-        low += shl((c.into()), 64_u32);
-        low += shl((d.into()), 96_u32);
-
-        high += (e.into());
-        high += shl((f.into()), 32_u32);
-        high += shl((g.into()), 64_u32);
-        high += shl((h.into()), 96_u32);
-
-        u256 { low, high }
+        let result = [*arr[0], *arr[1], *arr[2], *arr[3], *arr[4], *arr[5], *arr[6], *arr[7]];
+        Self::new(result)
     }
 }
 
@@ -130,7 +135,7 @@ pub impl HashIntoU256 of Into<Hash, u256> {
 
 #[cfg(test)]
 mod tests {
-    use super::Hash;
+    use super::{Hash, HashTrait};
     use raito::utils::hex::from_hex;
 
     #[test]
@@ -205,5 +210,41 @@ mod tests {
         );
 
         assert_eq!(byte_array, expected_byte_array, "invalid results");
+    }
+
+
+    #[test]
+    fn test_reverse_bytes_order1() {
+        let hash: Hash = 0x000000002a22cfee1f2c846adbd12b3e183d4f97683f85dad08a79780a84bd55_u256
+            .into();
+        let expected: Hash = 0x55bd840a78798ad0da853f68974f3d183e2bd1db6a842c1feecf222a00000000_u256
+            .into();
+
+        let result = HashTrait::reverse_bytes_order(hash);
+        assert_eq!(result, expected, "invalid results");
+    }
+
+    #[test]
+    // gensis block hash
+    fn test_reverse_bytes_order2() {
+        let hash: Hash = 0x000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f_u256
+            .into();
+        let expected: Hash = 0x6fe28c0ab6f1b372c1a6a246ae63f74f931e8365e15a089c68d6190000000000_u256
+            .into();
+
+        let result = HashTrait::reverse_bytes_order(hash);
+        assert_eq!(result, expected, "invalid results");
+    }
+
+    #[test]
+    /// pizza transaction hash
+    fn test_reverse_bytes_order3() {
+        let hash: Hash = 0xa1075db55d416d3ca199f55b6084e2115b9345e16c5cf302fc80e9d5fbf5d48d_u256
+            .into();
+        let expected: Hash = 0x8dd4f5fbd5e980fc02f35c6ce145935b11e284605bf599a13c6d415db55d07a1_u256
+            .into();
+
+        let result = HashTrait::reverse_bytes_order(hash);
+        assert_eq!(result, expected, "invalid results");
     }
 }
