@@ -1,78 +1,10 @@
-//! Bitcoin data type objects extended with validation context.
+//! Bitcoin transaction and its components.
 //!
+//! Types are extended with extra information required for validation.
 //! The data is expected to be prepared in advance and passed as program arguments.
-//! The extended set of fields allows to recursively validate entities in a stateless manner,
-//! and to avoid repetitive computations.
 
 use raito::utils::{hash::{Hash, HashTrait}, sha256::double_sha256_byte_array};
-use super::codec::encode_transaction;
-pub use super::utreexo::UtreexoState;
-
-/// Represents the state of the blockchain.
-#[derive(Drop, Copy)]
-pub struct ChainState {
-    /// Height of the current block.
-    pub block_height: Option<u32>,
-    /// Total work done.
-    pub total_work: u256,
-    /// Best block.
-    pub best_block_hash: Hash,
-    /// Current target.
-    pub current_target: u256,
-    /// Start of the current epoch.
-    pub epoch_start_time: u32,
-    /// List of 11 most recent block timestamps (from oldest to newest).
-    /// It is expected that this list always has length = 11
-    ///
-    /// Note that timestamps *do not* influence the order of blocks, i.e.
-    /// it's possible that one block could have an earlier timestamp
-    /// than a block that came before it in the chain.
-    pub prev_timestamps: Span<u32>,
-    /// Utreexo state.
-    pub utreexo_state: UtreexoState,
-}
-
-/// Represents the initial state before genesis block.
-/// https://github.com/bitcoin/bitcoin/blob/ee367170cb2acf82b6ff8e0ccdbc1cce09730662/src/kernel/chainparams.cpp#L99
-impl ChainStateDefault of Default<ChainState> {
-    fn default() -> ChainState {
-        ChainState {
-            block_height: Default::default(),
-            total_work: 0,
-            best_block_hash: 0_u256.into(),
-            current_target: 26959535291011309493156476344723991336010898738574164086137773096960,
-            epoch_start_time: 1231006505,
-            prev_timestamps: [
-                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-            ].span(), utreexo_state: Default::default(),
-        }
-    }
-}
-
-/// Represents a block in the blockchain.
-#[derive(Drop, Copy)]
-pub struct Block {
-    /// Block header.
-    pub header: Header,
-    /// Transactions.
-    pub txs: Span<Transaction>,
-}
-
-/// Represents a block header.
-/// https://learnmeabitcoin.com/technical/block/
-#[derive(Drop, Copy)]
-pub struct Header {
-    /// The version of the block.
-    pub version: u32,
-    /// The timestamp of the block.
-    pub time: u32,
-    /// The difficulty target for mining the block.
-    /// Not strictly necessary since it can be computed from target,
-    /// but it is cheaper to validate than compute.
-    pub bits: u32,
-    /// The nonce used in mining the block.
-    pub nonce: u32,
-}
+use raito::codec::encode_transaction;
 
 /// Represents a transaction.
 /// https://learnmeabitcoin.com/technical/transaction/
@@ -113,7 +45,7 @@ pub struct TxIn {
     pub witness: Span<ByteArray>,
 }
 
-/// A reference to a transaction output.
+/// A reference to an unspent transaction output (UTXO).
 ///
 /// NOTE that `data` and `block_height` meta fields are not serialized with the rest of
 /// the transaction and hence are not constrained with the transaction hash.
@@ -210,13 +142,8 @@ pub impl TransactionImpl of TransactionTrait {
     }
 }
 
-#[generate_trait]
-pub impl HeaderImpl of HeaderTrait {
-    /// Compute hash of the block header given the missing fields.
-    fn hash(self: @Header, _prev_block_hash: Hash, _merkle_root: Hash) -> Hash {
-        Default::default()
-    }
-}
+// TODO: implement Hash trait for OutPoint (for creating hash digests to use in utreexo/utxo cache)
+// Maybe we need to rename utils::hash::Hash (e.g. to Digest) to avoid confusion
 
 #[cfg(test)]
 mod tests {

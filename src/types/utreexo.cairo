@@ -27,7 +27,7 @@
 //!
 //! Read more about utreexo: https://eprint.iacr.org/2019/611.pdf
 
-use super::state::OutPoint;
+use super::transaction::OutPoint;
 
 /// Accumulator representation of the state aka "Compact State Node".
 /// Part of the chain state.

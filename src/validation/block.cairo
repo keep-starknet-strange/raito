@@ -1,9 +1,8 @@
 //! Block validation helpers.
 
-use raito::state::{
-    Block, ChainState, Transaction, TransactionTrait, HeaderTrait, UtreexoState, TxIn, TxOut,
-    OutPoint
-};
+use raito::types::transaction::{Transaction, TransactionTrait, TxIn, TxOut, OutPoint};
+use raito::types::block::{Block, BlockHash};
+use raito::types::chain_state::ChainState;
 use raito::utils::{hash::Hash, merkle_tree::merkle_root};
 use super::transaction::validate_transaction;
 

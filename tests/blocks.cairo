@@ -6,7 +6,6 @@ pub mod block_150013;
 pub mod block_210000;
 pub mod block_757739;
 pub mod block_757753;
-pub mod block_599983;
 // pub mod block_210000;
 // mod block_420000;
 // mod block_478558;

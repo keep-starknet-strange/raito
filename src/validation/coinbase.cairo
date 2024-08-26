@@ -2,7 +2,7 @@
 //!
 //! https://learnmeabitcoin.com/technical/mining/coinbase-transaction/
 
-use raito::state::Transaction;
+use raito::types::transaction::Transaction;
 use raito::utils::{bit_shifts::shr, hash::Hash};
 
 /// Validates coinbase transaction.
@@ -45,7 +45,7 @@ fn compute_block_reward(block_height: u32) -> u64 {
 #[cfg(test)]
 mod tests {
     use super::{compute_block_reward, validate_coinbase};
-    use raito::state::{TxIn, TxOut, Transaction, OutPoint};
+    use raito::types::transaction::{TxIn, TxOut, Transaction, OutPoint};
     use raito::utils::hex::from_hex;
 
     // Ref implementation here:

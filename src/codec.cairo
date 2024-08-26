@@ -1,6 +1,6 @@
 //! Bitcoin binary codec traits, implementations, and helpers.
 
-use super::state::{Transaction, TxIn, TxOut};
+use super::types::transaction::{Transaction, TxIn, TxOut};
 
 pub trait Encode<T> {
     /// Convert into bytes and append to the buffer
