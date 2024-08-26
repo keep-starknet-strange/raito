@@ -34,27 +34,6 @@ fn hex_char_to_nibble(hex_char: u8) -> u8 {
     }
 }
 
-/// Print a byte array as hex
-pub fn print_bytearray_hex(data: @ByteArray) {
-    let mut i = 0;
-    let alphabet: @ByteArray = @"0123456789abcdef";
-
-    print!("0x");
-    while i < data.len() {
-        let value = data[i];
-
-        let mut arr: ByteArray = "";
-        let l = value / 16;
-        let r = value % 16;
-        arr.append_byte(alphabet.at(l.into()).unwrap());
-        arr.append_byte(alphabet.at(r.into()).unwrap());
-
-        print!("{}", arr);
-        i += 1;
-    };
-    println!("");
-}
-
 #[cfg(test)]
 mod tests {
     use super::from_hex;
