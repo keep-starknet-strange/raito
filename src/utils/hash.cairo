@@ -88,25 +88,137 @@ pub impl U256IntoHash of Into<u256, Hash> {
     }
 }
 
-/// Converts a `Hash` value into a `u256` type.
+/// Converts a `Hash` value into a `u256` type and  /!\ reverse bytes order.
+/// Hash is stored in little-endian order, while u256 is stored in big-endian order like in explorer
+/// .
 pub impl HashIntoU256 of Into<Hash, u256> {
     fn into(self: Hash) -> u256 {
         let [a, b, c, d, e, f, g, h] = self.value;
 
+        let mut a = a;
+        let mut b = b;
+        let mut c = c;
+        let mut d = d;
+        let mut e = e;
+        let mut f = f;
+        let mut g = g;
+        let mut h = h;
+
         let mut low: u128 = 0;
         let mut high: u128 = 0;
 
-        low += (h.into());
-        low += shl((g.into()), 32_u32);
-        low += shl((f.into()), 64_u32);
-        low += shl((e.into()), 96_u32);
+        high += (h & 0x000000ff).into();
+        high = shl(high, 8_u128);
+        h = shr(h, 8_u32);
+        high += (h & 0x000000ff).into();
+        high = shl(high, 8_u128);
+        h = shr(h, 8_u32);
+        high += (h & 0x000000ff).into();
+        high = shl(high, 8_u128);
+        h = shr(h, 8_u32);
+        high += (h & 0x000000ff).into();
+        high = shl(high, 8_u128);
 
-        high += (d.into());
-        high += shl((c.into()), 32_u32);
-        high += shl((b.into()), 64_u32);
-        high += shl((a.into()), 96_u32);
+        high += (g & 0x000000ff).into();
+        high = shl(high, 8_u128);
+        g = shr(g, 8_u32);
+        high += (g & 0x000000ff).into();
+        high = shl(high, 8_u128);
+        g = shr(g, 8_u32);
+        high += (g & 0x000000ff).into();
+        high = shl(high, 8_u128);
+        g = shr(g, 8_u32);
+        high += (g & 0x000000ff).into();
+        high = shl(high, 8_u128);
 
-        u256 { low, high }
+        high += (f & 0x000000ff).into();
+        high = shl(high, 8_u128);
+        f = shr(f, 8_u32);
+        high += (f & 0x000000ff).into();
+        high = shl(high, 8_u128);
+        f = shr(f, 8_u32);
+        high += (f & 0x000000ff).into();
+        high = shl(high, 8_u128);
+        f = shr(f, 8_u32);
+        high += (f & 0x000000ff).into();
+        high = shl(high, 8_u128);
+
+        high += (e & 0x000000ff).into();
+        high = shl(high, 8_u128);
+        e = shr(e, 8_u32);
+        high += (e & 0x000000ff).into();
+        high = shl(high, 8_u128);
+        e = shr(e, 8_u32);
+        high += (e & 0x000000ff).into();
+        high = shl(high, 8_u128);
+        e = shr(e, 8_u32);
+        high += (e & 0x000000ff).into();
+        // shl(high, 8_u128);
+
+        low += (d & 0x000000ff).into();
+        low = shl(low, 8_u128);
+        d = shr(d, 8_u32);
+        low += (d & 0x000000ff).into();
+        low = shl(low, 8_u128);
+        d = shr(d, 8_u32);
+        low += (d & 0x000000ff).into();
+        low = shl(low, 8_u128);
+        d = shr(d, 8_u32);
+        low += (d & 0x000000ff).into();
+        low = shl(low, 8_u128);
+
+        low += (c & 0x000000ff).into();
+        low = shl(low, 8_u128);
+        c = shr(c, 8_u32);
+        low += (c & 0x000000ff).into();
+        low = shl(low, 8_u128);
+        c = shr(c, 8_u32);
+        low += (c & 0x000000ff).into();
+        low = shl(low, 8_u128);
+        c = shr(c, 8_u32);
+        low += (c & 0x000000ff).into();
+        low = shl(low, 8_u128);
+
+        low += (b & 0x000000ff).into();
+        low = shl(low, 8_u128);
+        b = shr(b, 8_u32);
+        low += (b & 0x000000ff).into();
+        low = shl(low, 8_u128);
+        b = shr(b, 8_u32);
+        low += (b & 0x000000ff).into();
+        low = shl(low, 8_u128);
+        b = shr(b, 8_u32);
+        low += (b & 0x000000ff).into();
+        low = shl(low, 8_u128);
+
+        low += (a & 0x000000ff).into();
+        low = shl(low, 8_u128);
+        a = shr(a, 8_u32);
+        low += (a & 0x000000ff).into();
+        low = shl(low, 8_u128);
+        a = shr(a, 8_u32);
+        low += (a & 0x000000ff).into();
+        low = shl(low, 8_u128);
+        a = shr(a, 8_u32);
+        low += (a & 0x000000ff).into();
+
+        u256 { high, low }
+        // let [a, b, c, d, e, f, g, h] = self.value;
+    // let mut low: u128 = 0;
+    // let mut high: u128 = 0;
+
+        // low += (h.into());
+    // low += shl((g.into()), 32_u32);
+    // low += shl((f.into()), 64_u32);
+    // low += shl((e.into()), 96_u32);
+
+        // high += (d.into());
+    // high += shl((c.into()), 32_u32);
+    // high += shl((b.into()), 64_u32);
+    // high += shl((a.into()), 96_u32);
+
+        // u256 { low, high }
+    // result
     }
 }
 

@@ -33,7 +33,7 @@ fn test_block170() {
     let prev_chain_state_block169 = ChainState {
         block_height: Option::Some(169),
         total_work: 0,
-        best_block_hash: 0_u256.into(),
+        best_block_hash: 0x55bd840a78798ad0da853f68974f3d183e2bd1db6a842c1feecf222a00000000_u256.into(),
         current_target: 26959535291011309493156476344723991336010898738574164086137773096960,
         epoch_start_time: 1231006505,
         prev_timestamps: [
