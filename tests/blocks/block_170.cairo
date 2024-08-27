@@ -54,8 +54,9 @@ pub fn block_170() -> Block {
                         sequence: 4294967295,
                         witness: array![].span(),
                         previous_output: OutPoint {
-                            txid: 0x0437cd7f8525ceed2324359c2d0ba26006d92d856a9c20fa0241106ee5a597c9_u256
-                                .into(),
+                            //TODO reverse order from RPC
+                            txid: 0xc997a5e56e104102fa209c6a852dd90660a20b2d9c352423edce25857fcd3704_u256
+                                .into(), // use txid as little endian 
                             vout: 0_u32,
                             data: TxOut {
                                 value: 5000000000_u64,
