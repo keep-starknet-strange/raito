@@ -8,12 +8,23 @@ use crate::utils::numeric::u32_byte_reverse;
 use super::transaction::Transaction;
 
 /// Represents a block in the blockchain.
-#[derive(Drop, Copy)]
+#[derive(Drop, Copy, Debug, PartialEq, Default)]
 pub struct Block {
     /// Block header.
     pub header: Header,
-    /// Transactions.
-    pub txs: Span<Transaction>,
+    /// Transaction data: either merkle root or list of transactions.
+    pub data: TransactionData,
+}
+
+/// Represents block contents.
+#[derive(Drop, Copy, Debug, PartialEq)]
+pub enum TransactionData {
+    /// Merkle root of all transactions in the block.
+    /// This variant is used for header-only validation mode (light client).
+    MerkleRoot: Hash,
+    /// List of all transactions included in the block.
+    /// This variant is used for the full consensus validation mode.
+    Transactions: Span<Transaction>,
 }
 
 /// Represents a block header.
@@ -26,7 +37,7 @@ pub struct Block {
 /// In order to do the calculation we just need data about the block that is strictly necessary,
 /// but not the data we can calculate like merkle root or data that we already have
 /// like previous_block_hash (in the previous chain state).
-#[derive(Drop, Copy)]
+#[derive(Drop, Copy, Debug, PartialEq, Default)]
 pub struct Header {
     /// The version of the block.
     pub version: u32,
@@ -58,10 +69,16 @@ pub impl BlockHashImpl of BlockHash {
     }
 }
 
+/// Empty transaction data
+pub impl TransactionDataDefault of Default<TransactionData> {
+    fn default() -> TransactionData {
+        TransactionData::Transactions(array![].span())
+    }
+}
 
 #[cfg(test)]
 mod tests {
-    use super::{Block, Header, BlockHash};
+    use super::{Header, BlockHash};
     use raito::types::chain_state::ChainState;
     use raito::utils::hash::Hash;
 
@@ -73,17 +90,14 @@ mod tests {
                 0x000000002a22cfee1f2c846adbd12b3e183d4f97683f85dad08a79780a84bd55_u256
             .into();
         // block 170
-        let block = Block {
-            header: Header {
-                version: 1_u32, time: 1231731025_u32, bits: 0x1d00ffff_u32, nonce: 1889418792_u32
-            },
-            txs: ArrayTrait::new().span(),
+        let header = Header {
+            version: 1_u32, time: 1231731025_u32, bits: 0x1d00ffff_u32, nonce: 1889418792_u32
         };
         let merkle_root: Hash =
             0x7dac2c5666815c17a3b36427de37bb9d2e2c5ccec3f8633eb91a4205cb4c10ff_u256
             .into();
 
-        let block_hash_result: Hash = block.header.hash(chain_state.best_block_hash, merkle_root);
+        let block_hash_result: Hash = header.hash(chain_state.best_block_hash, merkle_root);
 
         //0x00000000d1145790a8694403d4063f323d499e655c83426834d4ce2f8dd4a2ee
         let expected_block_hash: Hash =
@@ -101,17 +115,14 @@ mod tests {
                 0x000000002a22cfee1f2c846adbd12b3e183d4f97683f85dad08a79780a84bd55_u256
             .into();
         // block 170
-        let block = Block {
-            header: Header {
-                version: 1_u32, time: 1231731025_u32, bits: 0x1d00ffff_u32, nonce: 1889418792_u32
-            },
-            txs: ArrayTrait::new().span(),
+        let header = Header {
+            version: 1_u32, time: 1231731025_u32, bits: 0x1d00ffff_u32, nonce: 1889418792_u32
         };
         let merkle_root: Hash =
             0x6dac2c5666815c17a3b36427de37bb9d2e2c5ccec3f8633eb91a4205cb4c10ff_u256
             .into();
 
-        let block_hash_result: Hash = block.header.hash(chain_state.best_block_hash, merkle_root);
+        let block_hash_result: Hash = header.hash(chain_state.best_block_hash, merkle_root);
 
         let expected_block_hash: Hash =
             0x00000000d1145790a8694403d4063f323d499e655c83426834d4ce2f8dd4a2ee_u256
@@ -128,17 +139,14 @@ mod tests {
                 0x000000002a22cfee1f2c846adbd12b3e183d4f97683f85dad08a79780a84bd56_u256
             .into();
         // block 170
-        let block = Block {
-            header: Header {
-                version: 1_u32, time: 1231731025_u32, bits: 0x1d00ffff_u32, nonce: 1889418792_u32
-            },
-            txs: ArrayTrait::new().span(),
+        let header = Header {
+            version: 1_u32, time: 1231731025_u32, bits: 0x1d00ffff_u32, nonce: 1889418792_u32
         };
         let merkle_root: Hash =
             0x7dac2c5666815c17a3b36427de37bb9d2e2c5ccec3f8633eb91a4205cb4c10ff_u256
             .into();
 
-        let block_hash_result: Hash = block.header.hash(chain_state.best_block_hash, merkle_root);
+        let block_hash_result: Hash = header.hash(chain_state.best_block_hash, merkle_root);
 
         let expected_block_hash: Hash =
             0x00000000d1145790a8694403d4063f323d499e655c83426834d4ce2f8dd4a2ee_u256
