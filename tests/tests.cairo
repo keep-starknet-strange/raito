@@ -19,7 +19,6 @@ fn test_block0() {
     assert_eq!(
         result.current_target, 0x00000000ffff0000000000000000000000000000000000000000000000000000
     );
-    println!("result.epoch_start_time: {:?}", result.epoch_start_time);
     assert_eq!(result.epoch_start_time, 1231006505);
     //to impl
 // assert_eq!(result.best_block_hash, 0_u256.into());
@@ -33,8 +32,9 @@ fn test_block170() {
     let prev_chain_state_block169 = ChainState {
         block_height: Option::Some(169),
         total_work: 0,
-        best_block_hash: 0_u256.into(),
-        current_target: 26959535291011309493156476344723991336010898738574164086137773096960,
+        best_block_hash: 0x000000002a22cfee1f2c846adbd12b3e183d4f97683f85dad08a79780a84bd55_u256
+            .into(),
+        current_target: 0x00000000ffff0000000000000000000000000000000000000000000000000000_u256,
         epoch_start_time: 1231006505,
         prev_timestamps: [
             1231702618,
