@@ -32,7 +32,7 @@ fn test_block170() {
     let prev_chain_state_block169 = ChainState {
         block_height: Option::Some(169),
         total_work: 0,
-        best_block_hash: 0x55bd840a78798ad0da853f68974f3d183e2bd1db6a842c1feecf222a00000000_u256
+        best_block_hash: 0x000000002a22cfee1f2c846adbd12b3e183d4f97683f85dad08a79780a84bd55_u256
             .into(),
         current_target: 26959535291011309493156476344723991336010898738574164086137773096960,
         epoch_start_time: 1231006505,
