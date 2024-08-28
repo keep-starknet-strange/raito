@@ -117,8 +117,6 @@ pub impl HashIntoU256 of Into<Hash, u256> {
         high = shl(high + shr(e & 0x00FF0000, 16_u32).into(), 8_u128);
         high += shr(e & 0xFF000000, 24_u32).into();
 
-        println!("high: {}", high);
-
         low = shl(low + (d & 0x000000FF).into(), 8_u128);
         low = shl(low + shr(d & 0x0000FF00, 8_u32).into(), 8_u128);
         low = shl(low + shr(d & 0x00FF0000, 16_u32).into(), 8_u128);
@@ -139,32 +137,8 @@ pub impl HashIntoU256 of Into<Hash, u256> {
         low = shl(low + shr(a & 0x00FF0000, 16_u32).into(), 8_u128);
         low += shr(a & 0xFF000000, 24_u32).into();
 
-        println!("low: {}", low);
-
-        // helper_hash_into_u256(ref h, ref high, false);
-        // helper_hash_into_u256(ref g, ref high, false);
-        // helper_hash_into_u256(ref f, ref high, false);
-        // helper_hash_into_u256(ref e, ref high, true);
-
-        // helper_hash_into_u256(ref d, ref low, false);
-        // helper_hash_into_u256(ref c, ref low, false);
-        // helper_hash_into_u256(ref b, ref low, false);
-        // helper_hash_into_u256(ref a, ref low, true);
-
         u256 { high, low }
     }
-}
-
-fn helper_hash_into_u256(ref value: u32, ref result: u128, is_last: bool) {
-    let mut i: u8 = 0;
-    while (i < 4) {
-        result += (value & 0x000000ff).into();
-        if (!is_last || i != 3) {
-            result = shl(result, 8_u128);
-            value = shr(value, 8_u32);
-        }
-        i += 1;
-    };
 }
 
 #[cfg(test)]
