@@ -2,6 +2,7 @@
 
 use core::fmt::{Display, Formatter, Error};
 use core::to_byte_array::AppendFormattedToByteArray;
+use core::integer::u128_byte_reverse;
 use super::bit_shifts::{shl, shr};
 
 /// 256-bit hash digest.
@@ -46,12 +47,14 @@ pub impl HashIntoByteArray of Into<Hash, ByteArray> {
     }
 }
 
-/// Converts a `u256` value into a `Hash` type.
+/// Converts a `u256` value into a `Hash` type and reverse bytes order.
+/// u256 is big-endian like in explorer, while Hash is little-endian order.
 pub impl U256IntoHash of Into<u256, Hash> {
     fn into(self: u256) -> Hash {
         let mut result: Array<u32> = array![];
-        let mut low: u128 = self.low;
-        let mut high: u128 = self.high;
+
+        let mut low: u128 = u128_byte_reverse(self.high);
+        let mut high: u128 = u128_byte_reverse(self.low);
 
         let mut i = 0;
         loop {
@@ -97,47 +100,17 @@ pub impl HashIntoU256 of Into<Hash, u256> {
         let mut low: u128 = 0;
         let mut high: u128 = 0;
 
-        high = shl((h & 0x000000FF).into(), 8_u128);
-        high = shl(high + shr(h & 0x0000FF00, 8_u32).into(), 8_u128);
-        high = shl(high + shr(h & 0x00FF0000, 16_u32).into(), 8_u128);
-        high = shl(high + shr(h & 0xFF000000, 24_u32).into(), 8_u128);
+        low += (h.into());
+        low += shl((g.into()), 32_u32);
+        low += shl((f.into()), 64_u32);
+        low += shl((e.into()), 96_u32);
 
-        high = shl(high + (g & 0x000000FF).into(), 8_u128);
-        high = shl(high + shr(g & 0x0000FF00, 8_u32).into(), 8_u128);
-        high = shl(high + shr(g & 0x00FF0000, 16_u32).into(), 8_u128);
-        high = shl(high + shr(g & 0xFF000000, 24_u32).into(), 8_u128);
+        high += (d.into());
+        high += shl((c.into()), 32_u32);
+        high += shl((b.into()), 64_u32);
+        high += shl((a.into()), 96_u32);
 
-        high = shl(high + (f & 0x000000FF).into(), 8_u128);
-        high = shl(high + shr(f & 0x0000FF00, 8_u32).into(), 8_u128);
-        high = shl(high + shr(f & 0x00FF0000, 16_u32).into(), 8_u128);
-        high = shl(high + shr(f & 0xFF000000, 24_u32).into(), 8_u128);
-
-        high = shl(high + (e & 0x000000FF).into(), 8_u128);
-        high = shl(high + shr(e & 0x0000FF00, 8_u32).into(), 8_u128);
-        high = shl(high + shr(e & 0x00FF0000, 16_u32).into(), 8_u128);
-        high += shr(e & 0xFF000000, 24_u32).into();
-
-        low = shl(low + (d & 0x000000FF).into(), 8_u128);
-        low = shl(low + shr(d & 0x0000FF00, 8_u32).into(), 8_u128);
-        low = shl(low + shr(d & 0x00FF0000, 16_u32).into(), 8_u128);
-        low = shl(low + shr(d & 0xFF000000, 24_u32).into(), 8_u128);
-
-        low = shl(low + (c & 0x000000FF).into(), 8_u128);
-        low = shl(low + shr(c & 0x0000FF00, 8_u32).into(), 8_u128);
-        low = shl(low + shr(c & 0x00FF0000, 16_u32).into(), 8_u128);
-        low = shl(low + shr(c & 0xFF000000, 24_u32).into(), 8_u128);
-
-        low = shl(low + (b & 0x000000FF).into(), 8_u128);
-        low = shl(low + shr(b & 0x0000FF00, 8_u32).into(), 8_u128);
-        low = shl(low + shr(b & 0x00FF0000, 16_u32).into(), 8_u128);
-        low = shl(low + shr(b & 0xFF000000, 24_u32).into(), 8_u128);
-
-        low = shl(low + (a & 0x000000FF).into(), 8_u128);
-        low = shl(low + shr(a & 0x0000FF00, 8_u32).into(), 8_u128);
-        low = shl(low + shr(a & 0x00FF0000, 16_u32).into(), 8_u128);
-        low += shr(a & 0xFF000000, 24_u32).into();
-
-        u256 { high, low }
+        u256 { low: u128_byte_reverse(high), high: u128_byte_reverse(low) }
     }
 }
 
@@ -157,14 +130,14 @@ mod tests {
 
         let expected_hash = Hash {
             value: [
-                0xfedcba09,
-                0x87654321,
-                0xfedcba09,
-                0x87654321,
-                0x12345678,
-                0x90abcdef,
-                0x12345678,
-                0x90abcdef,
+                0xefcdab90,
+                0x78563412,
+                0xefcdab90,
+                0x78563412,
+                0x21436587,
+                0x09badcfe,
+                0x21436587,
+                0x09badcfe
             ],
         };
 
@@ -194,6 +167,41 @@ mod tests {
         };
 
         assert_eq!(result_u256, expected_u256, "invalid results");
+    }
+
+
+    #[test]
+    fn test_hash_to_u256_to_hash() {
+        let hash_value = Hash {
+            value: [
+                0xfedcba09,
+                0x87654321,
+                0xfedcba09,
+                0x87654321,
+                0x12345678,
+                0x90abcdef,
+                0x12345678,
+                0x90abcdef,
+            ],
+        };
+
+        let u256_value: u256 = hash_value.into();
+        let result_hash: Hash = u256_value.into();
+
+        assert_eq!(result_hash, hash_value, "invalid results");
+    }
+
+    #[test]
+    fn test_u256_to_hash_to_u256() {
+        let u256_value = u256 {
+            high: 0xefcdab9078563412efcdab9078563412_u128,
+            low: 0x00112233445566778899aabbccddeeff_u128,
+        };
+
+        let hash_value: Hash = u256_value.into();
+        let result_u256: u256 = hash_value.into();
+
+        assert_eq!(result_u256, u256_value, "invalid results");
     }
 
     #[test]

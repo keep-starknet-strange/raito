@@ -33,32 +33,25 @@ mod tests {
     #[test]
     fn test_validate_proof_of_work() {
         // target is less than prev block hash
-        let result = validate_proof_of_work(
-            0, 0x0100000000000000000000000000000000000000000000000000000000000000_u256.into()
-        );
+        let result = validate_proof_of_work(0, 1_u256.into());
         assert!(result.is_err(), "Expect target less than prev block hash");
 
         // target is greater than prev block hash
-        let result = validate_proof_of_work(
-            2, 0x0100000000000000000000000000000000000000000000000000000000000000_u256.into()
-        );
+        let result = validate_proof_of_work(2, 1_u256.into());
         assert!(result.is_ok(), "Expect target gt prev block hash");
 
         // target is equal to prev block hash
-        let result = validate_proof_of_work(
-            1, 0x0100000000000000000000000000000000000000000000000000000000000000_u256.into()
-        );
+        let result = validate_proof_of_work(1, 1_u256.into());
         assert!(result.is_ok(), "Expect target equal to prev block hash");
 
         // block prev block hash is greater than target
-        let result = validate_proof_of_work(
-            1, 0x0200000000000000000000000000000000000000000000000000000000000000_u256.into()
-        );
+        let result = validate_proof_of_work(1, 2_u256.into());
         assert!(result.is_err(), "Expect prev block hash gt target");
 
         // block prev block hash is less than target
         let result = validate_proof_of_work(
-            10, 0x0900000000000000000000000000000000000000000000000000000000000000_u256.into()
+            0x00000000ffff0000000000000000000000000000000000000000000000000000_u256,
+            0x000000002a22cfee1f2c846adbd12b3e183d4f97683f85dad08a79780a84bd55_u256.into()
         );
         assert!(result.is_ok(), "Expect prev block hash lt target");
     }

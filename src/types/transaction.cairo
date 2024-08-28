@@ -162,7 +162,7 @@ mod tests {
                     ),
                     sequence: 0xffffffff,
                     previous_output: OutPoint {
-                        txid: 0xc997a5e56e104102fa209c6a852dd90660a20b2d9c352423edce25857fcd3704_u256
+                        txid: 0x0437cd7f8525ceed2324359c2d0ba26006d92d856a9c20fa0241106ee5a597c9_u256
                             .into(),
                         vout: 0x00000000,
                         data: Default::default(),
@@ -195,7 +195,7 @@ mod tests {
 
         assert_eq!(
             tx.txid(),
-            0x169e1e83e930853391bc6f35f605c6754cfead57cf8387639d3b4096c54f18f4_u256.into()
+            0xf4184fc596403b9d638783cf57adfe4c75c605f6356fbc91338530e9831e9e16_u256.into()
         );
     }
 }
