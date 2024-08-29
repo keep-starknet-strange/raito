@@ -49,7 +49,7 @@ fn hex_char_to_nibble(hex_char: u8) -> u8 {
 
 #[cfg(test)]
 mod tests {
-    use super::{ from_hex, from_hex_rev};
+    use super::{from_hex, from_hex_rev};
 
     #[test]
     fn test_bytes_from_hex() {
