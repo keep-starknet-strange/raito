@@ -36,8 +36,8 @@ pub fn double_sha256_u32_array(words: Array<u32>) -> Hash {
 
 #[cfg(test)]
 mod tests {
+    use crate::utils::{hex::from_hex, hash::Hash};
     use super::{double_sha256_byte_array, double_sha256_u32_array, double_sha256_parent};
-    use raito::utils::{hex::from_hex, hash::Hash};
 
     #[test]
     fn test_double_sha256_byte_array() {

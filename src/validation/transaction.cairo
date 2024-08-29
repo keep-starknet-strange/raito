@@ -1,6 +1,6 @@
 //! Transaction validation helpers.
 
-use raito::types::transaction::Transaction;
+use crate::types::transaction::Transaction;
 
 /// Validate transaction and return transaction fee.
 ///
@@ -53,8 +53,8 @@ pub fn validate_transaction(
 
 #[cfg(test)]
 mod tests {
-    use raito::types::transaction::{Transaction, TxIn, TxOut, OutPoint};
-    use raito::utils::hex::from_hex;
+    use crate::types::transaction::{Transaction, TxIn, TxOut, OutPoint};
+    use crate::utils::hex::from_hex;
     use super::{validate_transaction};
 
     #[test]

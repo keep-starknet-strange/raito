@@ -4,14 +4,15 @@
 //! Chain state alone is not enough to do full block validation, however
 //! it is sufficient to validate block headers.
 
-use raito::utils::hash::Hash;
-use super::block::{BlockHash, Block};
-use raito::validation::{
+use crate::utils::hash::Hash;
+use crate::validation::{
     difficulty::{validate_bits, adjust_difficulty}, coinbase::validate_coinbase,
     timestamp::{validate_timestamp, next_prev_timestamps},
-    work::{validate_proof_of_work, compute_total_work}, transaction::{validate_transaction},
+    work::{validate_proof_of_work, compute_total_work},
     block::{next_block_height, fee_and_merkle_roots},
 };
+use super::block::{BlockHash, Block};
+
 
 /// Represents the state of the blockchain.
 #[derive(Drop, Copy)]

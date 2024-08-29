@@ -2,8 +2,8 @@
 //!
 //! The data is expected to be prepared in advance and passed as program arguments.
 
-use raito::utils::hash::Hash;
-use raito::utils::sha256::double_sha256_byte_array;
+use crate::utils::hash::Hash;
+use crate::utils::sha256::double_sha256_byte_array;
 use super::transaction::Transaction;
 
 /// Represents a block in the blockchain.

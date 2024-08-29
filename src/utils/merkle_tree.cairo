@@ -29,8 +29,8 @@ pub fn merkle_root(ref hashes: Array<Hash>) -> Hash {
 
 #[cfg(test)]
 mod tests {
+    use crate::utils::hash::{Hash, U256IntoHash};
     use super::{merkle_root};
-    use raito::utils::hash::{Hash, HashTrait, U256IntoHash};
 
     #[test]
     #[available_gas(100000000)]

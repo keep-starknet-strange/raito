@@ -1,9 +1,7 @@
 //! Block validation helpers.
 
-use raito::types::transaction::{Transaction, TransactionTrait, TxIn, TxOut, OutPoint};
-use raito::types::block::{Block, BlockHash};
-use raito::types::chain_state::ChainState;
-use raito::utils::{hash::Hash, merkle_tree::merkle_root};
+use crate::types::transaction::{Transaction, TransactionTrait};
+use crate::utils::{hash::Hash, merkle_tree::merkle_root};
 use super::transaction::validate_transaction;
 
 /// Returns the next block height
