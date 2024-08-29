@@ -116,7 +116,6 @@ pub fn fast_pow<
 #[cfg(test)]
 mod tests {
     use super::{fast_pow, shl, shr};
-    use raito::utils::hex::from_hex;
 
     #[test]
     #[available_gas(1000000000)]

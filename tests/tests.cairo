@@ -1,8 +1,5 @@
 use super::blocks::{block_0::block_0, block_170::block_170};
 use raito::types::chain_state::{ChainState, BlockValidator};
-use raito::types::block::{Block, Header};
-use raito::types::transaction::{Transaction, OutPoint, TxIn, TxOut};
-use raito::utils::hex::from_hex;
 
 #[test]
 fn test_block0() {

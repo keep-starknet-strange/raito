@@ -11,4 +11,4 @@ get_blocks= "./scripts/data/get_blocks.sh"
 [dependencies]
 
 [dev-dependencies]
-cairo_test = "2.7.0"
+cairo_test = "2.8.0"
