@@ -56,25 +56,21 @@ pub impl U256IntoHash of Into<u256, Hash> {
         let mut low: u128 = u128_byte_reverse(self.high);
         let mut high: u128 = u128_byte_reverse(self.low);
 
-        let mut i = 0;
-        loop {
-            if i == 4 {
-                break;
-            }
-            result.append((low & 0xffffffff).try_into().unwrap());
-            low = shr(low, 32_u32);
-            i += 1;
-        };
+        let mut i: u32 = 0;
+        for _ in i
+            ..4 {
+                result.append((low & 0xffffffff).try_into().unwrap());
+                low = shr(low, 32_u32);
+                i += 1;
+            };
 
-        let mut i = 0;
-        loop {
-            if i == 4 {
-                break;
-            }
-            result.append((high & 0xffffffff).try_into().unwrap());
-            high = shr(high, 32_u32);
-            i += 1;
-        };
+        let mut i: u32 = 0;
+        for _ in i
+            ..4 {
+                result.append((high & 0xffffffff).try_into().unwrap());
+                high = shr(high, 32_u32);
+                i += 1;
+            };
 
         Hash {
             value: [
