@@ -3,7 +3,7 @@
 //! Types are extended with extra information required for validation.
 //! The data is expected to be prepared in advance and passed as program arguments.
 
-use raito::utils::{hash::{Hash, HashTrait}, sha256::double_sha256_byte_array};
+use raito::utils::{hash::Hash, sha256::double_sha256_byte_array};
 use raito::codec::encode_transaction;
 
 /// Represents a transaction.

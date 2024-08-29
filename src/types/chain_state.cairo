@@ -9,7 +9,7 @@ use super::block::{BlockHash, Block};
 use raito::validation::{
     difficulty::{validate_bits, adjust_difficulty}, coinbase::validate_coinbase,
     timestamp::{validate_timestamp, next_prev_timestamps},
-    work::{validate_proof_of_work, compute_total_work}, transaction::{validate_transaction},
+    work::{validate_proof_of_work, compute_total_work},
     block::{next_block_height, fee_and_merkle_roots},
 };
 
