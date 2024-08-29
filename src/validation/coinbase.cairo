@@ -2,8 +2,8 @@
 //!
 //! https://learnmeabitcoin.com/technical/mining/coinbase-transaction/
 
-use raito::types::transaction::Transaction;
-use raito::utils::{bit_shifts::shr, hash::Hash};
+use crate::types::transaction::Transaction;
+use crate::utils::{bit_shifts::shr, hash::Hash};
 
 /// Validates coinbase transaction.
 pub fn validate_coinbase(
@@ -44,9 +44,9 @@ fn compute_block_reward(block_height: u32) -> u64 {
 
 #[cfg(test)]
 mod tests {
+    use crate::types::transaction::{TxIn, TxOut, Transaction, OutPoint};
+    use crate::utils::hex::from_hex;
     use super::{compute_block_reward, validate_coinbase};
-    use raito::types::transaction::{TxIn, TxOut, Transaction, OutPoint};
-    use raito::utils::hex::from_hex;
 
     // Ref implementation here:
     // https://github.com/bitcoin/bitcoin/blob/0f68a05c084bef3e53e3f549c403bc90b1db319c/src/test/validation_tests.cpp#L24

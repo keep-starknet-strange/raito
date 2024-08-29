@@ -116,8 +116,8 @@ pub impl HashIntoU256 of Into<Hash, u256> {
 
 #[cfg(test)]
 mod tests {
+    use crate::utils::hex::from_hex;
     use super::Hash;
-    use raito::utils::hex::from_hex;
 
     #[test]
     fn test_u256_into_hash() {

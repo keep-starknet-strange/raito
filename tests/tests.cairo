@@ -1,5 +1,5 @@
-use super::blocks::{block_0::block_0, block_170::block_170};
 use raito::types::chain_state::{ChainState, BlockValidator};
+use super::blocks::{block_0::block_0, block_170::block_170};
 
 #[test]
 fn test_block0() {

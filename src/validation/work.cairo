@@ -1,6 +1,6 @@
 //! Proof-of-work validation helpers.
 
-use raito::utils::hash::Hash;
+use crate::utils::hash::Hash;
 
 /// Check if the work done (by calculating the block hash) satisfies the difficulty target.
 pub fn validate_proof_of_work(target: u256, block_hash: Hash) -> Result<(), ByteArray> {

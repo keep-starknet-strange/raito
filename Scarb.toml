@@ -1,7 +1,7 @@
 [package]
 name = "raito"
 version = "0.1.0"
-edition = "2023_11"
+edition = "2024_07"
 
 [scripts]
 get_block= "./scripts/data/get_block.sh"
