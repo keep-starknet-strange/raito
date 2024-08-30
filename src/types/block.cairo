@@ -3,7 +3,7 @@
 //! The data is expected to be prepared in advance and passed as program arguments.
 
 use crate::utils::hash::Hash;
-use crate::utils::sha256::double_sha256_byte_array;
+use crate::utils::sha256::double_sha256_u32_array;
 use super::transaction::Transaction;
 
 /// Represents a block in the blockchain.
@@ -61,10 +61,8 @@ pub impl BlockHashImpl of BlockHash {
         let byte1 = (word & 0x0000FF00) * 0x00000100_u32;
         let byte2 = (word & 0x00FF0000) / 0x00000100_u32;
         let byte3 = (word & 0xFF000000) / 0x1000000_u32;
-    
         return byte0 + byte1 + byte2 + byte3;
     }
-    
 }
 
 
