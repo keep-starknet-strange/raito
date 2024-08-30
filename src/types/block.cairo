@@ -4,6 +4,7 @@
 
 use crate::utils::hash::Hash;
 use crate::utils::sha256::double_sha256_u32_array;
+use crate::utils::numeric::u32_byte_reverse;
 use super::transaction::Transaction;
 
 /// Represents a block in the blockchain.
@@ -45,23 +46,15 @@ pub impl BlockHashImpl of BlockHash {
     fn hash(self: @Header, prev_block_hash: Hash, merkle_root: Hash) -> Hash {
         let mut header_data_u32: Array<u32> = array![];
 
-        header_data_u32.append(self.u32_byte_reverse(*self.version));
+        header_data_u32.append(u32_byte_reverse(*self.version));
         header_data_u32.append_span(prev_block_hash.value.span());
         header_data_u32.append_span(merkle_root.value.span());
 
-        header_data_u32.append(self.u32_byte_reverse(*self.time));
-        header_data_u32.append(self.u32_byte_reverse(*self.bits));
-        header_data_u32.append(self.u32_byte_reverse(*self.nonce));
+        header_data_u32.append(u32_byte_reverse(*self.time));
+        header_data_u32.append(u32_byte_reverse(*self.bits));
+        header_data_u32.append(u32_byte_reverse(*self.nonce));
 
         double_sha256_u32_array(header_data_u32)
-    }
-
-    fn u32_byte_reverse(self: @Header, word: u32) -> u32 {
-        let byte0 = (word & 0x000000FF) * 0x1000000_u32;
-        let byte1 = (word & 0x0000FF00) * 0x00000100_u32;
-        let byte2 = (word & 0x00FF0000) / 0x00000100_u32;
-        let byte3 = (word & 0xFF000000) / 0x1000000_u32;
-        return byte0 + byte1 + byte2 + byte3;
     }
 }
 
