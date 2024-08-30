@@ -1,3 +1,7 @@
+/// Reverses the byte order of a `u32`.
+///
+/// This function takes a 32-bit unsigned integer and reverses the order of its bytes.
+/// It is useful for converting between big-endian and little-endian formats.
 pub fn u32_byte_reverse(word: u32) -> u32 {
     let byte0 = (word & 0x000000FF) * 0x1000000_u32;
     let byte1 = (word & 0x0000FF00) * 0x00000100_u32;
