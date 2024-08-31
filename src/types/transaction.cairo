@@ -4,7 +4,7 @@
 //! The data is expected to be prepared in advance and passed as program arguments.
 
 use crate::utils::{hash::Hash, sha256::double_sha256_byte_array};
-use crate::codec::{Encode};
+use crate::codec::Encode;
 
 /// Represents a transaction.
 /// https://learnmeabitcoin.com/technical/transaction/
