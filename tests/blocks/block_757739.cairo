@@ -873,13 +873,13 @@ pub fn block_757739() -> Block {
             },
             Transaction {
                 version: 1,
-                is_segwit: false,
+                is_segwit: false, // hum...
                 lock_time: 0,
                 inputs: array![
                     TxIn {
                         script: @from_hex(""),
                         sequence: 4294967295,
-                        witness: array![
+                        witness: array![ // hum
                             from_hex(
                                 "3045022100ba570d791bc8bf39a9d0d486a3b044120df1ae4af4a1853d6b9e65680629001c022063de99253111c778370f38624f55a82f9be4c510c1cd87d364407c2f1e5e1b1001"
                             ),
