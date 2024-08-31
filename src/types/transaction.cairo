@@ -4,7 +4,7 @@
 //! The data is expected to be prepared in advance and passed as program arguments.
 
 use crate::utils::{hash::Hash, sha256::double_sha256_byte_array};
-use crate::codec::{EncodeTrait};
+use crate::codec::{Encode};
 
 /// Represents a transaction.
 /// https://learnmeabitcoin.com/technical/transaction/
@@ -132,13 +132,13 @@ pub impl TransactionImpl of TransactionTrait {
     /// NOTE: marker, flag, and witness fields in segwit transactions are not included
     /// this means txid computation is the same for legacy and segwit tx
     fn txid(self: @Transaction) -> Hash {
-        double_sha256_byte_array(@EncodeTrait::encode(*self, false))
+        double_sha256_byte_array(@(self.encode(false)))
     }
 
     /// Compute transaction wTXID
     /// https://learnmeabitcoin.com/technical/transaction/wtxid/
     fn wtxid(self: @Transaction) -> Hash {
-        double_sha256_byte_array(@EncodeTrait::encode(*self, true))
+        double_sha256_byte_array(@(self.encode(true)))
     }
 }
 

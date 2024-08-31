@@ -1,15 +1,14 @@
 //! Bitcoin binary codec traits, implementations, and helpers.
 
-// use core::fmt::{Display, Formatter, Error};
 use super::types::transaction::{Transaction, TxIn, TxOut, OutPoint};
 use raito::utils::hash::Hash;
 
-pub trait EncodeTrait<T> {
+pub trait Encode<T> {
     /// Convert into bytes and append to the buffer
     fn encode_to(self: T, ref dest: ByteArray);
     /// Convert into bytes and return
     fn encode(
-        self: T, _is_segwit: bool,
+        self: T, _is_segwit: bool
     ) -> ByteArray {
         let mut dest: ByteArray = Default::default();
         Self::encode_to(self, ref dest);
@@ -17,17 +16,17 @@ pub trait EncodeTrait<T> {
     }
 }
 
-/// Impl for the type which has non copy traits
-pub impl EncodeSpanNcopyImpl<T, +EncodeTrait<@T>> of EncodeTrait<Span<T>> {
-    fn encode_to(self: Span<T>, ref dest: ByteArray) {
-        encode_compact_size(self.len(), ref dest);
-        for item in self {
-            item.encode_to(ref dest);
-        }
+pub impl EncodeSnap<T, +Encode<T>, +Copy<T>> of Encode<@T> {
+    fn encode_to(self: @T, ref dest: ByteArray) {
+        (*self).encode_to(ref dest);
+    }
+
+    fn encode(self: @T, _is_segwit: bool) -> ByteArray {
+        (*self).encode(_is_segwit)
     }
 }
 
-pub impl EncodeSpanImpl<T, +EncodeTrait<T>, +Copy<T>> of EncodeTrait<Span<T>> {
+pub impl EncodeSpanImpl<T, +Encode<T>, +Copy<T>> of Encode<Span<T>> {
     fn encode_to(self: Span<T>, ref dest: ByteArray) {
         encode_compact_size(self.len(), ref dest);
         for item in self {
@@ -36,32 +35,32 @@ pub impl EncodeSpanImpl<T, +EncodeTrait<T>, +Copy<T>> of EncodeTrait<Span<T>> {
     }
 }
 
-pub impl EncodeByteArrayImpl of EncodeTrait<@ByteArray> {
+pub impl EncodeByteArrayImpl of Encode<@ByteArray> {
     fn encode_to(self: @ByteArray, ref dest: ByteArray) {
         encode_compact_size(self.len(), ref dest);
         dest.append(self);
     }
 }
 
-pub impl EncodeU32 of EncodeTrait<u32> {
+pub impl EncodeU32 of Encode<u32> {
     fn encode_to(self: u32, ref dest: ByteArray) {
         dest.append_word_rev(self.into(), 4);
     }
 }
 
-pub impl EncodeU64 of EncodeTrait<u64> {
+pub impl EncodeU64 of Encode<u64> {
     fn encode_to(self: u64, ref dest: ByteArray) {
         dest.append_word_rev(self.into(), 8);
     }
 }
 
-pub impl EncodeHash of EncodeTrait<Hash> {
+pub impl EncodeHash of Encode<Hash> {
     fn encode_to(self: Hash, ref dest: ByteArray) {
         dest.append(@self.into());
     }
 }
 
-pub impl EncodeTxIn of EncodeTrait<TxIn> {
+pub impl EncodeTxIn of Encode<TxIn> {
     fn encode_to(self: TxIn, ref dest: ByteArray) {
         self.previous_output.encode_to(ref dest);
         self.script.encode_to(ref dest);
@@ -69,27 +68,28 @@ pub impl EncodeTxIn of EncodeTrait<TxIn> {
     }
 }
 
-pub impl EncodeTxOut of EncodeTrait<TxOut> {
+pub impl EncodeTxOut of Encode<TxOut> {
     fn encode_to(self: TxOut, ref dest: ByteArray) {
         self.value.encode_to(ref dest);
         self.pk_script.encode_to(ref dest);
     }
 }
 
-pub impl EncodeOutpoint of EncodeTrait<OutPoint> {
+pub impl EncodeOutpoint of Encode<OutPoint> {
     fn encode_to(self: OutPoint, ref dest: ByteArray) {
         self.txid.encode_to(ref dest);
         self.vout.encode_to(ref dest);
     }
 }
 
-pub impl EncodeTx of EncodeTrait<Transaction> {
+pub impl EncodeTx of Encode<Transaction> {
     fn encode_to(self: Transaction, ref dest: ByteArray) {
-        (self.version).encode_to(ref dest);
-        (self.inputs).encode_to(ref dest);
-        (self.outputs).encode_to(ref dest);
-        (self.lock_time).encode_to(ref dest);
+        self.version.encode_to(ref dest);
+        self.inputs.encode_to(ref dest);
+        self.outputs.encode_to(ref dest);
+        self.lock_time.encode_to(ref dest);
     }
+
     fn encode(self: Transaction, _is_segwit: bool) -> ByteArray {
         let mut dest: ByteArray = Default::default();
         Self::encode_to(self, ref dest);
@@ -117,65 +117,11 @@ pub fn encode_compact_size(len: usize, ref dest: ByteArray) {
     // Note: `usize` is a `u32` alias, so lens >= 4,294,967,296 are not handled.
 }
 
-/// Encodes transaction (TODO: remove me, use Encode instead)
-// pub fn encode_transaction(tx: @Transaction, _segwit: bool) -> ByteArray {
-//     // append version (4 bytes)
-//     let mut hash256_input: ByteArray = "";
-//     hash256_input.append_word_rev((*tx.version).into(), 4);
-
-//     // append inputs count (1 byte in our example) - TODO : use EncodeTrait<Span<TxIn>> once
-//     // implemented
-//     hash256_input.append_word_rev((*tx.inputs).len().into(), 1);
-
-//     // append inputs - TODO : this is also included in EncodeTrait<Span<TxIn>>
-//     let mut inputs: Span<TxIn> = *tx.inputs;
-//     while let Option::Some(txin) = inputs.pop_front() {
-//         // append txid (32 bytes)
-//         let txid: u256 = (*(txin.previous_output.txid)).into();
-//         hash256_input.append_word_rev(txid.low.into(), 16);
-//         hash256_input.append_word_rev(txid.high.into(), 16);
-
-//         // append VOUT (4 bytes)
-//         hash256_input.append_word_rev((*txin.previous_output.vout).into(), 4);
-
-//         // append ScriptSig size (1 byte in our example)
-//         hash256_input.append_word_rev((*txin.script).len().into(), 1);
-
-//         // append ScriptSig (variable size)
-//         hash256_input.append(*txin.script);
-
-//         // append Sequence (4 bytes)
-//         hash256_input.append_word_rev((*txin.sequence).into(), 4);
-//     };
-
-//     // append outputs count (1 byte in our example) - TODO : use EncodeTrait<Span<TxOut>> once
-//     // implemented
-//     hash256_input.append_word_rev((*tx.outputs).len().into(), 1);
-
-//     // append outputs -  TODO this is also included in EncodeTrait<Span<TxOut>>
-//     let mut outputs: Span<TxOut> = *tx.outputs;
-//     while let Option::Some(txout) = outputs.pop_front() {
-//         // append amount (8 bytes)
-//         hash256_input.append_word_rev((*txout.value).into(), 8);
-
-//         // append ScriptPubKey size (1 byte in our exmaple)
-//         hash256_input.append_word_rev((*txout.pk_script).len().into(), 1);
-
-//         // append ScriptPubKey (variable size)
-//         hash256_input.append(*txout.pk_script);
-//     };
-
-//     // append locktime (4 bytes)
-//     hash256_input.append_word_rev((*tx.lock_time).into(), 4);
-//     hash256_input
-// }
-
 #[cfg(test)]
 mod tests {
     use raito::types::transaction::{Transaction, TxIn, TxOut, OutPoint};
-
     use raito::utils::hex::from_hex;
-    use super::{EncodeTrait, encode_compact_size};
+    use super::{Encode, encode_compact_size};
 
     #[test]
     fn test_encode_compact_size1() {
@@ -218,27 +164,6 @@ mod tests {
         let mut bytes = Default::default();
         encode_compact_size(4294967295, ref bytes);
         assert_eq!(bytes, from_hex("feffffffff"));
-    }
-
-    /// Print a byte array as hex
-    pub fn print_bytearray_hex(msg: ByteArray, data: @ByteArray) {
-        let mut i = 0;
-        let alphabet: @ByteArray = @"0123456789abcdef";
-
-        print!("{msg}: ");
-        while i < data.len() {
-            let value = data[i];
-
-            let mut arr: ByteArray = "";
-            let l = value / 16;
-            let r = value % 16;
-            arr.append_byte(alphabet.at(l.into()).unwrap());
-            arr.append_byte(alphabet.at(r.into()).unwrap());
-
-            print!("{}", arr);
-            i += 1;
-        };
-        println!("");
     }
 
     #[test]
