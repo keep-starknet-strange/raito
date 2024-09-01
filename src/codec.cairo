@@ -4,104 +4,103 @@ use super::types::transaction::{Transaction, TxIn, TxOut, OutPoint};
 use raito::utils::hash::Hash;
 
 pub trait Encode<T> {
-    /// Convert into bytes and append to the buffer
-    fn encode_to(self: T, ref dest: ByteArray);
-    /// Convert into bytes and return
+    /// Encode using Bitcoin codec and append to the buffer.
+    /// Specify witness flag for including segwit fields (for wtxid calculation).
+    fn encode_to(self: @T, ref dest: ByteArray, witness: bool);
+
+    /// Encode using Bitcoin codec and return byte array.
+    /// Specify witness flag for including segwit fields (for wtxid calculation).
     fn encode(
-        self: T, _is_segwit: bool
+        self: @T, witness: bool
     ) -> ByteArray {
         let mut dest: ByteArray = Default::default();
-        Self::encode_to(self, ref dest);
+        Self::encode_to(self, ref dest, witness);
         dest
     }
 }
 
-pub impl EncodeSnap<T, +Encode<T>, +Copy<T>> of Encode<@T> {
-    fn encode_to(self: @T, ref dest: ByteArray) {
-        (*self).encode_to(ref dest);
-    }
-
-    fn encode(self: @T, _is_segwit: bool) -> ByteArray {
-        (*self).encode(_is_segwit)
-    }
-}
-
-pub impl EncodeSpanImpl<T, +Encode<T>, +Copy<T>> of Encode<Span<T>> {
-    fn encode_to(self: Span<T>, ref dest: ByteArray) {
-        encode_compact_size(self.len(), ref dest);
-        for item in self {
-            (*item).encode_to(ref dest);
+pub impl EncodeSpan<T, +Encode<T>> of Encode<Span<T>> {
+    fn encode_to(self: @Span<T>, ref dest: ByteArray, witness: bool) {
+        let items = *self;
+        encode_compact_size(items.len(), ref dest);
+        for item in items {
+            item.encode_to(ref dest, witness);
         }
     }
 }
 
-pub impl EncodeByteArrayImpl of Encode<@ByteArray> {
-    fn encode_to(self: @ByteArray, ref dest: ByteArray) {
+pub impl EncodeByteArray of Encode<ByteArray> {
+    fn encode_to(self: @ByteArray, ref dest: ByteArray, witness: bool) {
         encode_compact_size(self.len(), ref dest);
         dest.append(self);
     }
 }
 
 pub impl EncodeU32 of Encode<u32> {
-    fn encode_to(self: u32, ref dest: ByteArray) {
-        dest.append_word_rev(self.into(), 4);
+    fn encode_to(self: @u32, ref dest: ByteArray, witness: bool) {
+        dest.append_word_rev((*self).into(), 4);
     }
 }
 
 pub impl EncodeU64 of Encode<u64> {
-    fn encode_to(self: u64, ref dest: ByteArray) {
-        dest.append_word_rev(self.into(), 8);
+    fn encode_to(self: @u64, ref dest: ByteArray, witness: bool) {
+        dest.append_word_rev((*self).into(), 8);
     }
 }
 
 pub impl EncodeHash of Encode<Hash> {
-    fn encode_to(self: Hash, ref dest: ByteArray) {
-        dest.append(@self.into());
+    fn encode_to(self: @Hash, ref dest: ByteArray, witness: bool) {
+        dest.append(@(*self).into());
     }
 }
 
 pub impl EncodeTxIn of Encode<TxIn> {
-    fn encode_to(self: TxIn, ref dest: ByteArray) {
-        self.previous_output.encode_to(ref dest);
-        self.script.encode_to(ref dest);
-        self.sequence.encode_to(ref dest);
+    fn encode_to(self: @TxIn, ref dest: ByteArray, witness: bool) {
+        // Witness is actually a Span<Span<ByteArray>> field which belongs to [Transaction]
+        // but we are storing its elements inside respective tx inputs for convenience.
+        if witness {
+            self.witness.encode_to(ref dest, false);
+        } else {
+            self.previous_output.encode_to(ref dest, false);
+            (*self.script).encode_to(ref dest, false);
+            self.sequence.encode_to(ref dest, false);
+        }
     }
 }
 
 pub impl EncodeTxOut of Encode<TxOut> {
-    fn encode_to(self: TxOut, ref dest: ByteArray) {
-        self.value.encode_to(ref dest);
-        self.pk_script.encode_to(ref dest);
+    fn encode_to(self: @TxOut, ref dest: ByteArray, witness: bool) {
+        self.value.encode_to(ref dest, false);
+        (*self.pk_script).encode_to(ref dest, false);
     }
 }
 
 pub impl EncodeOutpoint of Encode<OutPoint> {
-    fn encode_to(self: OutPoint, ref dest: ByteArray) {
-        self.txid.encode_to(ref dest);
-        self.vout.encode_to(ref dest);
+    fn encode_to(self: @OutPoint, ref dest: ByteArray, witness: bool) {
+        self.txid.encode_to(ref dest, false);
+        self.vout.encode_to(ref dest, false);
     }
 }
 
-pub impl EncodeWitness of Encode<Span<ByteArray>> {
-    fn encode_to(self: Span<ByteArray>, ref dest: ByteArray) {
-        for witness in self {
-            dest.append(witness);
-        };
-    }
-}
+pub impl EncodeTransaction of Encode<Transaction> {
+    fn encode_to(self: @Transaction, ref dest: ByteArray, witness: bool) {
+        self.version.encode_to(ref dest, false);
 
-pub impl EncodeTx of Encode<Transaction> {
-    fn encode_to(self: Transaction, ref dest: ByteArray) {
-        self.version.encode_to(ref dest);
-        self.inputs.encode_to(ref dest);
-        self.outputs.encode_to(ref dest);
-        self.lock_time.encode_to(ref dest);
-    }
+        if witness {
+            // TODO: we need to validate that is_segwit flag is set (in validate_transaction)
+            dest.append_byte(0); // marker
+            dest.append_byte(1); // flag
+        }
 
-    fn encode(self: Transaction, _is_segwit: bool) -> ByteArray {
-        let mut dest: ByteArray = Default::default();
-        Self::encode_to(self, ref dest);
-        dest
+        self.inputs.encode_to(ref dest, false);
+        self.outputs.encode_to(ref dest, false);
+
+        if witness {
+            // Encode array of witnesses for each tx input
+            self.inputs.encode_to(ref dest, true);
+        }
+
+        self.lock_time.encode_to(ref dest, false);
     }
 }
 
@@ -177,7 +176,7 @@ mod tests {
     #[test]
     fn test_encode_txout() {
         // block 170 coinbase tx
-        let txout = TxOut {
+        let txout = @TxOut {
             value: 5000000000_u64,
             pk_script: @from_hex(
                 "4104d46c4968bde02899d2aa0963367c7a6ce34eec332b32e42e5f3407e052d64ac625da6f0718e7b302140434bd725706957c092db53805b821a85b23a7ac61725bac"
@@ -185,8 +184,7 @@ mod tests {
             cached: false,
         };
 
-        let mut bytes = Default::default();
-        txout.encode_to(ref bytes);
+        let bytes = txout.encode(false);
 
         let expected: ByteArray = from_hex(
             "00f2052a01000000434104d46c4968bde02899d2aa0963367c7a6ce34eec332b32e42e5f3407e052d64ac625da6f0718e7b302140434bd725706957c092db53805b821a85b23a7ac61725bac"
@@ -204,8 +202,7 @@ mod tests {
             block_height: Default::default(),
             block_time: Default::default(),
         };
-        let mut bytes = Default::default();
-        outpoint.encode_to(ref bytes);
+        let bytes = outpoint.encode(false);
 
         let expected = from_hex(
             "0000000000000000000000000000000000000000000000000000000000000000ffffffff"
@@ -223,8 +220,7 @@ mod tests {
             block_height: Default::default(),
             block_time: Default::default(),
         };
-        let mut bytes = Default::default();
-        outpoint.encode_to(ref bytes);
+        let bytes = outpoint.encode(false);
 
         let expected = from_hex(
             "c997a5e56e104102fa209c6a852dd90660a20b2d9c352423edce25857fcd370400000000"
@@ -235,7 +231,7 @@ mod tests {
     #[test]
     fn test_encode_txin1() {
         // tx b1fea52486ce0c62bb442b530a3f0132b826c74e473d1f2c220bfa78111c5082
-        let txin = TxIn {
+        let txin = @TxIn {
             script: @from_hex("04ffff001d0102"),
             sequence: 0xffffffff,
             previous_output: OutPoint {
@@ -248,9 +244,7 @@ mod tests {
             },
             witness: array![].span()
         };
-
-        let mut bytes = Default::default();
-        txin.encode_to(ref bytes);
+        let bytes = txin.encode(false);
 
         let expected = from_hex(
             "0000000000000000000000000000000000000000000000000000000000000000ffffffff0704ffff001d0102ffffffff"
@@ -262,7 +256,7 @@ mod tests {
     fn test_encode_txin2() {
         // tx 4ff32a7e58200897220ce4615e30e3e414991222d7eda27e693116abea8b8f33,
         // input 2
-        let txin = TxIn {
+        let txin = @TxIn {
             script: @from_hex(
                 "493046022100f814323e8be180dd90d063adb8f94b31801fb68ce97eb1acb32970a390bfa72f02210085ed8af17e90e2415d400d7cb08311535243d55461be9982bb3408271aa954aa0141045d21d60c22da05383ef130e3fc314b28c7dd378c762931f8c85e5e708d97b9779d83135a8c3cfe202f435e2781c99329043080627c5eb71f73be103fe45c2028"
             ),
@@ -277,9 +271,7 @@ mod tests {
             },
             witness: array![].span()
         };
-
-        let mut bytes = Default::default();
-        txin.encode_to(ref bytes);
+        let bytes = txin.encode(false);
 
         let expected = from_hex(
             "f59f3ff699917790b02b3248716b22cdc1f8ddafe583ea28d100ae262f60ce66010000008c493046022100f814323e8be180dd90d063adb8f94b31801fb68ce97eb1acb32970a390bfa72f02210085ed8af17e90e2415d400d7cb08311535243d55461be9982bb3408271aa954aa0141045d21d60c22da05383ef130e3fc314b28c7dd378c762931f8c85e5e708d97b9779d83135a8c3cfe202f435e2781c99329043080627c5eb71f73be103fe45c2028ffffffff"
@@ -290,7 +282,7 @@ mod tests {
     #[test]
     fn test_encode_tx() {
         // tx 4ff32a7e58200897220ce4615e30e3e414991222d7eda27e693116abea8b8f33
-        let tx = Transaction {
+        let tx = @Transaction {
             version: 1_u32,
             is_segwit: false,
             inputs: array![
@@ -367,7 +359,7 @@ mod tests {
     #[test]
     fn test_encode_tx_many_inputs() {
         // tx 23d5c86600b72cd512aecebd68a7274f611cd96eb9106125f4ef2502f54effa5
-        let tx = Transaction {
+        let tx = @Transaction {
             version: 1,
             is_segwit: false,
             lock_time: 0,
@@ -567,7 +559,7 @@ mod tests {
     #[test]
     fn test_encode_tx_many_outputs() {
         // tx 3e6cc776f588a464c98e8f701cdcde651c7b3620c44c65099fb3d2f4d8ea260e
-        let tx = Transaction {
+        let tx = @Transaction {
             version: 1,
             is_segwit: false,
             lock_time: 0,

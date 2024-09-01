@@ -42,6 +42,9 @@ pub struct TxIn {
     pub previous_output: OutPoint,
     /// The witness data for transactions.
     /// A list of items (of different size) pushed onto stack before sig script execution.
+    /// Can be empty if this particular inputs spends a non-segwit output.
+    /// NOTE that this field actually belongs to the transaction, but we store it in the input for
+    /// convenience.
     pub witness: Span<ByteArray>,
 }
 
