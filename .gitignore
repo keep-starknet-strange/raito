@@ -20,4 +20,5 @@ Cargo.lock
 **/.vscode
 
 .env
+.venv
 .python-version

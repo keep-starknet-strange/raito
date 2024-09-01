@@ -3,7 +3,6 @@
 use raito::types::block::{Block, Header};
 use raito::types::transaction::{Transaction, TxIn, TxOut, OutPoint};
 use raito::utils::hex::from_hex;
-use raito::utils::hash::Hash;
 
 // block_hash: 00000000152340ca42227603908689183edc47355204e7aca59383b0aaac1fd8
 pub fn block_57043() -> Block {

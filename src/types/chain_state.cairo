@@ -13,7 +13,6 @@ use crate::validation::{
 };
 use super::block::{BlockHash, Block};
 
-
 /// Represents the state of the blockchain.
 #[derive(Drop, Copy)]
 pub struct ChainState {
