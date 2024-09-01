@@ -56,15 +56,9 @@ pub impl EncodeHash of Encode<Hash> {
 
 pub impl EncodeTxIn of Encode<TxIn> {
     fn encode_to(self: @TxIn, ref dest: ByteArray, witness: bool) {
-        // Witness is actually a Span<Span<ByteArray>> field which belongs to [Transaction]
-        // but we are storing its elements inside respective tx inputs for convenience.
-        if witness {
-            self.witness.encode_to(ref dest, false);
-        } else {
-            self.previous_output.encode_to(ref dest, false);
-            (*self.script).encode_to(ref dest, false);
-            self.sequence.encode_to(ref dest, false);
-        }
+        self.previous_output.encode_to(ref dest, false);
+        (*self.script).encode_to(ref dest, false);
+        self.sequence.encode_to(ref dest, false);
     }
 }
 
@@ -97,7 +91,9 @@ pub impl EncodeTransaction of Encode<Transaction> {
 
         if witness {
             // Encode array of witnesses for each tx input
-            self.inputs.encode_to(ref dest, true);
+            for txin in *self.inputs {
+                txin.witness.encode_to(ref dest, true);
+            }
         }
 
         self.lock_time.encode_to(ref dest, false);
@@ -127,7 +123,7 @@ pub fn encode_compact_size(len: usize, ref dest: ByteArray) {
 #[cfg(test)]
 mod tests {
     use raito::types::transaction::{Transaction, TxIn, TxOut, OutPoint};
-    use raito::utils::hex::from_hex;
+    use raito::utils::hex::{from_hex, to_hex};
     use super::{Encode, encode_compact_size};
 
     #[test]
@@ -657,5 +653,207 @@ mod tests {
             "01000000011d53a73e254f65de0488379811ebbbbbbae21c3d604d65458c0e9bda5c3d7f02010000008a47304402203c31af8b4ad8e035aac5a7b2bcda81c26a5a2ce791df00bbf207aabceff246410220545e269decc8c777beccda949118028a9fa3a2a5452414ee3ff21068db18fcab0141047a38fd20560d9e258b11bf6d71fec9f049a4786d0374bc858317848ad32970337ab61ae3bd3c0296d7dce49d7ad0fb46ba0f0743960ea3324a57699a997e5ad9ffffffff0c00e1f505000000001976a91406f1b6716309948fa3b07b0a6b66804fdfd6873188ac00e1f505000000001976a91406f1b670791f9256bffc898f474271c22f4bb94988ac00e1f505000000001976a91406f1b6703d3f56427bfcfd372f952d50d04b64bd88ac00e1f505000000001976a91406f1b66ffe49df7fce684df16c62f59dc9adbd3f88ac00e1f505000000001976a91406f1b66fc9e59a7b4554cf2e6094032cd9ee45c488ac00e1f505000000001976a91406f1b66fd59a34755c37a8f701f43e937cdbeb1388ac00e1f505000000001976a91406f1b66fb6c0e253f24c74d3ed972ff447ca285c88ac00e1f505000000001976a91406f1b66f8567c6e527fc89b4d664069d20b0969388ac00e1f505000000001976a91406f1b66f6d8af8b3e984e5d807c0e1dd6964796288ac00e1f505000000001976a91406f1b66f5a691ff3169702d615b77d0af1451e7788ac404b4c00000000001976a91406f1b66e25393fabd2b23a237e4bdfd4c2c35fac88ac62878ea1010000001976a9146e9470910291611d311ab76b89a878fead10594788ac00000000"
         );
         assert_eq!(tx_encoded, tx_expected);
+    }
+
+    #[test]
+    fn test_encode_tx_witness1() {
+        // tx 65d8bd45f01bd6209d8695d126ba6bb4f2936501c12b9a1ddc9e38600d35aaa2
+        let tx = Transaction {
+            version: 2,
+            is_segwit: true,
+            inputs: array![
+                TxIn {
+                    script: @from_hex(""),
+                    sequence: 0xfffffffd,
+                    previous_output: OutPoint {
+                        txid: 0x39cc1562b197182429bc1ea312c9e30f1257be6d5159fcd7b375139d3c3fe63c_u256
+                            .into(),
+                        vout: 0x0,
+                        data: Default::default(),
+                        block_height: Default::default(),
+                        block_time: Default::default(),
+                    },
+                    witness: array![
+                        from_hex(
+                            "30440220537f470c1a18dc1a9d233c0b6af1d2ce18a07f3b244e4d9d54e0e60c34c55e67022058169cd11ac42374cda217d6e28143abd0e79549f7b84acc6542817466dc9b3001"
+                        ),
+                        from_hex(
+                            "0301c1768b48843933bd7f0e8782716e8439fc44723d3745feefde2d57b761f503"
+                        )
+                    ]
+                        .span(),
+                },
+            ]
+                .span(),
+            outputs: array![
+                TxOut {
+                    value: 102415_u64,
+                    pk_script: @from_hex("76a914998db5e1126bc3a5e04109fbf253a7900462410e88ac"),
+                    cached: false,
+                },
+                TxOut {
+                    value: 1424857_u64,
+                    pk_script: @from_hex("0014579bf4f06510c8683f2451262b6685b00012e46f"),
+                    cached: false,
+                },
+            ]
+                .span(),
+            lock_time: 679999,
+        };
+
+        let tx_encoded = tx.encode(false);
+        let tx_expected = from_hex(
+            "02000000013ce63f3c9d1375b3d7fc59516dbe57120fe3c912a31ebc29241897b16215cc390000000000fdffffff020f900100000000001976a914998db5e1126bc3a5e04109fbf253a7900462410e88acd9bd150000000000160014579bf4f06510c8683f2451262b6685b00012e46f3f600a00"
+        );
+        assert_eq!(to_hex(@tx_encoded), to_hex(@tx_expected));
+
+        let wtx_encoded = tx.encode(true);
+        let wtx_expected = from_hex(
+            "020000000001013ce63f3c9d1375b3d7fc59516dbe57120fe3c912a31ebc29241897b16215cc390000000000fdffffff020f900100000000001976a914998db5e1126bc3a5e04109fbf253a7900462410e88acd9bd150000000000160014579bf4f06510c8683f2451262b6685b00012e46f024730440220537f470c1a18dc1a9d233c0b6af1d2ce18a07f3b244e4d9d54e0e60c34c55e67022058169cd11ac42374cda217d6e28143abd0e79549f7b84acc6542817466dc9b3001210301c1768b48843933bd7f0e8782716e8439fc44723d3745feefde2d57b761f5033f600a00"
+        );
+        assert_eq!(to_hex(@wtx_encoded), to_hex(@wtx_expected));
+    }
+
+    #[test]
+    fn test_encode_tx_witness2() {
+        // tx 7ee8997b455d8231c162277943a9a2d2d98800faa51da79c17eeb5156739a628,
+        let tx = Transaction {
+            version: 2,
+            is_segwit: true,
+            lock_time: 0,
+            inputs: array![
+                TxIn {
+                    script: @from_hex(""),
+                    sequence: 0xffffffff,
+                    previous_output: OutPoint {
+                        txid: 0xdb2448ca5ab8fa4243cb0b3256fb0a629d8e42f9be1056bf1177c9d1be9f996f_u256
+                            .into(),
+                        vout: 0_u32,
+                        data: Default::default(),
+                        block_height: Default::default(),
+                        block_time: Default::default(),
+                    },
+                    witness: array![
+                        from_hex(
+                            "3045022100e79c80ee315b6ef4e29f9bd5776b14d50c2c23a378cde2407b8adc907352ecf902200a4b2d2b5db31883e78e84f5d81f0fcc7e5fa54c5a0dc98335cd58efed3c4f1901"
+                        ),
+                        from_hex(
+                            "03e5d541eed7ccea6f94324bdcce27427c0e20b626bb9f2d2cbe2e81f22ae4aafa"
+                        ),
+                    ]
+                        .span(),
+                },
+                TxIn {
+                    script: @from_hex(""),
+                    sequence: 0xffffffff,
+                    previous_output: OutPoint {
+                        txid: 0x1c3f37e7b248c24e17c69202c22f78f027be62e0bcea1a91c664df467c4d2d7b_u256
+                            .into(),
+                        vout: 1_u32,
+                        data: Default::default(),
+                        block_height: Default::default(),
+                        block_time: Default::default(),
+                    },
+                    witness: array![
+                        from_hex(
+                            "3044022065bb4676eb5bebb69241ebdd121dbef5d8e468e7b0af96576d62a38be7af83b70220604dacc80a67fd0511da9cfaeeb72b0ab58c255e712a209325902f50e60ad0bb01"
+                        ),
+                        from_hex(
+                            "03e5d541eed7ccea6f94324bdcce27427c0e20b626bb9f2d2cbe2e81f22ae4aafa"
+                        ),
+                    ]
+                        .span(),
+                },
+            ]
+                .span(),
+            outputs: array![
+                TxOut {
+                    value: 326268_u64,
+                    pk_script: @from_hex("00148812478461956e68872e7f3e8782d5ecb58b9ec1"),
+                    cached: false,
+                },
+                TxOut {
+                    value: 86868_u64,
+                    pk_script: @from_hex("0014857f3f59abc3998e771f07d8f06d3ec6eb5d2da2"),
+                    cached: false,
+                },
+            ]
+                .span(),
+        };
+
+        let tx_encoded = tx.encode(false);
+        let tx_expected = from_hex(
+            "02000000026f999fbed1c97711bf5610bef9428e9d620afb56320bcb4342fab85aca4824db0000000000ffffffff7b2d4d7c46df64c6911aeabce062be27f0782fc20292c6174ec248b2e7373f1c0100000000ffffffff027cfa0400000000001600148812478461956e68872e7f3e8782d5ecb58b9ec15453010000000000160014857f3f59abc3998e771f07d8f06d3ec6eb5d2da200000000"
+        );
+        assert_eq!(to_hex(@tx_encoded), to_hex(@tx_expected));
+
+        let wtx_encoded = tx.encode(true);
+        let wtx_expected = from_hex(
+            "020000000001026f999fbed1c97711bf5610bef9428e9d620afb56320bcb4342fab85aca4824db0000000000ffffffff7b2d4d7c46df64c6911aeabce062be27f0782fc20292c6174ec248b2e7373f1c0100000000ffffffff027cfa0400000000001600148812478461956e68872e7f3e8782d5ecb58b9ec15453010000000000160014857f3f59abc3998e771f07d8f06d3ec6eb5d2da202483045022100e79c80ee315b6ef4e29f9bd5776b14d50c2c23a378cde2407b8adc907352ecf902200a4b2d2b5db31883e78e84f5d81f0fcc7e5fa54c5a0dc98335cd58efed3c4f19012103e5d541eed7ccea6f94324bdcce27427c0e20b626bb9f2d2cbe2e81f22ae4aafa02473044022065bb4676eb5bebb69241ebdd121dbef5d8e468e7b0af96576d62a38be7af83b70220604dacc80a67fd0511da9cfaeeb72b0ab58c255e712a209325902f50e60ad0bb012103e5d541eed7ccea6f94324bdcce27427c0e20b626bb9f2d2cbe2e81f22ae4aafa00000000"
+        );
+        assert_eq!(to_hex(@wtx_encoded), to_hex(@wtx_expected));
+    }
+
+    // "02000000026f999fbed1c97711bf5610bef9428e9d620afb56320bcb4342fab85aca4824db0000000000ffffffff7b2d4d7c46df64c6911aeabce062be27f0782fc20292c6174ec248b2e7373f1c0100000000ffffffff02bc455100000000001600148812478461956e68872e7f3e8782d5ecb58b9ec15453010000000000160014857f3f59abc3998e771f07d8f06d3ec6eb5d2da200000000"
+    // "02000000026f999fbed1c97711bf5610bef9428e9d620afb56320bcb4342fab85aca4824db0000000000ffffffff7b2d4d7c46df64c6911aeabce062be27f0782fc20292c6174ec248b2e7373f1c0100000000ffffffff027cfa0400000000001600148812478461956e68872e7f3e8782d5ecb58b9ec15453010000000000160014857f3f59abc3998e771f07d8f06d3ec6eb5d2da200000000"".
+
+    #[test]
+    fn test_encode_tx_witness3() {
+        /// tx c06aaaa2753dc4e74dd4fe817522dc3c126fd71792dd9acfefdaff11f8ff954d
+        /// data from example https://learnmeabitcoin.com/technical/transaction/wtxid/
+        let tx = Transaction {
+            version: 1,
+            is_segwit: true,
+            inputs: array![
+                TxIn {
+                    script: @from_hex(""),
+                    sequence: 0xfffffffd,
+                    previous_output: OutPoint {
+                        txid: 0x89d8ddef7821789e8ea407ebfe3dd290be403d5fa9174acc544d414eb2fd8a43_u256
+                            .into(),
+                        vout: 1,
+                        data: Default::default(),
+                        block_height: Default::default(),
+                        block_time: Default::default(),
+                    },
+                    witness: array![
+                        from_hex(
+                            "30440220200254b765f25126334b8de16ee4badf57315c047243942340c16cffd9b11196022074a9476633f093f229456ad904a9d97e26c271fc4f01d0501dec008e4aae71c201"
+                        ),
+                        from_hex(
+                            "02c37a3c5b21a5991d3d7b1e203be195be07104a1a19e5c2ed82329a56b4312130"
+                        )
+                    ]
+                        .span(),
+                },
+            ]
+                .span(),
+            outputs: array![
+                TxOut {
+                    value: 10926349_u64,
+                    pk_script: @from_hex("0014b549d227c9edd758288112fe3573c1f852401668"),
+                    cached: false,
+                },
+                TxOut {
+                    value: 18000000_u64,
+                    pk_script: @from_hex("76a914ae28f233464e6da03c052155119a413d13f3380188ac"),
+                    cached: false,
+                },
+            ]
+                .span(),
+            lock_time: 0,
+        };
+
+        let tx_encoded = tx.encode(false);
+        let tx_expected = from_hex(
+            "0100000001438afdb24e414d54cc4a17a95f3d40be90d23dfeeb07a48e9e782178efddd8890100000000fdffffff020db9a60000000000160014b549d227c9edd758288112fe3573c1f85240166880a81201000000001976a914ae28f233464e6da03c052155119a413d13f3380188ac00000000"
+        );
+        assert_eq!(to_hex(@tx_encoded), to_hex(@tx_expected));
+
+        let wtx_encoded = tx.encode(true);
+        let wtx_expected = from_hex(
+            "01000000000101438afdb24e414d54cc4a17a95f3d40be90d23dfeeb07a48e9e782178efddd8890100000000fdffffff020db9a60000000000160014b549d227c9edd758288112fe3573c1f85240166880a81201000000001976a914ae28f233464e6da03c052155119a413d13f3380188ac024730440220200254b765f25126334b8de16ee4badf57315c047243942340c16cffd9b11196022074a9476633f093f229456ad904a9d97e26c271fc4f01d0501dec008e4aae71c2012102c37a3c5b21a5991d3d7b1e203be195be07104a1a19e5c2ed82329a56b431213000000000"
+        );
+        assert_eq!(to_hex(@wtx_encoded), to_hex(@wtx_expected));
     }
 }
