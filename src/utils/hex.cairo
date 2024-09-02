@@ -1,4 +1,5 @@
 //! Hex helpers
+use raito::utils::hash::Hash;
 
 /// Get bytes from hex (base16)
 pub fn from_hex(hex_string: ByteArray) -> ByteArray {
@@ -18,17 +19,38 @@ pub fn from_hex(hex_string: ByteArray) -> ByteArray {
     bytes
 }
 
-pub fn from_hex_rev(hex_string: ByteArray) -> ByteArray {
-    let mut bytes: ByteArray = Default::default();
+pub fn hex_to_hash_rev(hex_string: ByteArray) -> Hash {
+    let mut result: Array<u32> = array![];
     let mut i = 1;
+    let mut y = 0;
+    let mut unit: u32 = 0;
     let len = hex_string.len();
     while (i < len) {
+        if y == 4 {
+            result.append(unit);
+            unit = 0;
+            y = 0;
+        }
+        unit *= 256;
         let hi = hex_char_to_nibble(hex_string[len - i - 1]);
         let lo = hex_char_to_nibble(hex_string[len - i]);
-        bytes.append_byte(hi * 16 + lo);
+        unit += (hi * 16 + lo).into();
         i += 2;
+        y += 1;
     };
-    bytes
+    result.append(unit);
+    Hash {
+        value: [
+            *result[0],
+            *result[1],
+            *result[2],
+            *result[3],
+            *result[4],
+            *result[5],
+            *result[6],
+            *result[7],
+        ]
+    }
 }
 
 fn hex_char_to_nibble(hex_char: u8) -> u8 {
@@ -49,7 +71,8 @@ fn hex_char_to_nibble(hex_char: u8) -> u8 {
 
 #[cfg(test)]
 mod tests {
-    use super::{from_hex, from_hex_rev};
+    use super::{from_hex, hex_to_hash_rev};
+    use raito::utils::hash::Hash;
 
     #[test]
     fn test_bytes_from_hex() {
@@ -57,7 +80,20 @@ mod tests {
         assert_eq!(@"hello starknet", @from_hex("68656C6C6F20737461726B6E6574"));
     }
     #[test]
-    fn test_from_hex_rev() {
-        assert_eq!(@"hello starknet", @from_hex_rev("74656E6B72617473206F6C6C6568"));
+    fn test_hex_to_hash_rev() {
+        let hash: Hash = Hash {
+            value: [
+                0x12345678_u32,
+                0x9abcdef0_u32,
+                0x11223344_u32,
+                0x55667788_u32,
+                0xaabbccdd_u32,
+                0xeeff0011_u32,
+                0x22334455_u32,
+                0x66778899_u32
+            ]
+        };
+        let hex = "99887766554433221100ffeeddccbbaa8877665544332211f0debc9a78563412";
+        assert_eq!(hash, hex_to_hash_rev(hex));
     }
 }
