@@ -4,15 +4,6 @@ use crate::types::transaction::{Transaction, TransactionTrait};
 use crate::utils::{hash::Hash, merkle_tree::merkle_root};
 use super::transaction::validate_transaction;
 
-/// Returns the next block height
-/// If the block height is None (Genesis block), it returns 0
-pub fn next_block_height(block_height: Option<u32>) -> u32 {
-    match block_height {
-        Option::Some(height) => height + 1,
-        Option::None => 0,
-    }
-}
-
 /// Validates transactions and aggregates:
 ///  - Total fee
 ///  - TXID merkle root
