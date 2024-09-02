@@ -28,10 +28,10 @@ fn test_block170() {
     let block170 = block_170();
     let prev_chain_state_block169 = ChainState {
         block_height: Option::Some(169),
-        total_work: 0,
+        total_work: 734450614443_u256,
         best_block_hash: 0x000000002a22cfee1f2c846adbd12b3e183d4f97683f85dad08a79780a84bd55_u256
             .into(),
-        current_target: 0x00000000ffff0000000000000000000000000000000000000000000000000000_u256,
+        current_target: 26959535291011309493156476344723991336010898738574164086137773096960,
         epoch_start_time: 1231006505,
         prev_timestamps: [
             1231702618,
@@ -46,7 +46,6 @@ fn test_block170() {
             1231717181,
             1231730523
         ].span(),
-        // program_hash: 71842f64de1268cdd1669c87640845003a9f15787bbcaf8eb371f6762f93eec
     };
 
     let next_chain_state = prev_chain_state_block169.validate_and_apply(block170);
