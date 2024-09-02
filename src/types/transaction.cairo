@@ -144,7 +144,6 @@ pub impl TransactionImpl of TransactionTrait {
         double_sha256_byte_array(@(self.encode_with_witness()))
     }
 }
-
 // TODO: implement Hash trait for OutPoint (for creating hash digests to use in utreexo/utxo cache)
 // Maybe we need to rename utils::hash::Hash (e.g. to Digest) to avoid confusion
 
