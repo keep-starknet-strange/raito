@@ -3,6 +3,16 @@
 use crate::types::transaction::{Transaction, TransactionTrait};
 use crate::utils::{hash::Hash, merkle_tree::merkle_root};
 use super::transaction::validate_transaction;
+use crate::codec::Encode;
+
+/// Validate the weight of the block
+/// https://github.com/bitcoin/bitcoin/blob/a74bdeea1b8e27b2335f0f7da78006e87ecfb235/src/consensus/consensus.h#L14
+pub fn validate_weight_block(weight_block: u32) -> Result<(), ByteArray> {
+    if weight_block > 4_000_000 {
+        return Result::Err("Block weight is too high");
+    }
+    Result::Ok(())
+}
 
 /// Validates transactions and aggregates:
 ///  - Total fee
@@ -14,9 +24,10 @@ pub fn fee_and_merkle_roots(
     let mut txids: Array<Hash> = array![];
     let mut wtxids: Array<Hash> = array![];
     let mut total_fee = 0;
+    let mut block_weight = 0;
     let mut i = 0;
 
-    let loop_result: Result<(), ByteArray> = loop {
+    let validate_transactions: Result<(), ByteArray> = loop {
         if i >= txs.len() {
             break Result::Ok(());
         }
@@ -25,6 +36,7 @@ pub fn fee_and_merkle_roots(
         txids.append(tx.txid());
         // TODO: only do that for blocks after Segwit upgrade
         wtxids.append(tx.wtxid());
+        block_weight += tx.weight();
 
         // skipping the coinbase transaction
         if (i != 0) {
@@ -36,7 +48,9 @@ pub fn fee_and_merkle_roots(
         }
         i += 1;
     };
-    loop_result?;
+
+    validate_transactions?;
+    validate_weight_block(block_weight)?;
 
     Result::Ok((total_fee, merkle_root(ref txids), merkle_root(ref wtxids)))
 }

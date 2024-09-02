@@ -14,9 +14,6 @@ pub fn validate_transaction(
     //      - Output values are within the range [0, 21M]
     //      - Total output value is within the range [0, 21M]
     //      - Transaction fee is in the range [0, 21M]
-    //      - Tranaction weight is less than the max block weight (consider adding a weight method
-    //      to the Encode trait)
-    //        read more https://learnmeabitcoin.com/technical/transaction/size/
     //      - Transaction is final (check timelock and input sequences)
     //      - Coinbase is mature (if some input spends coinbase tx from the past)
     //
