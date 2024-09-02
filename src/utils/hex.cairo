@@ -19,6 +19,7 @@ pub fn from_hex(hex_string: ByteArray) -> ByteArray {
     bytes
 }
 
+// Get `Hash` form `ByteArray` reversed
 pub fn hex_to_hash_rev(hex_string: ByteArray) -> Hash {
     let mut result: Array<u32> = array![];
     let mut i = 1;
