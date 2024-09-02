@@ -61,8 +61,8 @@ Tasks:
 * [x] block time validation/computation
 * [x] block difficulty adjustment
 * [x] script for fetching arbitrary block data
-* [ ] script for preparing program arguments
-* [ ] script for running the program e2e for multiple block
+* [x] script for preparing program arguments
+* [x] script for running the program e2e for multiple blocks
 
 ### Milestone 2 - Partial transaction validation
 
@@ -71,7 +71,7 @@ Extend light client with partial transaction validation, but without UTXO checks
 Tasks:
 
 * [ ] reassess validation check list (analyze Bitcoin core codebase)
-* [ ] generate & run integration tests e2e instead of Cairo codegen
+* [x] generate & run integration tests e2e instead of Cairo codegen
 * [x] transaction ID calculation
 * [x] transaction root computation
 * [x] validate transaction fee
@@ -135,29 +135,42 @@ This will compile all the components:
 
 ```bash
 scarb build
-
 ```
 
-This will run the test-suite:
+This will run unit and integration tests:
 
 ```bash
 scarb test
 ```
 
-Re-generate test data:
+For integration tests ony:
 
-```base
-scarb run get_blocks
-scarb run get_block <BlockHash>
-scarb run get_block_py <BlockHash>
+```bash
+scarb run integration_tests
 ```
 
-* File will be created in [tests/blocks/](https://github.com/keep-starknet-strange/raito/blob/main/tests/blocks)block_\<block_height\>.cairo
-* If you want to modify the blockHash for get_blocks change [scripts/data/get_blocks.sh](https://github.com/keep-starknet-strange/raito/blob/main/scripts/data/get_blocks.sh#L11)
+Run for specific test file(s):
+
+```bash
+scarb run integration_tests tests/data/light_481823.json
+```
+
+Re-generate integration test data:
+
+```base
+scarb run regenerate_tests
+```
+
+* Files will be created in [tests/data/](https://github.com/keep-starknet-strange/raito/blob/main/tests/data)
+* If you want to add a new test case, edit [scripts/data/regenerate_tests.sh](https://github.com/keep-starknet-strange/raito/blob/main/scripts/data/regenerate_tests.sh)
 
 ## Build dependencies
 
-* ```get_blocks``` and ```get_block_py``` need [that Python dependencies](https://github.com/keep-starknet-strange/raito/tree/main/scripts/data/requirements.txt)
+Install necessary packages required by Python scripts:
+
+```bash
+pip install -r scripts/data/requirements.txt
+```
 
 ## References
 

@@ -4,9 +4,10 @@ version = "0.1.0"
 edition = "2024_07"
 
 [scripts]
-get_block= "python3 ./scripts/data/get_block.py"
-get_blocks= "./scripts/data/get_blocks.sh"
-light_client= "./scripts/data/light_client.sh"
+regenerate_tests= "./scripts/data/regenerate_tests.sh"
+integration_tests = "scarb build && ./scripts/data/integration_tests.sh"
+light_client= "scarb build && ./scripts/data/light_client.sh"
+test = "scarb cairo-test && scarb run integration_tests"
 
 [dependencies]
 
