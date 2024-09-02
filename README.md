@@ -49,52 +49,68 @@ Although this is a highly experimental project without immediate plans for deplo
 
 ## Roadmap
 
-### Milestone 1 - Block header verification
+### Milestone 1 - Block header validation
 
 Implement a reduced light client that can verify a range of blocks starting at genesis.  
 It does not have to validate execution, just check that the block header fields follow the protocol.
 
 Tasks:
 
-* [ ] block hash computation
+* [x] block hash computation
 * [x] proof-of-work validation/computation
 * [x] block time validation/computation
-* [ ] block difficulty adjustment
-* [ ] transaction ID calculation
-* [x] transaction root computation
+* [x] block difficulty adjustment
 * [x] script for fetching arbitrary block data
-* [ ] script for running the program e2e for a span of blocks
+* [ ] script for preparing program arguments
+* [ ] script for running the program e2e for multiple block
 
-### Milestone 2 - Partial transaction verification
+### Milestone 2 - Partial transaction validation
 
 Extend light client with partial transaction validation, but without UTXO checks.
 
 Tasks:
 
+* [ ] reassess validation check list (analyze Bitcoin core codebase)
+* [ ] generate & run integration tests e2e instead of Cairo codegen
+* [x] transaction ID calculation
+* [x] transaction root computation
 * [x] validate transaction fee
 * [x] validate coinbase transaction
-* [ ] validate segwit specific data
+* [ ] validate that transaction can be mined (locktime, sequence, coinbase maturity)
+* [ ] validate segwit specific data (wtxid commitment)
+* [ ] validate block weight
 * [x] script that fetches blocks extended with references UTXOs
 * [ ] script that runs the program e2e for a span of blocks
 
-### Milestone 3 - UTXO set verification
+### Milestone 3 - Bitcoin script validation
+
+Try to run script validation with external Cairo crate.
+
+Tasks:
+
+* [ ] Integrate Shinigami
+
+### Milestone 4 - UTXO set verification
 
 Add inclusion proofs for the UTXOs included in the block.
 
 Tasks:
 
-* [ ] implement cache for UTXOs spent in the same block they are created
+* [ ] isolate unspendable outputs (OP_RETURN, etc)
+* [ ] implement cache for UTXOs spent in the same block they are created (*)
+* [ ] implement transaction outpoint hashing
 * [ ] implement Utreexo accumulator (addition)
+* [ ] Utreexo backend that maintains utxo set and Utreexo roots
 * [ ] implement Utreexo single inclusion proof verification
 * [ ] implement Utreexo single output removal
 * [ ] implement Utreexo bridge node that generates individual inclusion proofs
 * [ ] implement script that runs the program e2e for a span of blocks
 
-### Milestone 4 - Full consensus verification
+### Milestone 5 - Full consensus validation
 
-Verify full execution, including the Bitcoin scripts check.
+Validate full block execution, including the Bitcoin scripts checks and Utreexo.
 
-### Milestone 5 - Incrementally verifiable computation
+### Milestone 6 - Proving the validation
 
 Recursively verify STARK proofs of chain state updates.
 
