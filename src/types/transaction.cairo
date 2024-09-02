@@ -4,7 +4,7 @@
 //! The data is expected to be prepared in advance and passed as program arguments.
 
 use crate::utils::{hash::Hash, sha256::double_sha256_byte_array};
-use crate::codec::encode_transaction;
+use crate::codec::{Encode, TransactionCodec};
 
 /// Represents a transaction.
 /// https://learnmeabitcoin.com/technical/transaction/
@@ -42,6 +42,9 @@ pub struct TxIn {
     pub previous_output: OutPoint,
     /// The witness data for transactions.
     /// A list of items (of different size) pushed onto stack before sig script execution.
+    /// Can be empty if this particular inputs spends a non-segwit output.
+    /// NOTE that this field actually belongs to the transaction, but we store it in the input for
+    /// convenience.
     pub witness: Span<ByteArray>,
 }
 
@@ -132,13 +135,13 @@ pub impl TransactionImpl of TransactionTrait {
     /// NOTE: marker, flag, and witness fields in segwit transactions are not included
     /// this means txid computation is the same for legacy and segwit tx
     fn txid(self: @Transaction) -> Hash {
-        double_sha256_byte_array(@encode_transaction(self, false))
+        double_sha256_byte_array(@(self.encode()))
     }
 
     /// Compute transaction wTXID
     /// https://learnmeabitcoin.com/technical/transaction/wtxid/
     fn wtxid(self: @Transaction) -> Hash {
-        double_sha256_byte_array(@encode_transaction(self, true))
+        double_sha256_byte_array(@(self.encode_with_witness()))
     }
 }
 
