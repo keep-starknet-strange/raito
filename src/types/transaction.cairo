@@ -8,7 +8,7 @@ use crate::codec::{Encode, TransactionCodec};
 
 /// Represents a transaction.
 /// https://learnmeabitcoin.com/technical/transaction/
-#[derive(Drop, Copy)]
+#[derive(Drop, Copy, Debug, PartialEq)]
 pub struct Transaction {
     /// The version of the transaction.
     pub version: u32,
@@ -29,7 +29,7 @@ pub struct Transaction {
 
 /// Input of a transaction.
 /// https://learnmeabitcoin.com/technical/transaction/input/
-#[derive(Drop, Copy)]
+#[derive(Drop, Copy, Debug, PartialEq)]
 pub struct TxIn {
     /// The signature script which satisfies the conditions placed in the txo pubkey script
     /// or coinbase script that contains block height (since 227,836) and miner nonce (optional).
@@ -77,7 +77,7 @@ pub struct TxIn {
 ///       one by one, first inputs then outputs. Output validation might put something to the
 ///       cache while input validation might remove an item, thus it's important to maintain
 ///       the order.
-#[derive(Drop, Copy)]
+#[derive(Drop, Copy, Debug, PartialEq)]
 pub struct OutPoint {
     /// The hash of the referenced transaction.
     pub txid: Hash,
@@ -108,7 +108,7 @@ pub struct OutPoint {
 ///     - Do nothing in case of a provably unspendable output
 ///
 /// Read more: https://en.bitcoin.it/wiki/Script#Provably_Unspendable/Prunable_Outputs
-#[derive(Drop, Copy)]
+#[derive(Drop, Copy, Debug, PartialEq)]
 pub struct TxOut {
     /// The value of the output in satoshis.
     /// Can be in range [0, 21_000_000] BTC (including both ends).
