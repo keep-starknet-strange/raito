@@ -65,7 +65,7 @@ def outpoint(prev_output):
                                     data: {tx_output({'vout': [prev_tx['vout'][prev_output['vout']]]})}
                                     block_height: {prev_block['height']}_u32,
                                     block_time: {prev_block['time']}_u32,
-                                    is_coinbase: {str(prev_output['vout'] == 0).lower()}
+                                    is_coinbase: {str(prev_tx['vin'][0].get('coinbase') is not None).lower()}
                                 }}'''
 
 
