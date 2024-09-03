@@ -116,7 +116,8 @@ def tx_input(tx):
 
 
 def check_segwit(tx):
-    if not int(tx["version"]) % 2:
+    hex = tx["hex"][8:12]
+    if hex == "0001":
         return "true"
     return "false"
 
