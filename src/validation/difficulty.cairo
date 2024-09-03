@@ -18,7 +18,7 @@ pub fn validate_bits(target: u256, bits: u32) -> Result<(), ByteArray> {
     if bits == target_to_bits(target)? {
         Result::Ok(())
     } else {
-        Result::Err("Block header bits do not match target")
+        Result::Err(format!("Block header bits {} do not match target {}", bits, target))
     }
 }
 

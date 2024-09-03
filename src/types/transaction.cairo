@@ -4,11 +4,11 @@
 //! The data is expected to be prepared in advance and passed as program arguments.
 
 use crate::utils::{hash::Hash, sha256::double_sha256_byte_array};
-use crate::codec::Encode;
+use crate::codec::{Encode, TransactionCodec};
 
 /// Represents a transaction.
 /// https://learnmeabitcoin.com/technical/transaction/
-#[derive(Drop, Copy)]
+#[derive(Drop, Copy, Debug, PartialEq)]
 pub struct Transaction {
     /// The version of the transaction.
     pub version: u32,
@@ -29,7 +29,7 @@ pub struct Transaction {
 
 /// Input of a transaction.
 /// https://learnmeabitcoin.com/technical/transaction/input/
-#[derive(Drop, Copy)]
+#[derive(Drop, Copy, Debug, PartialEq)]
 pub struct TxIn {
     /// The signature script which satisfies the conditions placed in the txo pubkey script
     /// or coinbase script that contains block height (since 227,836) and miner nonce (optional).
@@ -77,7 +77,7 @@ pub struct TxIn {
 ///       one by one, first inputs then outputs. Output validation might put something to the
 ///       cache while input validation might remove an item, thus it's important to maintain
 ///       the order.
-#[derive(Drop, Copy)]
+#[derive(Drop, Copy, Debug, PartialEq)]
 pub struct OutPoint {
     /// The hash of the referenced transaction.
     pub txid: Hash,
@@ -109,7 +109,7 @@ pub struct OutPoint {
 ///     - Do nothing in case of a provably unspendable output
 ///
 /// Read more: https://en.bitcoin.it/wiki/Script#Provably_Unspendable/Prunable_Outputs
-#[derive(Drop, Copy)]
+#[derive(Drop, Copy, Debug, PartialEq)]
 pub struct TxOut {
     /// The value of the output in satoshis.
     /// Can be in range [0, 21_000_000] BTC (including both ends).
@@ -136,13 +136,13 @@ pub impl TransactionImpl of TransactionTrait {
     /// NOTE: marker, flag, and witness fields in segwit transactions are not included
     /// this means txid computation is the same for legacy and segwit tx
     fn txid(self: @Transaction) -> Hash {
-        double_sha256_byte_array(@(self.encode(false)))
+        double_sha256_byte_array(@(self.encode()))
     }
 
     /// Compute transaction wTXID
     /// https://learnmeabitcoin.com/technical/transaction/wtxid/
     fn wtxid(self: @Transaction) -> Hash {
-        double_sha256_byte_array(@(self.encode(true)))
+        double_sha256_byte_array(@(self.encode_with_witness()))
     }
 }
 
@@ -151,7 +151,7 @@ pub impl TransactionImpl of TransactionTrait {
 
 #[cfg(test)]
 mod tests {
-    use crate::utils::hex::from_hex;
+    use crate::utils::hex::{from_hex, hex_to_hash_rev};
     use super::{Transaction, TransactionTrait, TxIn, TxOut, OutPoint};
 
     #[test]
@@ -166,8 +166,9 @@ mod tests {
                     ),
                     sequence: 0xffffffff,
                     previous_output: OutPoint {
-                        txid: 0x0437cd7f8525ceed2324359c2d0ba26006d92d856a9c20fa0241106ee5a597c9_u256
-                            .into(),
+                        txid: hex_to_hash_rev(
+                            "0437cd7f8525ceed2324359c2d0ba26006d92d856a9c20fa0241106ee5a597c9"
+                        ),
                         vout: 0x00000000,
                         data: Default::default(),
                         block_height: Default::default(),
@@ -200,7 +201,7 @@ mod tests {
 
         assert_eq!(
             tx.txid(),
-            0xf4184fc596403b9d638783cf57adfe4c75c605f6356fbc91338530e9831e9e16_u256.into()
+            hex_to_hash_rev("f4184fc596403b9d638783cf57adfe4c75c605f6356fbc91338530e9831e9e16")
         );
     }
 }

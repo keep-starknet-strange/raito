@@ -82,7 +82,7 @@ pub fn validate_transaction(
 #[cfg(test)]
 mod tests {
     use crate::types::transaction::{Transaction, TxIn, TxOut, OutPoint};
-    use crate::utils::hex::from_hex;
+    use crate::utils::hex::{from_hex, hex_to_hash_rev};
     use super::{validate_transaction};
 
     #[test]
@@ -97,8 +97,9 @@ mod tests {
                     ),
                     sequence: 0xffffffff,
                     previous_output: OutPoint {
-                        txid: 0x0437cd7f8525ceed2324359c2d0ba26006d92d856a9c20fa0241106ee5a597c9_u256
-                            .into(),
+                        txid: hex_to_hash_rev(
+                            "0437cd7f8525ceed2324359c2d0ba26006d92d856a9c20fa0241106ee5a597c9"
+                        ),
                         vout: 0x00000000,
                         data: TxOut { value: 100, ..Default::default() },
                         block_height: Default::default(),

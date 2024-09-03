@@ -6,6 +6,7 @@ edition = "2024_07"
 [scripts]
 get_block= "python3 ./scripts/data/get_block.py"
 get_blocks= "./scripts/data/get_blocks.sh"
+light_client= "./scripts/data/light_client.sh"
 
 [dependencies]
 
