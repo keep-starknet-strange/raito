@@ -4,7 +4,7 @@
 //! The data is expected to be prepared in advance and passed as program arguments.
 
 use crate::utils::{hash::Hash, sha256::double_sha256_byte_array};
-use crate::codec::{Encode, TransactionCodec};
+use crate::codec::{Encode};
 
 pub const WEIGHT_NON_WITNESS_FACTOR: usize = 4;
 
@@ -129,44 +129,100 @@ impl TxOutDefault of Default<TxOut> {
     }
 }
 
+#[derive(Drop)]
+pub struct TransactionData {
+    pub version_encoded: ByteArray,
+    pub version_size: usize,
+    pub inputs_encoded: ByteArray,
+    pub inputs_size: usize,
+    pub outputs_encoded: ByteArray,
+    pub outputs_size: usize,
+    pub lock_time_encoded: ByteArray,
+    pub lock_time_size: usize,
+    pub witness_encoded: ByteArray,
+    pub witness_size: usize,
+}
+
 #[generate_trait]
 pub impl TransactionImpl of TransactionTrait {
+    fn init_encode(self: @Transaction) -> TransactionData {
+        let (version_encoded, version_size) = self.version.encode();
+        let (inputs_encoded, inputs_size) = self.inputs.encode();
+        let (outputs_encoded, outputs_size) = self.outputs.encode();
+        let (lock_time_encoded, lock_time_size) = self.lock_time.encode();
+
+        let mut witness_encoded: ByteArray = Default::default();
+        let mut witness_size: usize = 0;
+        if (*self.is_segwit) {
+            for txin in *self
+                .inputs {
+                    let (witness, witness_txin_size) = txin.witness.encode();
+                    witness_size += witness_txin_size;
+                    witness_encoded.append(@witness);
+                };
+        }
+
+        TransactionData {
+            version_encoded,
+            version_size,
+            inputs_encoded,
+            inputs_size,
+            outputs_encoded,
+            outputs_size,
+            lock_time_encoded,
+            lock_time_size,
+            witness_encoded,
+            witness_size
+        }
+    }
+
     /// Compute transaction TXID
     /// https://learnmeabitcoin.com/technical/transaction/input/txid/
     ///
     /// NOTE: marker, flag, and witness fields in segwit transactions are not included
     /// this means txid computation is the same for legacy and segwit tx
-    fn txid(self: @Transaction) -> Hash {
-        double_sha256_byte_array(@(self.encode()))
+    fn txid(self: @Transaction, data: @TransactionData) -> Hash {
+        let mut txid_data: ByteArray = Default::default();
+        txid_data.append(data.version_encoded);
+        txid_data.append(data.inputs_encoded);
+        txid_data.append(data.outputs_encoded);
+        txid_data.append(data.lock_time_encoded);
+        double_sha256_byte_array(@(txid_data))
     }
 
     /// Compute transaction wTXID
     /// https://learnmeabitcoin.com/technical/transaction/wtxid/
-    fn wtxid(self: @Transaction) -> Hash {
-        double_sha256_byte_array(@(self.encode_with_witness()))
+    fn wtxid(self: @Transaction, data: @TransactionData) -> Hash {
+        let mut wtxid_data: ByteArray = Default::default();
+        wtxid_data.append(data.version_encoded);
+        if (*self.is_segwit) {
+            wtxid_data.append_byte(0);
+            wtxid_data.append_byte(1);
+        }
+        wtxid_data.append(data.inputs_encoded);
+        wtxid_data.append(data.outputs_encoded);
+        if (*self.is_segwit) {
+            wtxid_data.append(data.witness_encoded);
+        }
+        wtxid_data.append(data.lock_time_encoded);
+        double_sha256_byte_array(@(wtxid_data))
     }
 
     /// Compute transaction weight
     /// https://learnmeabitcoin.com/technical/transaction/size/
-    fn weight(self: @Transaction) -> usize {
-        let mut weight: usize = 0;
+    fn weight(self: @Transaction, data: TransactionData) -> usize {
+        let base_size: u32 = data.version_size
+            + data.inputs_size
+            + data.outputs_size
+            + data.lock_time_size;
 
-        weight += self.version.bytes_size();
-        weight += self.inputs.bytes_size();
-        weight += self.outputs.bytes_size();
-        weight += self.lock_time.bytes_size();
-        weight *= WEIGHT_NON_WITNESS_FACTOR;
-
+        let mut witness_size: u32 = 0;
         if (*self.is_segwit) {
-            // marker + flag
-            weight += 2;
-            // witness data
-            for txin in *self.inputs {
-                weight += txin.witness.bytes_size();
-            };
+            witness_size = data.witness_size + 2;
         }
 
-        weight
+        let total_size = 4 * base_size + witness_size;
+        total_size
     }
 }
 // TODO: implement Hash trait for OutPoint (for creating hash digests to use in utreexo/utxo cache)
@@ -178,42 +234,71 @@ mod tests {
     use super::{Transaction, TransactionTrait, TxIn, TxOut, OutPoint};
 
     #[test]
-    fn test_txid() {
-        let tx: Transaction = Transaction {
-            version: 1,
+    fn test_encode_tx1() {
+        // tx 4ff32a7e58200897220ce4615e30e3e414991222d7eda27e693116abea8b8f33
+        let tx = @Transaction {
+            version: 1_u32,
             is_segwit: false,
             inputs: array![
                 TxIn {
                     script: @from_hex(
-                        "47304402204e45e16932b8af514961a1d3a1a25fdf3f4f7732e9d624c6c61548ab5fb8cd410220181522ec8eca07de4860a4acdd12909d831cc56cbbac4622082221a8768d1d0901"
+                        "493046022100838b5bd094d57898d359569af330312e2dd99f8a1db7add92dc1704808625dbf022100978160771ea1e3ffe014e1fa7559f0bb5ffd32f6b63f19225bf3be110c2f2d65014104c273b18442afb2263698a09da205bb7a18f23037f9c285fc789874fe012ac32b40a18f12191a0015f2506b5a395d9845005b90a34a813715e9cc5dbf8024ca18"
                     ),
                     sequence: 0xffffffff,
                     previous_output: OutPoint {
                         txid: hex_to_hash_rev(
-                            "0437cd7f8525ceed2324359c2d0ba26006d92d856a9c20fa0241106ee5a597c9"
+                            "b8a75476112bb2322af0331646100fe44f26fee85f452001589f6d9672b763a7"
                         ),
-                        vout: 0x00000000,
+                        vout: 0_u32,
                         data: Default::default(),
                         block_height: Default::default(),
                         block_time: Default::default(),
                     },
-                    witness: array![].span(),
+                    witness: array![].span()
+                },
+                TxIn {
+                    script: @from_hex(
+                        "48304502200b2ff9ed1689c9403b4bf0aca89fa4a53004c2c6ad66b4df25ae8361eef172cc022100c8f5fcd4eeb02762d9b40de1013ad7283042585caec8e60be873689de8e29a4a014104cdadb5199b0d9d356ae03fbf891f28d761547d79a0c5dae24998fa84a147e39f27ce03cd8efd8bd27e9dffc78744d66b2942b76801f79ae4028028e7122a3bb1"
+                    ),
+                    sequence: 0xffffffff,
+                    previous_output: OutPoint {
+                        txid: hex_to_hash_rev(
+                            "a7ed5e908fa1951c912fd39cd72a37410ca78fc75de65180b8568a622f4e3a97"
+                        ),
+                        vout: 1_u32,
+                        data: Default::default(),
+                        block_height: Default::default(),
+                        block_time: Default::default(),
+                    },
+                    witness: array![].span()
+                },
+                TxIn {
+                    script: @from_hex(
+                        "493046022100f814323e8be180dd90d063adb8f94b31801fb68ce97eb1acb32970a390bfa72f02210085ed8af17e90e2415d400d7cb08311535243d55461be9982bb3408271aa954aa0141045d21d60c22da05383ef130e3fc314b28c7dd378c762931f8c85e5e708d97b9779d83135a8c3cfe202f435e2781c99329043080627c5eb71f73be103fe45c2028"
+                    ),
+                    sequence: 0xffffffff,
+                    previous_output: OutPoint {
+                        txid: hex_to_hash_rev(
+                            "66ce602f26ae00d128ea83e5afddf8c1cd226b7148322bb090779199f63f9ff5"
+                        ),
+                        vout: 1_u32,
+                        data: Default::default(),
+                        block_height: Default::default(),
+                        block_time: Default::default(),
+                    },
+                    witness: array![].span()
                 }
             ]
                 .span(),
             outputs: array![
                 TxOut {
-                    value: 0x000000003b9aca00,
-                    pk_script: @from_hex(
-                        "4104ae1a62fe09c5f51b13905f07f06b99a2f7159b2225f374cd378d71302fa28414e7aab37397f554a7df5f142c21c1b7303b8a0626f1baded5c72a704f7e6cd84cac"
-                    ),
+                    value: 1050000_u64,
+                    pk_script: @from_hex("76a914bafe7b8f25824ff18f698d2878d50c6fc43dd1d088ac"),
                     cached: false,
                 },
                 TxOut {
-                    value: 0x00000000ee6b2800,
-                    pk_script: @from_hex(
-                        "410411db93e1dcdb8a016b49840f8c53bc1eb68a382e97b1482ecad7b148a6909a5cb2e0eaddfb84ccf9744464f82e160bfa9b8b64f9d4c03f999b8643f656b412a3ac"
-                    ),
+                    value: 111950000_u64,
+                    pk_script: @from_hex("76a914ef48d8584b96d95992a664d524e52007b036754188ac"),
                     cached: false,
                 }
             ]
@@ -221,9 +306,83 @@ mod tests {
             lock_time: 0
         };
 
-        assert_eq!(
-            tx.txid(),
-            hex_to_hash_rev("f4184fc596403b9d638783cf57adfe4c75c605f6356fbc91338530e9831e9e16")
+        let data = tx.init_encode();
+        let txid = tx.txid(@data);
+        let wtxid = tx.wtxid(@data);
+        let weight = tx.weight(data);
+
+        let txid_expected = hex_to_hash_rev(
+            "4ff32a7e58200897220ce4615e30e3e414991222d7eda27e693116abea8b8f33"
         );
+        let wtxid_expected = hex_to_hash_rev(
+            "4ff32a7e58200897220ce4615e30e3e414991222d7eda27e693116abea8b8f33"
+        );
+        assert_eq!(txid, txid_expected);
+        assert_eq!(wtxid, wtxid_expected);
+        assert_eq!(weight, 2480);
+    }
+
+    #[test]
+    fn test_encode_tx_witness1() {
+        // tx 65d8bd45f01bd6209d8695d126ba6bb4f2936501c12b9a1ddc9e38600d35aaa2
+        let tx = Transaction {
+            version: 2,
+            is_segwit: true,
+            inputs: array![
+                TxIn {
+                    script: @from_hex(""),
+                    sequence: 0xfffffffd,
+                    previous_output: OutPoint {
+                        txid: hex_to_hash_rev(
+                            "39cc1562b197182429bc1ea312c9e30f1257be6d5159fcd7b375139d3c3fe63c"
+                        ),
+                        vout: 0x0,
+                        data: Default::default(),
+                        block_height: Default::default(),
+                        block_time: Default::default(),
+                    },
+                    witness: array![
+                        from_hex(
+                            "30440220537f470c1a18dc1a9d233c0b6af1d2ce18a07f3b244e4d9d54e0e60c34c55e67022058169cd11ac42374cda217d6e28143abd0e79549f7b84acc6542817466dc9b3001"
+                        ),
+                        from_hex(
+                            "0301c1768b48843933bd7f0e8782716e8439fc44723d3745feefde2d57b761f503"
+                        )
+                    ]
+                        .span(),
+                },
+            ]
+                .span(),
+            outputs: array![
+                TxOut {
+                    value: 102415_u64,
+                    pk_script: @from_hex("76a914998db5e1126bc3a5e04109fbf253a7900462410e88ac"),
+                    cached: false,
+                },
+                TxOut {
+                    value: 1424857_u64,
+                    pk_script: @from_hex("0014579bf4f06510c8683f2451262b6685b00012e46f"),
+                    cached: false,
+                },
+            ]
+                .span(),
+            lock_time: 679999,
+        };
+
+        let data = tx.init_encode();
+        let txid = tx.txid(@data);
+        let wtxid = tx.wtxid(@data);
+        let weight = tx.weight(data);
+
+        let txid_expected = hex_to_hash_rev(
+            "65d8bd45f01bd6209d8695d126ba6bb4f2936501c12b9a1ddc9e38600d35aaa2"
+        );
+        let wtxid_expected = hex_to_hash_rev(
+            "f419d5dd07705789da288842de182e63fc0d2ef66f88c4af089d8d055524e470"
+        );
+        assert_eq!(txid, txid_expected);
+        assert_eq!(wtxid, wtxid_expected);
+        assert_eq!(weight, 573);
     }
 }
+

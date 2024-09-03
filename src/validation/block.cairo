@@ -1,7 +1,8 @@
 //! Block validation helpers.
 
-use crate::types::transaction::{Transaction, TransactionTrait};
+use crate::types::transaction::{Transaction, TransactionTrait, TransactionData};
 use crate::utils::{hash::Hash, merkle_tree::merkle_root};
+// use crate::codec::TransactionWeight;
 use super::transaction::validate_transaction;
 
 /// Validates transactions and aggregates:
@@ -14,6 +15,7 @@ pub fn fee_and_merkle_roots(
     let mut txids: Array<Hash> = array![];
     let mut wtxids: Array<Hash> = array![];
     let mut total_fee = 0;
+    let mut total_weight: u32 = 0;
     let mut i = 0;
 
     let loop_result: Result<(), ByteArray> = loop {
@@ -22,9 +24,12 @@ pub fn fee_and_merkle_roots(
         }
 
         let tx = txs[i];
-        txids.append(tx.txid());
+
+        let truc: TransactionData = tx.init_encode();
+        txids.append(tx.txid(@truc));
         // TODO: only do that for blocks after Segwit upgrade
-        wtxids.append(tx.wtxid());
+        wtxids.append(tx.wtxid(@truc));
+        total_weight += tx.weight(truc);
 
         // skipping the coinbase transaction
         if (i != 0) {
