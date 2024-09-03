@@ -89,7 +89,6 @@ pub impl EncodeTransaction of Encode<Transaction> {
     }
 }
 
-
 #[generate_trait]
 pub impl TransactionCodecImpl of TransactionCodec {
     /// Encode transaction with witness fields (for computing wtxid) and return resuling bytes.
@@ -149,7 +148,7 @@ pub fn encode_compact_size(len: usize, ref dest: ByteArray) {
 mod tests {
     use raito::types::transaction::{Transaction, TransactionTrait, TxIn, TxOut, OutPoint};
     use raito::utils::hex::{from_hex, to_hex, hex_to_hash_rev};
-    use super::{Encode, TransactionCodec, encode_compact_size,};
+    use super::{Encode, TransactionCodec, encode_compact_size};
 
     #[test]
     fn test_encode_compact_size1() {
