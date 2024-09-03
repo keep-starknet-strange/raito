@@ -25,11 +25,11 @@ pub fn fee_and_merkle_roots(
 
         let tx = txs[i];
 
-        let truc: TransactionData = tx.init_encode();
-        txids.append(tx.txid(@truc));
+        let data: TransactionData = tx.init_encode();
+        txids.append(tx.txid(@data));
         // TODO: only do that for blocks after Segwit upgrade
-        wtxids.append(tx.wtxid(@truc));
-        total_weight += tx.weight(truc);
+        wtxids.append(tx.wtxid(@data));
+        total_weight += tx.weight(data);
 
         // skipping the coinbase transaction
         if (i != 0) {

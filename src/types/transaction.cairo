@@ -6,8 +6,6 @@
 use crate::utils::{hash::Hash, sha256::double_sha256_byte_array};
 use crate::codec::{Encode};
 
-pub const WEIGHT_NON_WITNESS_FACTOR: usize = 4;
-
 /// Represents a transaction.
 /// https://learnmeabitcoin.com/technical/transaction/
 #[derive(Drop, Copy, Debug, PartialEq)]
@@ -221,7 +219,7 @@ pub impl TransactionImpl of TransactionTrait {
             witness_size = data.witness_size + 2;
         }
 
-        let total_size = 4 * base_size + witness_size;
+        let total_size = base_size * 4 + witness_size;
         total_size
     }
 }
