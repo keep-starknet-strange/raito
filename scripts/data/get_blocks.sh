@@ -14,7 +14,6 @@ get_single_block() {
 
 main() {
     local block_hashes=(
-        "000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f"  # Genesis block (0)
         "00000000d1145790a8694403d4063f323d499e655c83426834d4ce2f8dd4a2ee"  # Block containing first P2P tx to Hal Finney (170)
         "00000000132fbe8314fc571c0be60b31ccd461c9ee85f42bde8c6d160a9dacc0"  # Bloc containing first off ramp tx from Martti Malmi (24835)
         "00000000152340ca42227603908689183edc47355204e7aca59383b0aaac1fd8"  # Block containing pizza tx (57043)
