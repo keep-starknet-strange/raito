@@ -45,13 +45,14 @@ pub fn validate_transaction(
                                 coinbase_block_height
                             )
                         );
+                    break;
                 }
             }
         };
 
     if !errors.is_empty() {
-        return Result::Err(format!("[validate_transaction] coinbase transaction not mature"));
-    };
+        return Result::Err(errors[0].clone());
+    }
 
     let mut total_input_amount = 0;
     for input in *tx.inputs {
