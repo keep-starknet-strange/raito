@@ -3,7 +3,6 @@
 use super::types::transaction::{Transaction, TxIn, TxOut, OutPoint};
 use raito::utils::hash::Hash;
 
-const WITNESS_FACTOR: usize = 1;
 const NON_WITNESS_FACTOR: usize = 4;
 
 pub trait Encode<T> {
@@ -20,7 +19,7 @@ pub trait Encode<T> {
     }
 
     /// Compute the weight of a particular structure and append to the buffer.
-    fn weight_to(self: @T, ref weight: usize, factor: usize);
+    fn weight_to(self: @T) -> usize;
 
     /// Computes the weight of a particular structure and return u32.
     /// https://learnmeabitcoin.com/technical/transaction/size/
@@ -28,7 +27,7 @@ pub trait Encode<T> {
         self: @T
     ) -> usize {
         let mut weight: usize = 0;
-        Self::weight_to(self, ref weight, 1);
+        weight += Self::weight_to(self);
         weight
     }
 }
@@ -42,12 +41,16 @@ pub impl EncodeSpan<T, +Encode<T>> of Encode<Span<T>> {
         }
     }
 
-    fn weight_to(self: @Span<T>, ref weight: usize, factor: usize) {
+    fn weight_to(self: @Span<T>) -> usize {
+        let mut size: usize = 0;
         let items = *self;
-        encode_compact_size_weight(items.len(), ref weight, factor);
+
+        size += encode_compact_size_weight(items.len());
         for item in items {
-            item.weight_to(ref weight, factor);
+            size += item.weight_to();
         };
+
+        size
     }
 }
 
@@ -57,10 +60,14 @@ pub impl EncodeByteArray of Encode<ByteArray> {
         dest.append(self);
     }
 
-    fn weight_to(self: @ByteArray, ref weight: usize, factor: usize) {
+    fn weight_to(self: @ByteArray) -> usize {
+        let mut size: usize = 0;
         let len: usize = self.len();
-        encode_compact_size_weight(len, ref weight, factor);
-        weight += len * factor;
+
+        size += encode_compact_size_weight(len);
+        size += len;
+
+        size
     }
 }
 
@@ -69,8 +76,8 @@ pub impl EncodeU32 of Encode<u32> {
         dest.append_word_rev((*self).into(), 4);
     }
 
-    fn weight_to(self: @u32, ref weight: usize, factor: usize) {
-        weight += 4 * factor;
+    fn weight_to(self: @u32) -> usize {
+        4
     }
 }
 
@@ -79,8 +86,8 @@ pub impl EncodeU64 of Encode<u64> {
         dest.append_word_rev((*self).into(), 8);
     }
 
-    fn weight_to(self: @u64, ref weight: usize, factor: usize) {
-        weight += 8 * factor;
+    fn weight_to(self: @u64) -> usize {
+        8
     }
 }
 
@@ -89,8 +96,8 @@ pub impl EncodeHash of Encode<Hash> {
         dest.append(@(*self).into());
     }
 
-    fn weight_to(self: @Hash, ref weight: usize, factor: usize) {
-        weight += 32 * factor;
+    fn weight_to(self: @Hash) -> usize {
+        32
     }
 }
 
@@ -101,10 +108,14 @@ pub impl EncodeTxIn of Encode<TxIn> {
         self.sequence.encode_to(ref dest);
     }
 
-    fn weight_to(self: @TxIn, ref weight: usize, factor: usize) {
-        self.previous_output.weight_to(ref weight, factor);
-        (*self.script).weight_to(ref weight, factor);
-        self.sequence.weight_to(ref weight, factor);
+    fn weight_to(self: @TxIn) -> usize {
+        let mut size: usize = 0;
+
+        size += self.previous_output.weight_to();
+        size += (*self.script).weight_to();
+        size += self.sequence.weight_to();
+
+        size
     }
 }
 
@@ -114,9 +125,11 @@ pub impl EncodeTxOut of Encode<TxOut> {
         (*self.pk_script).encode_to(ref dest);
     }
 
-    fn weight_to(self: @TxOut, ref weight: usize, factor: usize) {
-        self.value.weight_to(ref weight, factor);
-        (*self.pk_script).weight_to(ref weight, factor);
+    fn weight_to(self: @TxOut) -> usize {
+        let mut size: usize = 0;
+        size += self.value.weight_to();
+        size += (*self.pk_script).weight_to();
+        size
     }
 }
 
@@ -126,9 +139,11 @@ pub impl EncodeOutpoint of Encode<OutPoint> {
         self.vout.encode_to(ref dest);
     }
 
-    fn weight_to(self: @OutPoint, ref weight: usize, factor: usize) {
-        self.txid.weight_to(ref weight, factor);
-        self.vout.weight_to(ref weight, factor);
+    fn weight_to(self: @OutPoint) -> usize {
+        let mut size: usize = 0;
+        size += self.txid.weight_to();
+        size += self.vout.weight_to();
+        size
     }
 }
 
@@ -137,22 +152,25 @@ pub impl EncodeTransaction of Encode<Transaction> {
         self.encode_transaction_to(ref dest, false);
     }
 
-    fn weight_to(self: @Transaction, ref weight: usize, factor: usize) {
-        self.version.weight_to(ref weight, NON_WITNESS_FACTOR);
+    fn weight_to(self: @Transaction) -> usize {
+        let mut size: usize = 0;
+
+        size += self.version.weight_to() * NON_WITNESS_FACTOR;
         if (*self.is_segwit) {
-            weight += 1; // marker
-            weight += 1; // flag
+            size += 2; // marker + flag
         }
 
-        self.inputs.weight_to(ref weight, NON_WITNESS_FACTOR);
-        self.outputs.weight_to(ref weight, NON_WITNESS_FACTOR);
+        size += self.inputs.weight_to() * NON_WITNESS_FACTOR;
+        size += self.outputs.weight_to() * NON_WITNESS_FACTOR;
+
         if (*self.is_segwit) {
             for txin in *self.inputs {
-                txin.witness.weight_to(ref weight, WITNESS_FACTOR);
+                size += txin.witness.weight_to();
             };
         }
+        size += self.lock_time.weight_to() * NON_WITNESS_FACTOR;
 
-        self.lock_time.weight_to(ref weight, NON_WITNESS_FACTOR);
+        size
     }
 }
 
@@ -212,13 +230,13 @@ pub fn encode_compact_size(len: usize, ref dest: ByteArray) {
 }
 
 /// Calculates the weight of compact sizes according to the witness/non witness factor.
-pub fn encode_compact_size_weight(len: usize, ref weight: usize, factor: usize) {
+pub fn encode_compact_size_weight(len: usize) -> usize {
     return if (len < 253) {
-        weight += 1 * factor;
+        1
     } else if (len < 65536) {
-        weight += 3 * factor;
+        3
     } else {
-        weight += 5 * factor;
+        5
     };
 }
 
@@ -227,7 +245,7 @@ mod tests {
     use raito::types::transaction::{Transaction, TxIn, TxOut, OutPoint};
     use raito::utils::hex::{from_hex, to_hex, hex_to_hash_rev};
     use super::{
-        Encode, TransactionCodec, encode_compact_size, encode_compact_size_weight, WITNESS_FACTOR,
+        Encode, TransactionCodec, encode_compact_size, encode_compact_size_weight,
         NON_WITNESS_FACTOR
     };
 
@@ -276,44 +294,38 @@ mod tests {
 
     #[test]
     fn test_encode_compact_size_weight1() {
-        let mut weight = 0;
-        encode_compact_size_weight(1, ref weight, WITNESS_FACTOR);
+        let weight = encode_compact_size_weight(1);
         assert_eq!(weight, 1);
     }
 
     #[test]
     fn test_encode_compact_size_weight2() {
-        let mut weight = 0;
-        encode_compact_size_weight(252, ref weight, NON_WITNESS_FACTOR);
+        let weight = encode_compact_size_weight(252) * NON_WITNESS_FACTOR;
         assert_eq!(weight, 4);
     }
 
     #[test]
     fn test_encode_compact_size_weight3() {
-        let mut weight = 0;
-        encode_compact_size_weight(253, ref weight, WITNESS_FACTOR);
+        let weight = encode_compact_size_weight(253);
         assert_eq!(weight, 3);
     }
 
     #[test]
     fn test_encode_compact_size_weight4() {
-        let mut weight = 0;
-        encode_compact_size_weight(65535, ref weight, NON_WITNESS_FACTOR);
+        let weight = encode_compact_size_weight(65535) * NON_WITNESS_FACTOR;
         assert_eq!(weight, 12);
     }
 
     #[test]
     fn test_encode_compact_size_weight5() {
-        let mut weight = 0;
-        encode_compact_size_weight(65536, ref weight, WITNESS_FACTOR);
+        let weight = encode_compact_size_weight(65536);
         assert_eq!(weight, 5);
     }
 
     #[test]
     fn test_encode_compact_size_weight6() {
         // u32 max
-        let mut weight = 0;
-        encode_compact_size_weight(4294967295, ref weight, NON_WITNESS_FACTOR);
+        let weight = encode_compact_size_weight(4294967295) * NON_WITNESS_FACTOR;
         assert_eq!(weight, 20);
     }
 
@@ -430,7 +442,7 @@ mod tests {
     }
 
     #[test]
-    fn test_encode_tx() {
+    fn test_encode_tx1() {
         // tx 4ff32a7e58200897220ce4615e30e3e414991222d7eda27e693116abea8b8f33
         let tx = @Transaction {
             version: 1_u32,
@@ -1036,3 +1048,4 @@ mod tests {
         assert_eq!(tx.weight(), 573_u32);
     }
 }
+

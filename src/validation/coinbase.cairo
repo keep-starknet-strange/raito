@@ -7,7 +7,7 @@ use crate::utils::{bit_shifts::shr, hash::Hash};
 
 /// Validates coinbase transaction.
 pub fn validate_coinbase(
-    tx: @Transaction, total_fees: u64, block_height: u32, _wtxid_commitment: Hash,
+    tx: @Transaction, total_fees: u64, block_height: u32, _wtxid_commitment: Option<Hash>,
 ) -> Result<(), ByteArray> {
     // Validate the coinbase input
     // Ensure there is exactly one coinbase input

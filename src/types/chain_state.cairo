@@ -62,7 +62,7 @@ pub impl BlockValidatorImpl of BlockValidator {
         let prev_timestamps = next_prev_timestamps(self.prev_timestamps, block.header.time);
 
         let txid_root = match block.data {
-            TransactionData::MerkleRoot(root) => root,
+            TransactionData::MerkleRoot(root) => { root },
             TransactionData::Transactions(txs) => {
                 let (total_fees, txid_root, wtxid_root) = fee_and_merkle_roots(
                     txs, block_height, block.header.time
@@ -79,6 +79,7 @@ pub impl BlockValidatorImpl of BlockValidator {
             prev_block_time,
             block.header.time
         );
+
         let total_work = compute_total_work(self.total_work, current_target);
         let best_block_hash = block.header.hash(self.best_block_hash, txid_root);
 
