@@ -150,7 +150,7 @@ pub impl TransactionImpl of TransactionTrait {
 
 #[cfg(test)]
 mod tests {
-    use crate::utils::hex::from_hex;
+    use crate::utils::hex::{from_hex, hex_to_hash_rev};
     use super::{Transaction, TransactionTrait, TxIn, TxOut, OutPoint};
 
     #[test]
@@ -165,8 +165,9 @@ mod tests {
                     ),
                     sequence: 0xffffffff,
                     previous_output: OutPoint {
-                        txid: 0x0437cd7f8525ceed2324359c2d0ba26006d92d856a9c20fa0241106ee5a597c9_u256
-                            .into(),
+                        txid: hex_to_hash_rev(
+                            "0437cd7f8525ceed2324359c2d0ba26006d92d856a9c20fa0241106ee5a597c9"
+                        ),
                         vout: 0x00000000,
                         data: Default::default(),
                         block_height: Default::default(),
@@ -198,7 +199,7 @@ mod tests {
 
         assert_eq!(
             tx.txid(),
-            0xf4184fc596403b9d638783cf57adfe4c75c605f6356fbc91338530e9831e9e16_u256.into()
+            hex_to_hash_rev("f4184fc596403b9d638783cf57adfe4c75c605f6356fbc91338530e9831e9e16")
         );
     }
 }

@@ -1,4 +1,5 @@
 //! Hex helpers
+use raito::utils::hash::Hash;
 
 /// Get bytes from hex (base16)
 pub fn from_hex(hex_string: ByteArray) -> ByteArray {
@@ -35,6 +36,37 @@ pub fn to_hex(data: @ByteArray) -> ByteArray {
     result
 }
 
+// Get `Hash` form `ByteArray` reversed
+pub fn hex_to_hash_rev(hex_string: ByteArray) -> Hash {
+    let mut result: Array<u32> = array![];
+    let mut i = 1;
+    let mut unit: u32 = 0;
+    let len = hex_string.len();
+    while (i < len) {
+        if ((i - 1) % 8 == 0 && i - 1 > 0) {
+            result.append(unit);
+            unit = 0;
+        }
+        let hi = hex_char_to_nibble(hex_string[len - i - 1]);
+        let lo = hex_char_to_nibble(hex_string[len - i]);
+        unit = (unit * 256) + (hi * 16 + lo).into();
+        i += 2;
+    };
+    result.append(unit);
+    Hash {
+        value: [
+            *result[0],
+            *result[1],
+            *result[2],
+            *result[3],
+            *result[4],
+            *result[5],
+            *result[6],
+            *result[7],
+        ]
+    }
+}
+
 fn hex_char_to_nibble(hex_char: u8) -> u8 {
     if hex_char >= 48 && hex_char <= 57 {
         // 0-9
@@ -53,7 +85,8 @@ fn hex_char_to_nibble(hex_char: u8) -> u8 {
 
 #[cfg(test)]
 mod tests {
-    use super::{from_hex, to_hex};
+    use super::{from_hex, to_hex, hex_to_hash_rev};
+    use raito::utils::hash::Hash;
 
     #[test]
     fn test_bytes_from_hex() {
@@ -64,5 +97,23 @@ mod tests {
     #[test]
     fn test_bytes_to_hex() {
         assert_eq!(@"68656c6c6f20737461726b6e6574", @to_hex(@"hello starknet"));
+    }
+
+    #[test]
+    fn test_hex_to_hash_rev() {
+        let hash: Hash = Hash {
+            value: [
+                0x12345678_u32,
+                0x9abcdef0_u32,
+                0x11223344_u32,
+                0x55667788_u32,
+                0xaabbccdd_u32,
+                0xeeff0011_u32,
+                0x22334455_u32,
+                0x66778899_u32
+            ]
+        };
+        let hex = "99887766554433221100ffeeddccbbaa8877665544332211f0debc9a78563412";
+        assert_eq!(hash, hex_to_hash_rev(hex));
     }
 }

@@ -6,7 +6,7 @@ use raito::types::block::{Block, Header, TransactionData};
 /// Chain state at the beginning of the test
 fn chain_state_169() -> ChainState {
     ChainState {
-        block_height: Option::Some(169),
+        block_height: 169,
         total_work: 730155581610_u256,
         best_block_hash: 0x000000002a22cfee1f2c846adbd12b3e183d4f97683f85dad08a79780a84bd55_u256
             .into(),
@@ -43,7 +43,7 @@ fn block_170() -> Block {
 /// Expected chain state at the end of the test
 fn chain_state_170() -> ChainState {
     ChainState {
-        block_height: Option::Some(170),
+        block_height: 170,
         total_work: 734450614443_u256,
         best_block_hash: 0x00000000d1145790a8694403d4063f323d499e655c83426834d4ce2f8dd4a2ee_u256
             .into(),
