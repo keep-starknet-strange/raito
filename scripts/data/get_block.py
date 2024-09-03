@@ -116,7 +116,7 @@ def tx_input(tx):
 
 
 def check_segwit(tx):
-    hex = tx["hex"][8:12]
+    hex = tx["hex"][8:12]  # Skip the first 4 bytes (version) and take the next 4 bytes (marker + flag)
     if hex == "0001":
         return "true"
     return "false"
