@@ -3,8 +3,6 @@
 use super::types::transaction::{Transaction, TxIn, TxOut, OutPoint};
 use raito::utils::hash::Hash;
 
-pub const NON_WITNESS_FACTOR: usize = 4;
-
 pub trait Encode<T> {
     /// Encode using Bitcoin codec and append to the buffer.
     fn encode_to(self: @T, ref dest: ByteArray);
@@ -16,6 +14,15 @@ pub trait Encode<T> {
         let mut dest: ByteArray = Default::default();
         Self::encode_to(self, ref dest);
         dest
+    }
+
+    /// Encode using Bitcoin codec and return length byte size.
+    fn bytes_size(
+        self: @T
+    ) -> usize {
+        let mut dest: ByteArray = Default::default();
+        Self::encode_to(self, ref dest);
+        dest.len()
     }
 }
 

@@ -32,7 +32,7 @@ pub fn fee_and_merkle_roots(
     let mut txids: Array<Hash> = array![];
     let mut wtxids: Array<Hash> = array![];
     let mut total_fee = 0;
-    let mut block_size = 0;
+    let mut txs_size: usize = 0;
     let mut i = 0;
 
     let validate_transactions: Result<(), ByteArray> = loop {
@@ -45,9 +45,9 @@ pub fn fee_and_merkle_roots(
 
         if (block_height >= SEGWIT_ACTIVATION_HEIGHT) {
             wtxids.append(tx.wtxid());
-            block_size += tx.weight();
+            txs_size += tx.weight();
         } else {
-            block_size += tx.encode().len();
+            txs_size += tx.encode().len();
         }
 
         // skipping the coinbase transaction
@@ -61,7 +61,7 @@ pub fn fee_and_merkle_roots(
         i += 1;
     };
     validate_transactions?;
-    validate_block_size(block_size, block_height)?;
+    validate_block_size(txs_size, block_height)?;
 
     if (block_height >= SEGWIT_ACTIVATION_HEIGHT) {
         Result::Ok((total_fee, merkle_root(ref txids), Option::Some(merkle_root(ref wtxids))))

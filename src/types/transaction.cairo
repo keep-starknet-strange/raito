@@ -4,7 +4,9 @@
 //! The data is expected to be prepared in advance and passed as program arguments.
 
 use crate::utils::{hash::Hash, sha256::double_sha256_byte_array};
-use crate::codec::{Encode, TransactionCodec, NON_WITNESS_FACTOR};
+use crate::codec::{Encode, TransactionCodec};
+
+pub const WEIGHT_NON_WITNESS_FACTOR: usize = 4;
 
 /// Represents a transaction.
 /// https://learnmeabitcoin.com/technical/transaction/
@@ -144,21 +146,27 @@ pub impl TransactionImpl of TransactionTrait {
         double_sha256_byte_array(@(self.encode_with_witness()))
     }
 
+    /// Compute transaction weight
+    /// https://learnmeabitcoin.com/technical/transaction/size/
     fn weight(self: @Transaction) -> usize {
-        let mut size: usize = 0;
+        let mut weight: usize = 0;
 
-        size += self.version.encode().len() * NON_WITNESS_FACTOR;
-        size += self.inputs.encode().len() * NON_WITNESS_FACTOR;
-        size += self.outputs.encode().len() * NON_WITNESS_FACTOR;
-        size += self.lock_time.encode().len() * NON_WITNESS_FACTOR;
+        weight += self.version.bytes_size();
+        weight += self.inputs.bytes_size();
+        weight += self.outputs.bytes_size();
+        weight += self.lock_time.bytes_size();
+        weight *= WEIGHT_NON_WITNESS_FACTOR;
+
         if (*self.is_segwit) {
-            size += 2; // marker + flag
+            // marker + flag
+            weight += 2;
+            // witness data
             for txin in *self.inputs {
-                size += txin.witness.encode().len();
+                weight += txin.witness.bytes_size();
             };
         }
 
-        size
+        weight
     }
 }
 // TODO: implement Hash trait for OutPoint (for creating hash digests to use in utreexo/utxo cache)
