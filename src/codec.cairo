@@ -138,7 +138,7 @@ pub fn encode_compact_size(len: usize, ref dest: ByteArray) {
 #[cfg(test)]
 mod tests {
     use raito::types::transaction::{Transaction, TxIn, TxOut, OutPoint};
-    use raito::utils::hex::{from_hex, to_hex};
+    use raito::utils::hex::{from_hex, to_hex, hex_to_hash_rev};
     use super::{Encode, TransactionCodec, encode_compact_size};
 
     #[test]
@@ -207,7 +207,9 @@ mod tests {
     fn test_encode_outpoint() {
         // block 170 coinbase tx b1fea52486ce0c62bb442b530a3f0132b826c74e473d1f2c220bfa78111c5082
         let outpoint = OutPoint {
-            txid: 0x0000000000000000000000000000000000000000000000000000000000000000_u256.into(),
+            txid: hex_to_hash_rev(
+                "0000000000000000000000000000000000000000000000000000000000000000"
+            ),
             vout: 4294967295_u32,
             data: Default::default(),
             block_height: Default::default(),
@@ -225,7 +227,9 @@ mod tests {
     fn test_encode_outpoint2() {
         //block 170 tx f4184fc596403b9d638783cf57adfe4c75c605f6356fbc91338530e9831e9e16
         let outpoint = OutPoint {
-            txid: 0x0437cd7f8525ceed2324359c2d0ba26006d92d856a9c20fa0241106ee5a597c9_u256.into(),
+            txid: hex_to_hash_rev(
+                "0437cd7f8525ceed2324359c2d0ba26006d92d856a9c20fa0241106ee5a597c9"
+            ),
             vout: 0_u32,
             data: Default::default(),
             block_height: Default::default(),
@@ -246,8 +250,9 @@ mod tests {
             script: @from_hex("04ffff001d0102"),
             sequence: 0xffffffff,
             previous_output: OutPoint {
-                txid: 0x0000000000000000000000000000000000000000000000000000000000000000_u256
-                    .into(),
+                txid: hex_to_hash_rev(
+                    "0000000000000000000000000000000000000000000000000000000000000000"
+                ),
                 vout: 4294967295,
                 data: Default::default(),
                 block_height: Default::default(),
@@ -273,8 +278,9 @@ mod tests {
             ),
             sequence: 0xffffffff,
             previous_output: OutPoint {
-                txid: 0x66ce602f26ae00d128ea83e5afddf8c1cd226b7148322bb090779199f63f9ff5_u256
-                    .into(),
+                txid: hex_to_hash_rev(
+                    "66ce602f26ae00d128ea83e5afddf8c1cd226b7148322bb090779199f63f9ff5"
+                ),
                 vout: 1_u32,
                 data: Default::default(),
                 block_height: Default::default(),
@@ -303,8 +309,9 @@ mod tests {
                     ),
                     sequence: 0xffffffff,
                     previous_output: OutPoint {
-                        txid: 0xb8a75476112bb2322af0331646100fe44f26fee85f452001589f6d9672b763a7_u256
-                            .into(),
+                        txid: hex_to_hash_rev(
+                            "b8a75476112bb2322af0331646100fe44f26fee85f452001589f6d9672b763a7"
+                        ),
                         vout: 0_u32,
                         data: Default::default(),
                         block_height: Default::default(),
@@ -318,8 +325,9 @@ mod tests {
                     ),
                     sequence: 0xffffffff,
                     previous_output: OutPoint {
-                        txid: 0xa7ed5e908fa1951c912fd39cd72a37410ca78fc75de65180b8568a622f4e3a97_u256
-                            .into(),
+                        txid: hex_to_hash_rev(
+                            "a7ed5e908fa1951c912fd39cd72a37410ca78fc75de65180b8568a622f4e3a97"
+                        ),
                         vout: 1_u32,
                         data: Default::default(),
                         block_height: Default::default(),
@@ -333,8 +341,9 @@ mod tests {
                     ),
                     sequence: 0xffffffff,
                     previous_output: OutPoint {
-                        txid: 0x66ce602f26ae00d128ea83e5afddf8c1cd226b7148322bb090779199f63f9ff5_u256
-                            .into(),
+                        txid: hex_to_hash_rev(
+                            "66ce602f26ae00d128ea83e5afddf8c1cd226b7148322bb090779199f63f9ff5"
+                        ),
                         vout: 1_u32,
                         data: Default::default(),
                         block_height: Default::default(),
@@ -382,8 +391,9 @@ mod tests {
                     sequence: 4294967295,
                     witness: array![].span(),
                     previous_output: OutPoint {
-                        txid: 0xcf37895a05d18f4f3fa0a7fb1b4e74763fc9d287d929b5ae1a7cec789f28fd07_u256
-                            .into(),
+                        txid: hex_to_hash_rev(
+                            "cf37895a05d18f4f3fa0a7fb1b4e74763fc9d287d929b5ae1a7cec789f28fd07"
+                        ),
                         vout: 1_u32,
                         data: TxOut {
                             value: 62000000_u64,
@@ -403,8 +413,9 @@ mod tests {
                     sequence: 4294967295,
                     witness: array![].span(),
                     previous_output: OutPoint {
-                        txid: 0xe69026f2413fffc021cd3e3018f7eaeda4db0ad11c8b80c61f4fd77df0265bde_u256
-                            .into(),
+                        txid: hex_to_hash_rev(
+                            "e69026f2413fffc021cd3e3018f7eaeda4db0ad11c8b80c61f4fd77df0265bde"
+                        ),
                         vout: 1_u32,
                         data: TxOut {
                             value: 26900000_u64,
@@ -424,8 +435,9 @@ mod tests {
                     sequence: 4294967295,
                     witness: array![].span(),
                     previous_output: OutPoint {
-                        txid: 0x116ffc273e21fa84f92738b059aa2f895fc34963724decdee8600d4d49b2ea75_u256
-                            .into(),
+                        txid: hex_to_hash_rev(
+                            "116ffc273e21fa84f92738b059aa2f895fc34963724decdee8600d4d49b2ea75"
+                        ),
                         vout: 1_u32,
                         data: TxOut {
                             value: 501999999_u64,
@@ -445,8 +457,9 @@ mod tests {
                     sequence: 4294967295,
                     witness: array![].span(),
                     previous_output: OutPoint {
-                        txid: 0xa6f7299d3b1412921b3a2335b345c96462421b37b4c0d519c66a591027d4b44c_u256
-                            .into(),
+                        txid: hex_to_hash_rev(
+                            "a6f7299d3b1412921b3a2335b345c96462421b37b4c0d519c66a591027d4b44c"
+                        ),
                         vout: 1_u32,
                         data: TxOut {
                             value: 1226409352_u64,
@@ -466,8 +479,9 @@ mod tests {
                     sequence: 4294967295,
                     witness: array![].span(),
                     previous_output: OutPoint {
-                        txid: 0x9e5a36dc05bbe1f0c8006293b73d983cdcc24e84d4d88dd1d91cb5bb93fefa0f_u256
-                            .into(),
+                        txid: hex_to_hash_rev(
+                            "9e5a36dc05bbe1f0c8006293b73d983cdcc24e84d4d88dd1d91cb5bb93fefa0f"
+                        ),
                         vout: 0_u32,
                         data: TxOut {
                             value: 2507265606_u64,
@@ -487,8 +501,9 @@ mod tests {
                     sequence: 4294967295,
                     witness: array![].span(),
                     previous_output: OutPoint {
-                        txid: 0x10ee2df74adce2d1727194e0cc1c0006978a38225d9068ea86dae6603cbdc26a_u256
-                            .into(),
+                        txid: hex_to_hash_rev(
+                            "10ee2df74adce2d1727194e0cc1c0006978a38225d9068ea86dae6603cbdc26a"
+                        ),
                         vout: 1_u32,
                         data: TxOut {
                             value: 568878428_u64,
@@ -508,8 +523,9 @@ mod tests {
                     sequence: 4294967295,
                     witness: array![].span(),
                     previous_output: OutPoint {
-                        txid: 0xce8f4c5729351528ee52ee56d4bc85269cbc173b40ee04882e8fc66ce15fd80b_u256
-                            .into(),
+                        txid: hex_to_hash_rev(
+                            "ce8f4c5729351528ee52ee56d4bc85269cbc173b40ee04882e8fc66ce15fd80b"
+                        ),
                         vout: 1_u32,
                         data: TxOut {
                             value: 497295999_u64,
@@ -529,8 +545,9 @@ mod tests {
                     sequence: 4294967295,
                     witness: array![].span(),
                     previous_output: OutPoint {
-                        txid: 0x5d22c46efffbba9d1e0e8b2e94b0933a4e71e2e2ed3ab642ea8eba957cb036c9_u256
-                            .into(),
+                        txid: hex_to_hash_rev(
+                            "5d22c46efffbba9d1e0e8b2e94b0933a4e71e2e2ed3ab642ea8eba957cb036c9"
+                        ),
                         vout: 1_u32,
                         data: TxOut {
                             value: 4756000000_u64,
@@ -582,8 +599,9 @@ mod tests {
                     sequence: 4294967295,
                     witness: array![].span(),
                     previous_output: OutPoint {
-                        txid: 0x027f3d5cda9b0e8c45654d603d1ce2babbbbeb1198378804de654f253ea7531d_u256
-                            .into(),
+                        txid: hex_to_hash_rev(
+                            "027f3d5cda9b0e8c45654d603d1ce2babbbbeb1198378804de654f253ea7531d"
+                        ),
                         vout: 1_u32,
                         data: TxOut {
                             value: 8010539842_u64,
@@ -681,8 +699,9 @@ mod tests {
                     script: @from_hex(""),
                     sequence: 0xfffffffd,
                     previous_output: OutPoint {
-                        txid: 0x39cc1562b197182429bc1ea312c9e30f1257be6d5159fcd7b375139d3c3fe63c_u256
-                            .into(),
+                        txid: hex_to_hash_rev(
+                            "39cc1562b197182429bc1ea312c9e30f1257be6d5159fcd7b375139d3c3fe63c"
+                        ),
                         vout: 0x0,
                         data: Default::default(),
                         block_height: Default::default(),
@@ -741,8 +760,9 @@ mod tests {
                     script: @from_hex(""),
                     sequence: 0xffffffff,
                     previous_output: OutPoint {
-                        txid: 0xdb2448ca5ab8fa4243cb0b3256fb0a629d8e42f9be1056bf1177c9d1be9f996f_u256
-                            .into(),
+                        txid: hex_to_hash_rev(
+                            "db2448ca5ab8fa4243cb0b3256fb0a629d8e42f9be1056bf1177c9d1be9f996f"
+                        ),
                         vout: 0_u32,
                         data: Default::default(),
                         block_height: Default::default(),
@@ -762,8 +782,9 @@ mod tests {
                     script: @from_hex(""),
                     sequence: 0xffffffff,
                     previous_output: OutPoint {
-                        txid: 0x1c3f37e7b248c24e17c69202c22f78f027be62e0bcea1a91c664df467c4d2d7b_u256
-                            .into(),
+                        txid: hex_to_hash_rev(
+                            "1c3f37e7b248c24e17c69202c22f78f027be62e0bcea1a91c664df467c4d2d7b"
+                        ),
                         vout: 1_u32,
                         data: Default::default(),
                         block_height: Default::default(),
@@ -824,8 +845,9 @@ mod tests {
                     script: @from_hex(""),
                     sequence: 0xfffffffd,
                     previous_output: OutPoint {
-                        txid: 0x89d8ddef7821789e8ea407ebfe3dd290be403d5fa9174acc544d414eb2fd8a43_u256
-                            .into(),
+                        txid: hex_to_hash_rev(
+                            "89d8ddef7821789e8ea407ebfe3dd290be403d5fa9174acc544d414eb2fd8a43"
+                        ),
                         vout: 1,
                         data: Default::default(),
                         block_height: Default::default(),
