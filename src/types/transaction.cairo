@@ -4,7 +4,7 @@
 //! The data is expected to be prepared in advance and passed as program arguments.
 
 use crate::utils::{hash::Hash, sha256::double_sha256_byte_array};
-use crate::codec::{Encode, TransactionCodec};
+use crate::codec::{Encode, TransactionCodec, NON_WITNESS_FACTOR};
 
 /// Represents a transaction.
 /// https://learnmeabitcoin.com/technical/transaction/
@@ -142,6 +142,23 @@ pub impl TransactionImpl of TransactionTrait {
     /// https://learnmeabitcoin.com/technical/transaction/wtxid/
     fn wtxid(self: @Transaction) -> Hash {
         double_sha256_byte_array(@(self.encode_with_witness()))
+    }
+
+    fn weight(self: @Transaction) -> usize {
+        let mut size: usize = 0;
+
+        size += self.version.encode().len() * NON_WITNESS_FACTOR;
+        size += self.inputs.encode().len() * NON_WITNESS_FACTOR;
+        size += self.outputs.encode().len() * NON_WITNESS_FACTOR;
+        size += self.lock_time.encode().len() * NON_WITNESS_FACTOR;
+        if (*self.is_segwit) {
+            size += 2; // marker + flag
+            for txin in *self.inputs {
+                size += txin.witness.encode().len();
+            };
+        }
+
+        size
     }
 }
 // TODO: implement Hash trait for OutPoint (for creating hash digests to use in utreexo/utxo cache)
