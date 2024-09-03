@@ -58,7 +58,6 @@ def outpoint(prev_output):
     # full_tx = request_rpc("gettxout", [tx_in["txid"], tx_in["vout"]])
     prev_tx = request_rpc("getrawtransaction", [prev_output['txid'], True])
     prev_block = request_rpc("getblock", [prev_tx['blockhash'], 2])
-    is_coinbase = "true" if prev_block['height'] > 100 else "false"
     return f'''
                                 OutPoint {{
                                     txid: 0x{prev_tx['txid']}_u256.into(),
@@ -66,7 +65,7 @@ def outpoint(prev_output):
                                     data: {tx_output({'vout': [prev_tx['vout'][prev_output['vout']]]})}
                                     block_height: {prev_block['height']}_u32,
                                     block_time: {prev_block['time']}_u32,
-                                    is_coinbase: {is_coinbase}
+                                    is_coinbase: {str(prev_output['vout'] == 0).lower()}
                                 }}'''
 
 
@@ -87,6 +86,7 @@ def tx_input_coinbase(tx_in):
                             data: Default::default(),
                             block_height: Default::default(),
                             block_time: Default::default(),
+                            is_coinbase: false,
                         }},
                     }}'''
 
