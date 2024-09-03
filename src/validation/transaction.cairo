@@ -30,20 +30,28 @@ pub fn validate_transaction(
     //      - https://github.com/bitcoin/bitcoin/blob/master/src/validation.cpp
 
     //      - Coinbase is mature (if some input spends coinbase tx from the past)
-    let first_input = *tx.inputs[0];
-    if first_input.previous_output.is_coinbase {
-        let coinbase_block_height = first_input.previous_output.block_height;
-        if block_height <= coinbase_block_height + 100 {
-            return Result::Err(
-                format!(
-                    "[validate_transaction] coinbase transaction not mature (current height: {}, coinbase height: {})",
-                    block_height,
-                    coinbase_block_height
-                )
-                    .into()
-            );
-        }
-    }
+    let mut errors = ArrayTrait::new();
+
+    for input in *tx
+        .inputs {
+            if *input.previous_output.is_coinbase {
+                let coinbase_block_height = *input.previous_output.block_height;
+                if block_height <= coinbase_block_height + 100 {
+                    errors
+                        .append(
+                            format!(
+                                "[validate_transaction] coinbase transaction not mature (current height: {}, coinbase height: {})",
+                                block_height,
+                                coinbase_block_height
+                            )
+                        );
+                }
+            }
+        };
+
+    if !errors.is_empty() {
+        return Result::Err(format!("[validate_transaction] coinbase transaction not mature"));
+    };
 
     let mut total_input_amount = 0;
     for input in *tx.inputs {
