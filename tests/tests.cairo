@@ -28,6 +28,7 @@ fn test_block1() {
                                 data: Default::default(),
                                 block_height: Default::default(),
                                 block_time: Default::default(),
+                                is_coinbase: false,
                             },
                         }
                     ]

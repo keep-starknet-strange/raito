@@ -27,6 +27,7 @@ pub fn block_170() -> Block {
                                 data: Default::default(),
                                 block_height: Default::default(),
                                 block_time: Default::default(),
+                                is_coinbase: false,
                             },
                         }
                     ]
@@ -66,6 +67,7 @@ pub fn block_170() -> Block {
                                 },
                                 block_height: 9_u32,
                                 block_time: 1231473279_u32,
+                                is_coinbase: true
                             },
                         },
                     ]
