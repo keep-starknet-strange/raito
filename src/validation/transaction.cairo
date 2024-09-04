@@ -28,7 +28,7 @@ pub fn validate_transaction(
     //      - https://github.com/bitcoin/bitcoin/blob/master/src/consensus/tx_check.cpp
     //      - https://github.com/bitcoin/bitcoin/blob/master/src/consensus/tx_verify.cpp
     //      - https://github.com/bitcoin/bitcoin/blob/master/src/validation.cpp
-    
+
     if (*tx.inputs).len() == 0 {
         return Result::Err("transaction inputs are empty");
     };
@@ -41,9 +41,9 @@ pub fn validate_transaction(
     // SEQUENCE_FINAL (0xffffffff), in which case nLockTime is ignored.
     // from: https://github.com/bitcoin/bitcoin/blob/master/src/consensus/tx_verify.cpp#L17
     let mut is_locktime_enabled = false;
-    for input in *tx.inputs{
+    for input in *tx.inputs {
         if *input.sequence != 0xffffffff {
-            is_locktime_enabled =  true;
+            is_locktime_enabled = true;
         }
     };
 
@@ -58,7 +58,7 @@ pub fn validate_transaction(
                 )
             );
         };
-    
+
         if *tx.lock_time > 0x1dcd64ff && *tx.lock_time > block_time {
             return Result::Err(
                 format!(
@@ -69,7 +69,6 @@ pub fn validate_transaction(
             );
         };
     }
-    
 
     let mut maturity_result = Option::None;
 
@@ -183,7 +182,8 @@ mod tests {
                     pk_script: @from_hex("76a914000000000000000000000000000000000000000088ac"),
                     cached: false,
                 }
-            ].span(),
+            ]
+                .span(),
             lock_time: 0
         };
 
@@ -202,7 +202,9 @@ mod tests {
                     script: @from_hex(""),
                     sequence: 0xffffffff,
                     previous_output: OutPoint {
-                        txid: hex_to_hash_rev("0000000000000000000000000000000000000000000000000000000000000000"),
+                        txid: hex_to_hash_rev(
+                            "0000000000000000000000000000000000000000000000000000000000000000"
+                        ),
                         vout: 0,
                         data: TxOut { value: 100, ..Default::default() },
                         block_height: Default::default(),
@@ -211,7 +213,8 @@ mod tests {
                     },
                     witness: array![].span(),
                 }
-            ].span(),
+            ]
+                .span(),
             outputs: array![].span(),
             lock_time: 0
         };
@@ -231,7 +234,9 @@ mod tests {
                     script: @from_hex(""),
                     sequence: 0xfffffffe, // Not final
                     previous_output: OutPoint {
-                        txid: hex_to_hash_rev("0000000000000000000000000000000000000000000000000000000000000000"),
+                        txid: hex_to_hash_rev(
+                            "0000000000000000000000000000000000000000000000000000000000000000"
+                        ),
                         vout: 0,
                         data: TxOut { value: 100, ..Default::default() },
                         block_height: Default::default(),
@@ -240,23 +245,29 @@ mod tests {
                     },
                     witness: array![].span(),
                 }
-            ].span(),
+            ]
+                .span(),
             outputs: array![
                 TxOut {
                     value: 50,
                     pk_script: @from_hex("76a914000000000000000000000000000000000000000088ac"),
                     cached: false,
                 }
-            ].span(),
+            ]
+                .span(),
             lock_time: 500000 // Block height locktime
         };
 
         // Transaction should be invalid when current block height is less than locktime
         let result = validate_transaction(@tx, 499999, 0);
         assert!(result.is_err());
-        assert_eq!(result.unwrap_err().into(), "transaction is not final: transaction locktime 500000 is higher than current block height 499999");
+        assert_eq!(
+            result.unwrap_err().into(),
+            "transaction is not final: transaction locktime 500000 is higher than current block height 499999"
+        );
 
-        // Transaction should be valid when current block height is equal to or greater than locktime
+        // Transaction should be valid when current block height is equal to or greater than
+        // locktime
         let result = validate_transaction(@tx, 500000, 0);
         println!("{:?}", result);
         assert!(result.is_ok());
@@ -272,7 +283,9 @@ mod tests {
                     script: @from_hex(""),
                     sequence: 0xfffffffe, // Not final
                     previous_output: OutPoint {
-                        txid: hex_to_hash_rev("0000000000000000000000000000000000000000000000000000000000000000"),
+                        txid: hex_to_hash_rev(
+                            "0000000000000000000000000000000000000000000000000000000000000000"
+                        ),
                         vout: 0,
                         data: TxOut { value: 100, ..Default::default() },
                         block_height: Default::default(),
@@ -281,21 +294,26 @@ mod tests {
                     },
                     witness: array![].span(),
                 }
-            ].span(),
+            ]
+                .span(),
             outputs: array![
                 TxOut {
                     value: 50,
                     pk_script: @from_hex("76a914000000000000000000000000000000000000000088ac"),
                     cached: false,
                 }
-            ].span(),
+            ]
+                .span(),
             lock_time: 1600000000 // UNIX timestamp locktime
         };
 
         // Transaction should be invalid when current block time is less than locktime
         let result = validate_transaction(@tx, 0, 1599999999);
         assert!(result.is_err());
-        assert_eq!(result.unwrap_err().into(), "transaction is not final: transaction locktime 1600000000 is higher than current block time 1599999999");
+        assert_eq!(
+            result.unwrap_err().into(),
+            "transaction is not final: transaction locktime 1600000000 is higher than current block time 1599999999"
+        );
 
         // Transaction should be valid when current block time is equal to or greater than locktime
         let result = validate_transaction(@tx, 0, 1600000000);
@@ -303,7 +321,7 @@ mod tests {
     }
 
     #[test]
-    fn test_block_time_locktime_ignored_when_final(){
+    fn test_block_time_locktime_ignored_when_final() {
         let tx = Transaction {
             version: 1,
             is_segwit: false,
@@ -312,7 +330,9 @@ mod tests {
                     script: @from_hex(""),
                     sequence: 0xffffffff, // final
                     previous_output: OutPoint {
-                        txid: hex_to_hash_rev("0000000000000000000000000000000000000000000000000000000000000000"),
+                        txid: hex_to_hash_rev(
+                            "0000000000000000000000000000000000000000000000000000000000000000"
+                        ),
                         vout: 0,
                         data: TxOut { value: 100, ..Default::default() },
                         block_height: Default::default(),
@@ -321,14 +341,16 @@ mod tests {
                     },
                     witness: array![].span(),
                 }
-            ].span(),
+            ]
+                .span(),
             outputs: array![
                 TxOut {
                     value: 50,
                     pk_script: @from_hex("76a914000000000000000000000000000000000000000088ac"),
                     cached: false,
                 }
-            ].span(),
+            ]
+                .span(),
             lock_time: 1600000000 // UNIX timestamp locktime
         };
 
@@ -342,7 +364,7 @@ mod tests {
     }
 
     #[test]
-    fn test_block_height_locktime_ignored_when_final(){
+    fn test_block_height_locktime_ignored_when_final() {
         let tx = Transaction {
             version: 1,
             is_segwit: false,
@@ -351,7 +373,9 @@ mod tests {
                     script: @from_hex(""),
                     sequence: 0xffffffff, // final
                     previous_output: OutPoint {
-                        txid: hex_to_hash_rev("0000000000000000000000000000000000000000000000000000000000000000"),
+                        txid: hex_to_hash_rev(
+                            "0000000000000000000000000000000000000000000000000000000000000000"
+                        ),
                         vout: 0,
                         data: TxOut { value: 100, ..Default::default() },
                         block_height: Default::default(),
@@ -360,14 +384,16 @@ mod tests {
                     },
                     witness: array![].span(),
                 }
-            ].span(),
+            ]
+                .span(),
             outputs: array![
                 TxOut {
                     value: 50,
                     pk_script: @from_hex("76a914000000000000000000000000000000000000000088ac"),
                     cached: false,
                 }
-            ].span(),
+            ]
+                .span(),
             lock_time: 500000 // Block height locktime
         };
 
