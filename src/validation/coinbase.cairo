@@ -109,6 +109,7 @@ mod tests {
                         data: TxOut { value: 0_64, ..Default::default(), },
                         block_height: Default::default(),
                         block_time: Default::default(),
+                        is_coinbase: false,
                     },
                     witness: array![].span(),
                 },
@@ -121,6 +122,7 @@ mod tests {
                         data: TxOut { value: 0_64, ..Default::default(), },
                         block_height: Default::default(),
                         block_time: Default::default(),
+                        is_coinbase: false,
                     },
                     witness: array![].span(),
                 }
@@ -154,6 +156,7 @@ mod tests {
                         data: TxOut { value: 0_64, ..Default::default(), },
                         block_height: Default::default(),
                         block_time: Default::default(),
+                        is_coinbase: false,
                     },
                     witness: array![].span(),
                 }
@@ -187,6 +190,7 @@ mod tests {
                         data: TxOut { value: 0_64, ..Default::default(), },
                         block_height: Default::default(),
                         block_time: Default::default(),
+                        is_coinbase: false,
                     },
                     witness: array![].span(),
                 }
@@ -219,6 +223,7 @@ mod tests {
                         data: TxOut { value: 0_64, ..Default::default(), },
                         block_height: Default::default(),
                         block_time: Default::default(),
+                        is_coinbase: false,
                     },
                     witness: array![].span(),
                 }
@@ -252,6 +257,7 @@ mod tests {
                         data: TxOut { value: 0_64, ..Default::default(), },
                         block_height: Default::default(),
                         block_time: Default::default(),
+                        is_coinbase: false,
                     },
                     witness: array![].span(),
                 }
@@ -285,6 +291,7 @@ mod tests {
                         data: Default::default(),
                         block_height: Default::default(),
                         block_time: Default::default(),
+                        is_coinbase: false,
                     },
                     witness: array![].span(),
                 }

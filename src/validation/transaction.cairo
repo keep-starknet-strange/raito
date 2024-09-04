@@ -1,6 +1,6 @@
 //! Transaction validation helpers.
 
-use crate::types::transaction::Transaction;
+use crate::types::transaction::{Transaction, TransactionTrait};
 
 /// Validate transaction and return transaction fee.
 ///
@@ -28,6 +28,34 @@ pub fn validate_transaction(
     //      - https://github.com/bitcoin/bitcoin/blob/master/src/consensus/tx_check.cpp
     //      - https://github.com/bitcoin/bitcoin/blob/master/src/consensus/tx_verify.cpp
     //      - https://github.com/bitcoin/bitcoin/blob/master/src/validation.cpp
+
+    let mut maturity_result = Option::None;
+
+    // Coinbase maturity test
+    for input in *tx
+        .inputs {
+            if *input.previous_output.is_coinbase {
+                let coinbase_block_height = *input.previous_output.block_height;
+                if block_height <= coinbase_block_height + 100 {
+                    maturity_result =
+                        Option::Some(
+                            format!(
+                                "[validate_transaction] coinbase input: ({}, {}) of tx: {} not mature (current height: {}, coinbase height: {})",
+                                *input.previous_output.txid,
+                                *input.previous_output.vout,
+                                tx.txid(),
+                                block_height,
+                                coinbase_block_height
+                            )
+                        );
+                    break;
+                }
+            }
+        };
+
+    if let Option::Some(result) = maturity_result {
+        return Result::Err(result);
+    }
 
     let mut total_input_amount = 0;
     for input in *tx.inputs {
@@ -76,6 +104,7 @@ mod tests {
                         data: TxOut { value: 100, ..Default::default() },
                         block_height: Default::default(),
                         block_time: Default::default(),
+                        is_coinbase: true,
                     },
                     witness: array![].span(),
                 }
@@ -94,7 +123,9 @@ mod tests {
             lock_time: 0
         };
 
-        let fee = validate_transaction(@tx, 0, 0).unwrap();
+        assert!(validate_transaction(@tx, 0, 0).is_err());
+
+        let fee = validate_transaction(@tx, 101, 0).unwrap();
         assert_eq!(fee, 10);
     }
 }
