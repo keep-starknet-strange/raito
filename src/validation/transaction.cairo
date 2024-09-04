@@ -2,6 +2,14 @@
 
 use crate::types::transaction::{Transaction, TransactionTrait};
 
+// Setting sequence to this value for every input in a transaction
+// disables the locktime feature
+const SEQUENCE_FINAL: u32 = 0xffffffff;
+
+// Threshold for lock_time: below this value it is interpreted as block number,
+// otherwise as UNIX timestamp.
+const LOCKTIME_THRESHOLD: u32 = 500000000; // Tue Nov  5 00:53:20 1985 UTC
+
 /// Validate transaction and return transaction fee.
 ///
 /// This does not include script checks and outpoint inclusion verification.
@@ -36,20 +44,19 @@ pub fn validate_transaction(
         return Result::Err("transaction outputs are empty");
     };
 
-    // Even if tx.nLockTime isn't satisfied by nBlockHeight/nBlockTime, a
-    // transaction is still considered final if all inputs' nSequence ==
-    // SEQUENCE_FINAL (0xffffffff), in which case nLockTime is ignored.
-    // from: https://github.com/bitcoin/bitcoin/blob/master/src/consensus/tx_verify.cpp#L17
+    // https://github.com/bitcoin/bitcoin/blob/master/src/consensus/tx_verify.cpp#L17
     let mut is_locktime_enabled = false;
-    for input in *tx.inputs {
-        if *input.sequence != 0xffffffff {
-            is_locktime_enabled = true;
-        }
-    };
+    for input in *tx
+        .inputs {
+            if *input.sequence != SEQUENCE_FINAL {
+                is_locktime_enabled = true;
+                break;
+            }
+        };
 
     // only consider the locktime if it is enabled
     if is_locktime_enabled {
-        if *tx.lock_time <= 0x1dcd64ff && *tx.lock_time > block_height {
+        if *tx.lock_time <= LOCKTIME_THRESHOLD && *tx.lock_time > block_height {
             return Result::Err(
                 format!(
                     "transaction is not final: transaction locktime {} is higher than current block height {}",
@@ -59,7 +66,7 @@ pub fn validate_transaction(
             );
         };
 
-        if *tx.lock_time > 0x1dcd64ff && *tx.lock_time > block_time {
+        if *tx.lock_time > LOCKTIME_THRESHOLD && *tx.lock_time > block_time {
             return Result::Err(
                 format!(
                     "transaction is not final: transaction locktime {} is higher than current block time {}",
