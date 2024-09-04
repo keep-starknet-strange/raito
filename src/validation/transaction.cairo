@@ -28,6 +28,56 @@ pub fn validate_transaction(
     //      - https://github.com/bitcoin/bitcoin/blob/master/src/consensus/tx_check.cpp
     //      - https://github.com/bitcoin/bitcoin/blob/master/src/consensus/tx_verify.cpp
     //      - https://github.com/bitcoin/bitcoin/blob/master/src/validation.cpp
+    
+    if (*tx.inputs).len() == 0 {
+        return Result::Err("transaction inputs are empty");
+    };
+    if (*tx.outputs).len() == 0 {
+        return Result::Err("transaction outputs are empty");
+    };
+
+    if *tx.lock_time <= 0x1dcd64ff && *tx.lock_time > block_height {
+        return Result::Err(
+            format!(
+                "transaction is not final: transaction locktime {} is higher than current block height {}",
+                tx.lock_time,
+                block_height
+            )
+        );
+    };
+
+    if *tx.lock_time > 0x1dcd64ff && *tx.lock_time > block_time {
+        return Result::Err(
+            format!(
+                "transaction is not final: transaction locktime {} is higher than current block time {}",
+                tx.lock_time,
+                block_time
+            )
+        );
+    };
+
+    // Even if tx.nLockTime isn't satisfied by nBlockHeight/nBlockTime, a
+    // transaction is still considered final if all inputs' nSequence ==
+    // SEQUENCE_FINAL (0xffffffff), in which case nLockTime is ignored.
+    // from: https://github.com/bitcoin/bitcoin/blob/master/src/consensus/tx_verify.cpp#L17
+    let mut locktime_result = Option::None;
+    for input in *tx.inputs{
+        if *input.sequence != 0xffffffff {
+            locktime_result =  Option::Some(
+                format!(
+                    "transaction input: ({}, {}) has non-final sequence: {}",
+                    *input.previous_output.txid,
+                    *input.previous_output.vout,
+                    *input.sequence
+                )
+            );
+        }
+    };
+
+    if let Option::Some(result) = locktime_result {
+        return Result::Err(result);
+    }
+
 
     let mut maturity_result = Option::None;
 
