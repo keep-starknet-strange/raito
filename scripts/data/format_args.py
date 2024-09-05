@@ -13,7 +13,7 @@ def serialize(obj):
         dec string (0-9) -> (int, int) -> u256 = { lo: felt252, hi: felt252 }
         hex string (0-F), 64 len -> (int, int, int, int, int, int, int, int) -> Hash !reversed!
         hex string 0x prefixed -> ([int, ...], int, int) -> ByteArray
-        list -> []
+        list -> tuple(len(list), *list)
         dict -> tuple(dict.values)
     """
     if isinstance(obj, bool):
@@ -23,7 +23,11 @@ def serialize(obj):
         assert(obj >= 0 and obj < 2 ** 252)
         return obj
     elif isinstance(obj, str):
-        if obj.isdigit():
+        if obj == "0" * 64:
+            # special case - zero hash
+            return (0, 0, 0, 0, 0, 0, 0, 0)
+        elif obj.isdigit():
+            # TODO: there might still be collisions with hashes
             # Try to cast to int and then to low/high parts
             num = int(obj)
             assert(num >= 0 and num < 2 ** 256)
@@ -39,14 +43,15 @@ def serialize(obj):
             main = [int.from_bytes(src[i:i+31], 'big') for i in range(0, main_len, 31)]
             # TODO: check if this is how byte31 is implemented
             rem = int.from_bytes(src[main_len:].rjust(31, b'\x00'), 'big')
-            return (main, rem, rem_len)
+            return tuple([len(main)] + main + [rem, rem_len])
         else:
             # Reversed hex string into 4-byte words then into BE u32
             assert(len(obj) == 64)
             rev = list(reversed(bytes.fromhex(obj)))
             return tuple(int.from_bytes(rev[i:i+4], 'big') for i in range(0, 32, 4))
     elif isinstance(obj, list):
-        return list(map(serialize, obj))
+        arr = list(map(serialize, obj))
+        return tuple([len(arr)] + arr)
     elif isinstance(obj, dict):
         return tuple(map(serialize, obj.values()))
     elif isinstance(obj, tuple):
@@ -105,7 +110,7 @@ def format_args():
         raise TypeError("Expected single argument")
     args = json.loads(Path(sys.argv[1]).read_text())
     res = flatten_tuples(serialize(args))
-    print(res)
+    print([res])
 
 
 if __name__ == '__main__':

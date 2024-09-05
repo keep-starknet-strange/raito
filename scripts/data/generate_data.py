@@ -130,20 +130,20 @@ def fetch_block(block_hash: str):
 
 
 def resolve_transaction(transaction: dict):
-    """
+    """Resolves transaction inputs and formats the content according to the Cairo type.
     """
     return {
         "version": transaction['version'],
         # Skip the first 4 bytes (version) and take the next 4 bytes (marker + flag)
         "is_segwit": transaction["hex"][8:12] == "0001",
-        "lock_time": transaction['locktime'],
         "inputs": [resolve_input(input) for input in transaction['vin']],
         "outputs": [format_output(output) for output in transaction['vout']],
+        "lock_time": transaction['locktime'],
     }
 
 
 def resolve_input(input: dict):
-    """
+    """Resolves referenced UTXO and formats the transaction inputs according to the Cairo type.
     """
     if input.get('coinbase'):
         return format_coinbase_input(input)
@@ -151,13 +151,14 @@ def resolve_input(input: dict):
         return {
             "script": f'0x{input["scriptSig"]["hex"]}',
             "sequence": input['sequence'],
-            "witness": [f'0x{item}' for item in input.get('txinwitness', [])],
             "previous_output": resolve_outpoint(input),
+            "witness": [f'0x{item}' for item in input.get('txinwitness', [])],
         }
 
 
 def resolve_outpoint(input: dict):
-    """
+    """Fetches transaction and block header for the referenced output,
+    formats resulting outpoint according to the Cairo type.
     """
     tx = request_rpc("getrawtransaction", [input['txid'], True])
     block = request_rpc("getblockheader", [tx['blockhash']])
@@ -172,12 +173,11 @@ def resolve_outpoint(input: dict):
 
 
 def format_coinbase_input(input: dict):
-    """
+    """Formats coinbase input according to the Cairo type.
     """
     return {
         "script": f'0x{input["coinbase"]}',
         "sequence": input["sequence"],
-        "witness": [],
         "previous_output": {
             "txid": "0" * 64,
             "vout": 0xffffffff,
@@ -190,17 +190,17 @@ def format_coinbase_input(input: dict):
             "block_time": 0,
             "is_coinbase": False,
         },
+        "witness": []
     }
 
 
 def format_output(output: dict):
-    """
+    """Formats transaction output according to the Cairo type.
     """
     return {
         "value": int(output["value"] * 100000000),
         "pk_script": f'0x{output["scriptPubKey"]["hex"]}',
         "cached": False,
-        # TODO: create a hash set of all inputs/outputs in the block and propagate down
     }
 
 

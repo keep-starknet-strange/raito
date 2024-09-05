@@ -2,15 +2,29 @@ use crate::types::block::Block;
 use crate::types::chain_state::{ChainState, BlockValidator};
 use core::testing::get_available_gas;
 
+/// Integration testing program arguments.
+#[derive(Serde)]
+struct Args {
+    /// Current (initial) chain state
+    chain_state: ChainState,
+    /// Batch of blocks that have to be applied to the current chain state
+    blocks: Array<Block>,
+    /// Expected chain state (that we want to compare the result with)
+    expected_chain_state: ChainState,
+}
+
 /// Integration testing program entrypoint.
 ///
-/// Receives current chain state, pending blocks, and expected result.
-/// Validates and applies blocks one by one, exits on first failure.
-fn test(
-    mut chain_state: ChainState, mut blocks: Array<Block>, mut expected_chain_state: ChainState
-) {
+/// Receives arguments in a serialized format (Cairo serde).
+/// Panics in case of a validation error or chain state mismatch.
+/// Prints result to the stdout.
+fn test(mut arguments: Span<felt252>) {
+    let Args { mut chain_state, blocks, expected_chain_state } = Serde::deserialize(ref arguments)
+        .expect('Failed to deserialize');
+
     let mut gas_before = get_available_gas();
-    while let Option::Some(block) = blocks.pop_front() {
+
+    for block in blocks {
         let height = chain_state.block_height + 1;
         match chain_state.validate_and_apply(block) {
             Result::Ok(new_chain_state) => {
@@ -28,6 +42,7 @@ fn test(
             }
         }
     };
+
     if chain_state != expected_chain_state {
         println!(
             "FAIL: block={} error='expected state {:?}, actual {:?}'",

@@ -7,7 +7,7 @@ use super::bit_shifts::{shl, shr};
 
 /// 256-bit hash digest.
 /// Represented as an array of 4-byte words.
-#[derive(Copy, Drop, Debug, Default)]
+#[derive(Copy, Drop, Debug, Default, Serde)]
 pub struct Hash {
     pub value: [u32; 8]
 }

@@ -13,7 +13,7 @@ use crate::validation::{
 use super::block::{BlockHash, Block, TransactionData};
 
 /// Represents the state of the blockchain.
-#[derive(Drop, Copy, Debug, PartialEq)]
+#[derive(Drop, Copy, Debug, PartialEq, Serde)]
 pub struct ChainState {
     /// Height of the current block.
     pub block_height: u32,

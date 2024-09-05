@@ -8,7 +8,11 @@ pub fn validate_proof_of_work(target: u256, block_hash: Hash) -> Result<(), Byte
         Result::Ok(())
     } else {
         Result::Err(
-            "Insufficient proof of work. Expected block hash {chain_state.best_block_hash} to be less than or equal to {target}."
+            format!(
+                "Insufficient proof of work. Expected block hash {:?} to be less than or equal to {}.",
+                block_hash,
+                target
+            )
         )
     }
 }
