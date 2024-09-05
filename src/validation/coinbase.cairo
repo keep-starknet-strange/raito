@@ -271,7 +271,10 @@ mod tests {
                         block_time: Default::default(),
                         is_coinbase: false,
                     },
-                    witness: array![].span(),
+                    witness: array![
+                        from_hex("0000000000000000000000000000000000000000000000000000000000000000")
+                    ]
+                        .span(),
                 }
             ]
                 .span(),
@@ -283,7 +286,7 @@ mod tests {
         };
 
         let total_fees = 5000000000_u64;
-        let block_height = 400_000;
+        let block_height = 856_563;
 
         validate_coinbase(@tx, total_fees, block_height, Default::default()).unwrap();
     }
