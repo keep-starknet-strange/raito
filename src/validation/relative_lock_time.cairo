@@ -51,7 +51,7 @@ mod tests {
     use crate::types::transaction::{Transaction, TxIn, TxOut, OutPoint};
     use crate::utils::hex::from_hex;
     use super::{validate_input};
-    
+
 
     #[test]
     fn test_validate_input() {
@@ -77,7 +77,7 @@ mod tests {
                 }
             ]
                 .span(),
-             outputs: array![
+            outputs: array![
                 TxOut {
                     value: 90,
                     pk_script: @from_hex(
