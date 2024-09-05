@@ -117,18 +117,17 @@ pub fn is_final_tx(tx: @Transaction, block_height: u32, block_time: u32) -> Resu
                 check_threshold_result =
                     Result::Err(
                         if *tx.lock_time >= LOCKTIME_THRESHOLD {
-                                format!(
-                                    "transaction is not final: transaction locktime {} is not lesser than current block time {}",
-                                    *tx.lock_time,
-                                    block_time
-                                )
+                            format!(
+                                "transaction is not final: transaction locktime {} is not lesser than current block time {}",
+                                *tx.lock_time,
+                                block_time
+                            )
                         } else {
-                                format!(
-                                    "transaction is not final: transaction locktime {} is not lesser than current block height {}",
-                                    *tx.lock_time,
-                                    block_height
-                                )
-
+                            format!(
+                                "transaction is not final: transaction locktime {} is not lesser than current block height {}",
+                                *tx.lock_time,
+                                block_height
+                            )
                         }
                     );
             };
