@@ -116,18 +116,19 @@ pub fn is_final_tx(tx: @Transaction, block_height: u32, block_time: u32) -> Resu
             if *input.sequence != SEQUENCE_FINAL {
                 check_threshold_result =
                     Result::Err(
-                        if *tx.lock_time < LOCKTIME_THRESHOLD {
-                            format!(
-                                "transaction is not final: transaction locktime {} is higher than current block time {}",
-                                tx.lock_time,
-                                block_time
-                            )
+                        if *tx.lock_time >= LOCKTIME_THRESHOLD {
+                                format!(
+                                    "transaction is not final: transaction locktime {} is not lesser than current block time {}",
+                                    *tx.lock_time,
+                                    block_time
+                                )
                         } else {
-                            format!(
-                                "transaction is not final: transaction locktime {} is higher than current block time {}",
-                                tx.lock_time,
-                                block_time
-                            )
+                                format!(
+                                    "transaction is not final: transaction locktime {} is not lesser than current block height {}",
+                                    *tx.lock_time,
+                                    block_height
+                                )
+
                         }
                     );
             };
@@ -274,16 +275,16 @@ mod tests {
         };
 
         // Transaction should be invalid when current block height is less than locktime
-        let result = validate_transaction(@tx, 499999, 0);
+        let result = validate_transaction(@tx, 500000, 0);
         assert!(result.is_err());
         assert_eq!(
             result.unwrap_err().into(),
-            "transaction is not final: transaction locktime 500000 is higher than current block height 499999"
+            "transaction is not final: transaction locktime 500000 is not lesser than current block height 500000"
         );
 
         // Transaction should be valid when current block height is equal to or greater than
         // locktime
-        let result = validate_transaction(@tx, 500000, 0);
+        let result = validate_transaction(@tx, 500001, 0);
         println!("{:?}", result);
         assert!(result.is_ok());
     }
@@ -322,16 +323,16 @@ mod tests {
             lock_time: 1600000000 // UNIX timestamp locktime
         };
 
-        // Transaction should be invalid when current block time is less than locktime
-        let result = validate_transaction(@tx, 0, 1599999999);
+        // Transaction should be invalid when current block time is not greater than locktime
+        let result = validate_transaction(@tx, 0, 1600000000);
         assert!(result.is_err());
         assert_eq!(
             result.unwrap_err().into(),
-            "transaction is not final: transaction locktime 1600000000 is higher than current block time 1599999999"
+            "transaction is not final: transaction locktime 1600000000 is not lesser than current block time 1600000000"
         );
 
         // Transaction should be valid when current block time is equal to or greater than locktime
-        let result = validate_transaction(@tx, 0, 1600000000);
+        let result = validate_transaction(@tx, 0, 1600000001);
         assert!(result.is_ok());
     }
 
@@ -369,12 +370,12 @@ mod tests {
             lock_time: 1600000000 // UNIX timestamp locktime
         };
 
-        // Transaction should still valid when current block time is less than locktime
-        let result = validate_transaction(@tx, 0, 1599999999);
+        // Transaction should still valid when current block time is not greater than locktime
+        let result = validate_transaction(@tx, 0, 1600000000);
         assert!(result.is_ok());
 
-        // Transaction should be valid when current block time is equal to or greater than locktime
-        let result = validate_transaction(@tx, 0, 1600000000);
+        // Transaction should be valid when current block time is greater than locktime
+        let result = validate_transaction(@tx, 0, 1600000001);
         assert!(result.is_ok());
     }
 
@@ -412,12 +413,12 @@ mod tests {
             lock_time: 500000 // Block height locktime
         };
 
-        // Transaction should still valid when current block time is less than locktime
-        let result = validate_transaction(@tx, 499999, 0);
+        // Transaction should still valid when current block time is not greater than locktime
+        let result = validate_transaction(@tx, 500000, 0);
         assert!(result.is_ok());
 
-        // Transaction should be valid when current block time is equal to or greater than locktime
-        let result = validate_transaction(@tx, 500000, 0);
+        // Transaction should be valid when current block time is greater than locktime
+        let result = validate_transaction(@tx, 500001, 0);
         assert!(result.is_ok());
     }
 }
