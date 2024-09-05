@@ -76,42 +76,31 @@ pub impl EncodeOutpoint of Encode<OutPoint> {
 
 pub impl EncodeTransaction of Encode<Transaction> {
     fn encode_to(self: @Transaction, ref dest: ByteArray) {
-        self.encode_transaction_to(ref dest, false);
+        self.version.encode_to(ref dest);
+        self.inputs.encode_to(ref dest);
+        self.outputs.encode_to(ref dest);
+        self.lock_time.encode_to(ref dest);
     }
 }
 
 #[generate_trait]
 pub impl TransactionCodecImpl of TransactionCodec {
-    /// Encode transaction with witness fields (for computing wtxid) and return resuling bytes.
-    fn encode_with_witness(self: @Transaction) -> ByteArray {
+    /// Reencode transaction with witness fields (for computing wtxid) given the legacy encoded bytes.
+    /// We use this method to avoid double serialization.
+    fn encode_with_witness(self: @Transaction, legacy_bytes: @ByteArray) -> ByteArray {
+        if !self.is_segwit {
+            return legacy_bytes;
+        }
+
         let mut dest: ByteArray = Default::default();
-        self.encode_transaction_to(ref dest, true);
+        
+        // 1. Copy version
+        // 2. Append witness marker and flag
+        // 3. Copy the rest of the legacy bytes except for last 4 bytes (locktime)
+        // 4. Append witness
+        // 5. Copy locktime
+
         dest
-    }
-
-    /// Encode transaction and add to the output buffer.
-    /// Specify `include_witness` flag to add segwit marker, flag, and witness data.
-    fn encode_transaction_to(self: @Transaction, ref dest: ByteArray, include_witness: bool) {
-        self.version.encode_to(ref dest);
-
-        if include_witness {
-            // TODO: we need to validate that is_segwit flag is set (in validate_transaction)
-            dest.append_byte(0); // marker
-            dest.append_byte(1); // flag
-        }
-
-        self.inputs.encode_to(ref dest);
-        self.outputs.encode_to(ref dest);
-
-        if include_witness {
-            // Encode array of witnesses for each tx input
-            // We don't prepend the size because inputs length was previously encoded.
-            for txin in *self.inputs {
-                txin.witness.encode_to(ref dest);
-            }
-        }
-
-        self.lock_time.encode_to(ref dest);
     }
 }
 

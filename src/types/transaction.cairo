@@ -131,31 +131,13 @@ impl TxOutDefault of Default<TxOut> {
     }
 }
 
-#[generate_trait]
-pub impl TransactionImpl of TransactionTrait {
-    /// Compute transaction TXID
-    /// https://learnmeabitcoin.com/technical/transaction/input/txid/
-    ///
-    /// NOTE: marker, flag, and witness fields in segwit transactions are not included
-    /// this means txid computation is the same for legacy and segwit tx
-    fn txid(self: @Transaction) -> Hash {
-        double_sha256_byte_array(@(self.encode()))
-    }
-
-    /// Compute transaction wTXID
-    /// https://learnmeabitcoin.com/technical/transaction/wtxid/
-    fn wtxid(self: @Transaction) -> Hash {
-        double_sha256_byte_array(@(self.encode_with_witness()))
-    }
-}
-
 // TODO: implement Hash trait for OutPoint (for creating hash digests to use in utreexo/utxo cache)
 // Maybe we need to rename utils::hash::Hash (e.g. to Digest) to avoid confusion
 
 #[cfg(test)]
 mod tests {
     use crate::utils::hex::{from_hex, hex_to_hash_rev};
-    use super::{Transaction, TransactionTrait, TxIn, TxOut, OutPoint};
+    use super::{Transaction, TxIn, TxOut, OutPoint};
 
     #[test]
     fn test_txid() {

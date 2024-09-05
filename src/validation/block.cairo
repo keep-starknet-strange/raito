@@ -22,9 +22,15 @@ pub fn fee_and_merkle_roots(
         }
 
         let tx = txs[i];
-        txids.append(tx.txid());
+        let tx_bytes_legacy = tx.encode();
+        let tx_bytes_segwit = tx.encode_with_witness(tx_bytes_legacy);
+        let txid = double_sha256_byte_array(tx_bytes_legacy);
+        let wtxid = double_sha256_byte_array(tx_bytes_segwit);
+        let weight = 3 * tx_bytes_legacy.len() + tx_bytes_segwit.len();  // 4 * tx_size_legacy + (tx_size_segwit - tx_size_legacy)
+
+        txids.append(txid);
         // TODO: only do that for blocks after Segwit upgrade
-        wtxids.append(tx.wtxid());
+        wtxids.append(wtxid);
 
         // skipping the coinbase transaction
         if (i != 0) {

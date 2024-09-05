@@ -1,6 +1,6 @@
 //! Transaction validation helpers.
 
-use crate::types::transaction::{Transaction, TransactionTrait};
+use crate::types::transaction::{Transaction};
 
 /// Validate transaction and return transaction fee.
 ///
