@@ -15,6 +15,7 @@ pub mod validation {
     pub mod transaction;
     pub mod work;
     pub mod block;
+    pub mod relative_lock_time;
 }
 pub mod codec;
 pub mod types {
