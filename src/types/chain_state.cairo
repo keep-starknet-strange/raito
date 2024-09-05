@@ -8,7 +8,7 @@ use crate::utils::hash::Hash;
 use crate::validation::{
     difficulty::{validate_bits, adjust_difficulty}, coinbase::validate_coinbase,
     timestamp::{validate_timestamp, next_prev_timestamps},
-    work::{validate_proof_of_work, compute_total_work}, block::{fee_and_merkle_roots},
+    work::{validate_proof_of_work, compute_total_work}, block::{compute_validate_tx_data},
 };
 use super::block::{BlockHash, Block, TransactionData};
 
@@ -64,7 +64,7 @@ pub impl BlockValidatorImpl of BlockValidator {
         let txid_root = match block.data {
             TransactionData::MerkleRoot(root) => root,
             TransactionData::Transactions(txs) => {
-                let (total_fees, txid_root, wtxid_root) = fee_and_merkle_roots(
+                let (total_fees, txid_root, wtxid_root) = compute_validate_tx_data(
                     txs, block_height, block.header.time
                 )?;
                 validate_coinbase(txs[0], total_fees, block_height, wtxid_root)?;
