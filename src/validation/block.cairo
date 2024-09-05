@@ -3,7 +3,6 @@
 use crate::types::transaction::{Transaction};
 use crate::codec::{Encode};
 use crate::utils::{hash::Hash, merkle_tree::merkle_root, sha256::double_sha256_byte_array};
-// use crate::codec::TransactionWeight;
 use super::transaction::validate_transaction;
 
 const MAX_BLOCK_WEIGHT_LEGACY: usize = 1_000_000;
@@ -13,12 +12,14 @@ const BLOCK_SEGWIT: usize = 481_824;
 /// Validate block size and weight.
 /// Blocks before Segwit upgrade have a limit of 1,000,000 bytes.
 /// Blocks after Segwit upgrade have a limit of 4,000,000 weight units.
-pub fn validate_block_size(block_height: usize, size: u32, weight: usize) -> Result<(), ByteArray> {
+pub fn validate_block_weight(
+    block_height: usize, size: u32, weight: usize
+) -> Result<(), ByteArray> {
     if block_height < BLOCK_SEGWIT {
         if (size > MAX_BLOCK_WEIGHT_LEGACY) {
             return Result::Err(
                 format!(
-                    "[validate_weight] block weight {weight} exceeds the limit {MAX_BLOCK_WEIGHT_LEGACY} for legacy blocks"
+                    "[validate_size] block size {size} exceeds the limit {MAX_BLOCK_WEIGHT_LEGACY} for legacy blocks"
                 )
             );
         }
@@ -38,7 +39,8 @@ pub fn validate_block_size(block_height: usize, size: u32, weight: usize) -> Res
 ///  - Total fee
 ///  - TXID merkle root
 ///  - wTXID commitment (only for blocks after Segwit upgrade, otherwise return zero hash)
-pub fn compute_validate_tx_data(
+///  - Block weight
+pub fn compute_and_validate_tx_data(
     txs: Span<Transaction>, block_height: u32, block_time: u32
 ) -> Result<(u64, Hash, Hash), ByteArray> {
     let mut txids: Array<Hash> = array![];
@@ -102,24 +104,11 @@ pub fn compute_validate_tx_data(
         let wtxid = double_sha256_byte_array(@(wtxid_data));
         wtxids.append(wtxid);
 
-        // Compute transaction weight
-        // let base_size: u32 = version_size + inputs_size + outputs_size + lock_time_size;
-        // if (*tx.is_segwit) {
-        //     // 2 = marker +flag byte size
-        //     witness_size += 2;
-        // }
-        // let total_size = base_size + witness_size;
-        // let total_weight = base_size * 4 + witness_size;
-
         /// Compute transaction weight
-        ///
         /// https://learnmeabitcoin.com/technical/transaction/size/
         let base_size: u32 = version_size + inputs_size + outputs_size + lock_time_size;
-        // total_size += base_size;
-
         if (*tx.is_segwit) {
-            // 2 = marker +flag byte size
-            witness_size += 2;
+            witness_size += 2; // marker +flag byte size
         }
         total_size += base_size + witness_size;
         total_weight += base_size * 4 + witness_size;
@@ -135,7 +124,7 @@ pub fn compute_validate_tx_data(
         i += 1;
     };
     validate_transactions?;
-    validate_block_size(block_height, total_size, total_weight)?;
+    validate_block_weight(block_height, total_size, total_weight)?;
 
     Result::Ok((total_fee, merkle_root(ref txids), merkle_root(ref wtxids)))
 }
@@ -187,8 +176,7 @@ mod tests {
         /// Compute transaction weight
         let base_size: u32 = version_size + inputs_size + outputs_size + lock_time_size;
         if (*tx.is_segwit) {
-            // 2 = marker +flag byte size
-            witness_size += 2;
+            witness_size += 2; // marker + flag byte size
         }
         let total_size = base_size + witness_size;
         let total_weight = base_size * 4 + witness_size;

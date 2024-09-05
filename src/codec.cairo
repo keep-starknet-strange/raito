@@ -4,10 +4,10 @@ use super::types::transaction::{TxIn, TxOut, OutPoint};
 use raito::utils::hash::Hash;
 
 pub trait Encode<T> {
-    /// Encode using Bitcoin codec and append to the buffer.
+    /// Encode using Bitcoin codec, append to the buffer and retour byte size.
     fn encode_to(self: @T, ref dest: ByteArray) -> usize;
 
-    /// Encode using Bitcoin codec and return byte array.
+    /// Encode using Bitcoin codec and return (byte array, size).
     fn encode(
         self: @T
     ) -> (
@@ -112,44 +112,50 @@ mod tests {
     #[test]
     fn test_encode_compact_size1() {
         let mut bytes = Default::default();
-        encode_compact_size(1, ref bytes);
+        let size = encode_compact_size(1, ref bytes);
         assert_eq!(bytes, from_hex("01"));
+        assert_eq!(size, 1);
     }
 
     #[test]
     fn test_encode_compact_size2() {
         let mut bytes = Default::default();
-        encode_compact_size(252, ref bytes);
+        let size = encode_compact_size(252, ref bytes);
         assert_eq!(bytes, from_hex("fc"));
+        assert_eq!(size, 1);
     }
 
     #[test]
     fn test_encode_compact_size3() {
         let mut bytes = Default::default();
-        encode_compact_size(253, ref bytes);
+        let size = encode_compact_size(253, ref bytes);
         assert_eq!(bytes, from_hex("fdfd00"));
+        assert_eq!(size, 3);
     }
 
     #[test]
     fn test_encode_compact_size4() {
         let mut bytes = Default::default();
-        encode_compact_size(65535, ref bytes);
+        let size = encode_compact_size(65535, ref bytes);
         assert_eq!(bytes, from_hex("fdffff"));
+        assert_eq!(size, 3);
     }
 
     #[test]
     fn test_encode_compact_size5() {
         let mut bytes = Default::default();
-        encode_compact_size(65536, ref bytes);
+        let size = encode_compact_size(65536, ref bytes);
         assert_eq!(bytes, from_hex("fe00000100"));
+        assert_eq!(size, 5);
     }
 
     #[test]
     fn test_encode_compact_size6() {
         // u32 max
         let mut bytes = Default::default();
-        encode_compact_size(4294967295, ref bytes);
+        let size = encode_compact_size(4294967295, ref bytes);
         assert_eq!(bytes, from_hex("feffffffff"));
+        assert_eq!(size, 5);
     }
 
     #[test]

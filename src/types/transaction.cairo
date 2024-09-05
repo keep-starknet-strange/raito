@@ -125,9 +125,7 @@ impl TxOutDefault of Default<TxOut> {
         TxOut { value: 0, pk_script: @"", cached: false, }
     }
 }
-
 // TODO: implement Hash trait for OutPoint (for creating hash digests to use in utreexo/utxo cache)
 // Maybe we need to rename utils::hash::Hash (e.g. to Digest) to avoid confusion
-
 
 
