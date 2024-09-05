@@ -3,8 +3,7 @@
 //! https://learnmeabitcoin.com/technical/mining/coinbase-transaction/
 
 use crate::types::transaction::Transaction;
-use crate::utils::{bit_shifts::shr, hash::Hash};
-use crate::utils::hex::from_hex;
+use crate::utils::{bit_shifts::shr, hash::Hash, hex::from_hex};
 
 const BIP_141_BLOCK_HEIGHT: u32 = 481_824;
 
