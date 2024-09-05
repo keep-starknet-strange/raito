@@ -23,3 +23,5 @@ Cargo.lock
 .venv
 .python-version
 __pycache__
+
+.light_client
