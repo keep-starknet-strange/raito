@@ -1,12 +1,13 @@
 //! Transaction validation helpers.
 
-use crate::types::transaction::Transaction;
+use crate::types::transaction::{Transaction};
+use crate::utils::hash::Hash;
 
 /// Validate transaction and return transaction fee.
 ///
 /// This does not include script checks and outpoint inclusion verification.
 pub fn validate_transaction(
-    tx: @Transaction, block_height: u32, block_time: u32
+    tx: @Transaction, block_height: u32, block_time: u32, txid_root: Hash
 ) -> Result<u64, ByteArray> {
     // TODO: validate that
     //      - Inputs array is not empty
@@ -25,6 +26,34 @@ pub fn validate_transaction(
     //      - https://github.com/bitcoin/bitcoin/blob/master/src/consensus/tx_check.cpp
     //      - https://github.com/bitcoin/bitcoin/blob/master/src/consensus/tx_verify.cpp
     //      - https://github.com/bitcoin/bitcoin/blob/master/src/validation.cpp
+
+    let mut maturity_result = Option::None;
+
+    // Coinbase maturity test
+    for input in *tx
+        .inputs {
+            if *input.previous_output.is_coinbase {
+                let coinbase_block_height = *input.previous_output.block_height;
+                if block_height <= coinbase_block_height + 100 {
+                    maturity_result =
+                        Option::Some(
+                            format!(
+                                "[validate_transaction] coinbase input: ({}, {}) of tx: {} not mature (current height: {}, coinbase height: {})",
+                                *input.previous_output.txid,
+                                *input.previous_output.vout,
+                                txid_root,
+                                block_height,
+                                coinbase_block_height
+                            )
+                        );
+                    break;
+                }
+            }
+        };
+
+    if let Option::Some(result) = maturity_result {
+        return Result::Err(result);
+    }
 
     let mut total_input_amount = 0;
     for input in *tx.inputs {
@@ -56,6 +85,7 @@ mod tests {
 
     #[test]
     fn test_tx_fee() {
+        // which transaction is it???
         let tx = Transaction {
             version: 1,
             is_segwit: false,
@@ -73,6 +103,7 @@ mod tests {
                         data: TxOut { value: 100, ..Default::default() },
                         block_height: Default::default(),
                         block_time: Default::default(),
+                        is_coinbase: true,
                     },
                     witness: array![].span(),
                 }
@@ -91,7 +122,12 @@ mod tests {
             lock_time: 0
         };
 
-        let fee = validate_transaction(@tx, 0, 0).unwrap();
+        let txid = hex_to_hash_rev(
+            "0437cd7f8525ceed2324359c2d0ba26006d92d856a9c20fa0241106ee5a597c9"
+        );
+        assert!(validate_transaction(@tx, 0, 0, txid).is_err());
+
+        let fee = validate_transaction(@tx, 101, 0, txid).unwrap();
         assert_eq!(fee, 10);
     }
 }

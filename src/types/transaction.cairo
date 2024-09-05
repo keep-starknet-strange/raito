@@ -96,6 +96,10 @@ pub struct OutPoint {
     /// containing this output was mined).
     /// Can be set to default if locktime feature (time relative) is disabled.
     pub block_time: u32,
+    // Determine if the outpoint is a coinbase transaction
+    // Has 100 or more block confirmation,
+    // is added when block are queried
+    pub is_coinbase: bool
 }
 
 /// Output of a transaction.

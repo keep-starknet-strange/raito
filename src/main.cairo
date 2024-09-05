@@ -1,17 +1,14 @@
-use raito::types::block::Block;
-use raito::types::chain_state::{ChainState, BlockValidator};
+use crate::types::block::Block;
+use crate::types::chain_state::{ChainState, BlockValidator};
 
-/// Raito light client program entrypoint.
+/// Raito program entrypoint.
 ///
-/// Receives current chain state and a pending block header.
-/// Returns (true, new chain state) if validation was successfull.
-/// Returns (false, default) otherwise.
-fn main(chain_state: ChainState, block: Block) -> (bool, ChainState) {
-    match chain_state.validate_and_apply(block) {
-        Result::Ok(res) => (true, res),
-        Result::Err(err) => {
-            println!("{}", err);
-            (false, Default::default())
-        }
-    }
+/// Receives current chain state and pending blocks,
+/// then validates and applies them one by one.
+/// Returns new chain state in case of succes, otherwise raises an error.
+fn main(mut chain_state: ChainState, mut blocks: Array<Block>) -> ChainState {
+    while let Option::Some(block) = blocks.pop_front() {
+        chain_state = chain_state.validate_and_apply(block).expect('Validation failed');
+    };
+    chain_state
 }

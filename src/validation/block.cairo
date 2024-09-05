@@ -115,7 +115,7 @@ pub fn compute_and_validate_tx_data(
 
         // skipping the coinbase transaction
         if (i != 0) {
-            let fee = match validate_transaction(tx, block_height, block_time) {
+            let fee = match validate_transaction(tx, block_height, block_time, txid) {
                 Result::Ok(fee) => fee,
                 Result::Err(err) => { break Result::Err(err); }
             };
@@ -204,6 +204,7 @@ mod tests {
                         data: Default::default(),
                         block_height: Default::default(),
                         block_time: Default::default(),
+                        is_coinbase: Default::default(),
                     },
                     witness: array![].span()
                 },
@@ -220,6 +221,7 @@ mod tests {
                         data: Default::default(),
                         block_height: Default::default(),
                         block_time: Default::default(),
+                        is_coinbase: Default::default(),
                     },
                     witness: array![].span()
                 },
@@ -236,6 +238,7 @@ mod tests {
                         data: Default::default(),
                         block_height: Default::default(),
                         block_time: Default::default(),
+                        is_coinbase: Default::default(),
                     },
                     witness: array![].span()
                 }
@@ -295,6 +298,7 @@ mod tests {
                         },
                         block_height: 149994_u32,
                         block_time: 1319114701_u32,
+                        is_coinbase: Default::default(),
                     },
                 },
                 TxIn {
@@ -317,6 +321,7 @@ mod tests {
                         },
                         block_height: 150006_u32,
                         block_time: 1319124571_u32,
+                        is_coinbase: Default::default(),
                     },
                 },
                 TxIn {
@@ -339,6 +344,7 @@ mod tests {
                         },
                         block_height: 150005_u32,
                         block_time: 1319122014_u32,
+                        is_coinbase: Default::default(),
                     },
                 },
                 TxIn {
@@ -361,6 +367,7 @@ mod tests {
                         },
                         block_height: 149935_u32,
                         block_time: 1319066844_u32,
+                        is_coinbase: Default::default(),
                     },
                 },
                 TxIn {
@@ -383,6 +390,7 @@ mod tests {
                         },
                         block_height: 149940_u32,
                         block_time: 1319069371_u32,
+                        is_coinbase: Default::default(),
                     },
                 },
                 TxIn {
@@ -405,6 +413,7 @@ mod tests {
                         },
                         block_height: 149895_u32,
                         block_time: 1319035283_u32,
+                        is_coinbase: Default::default(),
                     },
                 },
                 TxIn {
@@ -427,6 +436,7 @@ mod tests {
                         },
                         block_height: 149814_u32,
                         block_time: 1318990721_u32,
+                        is_coinbase: Default::default(),
                     },
                 },
                 TxIn {
@@ -449,6 +459,7 @@ mod tests {
                         },
                         block_height: 149984_u32,
                         block_time: 1319104909_u32,
+                        is_coinbase: Default::default(),
                     },
                 },
             ]
@@ -507,6 +518,7 @@ mod tests {
                         },
                         block_height: 206120_u32,
                         block_time: 1351856022_u32,
+                        is_coinbase: Default::default(),
                     },
                 },
             ]
@@ -605,6 +617,7 @@ mod tests {
                         data: Default::default(),
                         block_height: Default::default(),
                         block_time: Default::default(),
+                        is_coinbase: Default::default(),
                     },
                     witness: array![
                         from_hex(
@@ -667,6 +680,7 @@ mod tests {
                         data: Default::default(),
                         block_height: Default::default(),
                         block_time: Default::default(),
+                        is_coinbase: Default::default(),
                     },
                     witness: array![
                         from_hex(
@@ -689,6 +703,7 @@ mod tests {
                         data: Default::default(),
                         block_height: Default::default(),
                         block_time: Default::default(),
+                        is_coinbase: Default::default(),
                     },
                     witness: array![
                         from_hex(
@@ -749,6 +764,7 @@ mod tests {
                         data: Default::default(),
                         block_height: Default::default(),
                         block_time: Default::default(),
+                        is_coinbase: Default::default(),
                     },
                     witness: array![
                         from_hex(
