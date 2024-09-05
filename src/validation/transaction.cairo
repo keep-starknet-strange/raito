@@ -44,37 +44,11 @@ pub fn validate_transaction(
         return Result::Err("transaction outputs are empty");
     };
 
+    // check if transaction is finalized
     // https://github.com/bitcoin/bitcoin/blob/master/src/consensus/tx_verify.cpp#L17
-    let mut is_locktime_enabled = false;
-    for input in *tx
-        .inputs {
-            if *input.sequence != SEQUENCE_FINAL {
-                is_locktime_enabled = true;
-                break;
-            }
-        };
-
-    // only consider the locktime if it is enabled
-    if is_locktime_enabled {
-        if *tx.lock_time <= LOCKTIME_THRESHOLD && *tx.lock_time > block_height {
-            return Result::Err(
-                format!(
-                    "transaction is not final: transaction locktime {} is higher than current block height {}",
-                    tx.lock_time,
-                    block_height
-                )
-            );
-        };
-
-        if *tx.lock_time > LOCKTIME_THRESHOLD && *tx.lock_time > block_time {
-            return Result::Err(
-                format!(
-                    "transaction is not final: transaction locktime {} is higher than current block time {}",
-                    tx.lock_time,
-                    block_time
-                )
-            );
-        };
+    match is_final_tx(tx, block_height, block_time) {
+        Result::Ok(_) => {},
+        Result::Err(err) => { return Result::Err(err); }
     }
 
     let mut maturity_result = Option::None;
@@ -125,6 +99,40 @@ pub fn validate_transaction(
     let tx_fee = total_input_amount - total_output_amount;
 
     Result::Ok(tx_fee)
+}
+
+pub fn is_final_tx(tx: @Transaction, block_height: u32, block_time: u32) -> Result<(), ByteArray> {
+    if *tx.lock_time < LOCKTIME_THRESHOLD && *tx.lock_time < block_height {
+        return Result::Ok(());
+    };
+
+    if *tx.lock_time >= LOCKTIME_THRESHOLD && *tx.lock_time < block_time {
+        return Result::Ok(());
+    };
+
+    let mut check_threshold_result: Result<(), ByteArray> = Result::Ok(());
+    for input in *tx
+        .inputs {
+            if *input.sequence != SEQUENCE_FINAL {
+                check_threshold_result =
+                    Result::Err(
+                        if *tx.lock_time < LOCKTIME_THRESHOLD {
+                            format!(
+                                "transaction is not final: transaction locktime {} is higher than current block time {}",
+                                tx.lock_time,
+                                block_time
+                            )
+                        } else {
+                            format!(
+                                "transaction is not final: transaction locktime {} is higher than current block time {}",
+                                tx.lock_time,
+                                block_time
+                            )
+                        }
+                    );
+            };
+        };
+    check_threshold_result
 }
 
 #[cfg(test)]
