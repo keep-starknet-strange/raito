@@ -1,6 +1,5 @@
 //! Transaction validation helpers.
 
-
 use crate::types::transaction::{Transaction, TxIn};
 
 
