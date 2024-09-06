@@ -36,35 +36,12 @@ pub fn validate_coinbase(
 
     // validate BIP-141 witness field
     if block_height >= BIP_141_BLOCK_HEIGHT {
-        let witness_arr = *tx.inputs[0].witness;
-        let witness = witness_arr[0];
-
-        // check witness array element
-        if witness_arr.len() > 1 {
-            return Result::Err("witness array should contain only one element");
-        }
-
-        // check witness byte lenght
-        if witness.len() != 32 {
-            return Result::Err("Wrong witness length");
-        };
+        let witness = tx.inputs[0].witness[0];
 
         // check witness value
-        let mut packed_value: u256 = 0;
-        let mut i = 0;
-        while i < witness.len() {
-            match witness.at(i) {
-                Option::Some(x) => {
-                    packed_value = (packed_value * 8) + x.into();
-                    i += 1;
-                },
-                Option::None => ()
-            }
-        };
-
-        if packed_value != 0 {
+        if witness != @"\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0" {
             return Result::Err("Wrong coinbase witness");
-        };
+        }
     }
 
     // TODO: validate BIP-141 segwit output
