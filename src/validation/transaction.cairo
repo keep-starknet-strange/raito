@@ -1,6 +1,6 @@
 //! Transaction validation helpers.
 
-use crate::types::transaction::{Transaction};
+use crate::types::transaction::{Transaction, TxIn};
 
 // Setting sequence to this value for every input in a transaction
 // disables the locktime feature
@@ -136,18 +136,18 @@ pub fn validate_absolute_locktime(
 /// Validate a transaction input. If relative locktime is enabled,
 /// ensure the input's locktime is respected.
 pub fn validate_relative_locktime(
-    tx: @Transaction, input_index: usize, block_height: u32, block_time: u32
+    tx_input: @TxIn, block_height: u32, block_time: u32
 ) -> Result<(), ByteArray> {
     // Get the input we are validating
-    let tx_input = *tx.inputs[input_index];
+    //  let tx_input = *tx.inputs[input_index];
 
     // If nSequence is set to 0xFFFFFFFF, it is not subject to relative locktime
-    if tx_input.sequence == SEQUENCE_FINAL {
+    if *tx_input.sequence == SEQUENCE_FINAL {
         return Result::Ok(());
     }
 
     // BIP-68 relative locktime calculation
-    let sequence = tx_input.sequence;
+    let sequence = *tx_input.sequence;
     // 0x80000000 mask is used to determine if it is time-based (bit 31)
     //  let locktime_mask = 0x80000000;
     let relative_locktime = sequence & 0xFFFF;
@@ -193,130 +193,76 @@ mod tests {
 
     #[test]
     fn test_relative_locktime_disabled() {
-        let tx = Transaction {
-            version: 1,
-            is_segwit: false,
-            inputs: array![
-                TxIn {
-                    script: @from_hex(""),
-                    sequence: 0xffffffff, // final, relative locktime disabled
-                    previous_output: OutPoint {
-                        txid: hex_to_hash_rev(
-                            "0000000000000000000000000000000000000000000000000000000000000000"
-                        ),
-                        vout: 0,
-                        data: TxOut { value: 100, ..Default::default() },
-                        block_height: Default::default(),
-                        block_time: Default::default(),
-                        is_coinbase: false,
-                    },
-                    witness: array![].span(),
-                }
-            ]
-                .span(),
-            outputs: array![
-                TxOut {
-                    value: 50,
-                    pk_script: @from_hex("76a914000000000000000000000000000000000000000088ac"),
-                    cached: false,
-                }
-            ]
-                .span(),
-            lock_time: 1600000000 // UNIX timestamp locktime
+        let input_tx = TxIn {
+            script: @from_hex(""),
+            sequence: 0xffffffff, // Final, relative locktime disabled
+            previous_output: OutPoint {
+                txid: hex_to_hash_rev(
+                    "0000000000000000000000000000000000000000000000000000000000000000"
+                ),
+                vout: 0,
+                data: TxOut { value: 100, ..Default::default() },
+                block_height: 100, // Provide a valid block height
+                block_time: 1600000000, // Provide a valid block time
+                is_coinbase: false,
+            },
+            witness: array![].span(),
         };
-
         // Relative locktime should be ignored when sequence is 0xFFFFFFFF
         // Case 1: Current block time less than locktime, but it should be valid
-        let result = validate_relative_locktime(@tx, 0, 0, 1600000000);
+        let result = validate_relative_locktime(@input_tx, 0, 1600000000);
         assert!(result.is_ok());
 
         // Case 2: Current block time greater than locktime, still valid
-        let result = validate_relative_locktime(@tx, 0, 0, 1600000001);
+        let result = validate_relative_locktime(@input_tx, 0, 1600000001);
         assert!(result.is_ok());
     }
 
     #[test]
     fn test_relative_locktime_enabled_block_height() {
-        let tx = Transaction {
-            version: 1,
-            is_segwit: false,
-            inputs: array![
-                TxIn {
-                    script: @from_hex(""),
-                    sequence: 10, // Relative locktime enabled, 10 blocks
-                    previous_output: OutPoint {
-                        txid: hex_to_hash_rev(
-                            "0000000000000000000000000000000000000000000000000000000000000000"
-                        ),
-                        vout: 0,
-                        data: TxOut { value: 100, ..Default::default() },
-                        block_height: 100, // The block height at which the UTXO was created
-                        block_time: 1600000000,
-                        is_coinbase: false,
-                    },
-                    witness: array![].span(),
-                }
-            ]
-                .span(),
-            outputs: array![
-                TxOut {
-                    value: 50,
-                    pk_script: @from_hex("76a914000000000000000000000000000000000000000088ac"),
-                    cached: false,
-                }
-            ]
-                .span(),
-            lock_time: 0
+        let input_tx = TxIn {
+            script: @from_hex(""),
+            sequence: 10, // Relative locktime enabled, 10 blocks
+            previous_output: OutPoint {
+                txid: hex_to_hash_rev(
+                    "0000000000000000000000000000000000000000000000000000000000000000"
+                ),
+                vout: 0,
+                data: TxOut { value: 100, ..Default::default() },
+                block_height: 100, // The block height at which the UTXO was created
+                block_time: 1600000000, // The block time at which the UTXO was created
+                is_coinbase: false,
+            },
+            witness: array![].span(),
         };
 
         // UTXO block height + relative locktime = 100 + 10 = 110
         // So at block height 110 or higher, the transaction should be valid
-        let result = validate_relative_locktime(@tx, 0, 110, 1600000000);
+        let result = validate_relative_locktime(@input_tx, 110, 1600000000);
         assert!(result.is_ok());
     }
 
     #[test]
     fn test_relative_locktime_enabled_block_time() {
-        let tx = Transaction {
-            version: 1,
-            is_segwit: false,
-            inputs: array![
-                TxIn {
-                    script: @from_hex(""),
-                    sequence: 0x0040000A, // Relative locktime enabled, time-based (10 * 512 seconds)
-                    previous_output: OutPoint {
-                        txid: hex_to_hash_rev(
-                            "0000000000000000000000000000000000000000000000000000000000000000"
-                        ),
-                        vout: 0,
-                        data: TxOut { value: 100, ..Default::default() },
-                        block_height: 100,
-                        block_time: 1600000000, // Time at which the UTXO was created
-                        is_coinbase: false,
-                    },
-                    witness: array![].span(),
-                }
-            ]
-                .span(),
-            outputs: array![
-                TxOut {
-                    value: 50,
-                    pk_script: @from_hex("76a914000000000000000000000000000000000000000088ac"),
-                    cached: false,
-                }
-            ]
-                .span(),
-            lock_time: 0
+        let input_tx = TxIn {
+            script: @from_hex(""),
+            sequence: 0x0040000A, // Relative locktime enabled, time-based (10 * 512 seconds)
+            previous_output: OutPoint {
+                txid: hex_to_hash_rev(
+                    "0000000000000000000000000000000000000000000000000000000000000000"
+                ),
+                vout: 0,
+                data: TxOut { value: 100, ..Default::default() },
+                block_height: 100, // The block height when the UTXO was created
+                block_time: 1600000000, // The time at which the UTXO was created (in UNIX timestamp)
+                is_coinbase: false,
+            },
+            witness: array![].span(),
         };
-
-        // Relative locktime requires 10 * 512 seconds = 5120 seconds after UTXO block_time
-        let required_block_time = 1600000000 + 5120;
 
         // Current block time meets or exceeds the required locktime
         // So the transaction should be valid
-        let result = validate_relative_locktime(
-            @tx, 0, 100, 1600005120
-        ); // 1600005120 == 1600005120
+        let result = validate_relative_locktime(@input_tx, 100, 1600005120);
         assert!(result.is_ok());
     }
 
