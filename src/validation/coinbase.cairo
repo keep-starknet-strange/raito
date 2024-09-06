@@ -3,11 +3,11 @@
 //! https://learnmeabitcoin.com/technical/mining/coinbase-transaction/
 
 use crate::types::transaction::Transaction;
-use crate::utils::{bit_shifts::shr, hash::Hash};
+use crate::utils::{bit_shifts::shr, hash::Digest};
 
 /// Validates coinbase transaction.
 pub fn validate_coinbase(
-    tx: @Transaction, total_fees: u64, block_height: u32, _wtxid_commitment: Hash,
+    tx: @Transaction, total_fees: u64, block_height: u32, _wtxid_commitment: Digest,
 ) -> Result<(), ByteArray> {
     // Validate the coinbase input
     // Ensure there is exactly one coinbase input

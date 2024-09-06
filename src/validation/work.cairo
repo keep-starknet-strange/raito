@@ -1,9 +1,9 @@
 //! Proof-of-work validation helpers.
 
-use crate::utils::hash::Hash;
+use crate::utils::hash::Digest;
 
 /// Check if the work done (by calculating the block hash) satisfies the difficulty target.
-pub fn validate_proof_of_work(target: u256, block_hash: Hash) -> Result<(), ByteArray> {
+pub fn validate_proof_of_work(target: u256, block_hash: Digest) -> Result<(), ByteArray> {
     if block_hash.into() <= target {
         Result::Ok(())
     } else {

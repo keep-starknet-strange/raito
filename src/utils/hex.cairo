@@ -1,5 +1,5 @@
 //! Hex helpers
-use raito::utils::hash::Hash;
+use raito::utils::hash::Digest;
 
 /// Get bytes from hex (base16)
 pub fn from_hex(hex_string: ByteArray) -> ByteArray {
@@ -36,8 +36,8 @@ pub fn to_hex(data: @ByteArray) -> ByteArray {
     result
 }
 
-// Get `Hash` form `ByteArray` reversed
-pub fn hex_to_hash_rev(hex_string: ByteArray) -> Hash {
+// Get `Digest` form `ByteArray` reversed
+pub fn hex_to_hash_rev(hex_string: ByteArray) -> Digest {
     let mut result: Array<u32> = array![];
     let mut i = 1;
     let mut unit: u32 = 0;
@@ -53,7 +53,7 @@ pub fn hex_to_hash_rev(hex_string: ByteArray) -> Hash {
         i += 2;
     };
     result.append(unit);
-    Hash {
+    Digest {
         value: [
             *result[0],
             *result[1],
@@ -86,7 +86,7 @@ fn hex_char_to_nibble(hex_char: u8) -> u8 {
 #[cfg(test)]
 mod tests {
     use super::{from_hex, to_hex, hex_to_hash_rev};
-    use raito::utils::hash::Hash;
+    use raito::utils::hash::Digest;
 
     #[test]
     fn test_bytes_from_hex() {
@@ -101,7 +101,7 @@ mod tests {
 
     #[test]
     fn test_hex_to_hash_rev() {
-        let hash: Hash = Hash {
+        let hash: Digest = Digest {
             value: [
                 0x12345678_u32,
                 0x9abcdef0_u32,

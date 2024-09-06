@@ -1,7 +1,7 @@
 //! Block validation helpers.
 
 use crate::types::transaction::{Transaction, TransactionTrait};
-use crate::utils::{hash::Hash, merkle_tree::merkle_root};
+use crate::utils::{hash::Digest, merkle_tree::merkle_root};
 use super::transaction::validate_transaction;
 
 /// Validates transactions and aggregates:
@@ -10,9 +10,9 @@ use super::transaction::validate_transaction;
 ///  - wTXID commitment (only for blocks after Segwit upgrade, otherwise return zero hash)
 pub fn fee_and_merkle_roots(
     txs: Span<Transaction>, block_height: u32, block_time: u32
-) -> Result<(u64, Hash, Hash), ByteArray> {
-    let mut txids: Array<Hash> = array![];
-    let mut wtxids: Array<Hash> = array![];
+) -> Result<(u64, Digest, Digest), ByteArray> {
+    let mut txids: Array<Digest> = array![];
+    let mut wtxids: Array<Digest> = array![];
     let mut total_fee = 0;
     let mut i = 0;
 

@@ -4,7 +4,7 @@
 //! Chain state alone is not enough to do full block validation, however
 //! it is sufficient to validate block headers.
 
-use crate::utils::hash::Hash;
+use crate::utils::hash::Digest;
 use crate::validation::{
     difficulty::{validate_bits, adjust_difficulty}, coinbase::validate_coinbase,
     timestamp::{validate_timestamp, next_prev_timestamps},
@@ -20,7 +20,7 @@ pub struct ChainState {
     /// Total work done.
     pub total_work: u256,
     /// Best block.
-    pub best_block_hash: Hash,
+    pub best_block_hash: Digest,
     /// Current target.
     pub current_target: u256,
     /// Start of the current epoch.
@@ -97,6 +97,6 @@ pub impl BlockValidatorImpl of BlockValidator {
         )
     }
 }
-// TODO: implement Hash trait for ChainState
+// TODO: implement Digest trait for ChainState
 
 

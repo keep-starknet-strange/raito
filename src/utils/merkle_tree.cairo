@@ -1,9 +1,9 @@
 //! Merkle tree helpers.
 
-use super::{sha256::double_sha256_parent, hash::Hash};
+use super::{sha256::double_sha256_parent, hash::Digest};
 
 /// Calculate Merkle tree root given the array of leaves.
-pub fn merkle_root(ref hashes: Array<Hash>) -> Hash {
+pub fn merkle_root(ref hashes: Array<Digest>) -> Digest {
     let len = hashes.len();
 
     if len == 1 {
@@ -17,7 +17,7 @@ pub fn merkle_root(ref hashes: Array<Hash>) -> Hash {
         assert!(*hashes[len - 1] != *hashes[len - 2], "unexpected node duplication in merkle tree");
     }
 
-    let mut next_hashes: Array<Hash> = array![];
+    let mut next_hashes: Array<Digest> = array![];
     let mut i = 0;
     while i < len {
         next_hashes.append(double_sha256_parent(hashes[i], hashes[i + 1]));
@@ -29,17 +29,17 @@ pub fn merkle_root(ref hashes: Array<Hash>) -> Hash {
 
 #[cfg(test)]
 mod tests {
-    use crate::utils::{hash::{Hash, U256IntoHash}, hex::hex_to_hash_rev};
+    use crate::utils::{hash::{Digest, U256IntoDigest}, hex::hex_to_hash_rev};
     use super::{merkle_root};
 
     #[test]
     #[available_gas(100000000)]
     fn test_merkle_root_01() {
-        let mut txids: Array<Hash> = array![
+        let mut txids: Array<Digest> = array![
             hex_to_hash_rev("acd9825be8bece7782ec746a80b52f44d6a8af41c63dbab59b03e29558469682"),
         ];
 
-        let expected_merkle_root: Hash = hex_to_hash_rev(
+        let expected_merkle_root: Digest = hex_to_hash_rev(
             "acd9825be8bece7782ec746a80b52f44d6a8af41c63dbab59b03e29558469682"
         );
 
@@ -49,12 +49,12 @@ mod tests {
     #[test]
     #[available_gas(100000000)]
     fn test_merkle_root_block170() {
-        let mut txids: Array<Hash> = array![
+        let mut txids: Array<Digest> = array![
             hex_to_hash_rev("b1fea52486ce0c62bb442b530a3f0132b826c74e473d1f2c220bfa78111c5082"),
             hex_to_hash_rev("f4184fc596403b9d638783cf57adfe4c75c605f6356fbc91338530e9831e9e16"),
         ];
 
-        let expected_merkle_root: Hash = hex_to_hash_rev(
+        let expected_merkle_root: Digest = hex_to_hash_rev(
             "7dac2c5666815c17a3b36427de37bb9d2e2c5ccec3f8633eb91a4205cb4c10ff"
         );
 
@@ -64,12 +64,12 @@ mod tests {
     #[test]
     #[available_gas(100000000)]
     fn test_merkle_root_02() {
-        let mut txids: Array<Hash> = array![
+        let mut txids: Array<Digest> = array![
             hex_to_hash_rev("e053890989b3418307f9e77c2fbe59eae07a0e27d5e3bca27296369a81b21087"),
             hex_to_hash_rev("49fd43f64e3b91b2a51cae62ba8c2d5cebcf31bb31b0da9c5631353f3adeef64"),
         ];
 
-        let expected_merkle_root: Hash = hex_to_hash_rev(
+        let expected_merkle_root: Digest = hex_to_hash_rev(
             "035dff4bfc62ff255ddac842dd31be4d28756b3625b0c4fecade7011f8dada20"
         );
 
@@ -79,13 +79,13 @@ mod tests {
     #[test]
     #[available_gas(100000000)]
     fn test_merkle_root_03() {
-        let mut txids: Array<Hash> = array![
+        let mut txids: Array<Digest> = array![
             hex_to_hash_rev("5aa99d53575d34a8fe9324820606d90563ab37f246182911314df1e2570d6c80"),
             hex_to_hash_rev("9367940d1975aa9cc83f8118448ad94b6081e12ed0f7c968e375b2a283e78910"),
             hex_to_hash_rev("b5f969b3d098c6ac87bb976eb0983259edb294892872d0aba0d47e66e1a5236f")
         ];
 
-        let expected_merkle_root: Hash = hex_to_hash_rev(
+        let expected_merkle_root: Digest = hex_to_hash_rev(
             "222ae86adb1f65c0458f53f4c4c5d70966e12f122ef00bfdf2eac04022865013"
         );
 
@@ -133,7 +133,7 @@ mod tests {
             hex_to_hash_rev("9718fba7b85d5f1a0e1bcee140bcc4b11faeabf3e0e38ce7f69b327803e1b65b"),
         ];
 
-        let expected_merkle_root: Hash = hex_to_hash_rev(
+        let expected_merkle_root: Digest = hex_to_hash_rev(
             "af77d9974359ae0699e62990b300d1e4663d03996176528bfa92aa24a65a45e1"
         );
 
@@ -180,7 +180,7 @@ mod tests {
             hex_to_hash_rev("6043970d6bf5005dd88bcf075163792a195284d25349a9c9cfeaf68349df5259"),
         ];
 
-        let expected_merkle_root: Hash = hex_to_hash_rev(
+        let expected_merkle_root: Digest = hex_to_hash_rev(
             "c78e335cb8908ecda32ff5dd44e9985099572692761f7809a400f60ec58d452c"
         );
 

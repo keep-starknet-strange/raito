@@ -2,7 +2,7 @@
 //!
 //! The data is expected to be prepared in advance and passed as program arguments.
 
-use crate::utils::hash::Hash;
+use crate::utils::hash::Digest;
 use crate::utils::sha256::double_sha256_u32_array;
 use crate::utils::numeric::u32_byte_reverse;
 use super::transaction::Transaction;
@@ -21,7 +21,7 @@ pub struct Block {
 pub enum TransactionData {
     /// Merkle root of all transactions in the block.
     /// This variant is used for header-only validation mode (light client).
-    MerkleRoot: Hash,
+    MerkleRoot: Digest,
     /// List of all transactions included in the block.
     /// This variant is used for the full consensus validation mode.
     Transactions: Span<Transaction>,
@@ -54,7 +54,7 @@ pub struct Header {
 #[generate_trait]
 pub impl BlockHashImpl of BlockHash {
     /// Compute hash of the block header given the missing fields.
-    fn hash(self: @Header, prev_block_hash: Hash, merkle_root: Hash) -> Hash {
+    fn hash(self: @Header, prev_block_hash: Digest, merkle_root: Digest) -> Digest {
         let mut header_data_u32: Array<u32> = array![];
 
         header_data_u32.append(u32_byte_reverse(*self.version));
@@ -80,7 +80,7 @@ pub impl TransactionDataDefault of Default<TransactionData> {
 mod tests {
     use super::{Header, BlockHash};
     use raito::types::chain_state::ChainState;
-    use raito::utils::hash::Hash;
+    use raito::utils::hash::Digest;
 
     #[test]
     fn test_block_hash() {
@@ -93,14 +93,14 @@ mod tests {
         let header = Header {
             version: 1_u32, time: 1231731025_u32, bits: 0x1d00ffff_u32, nonce: 1889418792_u32
         };
-        let merkle_root: Hash =
+        let merkle_root: Digest =
             0x7dac2c5666815c17a3b36427de37bb9d2e2c5ccec3f8633eb91a4205cb4c10ff_u256
             .into();
 
-        let block_hash_result: Hash = header.hash(chain_state.best_block_hash, merkle_root);
+        let block_hash_result: Digest = header.hash(chain_state.best_block_hash, merkle_root);
 
         //0x00000000d1145790a8694403d4063f323d499e655c83426834d4ce2f8dd4a2ee
-        let expected_block_hash: Hash =
+        let expected_block_hash: Digest =
             0x00000000d1145790a8694403d4063f323d499e655c83426834d4ce2f8dd4a2ee_u256
             .into();
 
@@ -118,13 +118,13 @@ mod tests {
         let header = Header {
             version: 1_u32, time: 1231731025_u32, bits: 0x1d00ffff_u32, nonce: 1889418792_u32
         };
-        let merkle_root: Hash =
+        let merkle_root: Digest =
             0x6dac2c5666815c17a3b36427de37bb9d2e2c5ccec3f8633eb91a4205cb4c10ff_u256
             .into();
 
-        let block_hash_result: Hash = header.hash(chain_state.best_block_hash, merkle_root);
+        let block_hash_result: Digest = header.hash(chain_state.best_block_hash, merkle_root);
 
-        let expected_block_hash: Hash =
+        let expected_block_hash: Digest =
             0x00000000d1145790a8694403d4063f323d499e655c83426834d4ce2f8dd4a2ee_u256
             .into();
 
@@ -142,13 +142,13 @@ mod tests {
         let header = Header {
             version: 1_u32, time: 1231731025_u32, bits: 0x1d00ffff_u32, nonce: 1889418792_u32
         };
-        let merkle_root: Hash =
+        let merkle_root: Digest =
             0x7dac2c5666815c17a3b36427de37bb9d2e2c5ccec3f8633eb91a4205cb4c10ff_u256
             .into();
 
-        let block_hash_result: Hash = header.hash(chain_state.best_block_hash, merkle_root);
+        let block_hash_result: Digest = header.hash(chain_state.best_block_hash, merkle_root);
 
-        let expected_block_hash: Hash =
+        let expected_block_hash: Digest =
             0x00000000d1145790a8694403d4063f323d499e655c83426834d4ce2f8dd4a2ee_u256
             .into();
 

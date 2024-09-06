@@ -3,7 +3,7 @@
 //! Types are extended with extra information required for validation.
 //! The data is expected to be prepared in advance and passed as program arguments.
 
-use crate::utils::{hash::Hash, sha256::double_sha256_byte_array};
+use crate::utils::{hash::Digest, sha256::double_sha256_byte_array};
 use crate::codec::{Encode, TransactionCodec};
 
 /// Represents a transaction.
@@ -80,7 +80,7 @@ pub struct TxIn {
 #[derive(Drop, Copy, Debug, PartialEq, Serde)]
 pub struct OutPoint {
     /// The hash of the referenced transaction.
-    pub txid: Hash,
+    pub txid: Digest,
     /// The index of the specific output in the transaction.
     pub vout: u32,
     /// Referenced output data (meta field).
@@ -151,19 +151,20 @@ pub impl TransactionImpl of TransactionTrait {
     ///
     /// NOTE: marker, flag, and witness fields in segwit transactions are not included
     /// this means txid computation is the same for legacy and segwit tx
-    fn txid(self: @Transaction) -> Hash {
+    fn txid(self: @Transaction) -> Digest {
         double_sha256_byte_array(@(self.encode()))
     }
 
     /// Compute transaction wTXID
     /// https://learnmeabitcoin.com/technical/transaction/wtxid/
-    fn wtxid(self: @Transaction) -> Hash {
+    fn wtxid(self: @Transaction) -> Digest {
         double_sha256_byte_array(@(self.encode_with_witness()))
     }
 }
 
-// TODO: implement Hash trait for OutPoint (for creating hash digests to use in utreexo/utxo cache)
-// Maybe we need to rename utils::hash::Hash (e.g. to Digest) to avoid confusion
+// TODO: implement Digest trait for OutPoint (for creating hash digests to use in utreexo/utxo
+// cache)
+// Maybe we need to rename utils::hash::Digest (e.g. to Digest) to avoid confusion
 
 #[cfg(test)]
 mod tests {
