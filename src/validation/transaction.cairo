@@ -10,6 +10,9 @@ const SEQUENCE_FINAL: u32 = 0xffffffff;
 // otherwise as UNIX timestamp.
 const LOCKTIME_THRESHOLD: u32 = 500000000; // Tue Nov  5 00:53:20 1985 UTC
 
+// 0x80000000 mask is used to determine if it is time-based (bit 31)
+const LOCKTIME_MASK: u32 = 0x80000000;
+
 /// Validate transaction and return transaction fee.
 ///
 /// This does not include script checks and outpoint inclusion verification.
@@ -134,6 +137,52 @@ pub fn validate_absolute_locktime(
         };
     check_threshold_result
 }
+
+pub fn validate_relative_locktime(
+    tx: @Transaction, block_height: u32, block_time: u32
+) -> Result<(), ByteArray> {
+    let mut check_threshold_result: Result<(), ByteArray> = Result::Ok(());
+    for input in *tx
+        .inputs {
+            let sequence = *input.sequence;
+            let relative_locktime = sequence & 0xFFFF;
+            //  If bit 22 (0x00400000) is set, relative locktime is in seconds (time-based), else
+            //  block-based
+            let is_time_based = (sequence & LOCKTIME_MASK) != 0;
+            if is_time_based {
+                // Time-based relative locktime (512 seconds per unit)
+                let locktime_in_seconds = relative_locktime * 512;
+                if block_time < locktime_in_seconds {
+                    check_threshold_result =
+                        Result::Err(
+                            format!(
+                                "[validate_input] Transaction is not yet valid due to relative time-based locktime. Current time: {}, Required: {} seconds",
+                                block_time,
+                                locktime_in_seconds
+                            )
+                        );
+                    break;
+                }
+            } else {
+                // Block-based relative locktime
+                let locktime_in_blocks = relative_locktime;
+                if block_height < locktime_in_blocks {
+                    check_threshold_result =
+                        Result::Err(
+                            format!(
+                                "[validate_input] Transaction is not yet valid due to relative block-based locktime. Current block: {}, Required: {}",
+                                block_height,
+                                locktime_in_blocks
+                            )
+                        );
+                    break;
+                }
+            };
+        };
+    // Return success if all validations passed
+    check_threshold_result
+}
+
 
 #[cfg(test)]
 mod tests {
