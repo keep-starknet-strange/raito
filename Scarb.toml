@@ -6,7 +6,7 @@ edition = "2024_07"
 [scripts]
 regenerate_tests= "./scripts/data/regenerate_tests.sh"
 integration_tests = "scarb build && ./scripts/data/integration_tests.sh"
-light_client= "scarb build && ./scripts/data/light_client.sh"
+client= "scarb build && ./scripts/data/client.sh"
 test = "scarb cairo-test && scarb run integration_tests"
 
 [dependencies]

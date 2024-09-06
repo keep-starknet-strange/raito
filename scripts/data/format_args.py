@@ -110,7 +110,7 @@ def format_args():
         raise TypeError("Expected single argument")
     args = json.loads(Path(sys.argv[1]).read_text())
     res = flatten_tuples(serialize(args))
-    print([res])
+    print([format_cairo1_run(res)])
 
 
 if __name__ == '__main__':
