@@ -98,7 +98,9 @@ pub fn validate_transaction(
     Result::Ok(tx_fee)
 }
 
-pub fn validate_absolute_locktime(tx: @Transaction, block_height: u32, block_time: u32) -> Result<(), ByteArray> {
+pub fn validate_absolute_locktime(
+    tx: @Transaction, block_height: u32, block_time: u32
+) -> Result<(), ByteArray> {
     if *tx.lock_time < LOCKTIME_THRESHOLD && *tx.lock_time < block_height {
         return Result::Ok(());
     };
