@@ -275,6 +275,51 @@ mod tests {
         assert!(result.is_ok());
     }
 
+    #[test]
+    fn test_relative_locktime_enabled_block_time() {
+        let tx = Transaction {
+            version: 1,
+            is_segwit: false,
+            inputs: array![
+                TxIn {
+                    script: @from_hex(""),
+                    sequence: 0x0040000A, // Relative locktime enabled, time-based (10 * 512 seconds)
+                    previous_output: OutPoint {
+                        txid: hex_to_hash_rev(
+                            "0000000000000000000000000000000000000000000000000000000000000000"
+                        ),
+                        vout: 0,
+                        data: TxOut { value: 100, ..Default::default() },
+                        block_height: 100,
+                        block_time: 1600000000, // Time at which the UTXO was created
+                        is_coinbase: false,
+                    },
+                    witness: array![].span(),
+                }
+            ]
+                .span(),
+            outputs: array![
+                TxOut {
+                    value: 50,
+                    pk_script: @from_hex("76a914000000000000000000000000000000000000000088ac"),
+                    cached: false,
+                }
+            ]
+                .span(),
+            lock_time: 0
+        };
+
+        // Relative locktime requires 10 * 512 seconds = 5120 seconds after UTXO block_time
+        let required_block_time = 1600000000 + 5120;
+
+        // Current block time meets or exceeds the required locktime
+        // So the transaction should be valid
+        let result = validate_relative_locktime(
+            @tx, 0, 100, 1600005120
+        ); // 1600005120 == 1600005120
+        assert!(result.is_ok());
+    }
+
 
     #[test]
     fn test_tx_fee() {
