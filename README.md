@@ -158,10 +158,11 @@ scarb run integration_tests tests/data/light_481823.json
 Re-generate integration test data:
 
 ```base
-scarb run regenerate_tests
+scarb run regenerate_tests --force
 ```
 
-* Files will be created in [tests/data/](https://github.com/keep-starknet-strange/raito/blob/main/tests/data)
+* Without `--force` flag only non-existent files will be created
+* Files are located in [tests/data/](https://github.com/keep-starknet-strange/raito/blob/main/tests/data)
 * If you want to add a new test case, edit [scripts/data/regenerate_tests.sh](https://github.com/keep-starknet-strange/raito/blob/main/scripts/data/regenerate_tests.sh)
 
 ## Build dependencies

@@ -10,7 +10,6 @@ pub fn u32_byte_reverse(word: u32) -> u32 {
     return byte0 + byte1 + byte2 + byte3;
 }
 
-
 #[cfg(test)]
 mod tests {
     use super::u32_byte_reverse;

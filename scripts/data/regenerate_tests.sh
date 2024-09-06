@@ -8,7 +8,13 @@ then
   export $(cat .env | xargs)
 fi
 
-test_cases=(
+force=0
+
+if [[ "$1" == "--force" ]]; then
+  force=1
+fi
+
+light_test_cases=(
     169     # Block containing first P2P tx to Hal Finney (170)
     24834   # Block containing first off ramp tx from Martti Malmi (24835)
     57042   # Block containing pizza tx (57043)
@@ -25,13 +31,29 @@ test_cases=(
     839999  # Fourth halving block (840000)
 )
 
+full_test_cases=(
+    169     # Block containing first P2P tx to Hal Finney (170)
+    757738  # Block with witness (757739)
+)
+
 mkdir tests/data || true
 
-# Loop through the test cases and generate data
-for test_case in "${test_cases[@]}"; do
+# Generate test file if it does not exist yet or if "force" flag is set
+generate_test() {
+  local mode=$1
+  local height=$2
+  test_file="tests/data/${mode}_${test_case}.json"
+  if [[ ! -f "$test_file" || $force -eq 1 ]]; then
+    python scripts/data/generate_data.py $mode $height 1 true $test_file
+  fi
+}
+
+for test_case in "${light_test_cases[@]}"; do
     echo "Generating test data: light mode, chain state @ $test_case, single block"
-    python scripts/data/generate_data.py "light" $test_case 1 true tests/data/light_${test_case}.json
+    generate_test "light" $test_case
 done
 
-# TODO: generate more full blocks
-python scripts/data/generate_data.py "full" $test_case 1 true tests/data/full_169.json
+for test_case in "${full_test_cases[@]}"; do
+    echo "Generating test data: full mode, chain state @ $test_case, single block"
+    generate_test "full" $test_case
+done

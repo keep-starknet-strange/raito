@@ -8,7 +8,7 @@ use crate::utils::numeric::u32_byte_reverse;
 use super::transaction::Transaction;
 
 /// Represents a block in the blockchain.
-#[derive(Drop, Copy, Debug, PartialEq, Default)]
+#[derive(Drop, Copy, Debug, PartialEq, Default, Serde)]
 pub struct Block {
     /// Block header.
     pub header: Header,
@@ -17,7 +17,7 @@ pub struct Block {
 }
 
 /// Represents block contents.
-#[derive(Drop, Copy, Debug, PartialEq)]
+#[derive(Drop, Copy, Debug, PartialEq, Serde)]
 pub enum TransactionData {
     /// Merkle root of all transactions in the block.
     /// This variant is used for header-only validation mode (light client).
@@ -37,7 +37,7 @@ pub enum TransactionData {
 /// In order to do the calculation we just need data about the block that is strictly necessary,
 /// but not the data we can calculate like merkle root or data that we already have
 /// like previous_block_hash (in the previous chain state).
-#[derive(Drop, Copy, Debug, PartialEq, Default)]
+#[derive(Drop, Copy, Debug, PartialEq, Default, Serde)]
 pub struct Header {
     /// The version of the block.
     pub version: u32,

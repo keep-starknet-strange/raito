@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
 set -e;
-set -o pipefail;
 
 GREEN='\033[0;32m'
 RED='\033[1;31m'
@@ -13,11 +12,10 @@ num_ignored=0
 failures=()
 test_files="tests/data"/*
 
-# TODO: fix bugs
 ignored_files=(
     "tests/data/light_481823.json"
     "tests/data/light_709631.json"
-    "tests/data/full_169.json"
+    "tests/data/full_757738.json"
 )
 ignored="${ignored_files[@]}"
 
@@ -41,11 +39,16 @@ for test_file in $test_files; do
             if [[ "$output" == *"OK"* ]]; then
                 echo -e "${GREEN} ok ${RESET}(gas usage est.: $gas_spent)"
                 num_ok=$((num_ok + 1))
-            else
+            elif [[ "$output" == *"FAIL"* ]]; then
                 echo -e "${RED} fail ${RESET}(gas usage est.: $gas_spent)"
                 num_fail=$((num_fail + 1))
                 error=$(echo $output | grep -o "error='[^']*'" | sed "s/error=//")
                 failures+="\te2e:$test_file — Panicked with $error\n"
+            else
+                echo -e "${RED} fail ${RESET}(gas usage est.: 0)"
+                num_fail=$((num_fail + 1))
+                error=$(echo "$output" | sed '1d')
+                failures+="\te2e:$test_file — $error\n"
             fi
         fi
     fi
