@@ -1,6 +1,6 @@
 //! Transaction validation helpers.
 
-use crate::types::transaction::{Transaction, TransactionTrait};
+use crate::types::transaction::{Transaction};
 
 // Setting sequence to this value for every input in a transaction
 // disables the locktime feature
@@ -22,9 +22,6 @@ pub fn validate_transaction(
     //      - Output values are within the range [0, 21M]
     //      - Total output value is within the range [0, 21M]
     //      - Transaction fee is in the range [0, 21M]
-    //      - Tranaction weight is less than the max block weight (consider adding a weight method
-    //      to the Encode trait)
-    //        read more https://learnmeabitcoin.com/technical/transaction/size/
     //      - Transaction is final (check timelock and input sequences)
     //      - Coinbase is mature (if some input spends coinbase tx from the past)
     //
@@ -59,10 +56,9 @@ pub fn validate_transaction(
                     maturity_result =
                         Option::Some(
                             format!(
-                                "[validate_transaction] coinbase input: ({}, {}) of tx: {} not mature (current height: {}, coinbase height: {})",
+                                "[validate_transaction] coinbase input: ({}, {}) not mature (current height: {}, coinbase height: {})",
                                 *input.previous_output.txid,
                                 *input.previous_output.vout,
-                                tx.txid(),
                                 block_height,
                                 coinbase_block_height
                             )
@@ -178,7 +174,6 @@ mod tests {
                 .span(),
             lock_time: 0
         };
-
         assert!(validate_transaction(@tx, 0, 0).is_err());
 
         let fee = validate_transaction(@tx, 101, 0).unwrap();
@@ -284,7 +279,6 @@ mod tests {
         // Transaction should be valid when current block height is equal to or greater than
         // locktime
         let result = validate_transaction(@tx, 500001, 0);
-        println!("{:?}", result);
         assert!(result.is_ok());
     }
 
