@@ -13,7 +13,6 @@ pub mod validation {
     pub mod coinbase;
     pub mod timestamp;
     pub mod transaction;
-    pub mod relative_lock_time;
     pub mod work;
     pub mod block;
 }
