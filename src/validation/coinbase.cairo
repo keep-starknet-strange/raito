@@ -5,6 +5,8 @@
 use crate::types::transaction::Transaction;
 use crate::utils::{bit_shifts::shr, hash::Hash};
 
+const BIP_141_BLOCK_HEIGHT: u32 = 481_824;
+
 /// Validates coinbase transaction.
 pub fn validate_coinbase(
     tx: @Transaction, total_fees: u64, block_height: u32, _wtxid_commitment: Hash,
@@ -31,7 +33,17 @@ pub fn validate_coinbase(
     assert(total_output_amount <= total_fees + block_reward, 'total output > block rwd + fees');
 
     // TODO: validate BIP-34 sig script
-    // TODO: validate BIP-141 witness field
+
+    // validate BIP-141 witness field
+    if block_height >= BIP_141_BLOCK_HEIGHT {
+        let witness = tx.inputs[0].witness[0];
+
+        // check witness value
+        if witness != @"\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0" {
+            return Result::Err("Wrong coinbase witness");
+        }
+    }
+
     // TODO: validate BIP-141 segwit output
 
     Result::Ok(())
@@ -259,7 +271,10 @@ mod tests {
                         block_time: Default::default(),
                         is_coinbase: false,
                     },
-                    witness: array![].span(),
+                    witness: array![
+                        from_hex("0000000000000000000000000000000000000000000000000000000000000000")
+                    ]
+                        .span(),
                 }
             ]
                 .span(),
@@ -312,6 +327,178 @@ mod tests {
 
         let total_fees = 0_u64;
         let block_height = 170;
+
+        validate_coinbase(@tx, total_fees, block_height, Default::default()).unwrap();
+    }
+
+    #[test]
+    fn test_validate_coinbase_witness_with_less_than_32_bytes() {
+        let tx = Transaction {
+            version: 1,
+            is_segwit: false,
+            inputs: array![
+                TxIn {
+                    script: @from_hex("04ffff001d0102"),
+                    sequence: 4294967295,
+                    previous_output: OutPoint {
+                        txid: 0x0_u256.into(),
+                        vout: 0xffffffff_u32,
+                        data: Default::default(),
+                        block_height: Default::default(),
+                        block_time: Default::default(),
+                        is_coinbase: false,
+                    },
+                    witness: array![from_hex("")].span(),
+                }
+            ]
+                .span(),
+            outputs: array![
+                TxOut {
+                    value: 0_u64,
+                    pk_script: @from_hex(
+                        "4104d46c4968bde02899d2aa0963367c7a6ce34eec332b32e42e5f3407e052d64ac625da6f0718e7b302140434bd725706957c092db53805b821a85b23a7ac61725bac"
+                    ),
+                    cached: false,
+                }
+            ]
+                .span(),
+            lock_time: 0
+        };
+
+        let total_fees = 0_u64;
+        let block_height = 500_000;
+
+        validate_coinbase(@tx, total_fees, block_height, Default::default()).unwrap_err();
+    }
+
+    #[test]
+    fn test_validate_coinbase_witness_with_more_than_one_element() {
+        let tx = Transaction {
+            version: 1,
+            is_segwit: false,
+            inputs: array![
+                TxIn {
+                    script: @from_hex("04ffff001d0102"),
+                    sequence: 4294967295,
+                    previous_output: OutPoint {
+                        txid: 0x0_u256.into(),
+                        vout: 0xffffffff_u32,
+                        data: Default::default(),
+                        block_height: Default::default(),
+                        block_time: Default::default(),
+                        is_coinbase: false,
+                    },
+                    witness: array![
+                        from_hex(
+                            "400d00000000e000000000000000000000000e00000000000000000000000000"
+                        ),
+                        from_hex("0000000000000000000000000000000000000000000000000000000000000000")
+                    ]
+                        .span(),
+                }
+            ]
+                .span(),
+            outputs: array![
+                TxOut {
+                    value: 0_u64,
+                    pk_script: @from_hex(
+                        "4104d46c4968bde02899d2aa0963367c7a6ce34eec332b32e42e5f3407e052d64ac625da6f0718e7b302140434bd725706957c092db53805b821a85b23a7ac61725bac"
+                    ),
+                    cached: false,
+                }
+            ]
+                .span(),
+            lock_time: 0
+        };
+
+        let total_fees = 0_u64;
+        let block_height = 500_000;
+
+        validate_coinbase(@tx, total_fees, block_height, Default::default()).unwrap_err();
+    }
+
+    #[test]
+    fn test_validate_coinbase_witness_with_wrong_witness() {
+        let tx = Transaction {
+            version: 1,
+            is_segwit: false,
+            inputs: array![
+                TxIn {
+                    script: @from_hex("04ffff001d0102"),
+                    sequence: 4294967295,
+                    previous_output: OutPoint {
+                        txid: 0x0_u256.into(),
+                        vout: 0xffffffff_u32,
+                        data: Default::default(),
+                        block_height: Default::default(),
+                        block_time: Default::default(),
+                        is_coinbase: false,
+                    },
+                    witness: array![
+                        from_hex("400d00000000e000000000000000000000000e00000000000000000000000000")
+                    ]
+                        .span(),
+                }
+            ]
+                .span(),
+            outputs: array![
+                TxOut {
+                    value: 0_u64,
+                    pk_script: @from_hex(
+                        "4104d46c4968bde02899d2aa0963367c7a6ce34eec332b32e42e5f3407e052d64ac625da6f0718e7b302140434bd725706957c092db53805b821a85b23a7ac61725bac"
+                    ),
+                    cached: false,
+                }
+            ]
+                .span(),
+            lock_time: 0
+        };
+
+        let total_fees = 0_u64;
+        let block_height = 500_000;
+
+        validate_coinbase(@tx, total_fees, block_height, Default::default()).unwrap_err();
+    }
+
+    #[test]
+    fn test_validate_coinbase_witness() {
+        let tx = Transaction {
+            version: 1,
+            is_segwit: false,
+            inputs: array![
+                TxIn {
+                    script: @from_hex("04ffff001d0102"),
+                    sequence: 4294967295,
+                    previous_output: OutPoint {
+                        txid: 0x0_u256.into(),
+                        vout: 0xffffffff_u32,
+                        data: Default::default(),
+                        block_height: Default::default(),
+                        block_time: Default::default(),
+                        is_coinbase: false,
+                    },
+                    witness: array![
+                        from_hex("0000000000000000000000000000000000000000000000000000000000000000")
+                    ]
+                        .span(),
+                }
+            ]
+                .span(),
+            outputs: array![
+                TxOut {
+                    value: 0_u64,
+                    pk_script: @from_hex(
+                        "4104d46c4968bde02899d2aa0963367c7a6ce34eec332b32e42e5f3407e052d64ac625da6f0718e7b302140434bd725706957c092db53805b821a85b23a7ac61725bac"
+                    ),
+                    cached: false,
+                }
+            ]
+                .span(),
+            lock_time: 0
+        };
+
+        let total_fees = 0_u64;
+        let block_height = 500_000;
 
         validate_coinbase(@tx, total_fees, block_height, Default::default()).unwrap();
     }
