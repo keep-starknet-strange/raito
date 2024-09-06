@@ -4,6 +4,8 @@ pub mod utils {
     pub mod bit_shifts;
     pub mod merkle_tree;
     pub mod numeric;
+
+    #[cfg(target: 'test')]
     pub mod hex;
 }
 pub mod validation {
