@@ -235,6 +235,46 @@ mod tests {
         assert!(result.is_ok());
     }
 
+    #[test]
+    fn test_relative_locktime_enabled_block_height() {
+        let tx = Transaction {
+            version: 1,
+            is_segwit: false,
+            inputs: array![
+                TxIn {
+                    script: @from_hex(""),
+                    sequence: 10, // Relative locktime enabled, 10 blocks
+                    previous_output: OutPoint {
+                        txid: hex_to_hash_rev(
+                            "0000000000000000000000000000000000000000000000000000000000000000"
+                        ),
+                        vout: 0,
+                        data: TxOut { value: 100, ..Default::default() },
+                        block_height: 100, // The block height at which the UTXO was created
+                        block_time: 1600000000,
+                        is_coinbase: false,
+                    },
+                    witness: array![].span(),
+                }
+            ]
+                .span(),
+            outputs: array![
+                TxOut {
+                    value: 50,
+                    pk_script: @from_hex("76a914000000000000000000000000000000000000000088ac"),
+                    cached: false,
+                }
+            ]
+                .span(),
+            lock_time: 0
+        };
+
+        // UTXO block height + relative locktime = 100 + 10 = 110
+        // So at block height 110 or higher, the transaction should be valid
+        let result = validate_relative_locktime(@tx, 0, 110, 1600000000);
+        assert!(result.is_ok());
+    }
+
 
     #[test]
     fn test_tx_fee() {
