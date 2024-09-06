@@ -149,12 +149,12 @@ pub fn validate_relative_locktime(
     // BIP-68 relative locktime calculation
     let sequence = tx_input.sequence;
     // 0x80000000 mask is used to determine if it is time-based (bit 31)
-    let locktime_mask = 0x80000000;
+    //  let locktime_mask = 0x80000000;
     let relative_locktime = sequence & 0xFFFF;
 
     //  If bit 22 (0x00400000) is set, relative locktime is in seconds (time-based), else
     //  block-based
-    let is_time_based = (sequence & locktime_mask) != 0;
+    let is_time_based = (sequence & LOCKTIME_MASK) != 0;
     if is_time_based {
         // Time-based relative locktime (512 seconds per unit)
         let locktime_in_seconds = relative_locktime * 512;
@@ -189,7 +189,52 @@ pub fn validate_relative_locktime(
 mod tests {
     use crate::types::transaction::{Transaction, TxIn, TxOut, OutPoint};
     use crate::utils::hex::{from_hex, hex_to_hash_rev};
-    use super::{validate_transaction};
+    use super::{validate_transaction, validate_relative_locktime};
+
+    #[test]
+    fn test_relative_locktime_disabled() {
+        let tx = Transaction {
+            version: 1,
+            is_segwit: false,
+            inputs: array![
+                TxIn {
+                    script: @from_hex(""),
+                    sequence: 0xffffffff, // final, relative locktime disabled
+                    previous_output: OutPoint {
+                        txid: hex_to_hash_rev(
+                            "0000000000000000000000000000000000000000000000000000000000000000"
+                        ),
+                        vout: 0,
+                        data: TxOut { value: 100, ..Default::default() },
+                        block_height: Default::default(),
+                        block_time: Default::default(),
+                        is_coinbase: false,
+                    },
+                    witness: array![].span(),
+                }
+            ]
+                .span(),
+            outputs: array![
+                TxOut {
+                    value: 50,
+                    pk_script: @from_hex("76a914000000000000000000000000000000000000000088ac"),
+                    cached: false,
+                }
+            ]
+                .span(),
+            lock_time: 1600000000 // UNIX timestamp locktime
+        };
+
+        // Relative locktime should be ignored when sequence is 0xFFFFFFFF
+        // Case 1: Current block time less than locktime, but it should be valid
+        let result = validate_relative_locktime(@tx, 0, 0, 1600000000);
+        assert!(result.is_ok());
+
+        // Case 2: Current block time greater than locktime, still valid
+        let result = validate_relative_locktime(@tx, 0, 0, 1600000001);
+        assert!(result.is_ok());
+    }
+
 
     #[test]
     fn test_tx_fee() {
