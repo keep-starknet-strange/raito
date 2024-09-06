@@ -8,37 +8,43 @@ pub fn validate_input(
     // Get the input we are validating
     let tx_input = *tx.inputs[input_index];
 
-    // Check if the input has a relative locktime set (sequence number < 0xFFFFFFFF).
-    // In Bitcoin, 0xFFFFFFFF sequence means the input is not subject to locktime.
-    if tx_input.sequence < 0xFFFFFFFF {
-        // Check if the locktime is based on block height or block time.
-        // If the transaction lock_time is below 500 million, it's a block height lock,
-        // otherwise it's a block time lock.
-        let locktime_threshold = 500_000_000;
-        let locktime = *tx.lock_time;
+    // If nSequence is set to 0xFFFFFFFF, it is not subject to relative locktime
+    if tx_input.sequence == 0xFFFFFFFF {
+        return Result::Ok(());
+    }
 
-        // Check if locktime is based on block height
-        if locktime < locktime_threshold {
-            if block_height < locktime {
-                return Result::Err(
-                    format!(
-                        "[validate_input] Transaction is not yet valid due to block height. Current: {}, Required: {}",
-                        block_height,
-                        locktime
-                    )
-                );
-            }
-        } else {
-            // Check if locktime is based on block time
-            if block_time < locktime {
-                return Result::Err(
-                    format!(
-                        "[validate_input] Transaction is not yet valid due to block time. Current: {}, Required: {}",
-                        block_time,
-                        locktime
-                    )
-                );
-            }
+    // BIP-68 relative locktime calculation
+    let sequence = tx_input.sequence;
+    // 0x80000000 mask is used to determine if it is time-based (bit 31)
+    let locktime_mask = 0x80000000;
+    let relative_locktime = sequence & 0xFFFF;
+
+    //  If bit 22 (0x00400000) is set, relative locktime is in seconds (time-based), else
+    //  block-based
+    let is_time_based = (sequence & locktime_mask) != 0;
+    if is_time_based {
+        // Time-based relative locktime (512 seconds per unit)
+        let locktime_in_seconds = relative_locktime * 512;
+        if block_time < locktime_in_seconds {
+            return Result::Err(
+                format!(
+                    "[validate_input] Transaction is not yet valid due to relative time-based locktime. Current time: {}, Required: {} seconds",
+                    block_time,
+                    locktime_in_seconds
+                )
+            );
+        }
+    } else {
+        // Block-based relative locktime
+        let locktime_in_blocks = relative_locktime;
+        if block_height < locktime_in_blocks {
+            return Result::Err(
+                format!(
+                    "[validate_input] Transaction is not yet valid due to relative block-based locktime. Current block: {}, Required: {}",
+                    block_height,
+                    locktime_in_blocks
+                )
+            );
         }
     }
 
