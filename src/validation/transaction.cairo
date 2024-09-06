@@ -129,6 +129,7 @@ pub fn validate_absolute_locktime(
                             )
                         }
                     );
+                    break;
             };
         };
     check_threshold_result
