@@ -88,9 +88,9 @@ pub impl TransactionCodecImpl of TransactionCodec {
     /// Reencode transaction with witness fields (for computing wtxid) given the legacy encoded
     /// bytes.
     /// We use this method to avoid double serialization.
-    fn encode_with_witness(self: @Transaction, legacy_bytes: @ByteArray) -> @ByteArray {
+    fn encode_with_witness(self: @Transaction, legacy_bytes: @ByteArray) -> ByteArray {
         if !*self.is_segwit {
-            return legacy_bytes;
+            return legacy_bytes.clone();
         }
 
         let mut dest: ByteArray = Default::default();
@@ -108,7 +108,7 @@ pub impl TransactionCodecImpl of TransactionCodec {
         };
         self.lock_time.encode_to(ref dest);
 
-        @dest
+        dest
     }
 }
 
@@ -378,7 +378,7 @@ mod tests {
             "0100000003a763b772966d9f580120455fe8fe264fe40f10461633f02a32b22b117654a7b8000000008c493046022100838b5bd094d57898d359569af330312e2dd99f8a1db7add92dc1704808625dbf022100978160771ea1e3ffe014e1fa7559f0bb5ffd32f6b63f19225bf3be110c2f2d65014104c273b18442afb2263698a09da205bb7a18f23037f9c285fc789874fe012ac32b40a18f12191a0015f2506b5a395d9845005b90a34a813715e9cc5dbf8024ca18ffffffff973a4e2f628a56b88051e65dc78fa70c41372ad79cd32f911c95a18f905eeda7010000008b48304502200b2ff9ed1689c9403b4bf0aca89fa4a53004c2c6ad66b4df25ae8361eef172cc022100c8f5fcd4eeb02762d9b40de1013ad7283042585caec8e60be873689de8e29a4a014104cdadb5199b0d9d356ae03fbf891f28d761547d79a0c5dae24998fa84a147e39f27ce03cd8efd8bd27e9dffc78744d66b2942b76801f79ae4028028e7122a3bb1fffffffff59f3ff699917790b02b3248716b22cdc1f8ddafe583ea28d100ae262f60ce66010000008c493046022100f814323e8be180dd90d063adb8f94b31801fb68ce97eb1acb32970a390bfa72f02210085ed8af17e90e2415d400d7cb08311535243d55461be9982bb3408271aa954aa0141045d21d60c22da05383ef130e3fc314b28c7dd378c762931f8c85e5e708d97b9779d83135a8c3cfe202f435e2781c99329043080627c5eb71f73be103fe45c2028ffffffff0290051000000000001976a914bafe7b8f25824ff18f698d2878d50c6fc43dd1d088acb038ac06000000001976a914ef48d8584b96d95992a664d524e52007b036754188ac00000000"
         );
         assert_eq!(tx_encoded, tx_encoded_expect);
-        assert_eq!(wtx_encoded, @tx_encoded_expect);
+        assert_eq!(wtx_encoded, tx_encoded_expect);
     }
 
     #[test]
@@ -598,7 +598,7 @@ mod tests {
         );
 
         assert_eq!(tx_encoded, tx_encoded_expect);
-        assert_eq!(wtx_encoded, @tx_encoded_expect);
+        assert_eq!(wtx_encoded, tx_encoded_expect);
     }
 
     #[test]
@@ -706,7 +706,7 @@ mod tests {
         );
 
         assert_eq!(tx_encoded, tx_encoded_expect);
-        assert_eq!(wtx_encoded, @tx_encoded_expect);
+        assert_eq!(wtx_encoded, tx_encoded_expect);
     }
 
     #[test]
@@ -769,7 +769,7 @@ mod tests {
         let total_weight = 3 * tx_encoded.len() + wtx_encoded.len();
 
         assert_eq!(tx_encoded, tx_encoded_expect);
-        assert_eq!(wtx_encoded, @wtx_encoded_expect);
+        assert_eq!(wtx_encoded, wtx_encoded_expect);
         assert_eq!(total_weight, 3 * 116 + 225); //573
     }
 
@@ -856,7 +856,7 @@ mod tests {
         let total_weight = 3 * tx_encoded.len() + wtx_encoded.len();
 
         assert_eq!(tx_encoded, tx_encoded_expect);
-        assert_eq!(wtx_encoded, @wtx_encoded_expect);
+        assert_eq!(wtx_encoded, wtx_encoded_expect);
         assert_eq!(total_weight, 3 * 154 + 371); // 833
     }
     #[test]
@@ -920,7 +920,7 @@ mod tests {
         let total_weight = 3 * tx_encoded.len() + wtx_encoded.len();
 
         assert_eq!(tx_encoded, tx_encoded_expect);
-        assert_eq!(wtx_encoded, @wtx_encoded_expect);
+        assert_eq!(wtx_encoded, wtx_encoded_expect);
         assert_eq!(total_weight, 3 * 116 + 225); // 573
     }
 }

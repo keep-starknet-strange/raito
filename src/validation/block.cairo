@@ -44,7 +44,7 @@ pub fn compute_and_validate_tx_data(
 
         let tx = txs[i];
         let tx_bytes_legacy = @tx.encode();
-        let tx_bytes_segwit = tx.encode_with_witness(tx_bytes_legacy);
+        let tx_bytes_segwit = @tx.encode_with_witness(tx_bytes_legacy);
 
         let txid = double_sha256_byte_array(tx_bytes_legacy);
         let wtxid = double_sha256_byte_array(tx_bytes_segwit);
