@@ -2,6 +2,14 @@
 
 use crate::types::transaction::{Transaction, TransactionTrait};
 
+// Setting sequence to this value for every input in a transaction
+// disables the locktime feature
+const SEQUENCE_FINAL: u32 = 0xffffffff;
+
+// Threshold for lock_time: below this value it is interpreted as block number,
+// otherwise as UNIX timestamp.
+const LOCKTIME_THRESHOLD: u32 = 500000000; // Tue Nov  5 00:53:20 1985 UTC
+
 /// Validate transaction and return transaction fee.
 ///
 /// This does not include script checks and outpoint inclusion verification.
@@ -28,6 +36,17 @@ pub fn validate_transaction(
     //      - https://github.com/bitcoin/bitcoin/blob/master/src/consensus/tx_check.cpp
     //      - https://github.com/bitcoin/bitcoin/blob/master/src/consensus/tx_verify.cpp
     //      - https://github.com/bitcoin/bitcoin/blob/master/src/validation.cpp
+
+    if (*tx.inputs).len() == 0 {
+        return Result::Err("transaction inputs are empty");
+    };
+    if (*tx.outputs).len() == 0 {
+        return Result::Err("transaction outputs are empty");
+    };
+
+    // check if transaction is finalized
+    // https://github.com/bitcoin/bitcoin/blob/master/src/consensus/tx_verify.cpp#L17
+    validate_absolute_locktime(tx, block_height, block_time)?;
 
     let mut maturity_result = Option::None;
 
@@ -79,6 +98,43 @@ pub fn validate_transaction(
     Result::Ok(tx_fee)
 }
 
+pub fn validate_absolute_locktime(
+    tx: @Transaction, block_height: u32, block_time: u32
+) -> Result<(), ByteArray> {
+    if *tx.lock_time < LOCKTIME_THRESHOLD && *tx.lock_time < block_height {
+        return Result::Ok(());
+    };
+
+    if *tx.lock_time >= LOCKTIME_THRESHOLD && *tx.lock_time < block_time {
+        return Result::Ok(());
+    };
+
+    let mut check_threshold_result: Result<(), ByteArray> = Result::Ok(());
+    for input in *tx
+        .inputs {
+            if *input.sequence != SEQUENCE_FINAL {
+                check_threshold_result =
+                    Result::Err(
+                        if *tx.lock_time >= LOCKTIME_THRESHOLD {
+                            format!(
+                                "transaction is not final: transaction locktime {} is not lesser than current block time {}",
+                                *tx.lock_time,
+                                block_time
+                            )
+                        } else {
+                            format!(
+                                "transaction is not final: transaction locktime {} is not lesser than current block height {}",
+                                *tx.lock_time,
+                                block_height
+                            )
+                        }
+                    );
+                break;
+            };
+        };
+    check_threshold_result
+}
+
 #[cfg(test)]
 mod tests {
     use crate::types::transaction::{Transaction, TxIn, TxOut, OutPoint};
@@ -127,5 +183,241 @@ mod tests {
 
         let fee = validate_transaction(@tx, 101, 0).unwrap();
         assert_eq!(fee, 10);
+    }
+
+    #[test]
+    fn test_empty_input() {
+        let tx = Transaction {
+            version: 1,
+            is_segwit: false,
+            inputs: array![].span(),
+            outputs: array![
+                TxOut {
+                    value: 50,
+                    pk_script: @from_hex("76a914000000000000000000000000000000000000000088ac"),
+                    cached: false,
+                }
+            ]
+                .span(),
+            lock_time: 0
+        };
+
+        let result = validate_transaction(@tx, 0, 0);
+        assert!(result.is_err());
+        // assert_eq!(result.unwrap_err(), "transaction inputs are empty");
+    }
+
+    #[test]
+    fn test_empty_output() {
+        let tx = Transaction {
+            version: 1,
+            is_segwit: false,
+            inputs: array![
+                TxIn {
+                    script: @from_hex(""),
+                    sequence: 0xffffffff,
+                    previous_output: OutPoint {
+                        txid: hex_to_hash_rev(
+                            "0000000000000000000000000000000000000000000000000000000000000000"
+                        ),
+                        vout: 0,
+                        data: TxOut { value: 100, ..Default::default() },
+                        block_height: Default::default(),
+                        block_time: Default::default(),
+                        is_coinbase: false,
+                    },
+                    witness: array![].span(),
+                }
+            ]
+                .span(),
+            outputs: array![].span(),
+            lock_time: 0
+        };
+
+        let result = validate_transaction(@tx, 0, 0);
+        assert!(result.is_err());
+        // assert_eq!(result.unwrap_err(), "transaction outputs are empty");
+    }
+
+    #[test]
+    fn test_absolute_locktime_block_height() {
+        let tx = Transaction {
+            version: 1,
+            is_segwit: false,
+            inputs: array![
+                TxIn {
+                    script: @from_hex(""),
+                    sequence: 0xfffffffe, // absolute locktime
+                    previous_output: OutPoint {
+                        txid: hex_to_hash_rev(
+                            "0000000000000000000000000000000000000000000000000000000000000000"
+                        ),
+                        vout: 0,
+                        data: TxOut { value: 100, ..Default::default() },
+                        block_height: Default::default(),
+                        block_time: Default::default(),
+                        is_coinbase: false,
+                    },
+                    witness: array![].span(),
+                }
+            ]
+                .span(),
+            outputs: array![
+                TxOut {
+                    value: 50,
+                    pk_script: @from_hex("76a914000000000000000000000000000000000000000088ac"),
+                    cached: false,
+                }
+            ]
+                .span(),
+            lock_time: 500000 // Block height locktime
+        };
+
+        // Transaction should be invalid when current block height is less than locktime
+        let result = validate_transaction(@tx, 500000, 0);
+        assert!(result.is_err());
+        assert_eq!(
+            result.unwrap_err().into(),
+            "transaction is not final: transaction locktime 500000 is not lesser than current block height 500000"
+        );
+
+        // Transaction should be valid when current block height is equal to or greater than
+        // locktime
+        let result = validate_transaction(@tx, 500001, 0);
+        println!("{:?}", result);
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn test_absolute_locktime_block_time() {
+        let tx = Transaction {
+            version: 1,
+            is_segwit: false,
+            inputs: array![
+                TxIn {
+                    script: @from_hex(""),
+                    sequence: 0xfffffffe, // Not final
+                    previous_output: OutPoint {
+                        txid: hex_to_hash_rev(
+                            "0000000000000000000000000000000000000000000000000000000000000000"
+                        ),
+                        vout: 0,
+                        data: TxOut { value: 100, ..Default::default() },
+                        block_height: Default::default(),
+                        block_time: Default::default(),
+                        is_coinbase: false,
+                    },
+                    witness: array![].span(),
+                }
+            ]
+                .span(),
+            outputs: array![
+                TxOut {
+                    value: 50,
+                    pk_script: @from_hex("76a914000000000000000000000000000000000000000088ac"),
+                    cached: false,
+                }
+            ]
+                .span(),
+            lock_time: 1600000000 // UNIX timestamp locktime
+        };
+
+        // Transaction should be invalid when current block time is not greater than locktime
+        let result = validate_transaction(@tx, 0, 1600000000);
+        assert!(result.is_err());
+        assert_eq!(
+            result.unwrap_err().into(),
+            "transaction is not final: transaction locktime 1600000000 is not lesser than current block time 1600000000"
+        );
+
+        // Transaction should be valid when current block time is equal to or greater than locktime
+        let result = validate_transaction(@tx, 0, 1600000001);
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn test_blocktime_ignored_when_locktime_disabled() {
+        let tx = Transaction {
+            version: 1,
+            is_segwit: false,
+            inputs: array![
+                TxIn {
+                    script: @from_hex(""),
+                    sequence: 0xffffffff, // final
+                    previous_output: OutPoint {
+                        txid: hex_to_hash_rev(
+                            "0000000000000000000000000000000000000000000000000000000000000000"
+                        ),
+                        vout: 0,
+                        data: TxOut { value: 100, ..Default::default() },
+                        block_height: Default::default(),
+                        block_time: Default::default(),
+                        is_coinbase: false,
+                    },
+                    witness: array![].span(),
+                }
+            ]
+                .span(),
+            outputs: array![
+                TxOut {
+                    value: 50,
+                    pk_script: @from_hex("76a914000000000000000000000000000000000000000088ac"),
+                    cached: false,
+                }
+            ]
+                .span(),
+            lock_time: 1600000000 // UNIX timestamp locktime
+        };
+
+        // Transaction should still valid when current block time is not greater than locktime
+        let result = validate_transaction(@tx, 0, 1600000000);
+        assert!(result.is_ok());
+
+        // Transaction should be valid when current block time is greater than locktime
+        let result = validate_transaction(@tx, 0, 1600000001);
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn test_blockheight_ignored_when_locktime_disabled() {
+        let tx = Transaction {
+            version: 1,
+            is_segwit: false,
+            inputs: array![
+                TxIn {
+                    script: @from_hex(""),
+                    sequence: 0xffffffff, // final
+                    previous_output: OutPoint {
+                        txid: hex_to_hash_rev(
+                            "0000000000000000000000000000000000000000000000000000000000000000"
+                        ),
+                        vout: 0,
+                        data: TxOut { value: 100, ..Default::default() },
+                        block_height: Default::default(),
+                        block_time: Default::default(),
+                        is_coinbase: false,
+                    },
+                    witness: array![].span(),
+                }
+            ]
+                .span(),
+            outputs: array![
+                TxOut {
+                    value: 50,
+                    pk_script: @from_hex("76a914000000000000000000000000000000000000000088ac"),
+                    cached: false,
+                }
+            ]
+                .span(),
+            lock_time: 500000 // Block height locktime
+        };
+
+        // Transaction should still valid when current block time is not greater than locktime
+        let result = validate_transaction(@tx, 500000, 0);
+        assert!(result.is_ok());
+
+        // Transaction should be valid when current block time is greater than locktime
+        let result = validate_transaction(@tx, 500001, 0);
+        assert!(result.is_ok());
     }
 }
