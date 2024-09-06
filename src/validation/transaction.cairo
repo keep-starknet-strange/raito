@@ -46,10 +46,7 @@ pub fn validate_transaction(
 
     // check if transaction is finalized
     // https://github.com/bitcoin/bitcoin/blob/master/src/consensus/tx_verify.cpp#L17
-    match is_final_tx(tx, block_height, block_time) {
-        Result::Ok(_) => {},
-        Result::Err(err) => { return Result::Err(err); }
-    }
+    validate_absolute_locktime(tx, block_height, block_time)?;
 
     let mut maturity_result = Option::None;
 
@@ -101,7 +98,7 @@ pub fn validate_transaction(
     Result::Ok(tx_fee)
 }
 
-pub fn is_final_tx(tx: @Transaction, block_height: u32, block_time: u32) -> Result<(), ByteArray> {
+pub fn validate_absolute_locktime(tx: @Transaction, block_height: u32, block_time: u32) -> Result<(), ByteArray> {
     if *tx.lock_time < LOCKTIME_THRESHOLD && *tx.lock_time < block_height {
         return Result::Ok(());
     };
@@ -240,14 +237,14 @@ mod tests {
     }
 
     #[test]
-    fn test_locktime_block_height() {
+    fn test_absolute_locktime_block_height() {
         let tx = Transaction {
             version: 1,
             is_segwit: false,
             inputs: array![
                 TxIn {
                     script: @from_hex(""),
-                    sequence: 0xfffffffe, // Not final
+                    sequence: 0xfffffffe, // absolute locktime
                     previous_output: OutPoint {
                         txid: hex_to_hash_rev(
                             "0000000000000000000000000000000000000000000000000000000000000000"
@@ -289,7 +286,7 @@ mod tests {
     }
 
     #[test]
-    fn test_locktime_block_time() {
+    fn test_absolute_locktime_block_time() {
         let tx = Transaction {
             version: 1,
             is_segwit: false,
@@ -336,7 +333,7 @@ mod tests {
     }
 
     #[test]
-    fn test_block_time_locktime_ignored_when_final() {
+    fn test_blocktime_ignored_when_locktime_disabled() {
         let tx = Transaction {
             version: 1,
             is_segwit: false,
@@ -379,7 +376,7 @@ mod tests {
     }
 
     #[test]
-    fn test_block_height_locktime_ignored_when_final() {
+    fn test_blockheight_ignored_when_locktime_disabled() {
         let tx = Transaction {
             version: 1,
             is_segwit: false,
