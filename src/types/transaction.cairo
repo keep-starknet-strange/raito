@@ -3,8 +3,7 @@
 //! Types are extended with extra information required for validation.
 //! The data is expected to be prepared in advance and passed as program arguments.
 
-use crate::utils::{hash::Digest, sha256::double_sha256_byte_array};
-use crate::codec::{Encode, TransactionCodec};
+use crate::utils::{hash::Digest};
 use core::hash::{Hash, HashStateTrait};
 
 /// Represents a transaction.
@@ -165,7 +164,7 @@ mod tests {
     use super::HashStateTrait;
     use core::hash::HashStateExTrait;
     use core::poseidon::PoseidonTrait;
-    use super::{OutPoint, TxOutDefault};
+    use super::{OutPoint, TxOut};
     use crate::utils::{hash::{DigestTrait}};
 
     #[test]
@@ -173,14 +172,19 @@ mod tests {
         let test_outpoint = OutPoint {
             txid: DigestTrait::new([1, 2, 3, 4, 5, 6, 7, 8]),
             vout: 2,
-            data: TxOutDefault::default(),
-            block_height: 1,
-            block_time: 1000000000,
+            // https://learnmeabitcoin.com/explorer/tx/0437cd7f8525ceed2324359c2d0ba26006d92d856a9c20fa0241106ee5a597c9#output-0
+            data: TxOut {
+                value: 50_u64,
+                pk_script: @"410411db93e1dcdb8a016b49840f8c53bc1eb68a382e97b1482ecad7b148a6909a5cb2e0eaddfb84ccf9744464f82e160bfa9b8b64f9d4c03f999b8643f656b412a3ac",
+                cached: false,
+            },
+            block_height: 9,
+            block_time: 1650000000,
             is_coinbase: false,
         };
         let hash = PoseidonTrait::new().update_with(test_outpoint).finalize();
         assert_eq!(
-            hash, 2044291171177750058421659074811489521945565557866426772672337442643177709686
+            hash, 2066345132208626685244560166700396327660679738257525753112003865133004328681
         );
     }
 }
