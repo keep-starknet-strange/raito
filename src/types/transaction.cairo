@@ -159,3 +159,28 @@ impl TxOutDefault of Default<TxOut> {
         TxOut { value: 0, pk_script: @"", cached: false, }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::HashStateTrait;
+    use core::hash::HashStateExTrait;
+    use core::poseidon::PoseidonTrait;
+    use super::{OutPoint, TxOutDefault};
+    use crate::utils::{hash::{DigestTrait}};
+
+    #[test]
+    pub fn test_outpoint_poseidon_hash() {
+        let test_outpoint = OutPoint {
+            txid: DigestTrait::new([1, 2, 3, 4, 5, 6, 7, 8]),
+            vout: 2,
+            data: TxOutDefault::default(),
+            block_height: 1,
+            block_time: 1000000000,
+            is_coinbase: false,
+        };
+        let hash = PoseidonTrait::new().update_with(test_outpoint).finalize();
+        assert_eq!(
+            hash, 2044291171177750058421659074811489521945565557866426772672337442643177709686
+        );
+    }
+}
