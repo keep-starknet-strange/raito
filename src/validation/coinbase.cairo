@@ -426,4 +426,47 @@ mod tests {
             .span();
         validate_coinbase_witness(witness).unwrap();
     }
+    // #[test]
+// fn test_validate_coinbase_segwit_output() {
+//     let tx = Transaction {
+//         version: 1,
+//         is_segwit: false,
+//         inputs: array![
+//             TxIn {
+//                 script: @from_hex("04ffff001d0102"),
+//                 sequence: 4294967295,
+//                 previous_output: OutPoint {
+//                     txid: 0x0_u256.into(),
+//                     vout: 0xffffffff_u32,
+//                     data: Default::default(),
+//                     block_height: Default::default(),
+//                     block_time: Default::default(),
+//                     is_coinbase: false,
+//                 },
+//                 witness: array![
+//                     from_hex("0000000000000000000000000000000000000000000000000000000000000000")
+//                 ]
+//                     .span(),
+//             }
+//         ]
+//             .span(),
+//         outputs: array![
+//             TxOut {
+//                 value: 0_u64,
+//                 pk_script: @from_hex(
+//                     "4104d46c4968bde02899d2aa0963367c7a6ce34eec332b32e42e5f3407e052d64ac625da6f0718e7b302140434bd725706957c092db53805b821a85b23a7ac61725bac"
+//                 ),
+//                 cached: false,
+//             }
+//         ]
+//             .span(),
+//         lock_time: 0
+//     };
+
+    //     let total_fees = 0_u64;
+//     let block_height = 500_000;
+
+    //     validate_coinbase(@tx, total_fees, block_height, Default::default()).unwrap_err();
+// }
 }
+
