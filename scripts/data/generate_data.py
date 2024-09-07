@@ -268,46 +268,22 @@ def generate_data(
             block = fetch_block(next_block_hash)
 
             for tx in block["data"]:
-                for idx, output in enumerate(tx["outputs"]):
-                    outpoint = (tx["txid"], idx)
-                    utxo_set[outpoint] = output
-
-                    output["cached"] = False
-
-            for tx in block["data"]:
                 for tx_input in tx["inputs"]:
                     outpoint = (
                         tx_input["previous_output"]["txid"],
                         tx_input["previous_output"]["vout"],
                     )
-
                     if outpoint in utxo_set:
                         tx_input["previous_output"]["cached"] = True
                         utxo_set[outpoint]["cached"] = True
 
+                for idx, output in enumerate(tx["outputs"]):
+                    outpoint = (tx["txid"], idx)
+                    utxo_set[outpoint] = output
         else:
             raise NotImplementedError(mode)
         next_block_hash = block["nextblockhash"]
         blocks.append(block)
-
-    for block in blocks:
-        for tx in block["data"]:
-            for idx, output in enumerate(tx["outputs"]):
-                outpoint = (tx["txid"], idx)
-                if outpoint in utxo_set:
-                    tx["outputs"][idx]["cached"] = utxo_set[outpoint].get(
-                        "cached", False
-                    )
-
-            for tx_input in tx["inputs"]:
-                outpoint = (
-                    tx_input["previous_output"]["txid"],
-                    tx_input["previous_output"]["vout"],
-                )
-                if outpoint in utxo_set:
-                    tx_input["previous_output"]["cached"] = utxo_set[outpoint].get(
-                        "cached", False
-                    )
 
     block_formatter = (
         format_block if mode == "light" else format_block_with_transactions
