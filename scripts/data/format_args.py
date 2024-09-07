@@ -87,18 +87,18 @@ def flatten_tuples(src):
 
 def format_cairo1_run(args: list) -> str:
     """Formats arguments for usage with cairo1-run.
-    Example: [0, 1, [2, 3, 4]] -> "0 1 [2 3 4]"
+    Example: [0, 1, [2, 3, 4]] -> "[0 1 [2 3 4]]"
 
     :param args: Python object containing already processed arguments.
-    :return: Removes outer array brackets [] and commas, returns string.
+    :return: Returns string with removed commas.
     """
-    def format_item(item, root=False):
+    def format_item(item):
         if isinstance(item, list):
             arr = " ".join(map(format_item, item))
-            return arr if root else f'[{arr}]'
+            return f'[{arr}]'
         else:
             return str(item)
-    return format_item(args, root=True)
+    return format_item(args)
 
 
 def format_args():
@@ -110,7 +110,7 @@ def format_args():
         raise TypeError("Expected single argument")
     args = json.loads(Path(sys.argv[1]).read_text())
     res = flatten_tuples(serialize(args))
-    print([format_cairo1_run(res)])
+    print([res])
 
 
 if __name__ == '__main__':

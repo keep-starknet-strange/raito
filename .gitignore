@@ -20,6 +20,7 @@ Cargo.lock
 **/.vscode
 
 .env
+.env.*
 .venv
 .python-version
 __pycache__

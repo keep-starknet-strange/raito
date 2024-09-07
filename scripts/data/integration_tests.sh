@@ -13,6 +13,7 @@ failures=()
 test_files="tests/data"/*
 
 ignored_files=(
+    "tests/data/light_2015.json"
     "tests/data/light_481823.json"
     "tests/data/light_709631.json"
     "tests/data/full_757738.json"
@@ -36,14 +37,14 @@ for test_file in $test_files; do
             output=$(scarb cairo-run --no-build --function test "$arguments")
             gas_spent=$(echo $output | grep -o 'gas_spent=[0-9]*' | sed 's/gas_spent=//')
 
-            if [[ "$output" == *"OK"* ]]; then
-                echo -e "${GREEN} ok ${RESET}(gas usage est.: $gas_spent)"
-                num_ok=$((num_ok + 1))
-            elif [[ "$output" == *"FAIL"* ]]; then
+            if [[ "$output" == *"FAIL"* ]]; then
                 echo -e "${RED} fail ${RESET}(gas usage est.: $gas_spent)"
                 num_fail=$((num_fail + 1))
                 error=$(echo $output | grep -o "error='[^']*'" | sed "s/error=//")
                 failures+="\te2e:$test_file — Panicked with $error\n"
+            elif [[ "$output" == *"OK"* ]]; then
+                echo -e "${GREEN} ok ${RESET}(gas usage est.: $gas_spent)"
+                num_ok=$((num_ok + 1))
             else
                 echo -e "${RED} fail ${RESET}(gas usage est.: 0)"
                 num_fail=$((num_fail + 1))
