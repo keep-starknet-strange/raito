@@ -144,20 +144,13 @@ impl ByteArraySnapSerde of Serde<@ByteArray> {
 impl ByteArraySnapHash<S, +HashStateTrait<S>, +Drop<S>> of Hash<@ByteArray, S> {
     #[inline]
     fn update_state(mut state: S, value: @ByteArray) -> S {
-        let mut index = 0;
-        let length = value.len();
+        let mut serialized_bytearray: Array<felt252> = array![];
+        value.serialize(ref serialized_bytearray);
 
-        loop {
-            if index == length {
-                break;
-            }
-            if let Option::Some(byte) = value.at(index) {
-                state = state.update(byte.into());
-            }
-            index += 1;
+        for felt in serialized_bytearray{
+            state = state.update(felt);
         };
-
-        state.update(length.into())
+        state
     }
 }
 
