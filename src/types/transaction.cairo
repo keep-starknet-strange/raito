@@ -3,7 +3,8 @@
 //! Types are extended with extra information required for validation.
 //! The data is expected to be prepared in advance and passed as program arguments.
 
-use crate::utils::{hash::Hash};
+use crate::utils::{hash::Digest};
+use core::hash::{Hash, HashStateTrait};
 
 /// Represents a transaction.
 /// https://learnmeabitcoin.com/technical/transaction/
@@ -76,10 +77,10 @@ pub struct TxIn {
 ///       one by one, first inputs then outputs. Output validation might put something to the
 ///       cache while input validation might remove an item, thus it's important to maintain
 ///       the order.
-#[derive(Drop, Copy, Debug, PartialEq, Serde)]
+#[derive(Drop, Copy, Debug, PartialEq, Serde, Hash)]
 pub struct OutPoint {
     /// The hash of the referenced transaction.
-    pub txid: Hash,
+    pub txid: Digest,
     /// The index of the specific output in the transaction.
     pub vout: u32,
     /// Referenced output data (meta field).
@@ -102,6 +103,7 @@ pub struct OutPoint {
     pub is_coinbase: bool
 }
 
+
 /// Output of a transaction.
 /// https://learnmeabitcoin.com/technical/transaction/output/
 ///
@@ -111,7 +113,7 @@ pub struct OutPoint {
 ///     - Do nothing in case of a provably unspendable output
 ///
 /// Read more: https://en.bitcoin.it/wiki/Script#Provably_Unspendable/Prunable_Outputs
-#[derive(Drop, Copy, Debug, PartialEq, Serde)]
+#[derive(Drop, Copy, Debug, PartialEq, Serde, Hash)]
 pub struct TxOut {
     /// The value of the output in satoshis.
     /// Can be in range [0, 21_000_000] BTC (including both ends).
@@ -137,12 +139,52 @@ impl ByteArraySnapSerde of Serde<@ByteArray> {
     }
 }
 
+
+impl ByteArraySnapHash<S, +HashStateTrait<S>, +Drop<S>> of Hash<@ByteArray, S> {
+    #[inline]
+    fn update_state(mut state: S, value: @ByteArray) -> S {
+        let mut serialized_bytearray: Array<felt252> = array![];
+        value.serialize(ref serialized_bytearray);
+
+        for felt in serialized_bytearray {
+            state = state.update(felt);
+        };
+        state
+    }
+}
+
 impl TxOutDefault of Default<TxOut> {
     fn default() -> TxOut {
         TxOut { value: 0, pk_script: @"", cached: false, }
     }
 }
-// TODO: implement Hash trait for OutPoint (for creating hash digests to use in utreexo/utxo cache)
-// Maybe we need to rename utils::hash::Hash (e.g. to Digest) to avoid confusion
 
+#[cfg(test)]
+mod tests {
+    use super::HashStateTrait;
+    use core::hash::HashStateExTrait;
+    use core::poseidon::PoseidonTrait;
+    use super::{OutPoint, TxOut};
+    use crate::utils::{hash::{DigestTrait}};
 
+    #[test]
+    pub fn test_outpoint_poseidon_hash() {
+        let test_outpoint = OutPoint {
+            txid: DigestTrait::new([1, 2, 3, 4, 5, 6, 7, 8]),
+            vout: 2,
+            // https://learnmeabitcoin.com/explorer/tx/0437cd7f8525ceed2324359c2d0ba26006d92d856a9c20fa0241106ee5a597c9#output-0
+            data: TxOut {
+                value: 50_u64,
+                pk_script: @"410411db93e1dcdb8a016b49840f8c53bc1eb68a382e97b1482ecad7b148a6909a5cb2e0eaddfb84ccf9744464f82e160bfa9b8b64f9d4c03f999b8643f656b412a3ac",
+                cached: false,
+            },
+            block_height: 9,
+            block_time: 1650000000,
+            is_coinbase: false,
+        };
+        let hash = PoseidonTrait::new().update_with(test_outpoint).finalize();
+        assert_eq!(
+            hash, 2066345132208626685244560166700396327660679738257525753112003865133004328681
+        );
+    }
+}

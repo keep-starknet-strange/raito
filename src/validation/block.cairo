@@ -1,8 +1,7 @@
 //! Block validation helpers.
-
 use crate::types::transaction::{Transaction};
 use crate::codec::{Encode, TransactionCodec};
-use crate::utils::{hash::Hash, merkle_tree::merkle_root, sha256::double_sha256_byte_array};
+use crate::utils::{hash::Digest, merkle_tree::merkle_root, sha256::double_sha256_byte_array};
 use super::transaction::validate_transaction;
 
 const MAX_BLOCK_WEIGHT_LEGACY: usize = 1_000_000;
@@ -29,9 +28,9 @@ pub fn validate_block_weight(weight: usize) -> Result<(), ByteArray> {
 ///  - Block weight
 pub fn compute_and_validate_tx_data(
     txs: Span<Transaction>, block_height: u32, block_time: u32
-) -> Result<(u64, Hash, Hash), ByteArray> {
-    let mut txids: Array<Hash> = array![];
-    let mut wtxids: Array<Hash> = array![];
+) -> Result<(u64, Digest, Digest), ByteArray> {
+    let mut txids: Array<Digest> = array![];
+    let mut wtxids: Array<Digest> = array![];
     let mut total_fee = 0;
     let mut total_weight: u32 = 0;
     let mut i = 0;

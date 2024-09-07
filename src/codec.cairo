@@ -1,7 +1,7 @@
 //! Bitcoin binary codec traits, implementations, and helpers.
 
 use super::types::transaction::{Transaction, TxIn, TxOut, OutPoint};
-use raito::utils::hash::Hash;
+use raito::utils::hash::Digest;
 
 pub trait Encode<T> {
     /// Encode using Bitcoin codec and append to the buffer.
@@ -46,8 +46,8 @@ pub impl EncodeU64 of Encode<u64> {
     }
 }
 
-pub impl EncodeHash of Encode<Hash> {
-    fn encode_to(self: @Hash, ref dest: ByteArray) {
+pub impl EncodeHash of Encode<Digest> {
+    fn encode_to(self: @Digest, ref dest: ByteArray) {
         dest.append(@(*self).into());
     }
 }

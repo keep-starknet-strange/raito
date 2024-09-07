@@ -1,44 +1,45 @@
-//! Hash digest struct and trait implementations.
+//! Digest digest struct and trait implementations.
 
 use core::fmt::{Display, Formatter, Error};
 use core::to_byte_array::AppendFormattedToByteArray;
 use core::integer::u128_byte_reverse;
 use super::bit_shifts::{shl, shr};
+use core::hash::{Hash, HashStateTrait};
 
 /// 256-bit hash digest.
 /// Represented as an array of 4-byte words.
 #[derive(Copy, Drop, Debug, Default, Serde)]
-pub struct Hash {
+pub struct Digest {
     pub value: [u32; 8]
 }
 
 #[generate_trait]
-pub impl HashImpl of HashTrait {
+pub impl DigestImpl of DigestTrait {
     #[inline(always)]
-    fn new(array: [u32; 8]) -> Hash {
-        Hash { value: array }
+    fn new(array: [u32; 8]) -> Digest {
+        Digest { value: array }
     }
 }
 
-/// Formats a `Hash` value for display.
-impl HashDisplay of Display<Hash> {
-    fn fmt(self: @Hash, ref f: Formatter) -> Result<(), Error> {
+/// Formats a `Digest` value for display.
+impl DigestDisplay of Display<Digest> {
+    fn fmt(self: @Digest, ref f: Formatter) -> Result<(), Error> {
         let hash: u256 = (*self).into();
         hash.append_formatted_to_byte_array(ref f.buffer, 16);
         Result::Ok(())
     }
 }
 
-/// Compares two `Hash` values for equality.
-impl HashPartialEq of PartialEq<Hash> {
-    fn eq(lhs: @Hash, rhs: @Hash) -> bool {
+/// Compares two `Digest` values for equality.
+impl DigestPartialEq of PartialEq<Digest> {
+    fn eq(lhs: @Digest, rhs: @Digest) -> bool {
         lhs.value == rhs.value
     }
 }
 
-/// Converts a `Hash` value into a `ByteArray`.
-pub impl HashIntoByteArray of Into<Hash, ByteArray> {
-    fn into(self: Hash) -> ByteArray {
+/// Converts a `Digest` value into a `ByteArray`.
+pub impl DigestIntoByteArray of Into<Digest, ByteArray> {
+    fn into(self: Digest) -> ByteArray {
         let mut bytes: ByteArray = Default::default();
         for word in self.value.span() {
             bytes.append_word((*word).into(), 4);
@@ -47,10 +48,10 @@ pub impl HashIntoByteArray of Into<Hash, ByteArray> {
     }
 }
 
-/// Converts a `u256` value into a `Hash` type and reverse bytes order.
-/// u256 is big-endian like in explorer, while Hash is little-endian order.
-pub impl U256IntoHash of Into<u256, Hash> {
-    fn into(self: u256) -> Hash {
+/// Converts a `u256` value into a `Digest` type and reverse bytes order.
+/// u256 is big-endian like in explorer, while Digest is little-endian order.
+pub impl U256IntoDigest of Into<u256, Digest> {
+    fn into(self: u256) -> Digest {
         let mut result: Array<u32> = array![];
 
         let mut low: u128 = u128_byte_reverse(self.high);
@@ -68,7 +69,7 @@ pub impl U256IntoHash of Into<u256, Hash> {
                 high = shr(high, 32_u32);
             };
 
-        Hash {
+        Digest {
             value: [
                 *result[7],
                 *result[6],
@@ -83,10 +84,10 @@ pub impl U256IntoHash of Into<u256, Hash> {
     }
 }
 
-/// Converts a `Hash` value into a `u256` type and reverse bytes order.
-/// Hash is little-endian order, while u256 is big-endian like in explorer.
-pub impl HashIntoU256 of Into<Hash, u256> {
-    fn into(self: Hash) -> u256 {
+/// Converts a `Digest` value into a `u256` type and reverse bytes order.
+/// Digest is little-endian order, while u256 is big-endian like in explorer.
+pub impl DigestIntoU256 of Into<Digest, u256> {
+    fn into(self: Digest) -> u256 {
         let [a, b, c, d, e, f, g, h] = self.value;
 
         let mut low: u128 = 0;
@@ -106,10 +107,20 @@ pub impl HashIntoU256 of Into<Hash, u256> {
     }
 }
 
+pub impl DigestHash<S, +HashStateTrait<S>, +Drop<S>> of Hash<Digest, S> {
+    fn update_state(state: S, value: Digest) -> S {
+        let u256_digest: u256 = value.into();
+
+        let state = state.update(u256_digest.low.into());
+        let state = state.update(u256_digest.high.into());
+        state
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use crate::utils::hex::from_hex;
-    use super::Hash;
+    use super::Digest;
 
     #[test]
     fn test_u256_into_hash() {
@@ -120,7 +131,7 @@ mod tests {
 
         let result_hash = u256_value.into();
 
-        let expected_hash = Hash {
+        let expected_hash = Digest {
             value: [
                 0xefcdab90,
                 0x78563412,
@@ -138,7 +149,7 @@ mod tests {
 
     #[test]
     fn test_hash_to_u256() {
-        let hash_value = Hash {
+        let hash_value = Digest {
             value: [
                 0xfedcba09,
                 0x87654321,
@@ -164,7 +175,7 @@ mod tests {
 
     #[test]
     fn test_hash_to_u256_to_hash() {
-        let hash_value = Hash {
+        let hash_value = Digest {
             value: [
                 0xfedcba09,
                 0x87654321,
@@ -178,7 +189,7 @@ mod tests {
         };
 
         let u256_value: u256 = hash_value.into();
-        let result_hash: Hash = u256_value.into();
+        let result_hash: Digest = u256_value.into();
 
         assert_eq!(result_hash, hash_value, "invalid results");
     }
@@ -190,7 +201,7 @@ mod tests {
             low: 0x00112233445566778899aabbccddeeff_u128,
         };
 
-        let hash_value: Hash = u256_value.into();
+        let hash_value: Digest = u256_value.into();
         let result_u256: u256 = hash_value.into();
 
         assert_eq!(result_u256, u256_value, "invalid results");
@@ -198,7 +209,7 @@ mod tests {
 
     #[test]
     fn test_hash_into_bytearray() {
-        let hash = Hash {
+        let hash = Digest {
             value: [
                 0x12345678_u32,
                 0x9abcdef0_u32,
