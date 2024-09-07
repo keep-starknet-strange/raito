@@ -4,6 +4,7 @@ use core::fmt::{Display, Formatter, Error};
 use core::to_byte_array::AppendFormattedToByteArray;
 use core::integer::u128_byte_reverse;
 use super::bit_shifts::{shl, shr};
+use core::hash::{Hash, HashStateTrait};
 
 /// 256-bit hash digest.
 /// Represented as an array of 4-byte words.
@@ -103,6 +104,16 @@ pub impl DigestIntoU256 of Into<Digest, u256> {
         high += shl((a.into()), 96_u32);
 
         u256 { low: u128_byte_reverse(high), high: u128_byte_reverse(low) }
+    }
+}
+
+pub impl DigestHash<S, +HashStateTrait<S>, +Drop<S>> of Hash<Digest, S>{
+    fn update_state(state: S, value: Digest) -> S{
+        let u256_digest: u256 = value.into();
+
+        let state = state.update(u256_digest.low.into());
+        let state = state.update(u256_digest.high.into());
+        state
     }
 }
 

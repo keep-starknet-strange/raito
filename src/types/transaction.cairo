@@ -5,7 +5,7 @@
 
 use crate::utils::{hash::Digest, sha256::double_sha256_byte_array};
 use crate::codec::{Encode, TransactionCodec};
-
+use core::hash::{Hash, HashStateTrait};
 /// Represents a transaction.
 /// https://learnmeabitcoin.com/technical/transaction/
 #[derive(Drop, Copy, Debug, PartialEq, Serde)]
@@ -77,7 +77,7 @@ pub struct TxIn {
 ///       one by one, first inputs then outputs. Output validation might put something to the
 ///       cache while input validation might remove an item, thus it's important to maintain
 ///       the order.
-#[derive(Drop, Copy, Debug, PartialEq, Serde)]
+#[derive(Drop, Copy, Debug, PartialEq, Serde, Hash)]
 pub struct OutPoint {
     /// The hash of the referenced transaction.
     pub txid: Digest,
@@ -103,6 +103,7 @@ pub struct OutPoint {
     pub is_coinbase: bool
 }
 
+
 /// Output of a transaction.
 /// https://learnmeabitcoin.com/technical/transaction/output/
 ///
@@ -112,7 +113,7 @@ pub struct OutPoint {
 ///     - Do nothing in case of a provably unspendable output
 ///
 /// Read more: https://en.bitcoin.it/wiki/Script#Provably_Unspendable/Prunable_Outputs
-#[derive(Drop, Copy, Debug, PartialEq, Serde)]
+#[derive(Drop, Copy, Debug, PartialEq, Serde, Hash)]
 pub struct TxOut {
     /// The value of the output in satoshis.
     /// Can be in range [0, 21_000_000] BTC (including both ends).
@@ -135,6 +136,27 @@ impl ByteArraySnapSerde of Serde<@ByteArray> {
             Option::Some(res) => Option::Some(@res),
             Option::None => Option::None,
         }
+    }
+}
+
+
+impl ByteArraySnapHash<S, +HashStateTrait<S>, +Drop<S>> of Hash<@ByteArray, S> {
+    #[inline]
+    fn update_state(mut state: S, value: @ByteArray) -> S {
+        let mut index = 0;
+        let length = value.len();
+
+        loop {
+            if index == length {
+                break;
+            }
+            if let Option::Some(byte) = value.at(index) {
+                state = state.update(byte.into());
+            }
+            index += 1;
+        };
+
+        state.update(length.into())
     }
 }
 
