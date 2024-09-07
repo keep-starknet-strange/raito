@@ -3,7 +3,7 @@
 use core::fmt::{Display, Formatter, Error};
 use core::to_byte_array::AppendFormattedToByteArray;
 use core::integer::u128_byte_reverse;
-use super::bit_shifts::{shl, shr};
+use super::bit_shifts::{shr};
 use core::hash::{Hash, HashStateTrait};
 
 /// 256-bit hash digest.
@@ -84,28 +84,24 @@ pub impl U256IntoDigest of Into<u256, Digest> {
     }
 }
 
+
+const POW_2_32: u128 = 0x100000000;
+const POW_2_64: u128 = 0x10000000000000000;
+const POW_2_96: u128 = 0x1000000000000000000000000;
+
 /// Converts a `Digest` value into a `u256` type and reverse bytes order.
 /// Digest is little-endian order, while u256 is big-endian like in explorer.
 pub impl DigestIntoU256 of Into<Digest, u256> {
     fn into(self: Digest) -> u256 {
         let [a, b, c, d, e, f, g, h] = self.value;
 
-        let mut low: u128 = 0;
-        let mut high: u128 = 0;
-
-        low += (h.into());
-        low += shl((g.into()), 32_u32);
-        low += shl((f.into()), 64_u32);
-        low += shl((e.into()), 96_u32);
-
-        high += (d.into());
-        high += shl((c.into()), 32_u32);
-        high += shl((b.into()), 64_u32);
-        high += shl((a.into()), 96_u32);
+        let low: u128 = h.into() + g.into() * POW_2_32 + f.into() * POW_2_64 + e.into() * POW_2_96;
+        let high: u128 = d.into() + c.into() * POW_2_32 + b.into() * POW_2_64 + a.into() * POW_2_96;
 
         u256 { low: u128_byte_reverse(high), high: u128_byte_reverse(low) }
     }
 }
+
 
 pub impl DigestHash<S, +HashStateTrait<S>, +Drop<S>> of Hash<Digest, S> {
     fn update_state(state: S, value: Digest) -> S {
