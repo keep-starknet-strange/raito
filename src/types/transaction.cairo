@@ -166,24 +166,3 @@ impl TxOutDefault of Default<TxOut> {
         TxOut { value: 0, pk_script: @"", cached: false, }
     }
 }
-
-#[generate_trait]
-pub impl TransactionImpl of TransactionTrait {
-    /// Compute transaction TXID
-    /// https://learnmeabitcoin.com/technical/transaction/input/txid/
-    ///
-    /// NOTE: marker, flag, and witness fields in segwit transactions are not included
-    /// this means txid computation is the same for legacy and segwit tx
-    fn txid(self: @Transaction) -> Digest {
-        double_sha256_byte_array(@(self.encode()))
-    }
-
-    /// Compute transaction wTXID
-    /// https://learnmeabitcoin.com/technical/transaction/wtxid/
-    fn wtxid(self: @Transaction) -> Digest {
-        double_sha256_byte_array(@(self.encode_with_witness()))
-    }
-}
-
-
-
