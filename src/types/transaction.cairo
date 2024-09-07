@@ -147,7 +147,7 @@ impl ByteArraySnapHash<S, +HashStateTrait<S>, +Drop<S>> of Hash<@ByteArray, S> {
         let mut serialized_bytearray: Array<felt252> = array![];
         value.serialize(ref serialized_bytearray);
 
-        for felt in serialized_bytearray{
+        for felt in serialized_bytearray {
             state = state.update(felt);
         };
         state
