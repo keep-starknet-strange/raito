@@ -57,8 +57,8 @@ const NZ_POW2_32_64: NonZero<u64> = 0x100000000;
 /// u256 is big-endian like in explorer, while Digest is little-endian order.
 pub impl U256IntoDigest of Into<u256, Digest> {
     fn into(self: u256) -> Digest {
-        let mut low: u128 = u128_byte_reverse(self.high);
-        let mut high: u128 = u128_byte_reverse(self.low);
+        let low: u128 = u128_byte_reverse(self.high);
+        let high: u128 = u128_byte_reverse(self.low);
 
         let (q_96, high_32_0) = DivRem::div_rem(high, NZ_POW2_32_128);
         let (q_64, high_64_32) = DivRem::div_rem(q_96, NZ_POW2_32_128);
