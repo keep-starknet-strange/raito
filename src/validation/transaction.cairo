@@ -38,8 +38,6 @@ pub fn validate_transaction(
 
     context.push(Frame::Message(@"validate_transaction"));
 
-    println!("context: {:?}", context);
-
     if (*tx.inputs).len() == 0 {
         return context.err_with_context("transaction inputs are empty");
     };
