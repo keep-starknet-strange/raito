@@ -31,10 +31,49 @@ pub fn validate_coinbase(
     let block_reward = compute_block_reward(block_height);
     assert(total_output_amount <= total_fees + block_reward, 'total output > block rwd + fees');
 
-    // TODO: validate BIP-141 segwit output
+    // validate BIP-141 segwit output
+    if *tx.is_segwit {
+        let outputs = *tx.outputs;
+        let mut is_wtxid_commitment_present: bool = false;
+        let mut extracted_wtxid_commitment: ByteArray = "";
+        let mut i = 0;
+        let mut x = 6;
+
+        while i < outputs.len() {
+            let pk_script = *outputs[i].pk_script;
+
+            // check for OP_RETURN and the fixed prefix "0xaa21a9ed"
+            if pk_script.len() >= MINIMUM_WITNESS_COMMITMENT
+                && pk_script[0] == 0x6a
+                && pk_script[1] == 0x24
+                && pk_script[2] == 0xaa
+                && pk_script[3] == 0x21
+                && pk_script[4] == 0xa9
+                && pk_script[5] == 0xed {
+                // get wtxid commitment
+                while x < pk_script.len() {
+                    extracted_wtxid_commitment.append_word(pk_script[x].into(), 1);
+                    x += 1;
+                };
+
+                is_wtxid_commitment_present = true;
+                break;
+            }
+            i += 1;
+        };
+
+        if !is_wtxid_commitment_present {
+            return Result::Err("No wtxid commitment found");
+        }
+
+        if !(extracted_wtxid_commitment == wtxid_commitment.into()) {
+            return Result::Err("Wrong wtxid commitment");
+        }
+    }
 
     Result::Ok(())
 }
+
 
 /// Validates first and the only coinbase input
 fn validate_coinbase_input(input: @TxIn, block_height: u32) -> Result<(), ByteArray> {
@@ -88,20 +127,6 @@ fn validate_coinbase_sig_script(script: @ByteArray, block_height: u32) -> Result
     Result::Ok(())
 }
 
-#[inline]
-/// Validate coinbase witness
-fn validate_coinbase_witness(witness: Span<ByteArray>) -> Result<(), ByteArray> {
-    if witness.len() != 1 {
-        return Result::Err("Expected single witness item");
-    }
-
-    // check witness value
-    if witness[0] != @"\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0" {
-        return Result::Err("Wrong coinbase witness");
-    }
-
-    Result::Ok(())
-}
 
 /// Return BTC reward in SATS
 fn compute_block_reward(block_height: u32) -> u64 {
