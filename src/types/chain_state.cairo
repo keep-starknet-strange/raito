@@ -75,7 +75,7 @@ pub impl BlockValidatorImpl of BlockValidator {
         let (current_target, epoch_start_time) = adjust_difficulty(
             self.current_target,
             self.epoch_start_time,
-            block_height,
+            self.block_height,
             prev_block_time,
             block.header.time
         );
