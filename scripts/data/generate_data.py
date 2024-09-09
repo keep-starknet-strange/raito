@@ -125,7 +125,7 @@ def bits_to_target(bits: str) -> int:
 def fetch_block(block_hash: str):
     """Downloads block with transactions (and referred UTXOs) from RPC given the block hash."""
     block = request_rpc("getblock", [block_hash, 2])
-    block["data"] = [resolve_transaction(tx) for tx in block["tx"]]
+    block["data"] = {tx["txid"]: resolve_transaction(tx) for tx in block["tx"]}
     return block
 
 
@@ -206,7 +206,7 @@ def format_block_with_transactions(block: dict):
         "header": format_header(block),
         "data": {
             "variant_id": 1,
-            "transactions": block["data"],  # already formatted
+            "transactions": list(block["data"].values()),
         },
     }
 
@@ -266,8 +266,9 @@ def generate_data(
             block = fetch_block_header(next_block_hash)
         elif mode == "full":
             block = fetch_block(next_block_hash)
-
-            for tx in block["data"]:
+            # Build UTXO set and mark outputs spent within the same block (span).
+            # Also set "cached" flag for the inputs that spend those UTXOs.
+            for txid, tx in block["data"].items():
                 for tx_input in tx["inputs"]:
                     outpoint = (
                         tx_input["previous_output"]["txid"],
@@ -278,19 +279,21 @@ def generate_data(
                         utxo_set[outpoint]["cached"] = True
 
                 for idx, output in enumerate(tx["outputs"]):
-                    outpoint = (tx["txid"], idx)
+                    outpoint = (txid, idx)
                     utxo_set[outpoint] = output
         else:
             raise NotImplementedError(mode)
         next_block_hash = block["nextblockhash"]
         blocks.append(block)
 
-    for block in blocks:
-        for tx in block["data"]:
-            for idx, output in enumerate(tx["outputs"]):
-                outpoint = (tx["txid"], idx)
-                if outpoint in utxo_set and utxo_set[outpoint].get("cached", False):
-                    tx["outputs"][idx]["cached"] = True
+    if mode == "full":
+        # Do another pass to mark UTXOs spent within the same block (span) with "cached" flag.
+        for block in blocks:
+            for txid, tx in block["data"].items():
+                for idx, output in enumerate(tx["outputs"]):
+                    outpoint = (txid, idx)
+                    if outpoint in utxo_set and utxo_set[outpoint].get("cached", False):
+                        tx["outputs"][idx]["cached"] = True
 
     block_formatter = (
         format_block if mode == "light" else format_block_with_transactions

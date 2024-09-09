@@ -3,8 +3,7 @@
 //! Types are extended with extra information required for validation.
 //! The data is expected to be prepared in advance and passed as program arguments.
 
-use crate::utils::{hash::Digest};
-use core::hash::{Hash, HashStateTrait};
+use crate::utils::{hash::Digest, bytearray::{ByteArraySnapHash, ByteArraySnapSerde}};
 
 /// Represents a transaction.
 /// https://learnmeabitcoin.com/technical/transaction/
@@ -89,13 +88,10 @@ pub struct OutPoint {
     /// The height of the block that contains this output (meta field).
     /// Used to validate coinbase tx spending (not sooner than 100 blocks) and relative timelocks
     /// (it has been more than X block since the transaction containing this output was mined).
-    /// Can be set to default for non-coinbase outputs & if locktime feature (height relative) is
-    /// disabled.
     pub block_height: u32,
     /// The time of the block that contains this output (meta field).
     /// Used to validate relative timelocks (it has been more than X seconds since the transaction
     /// containing this output was mined).
-    /// Can be set to default if locktime feature (time relative) is disabled.
     pub block_time: u32,
     // Determine if the outpoint is a coinbase transaction
     // Has 100 or more block confirmation,
@@ -126,33 +122,6 @@ pub struct TxOut {
     pub cached: bool,
 }
 
-impl ByteArraySnapSerde of Serde<@ByteArray> {
-    fn serialize(self: @@ByteArray, ref output: Array<felt252>) {
-        (*self).serialize(ref output);
-    }
-
-    fn deserialize(ref serialized: Span<felt252>) -> Option<@ByteArray> {
-        match Serde::deserialize(ref serialized) {
-            Option::Some(res) => Option::Some(@res),
-            Option::None => Option::None,
-        }
-    }
-}
-
-
-impl ByteArraySnapHash<S, +HashStateTrait<S>, +Drop<S>> of Hash<@ByteArray, S> {
-    #[inline]
-    fn update_state(mut state: S, value: @ByteArray) -> S {
-        let mut serialized_bytearray: Array<felt252> = array![];
-        value.serialize(ref serialized_bytearray);
-
-        for felt in serialized_bytearray {
-            state = state.update(felt);
-        };
-        state
-    }
-}
-
 impl TxOutDefault of Default<TxOut> {
     fn default() -> TxOut {
         TxOut { value: 0, pk_script: @"", cached: false, }
@@ -161,7 +130,7 @@ impl TxOutDefault of Default<TxOut> {
 
 #[cfg(test)]
 mod tests {
-    use super::HashStateTrait;
+    use core::hash::HashStateTrait;
     use core::hash::HashStateExTrait;
     use core::poseidon::PoseidonTrait;
     use super::{OutPoint, TxOut};
