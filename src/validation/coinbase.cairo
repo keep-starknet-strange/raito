@@ -7,7 +7,8 @@ use crate::utils::{bit_shifts::shr, hash::Digest};
 
 const BIP_34_BLOCK_HEIGHT: u32 = 227_836;
 const BIP_141_BLOCK_HEIGHT: u32 = 481_824;
-const MINIMUM_WITNESS_COMMITMENT: u32 = 38;
+const WTNS_PK_SCRIPT_LEN: u32 = 38;
+const WTNS_PK_SCRIPT_PREFIX: felt252 = 116705705699821; // 0x6a24aa21a9ed
 
 /// Validates coinbase transaction.
 pub fn validate_coinbase(
@@ -31,33 +32,51 @@ pub fn validate_coinbase(
     let block_reward = compute_block_reward(block_height);
     assert(total_output_amount <= total_fees + block_reward, 'total output > block rwd + fees');
 
-    // validate BIP-141 segwit output
-    if *tx.is_segwit {
-        let outputs = *tx.outputs;
-        let mut is_wtxid_commitment_present: bool = false;
-        let mut extracted_wtxid_commitment: ByteArray = "";
-        let mut i = 0;
-        let mut x = 6;
+    // validate BIP-141 witness field
+    if block_height >= BIP_141_BLOCK_HEIGHT {
+        let witness = tx.inputs[0].witness[0];
 
-        while i < outputs.len() {
-            let pk_script = *outputs[i].pk_script;
+        // check witness value
+        if witness != @"\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0" {
+            return Result::Err("Wrong coinbase witness");
+        }
 
-            // check for OP_RETURN and the fixed prefix "0xaa21a9ed"
-            if pk_script.len() >= MINIMUM_WITNESS_COMMITMENT
-                && pk_script[0] == 0x6a
-                && pk_script[1] == 0x24
-                && pk_script[2] == 0xaa
-                && pk_script[3] == 0x21
-                && pk_script[4] == 0xa9
-                && pk_script[5] == 0xed {
-                // get wtxid commitment
-                while x < pk_script.len() {
-                    extracted_wtxid_commitment.append_word(pk_script[x].into(), 1);
-                    x += 1;
-                };
+        // validate BIP-141 segwit output
+        if *tx.is_segwit {
+            let mut outputs = *tx.outputs;
+            let mut is_wtxid_commitment_present: bool = false;
+            let mut extracted_wtxid_commitment: ByteArray = "";
+            let mut x = 0;
 
-                is_wtxid_commitment_present = true;
-                break;
+            // construct expected wtxid commitment
+            let mut fixed_prefix_byte: ByteArray = "";
+            fixed_prefix_byte.append_word(WTNS_PK_SCRIPT_PREFIX, 6);
+
+            let mut expected_wtxid_commitment = ByteArrayTrait::concat(
+                @fixed_prefix_byte, @wtxid_commitment.into()
+            );
+
+            while let Option::Some(output) = outputs.pop_back() {
+                let pk_script = *output.pk_script;
+
+                // check for pk_script with at least 38 bytes commitment length
+                if pk_script.len() >= WTNS_PK_SCRIPT_LEN {
+                    // get wtxid commitment
+                    while x != WTNS_PK_SCRIPT_LEN {
+                        extracted_wtxid_commitment.append_byte(pk_script[x]);
+                        x += 1;
+                    };
+
+                    // compare expected and extracted wtxid commitment
+                    if expected_wtxid_commitment == extracted_wtxid_commitment {
+                        is_wtxid_commitment_present = true;
+                        break;
+                    }
+                }
+            };
+
+            if !is_wtxid_commitment_present {
+                return Result::Err("No wtxid commitment found");
             }
             i += 1;
         };
