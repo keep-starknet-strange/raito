@@ -55,7 +55,7 @@ pub impl TraceContextImpl of TraceContextTrait {
     }
 
     fn trace(ref self: TraceContext, message: ByteArray) {
-        self.trace.append(message);
+        self.trace.append(self.with_context(message));
     }
 }
 
