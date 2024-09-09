@@ -285,6 +285,13 @@ def generate_data(
         next_block_hash = block["nextblockhash"]
         blocks.append(block)
 
+    for block in blocks:
+        for tx in block["data"]:
+            for idx, output in enumerate(tx["outputs"]):
+                outpoint = (tx["txid"], idx)
+                if outpoint in utxo_set and utxo_set[outpoint].get("cached", False):
+                    tx["outputs"][idx]["cached"] = True
+
     block_formatter = (
         format_block if mode == "light" else format_block_with_transactions
     )
