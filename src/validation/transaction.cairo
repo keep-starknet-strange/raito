@@ -1,7 +1,6 @@
 //! Transaction validation helpers.
-
+use crate::types::context::{TraceContext, Frame, TraceContextTrait};
 use crate::types::transaction::{Transaction, TxIn};
-
 
 // Setting sequence to this value for every input in a transaction
 // disables the locktime feature
@@ -17,7 +16,7 @@ const LOCKTIME_MASK: u32 = 0x80000000;
 ///
 /// This does not include script checks and outpoint inclusion verification.
 pub fn validate_transaction(
-    tx: @Transaction, block_height: u32, block_time: u32
+    ref context: TraceContext, tx: @Transaction, block_height: u32, block_time: u32
 ) -> Result<u64, ByteArray> {
     // TODO: validate that
     //      - Inputs array is not empty
@@ -37,31 +36,34 @@ pub fn validate_transaction(
     //      - https://github.com/bitcoin/bitcoin/blob/master/src/consensus/tx_verify.cpp
     //      - https://github.com/bitcoin/bitcoin/blob/master/src/validation.cpp
 
+    context.push(Frame::Message(@"validate_transaction"));
+
+    println!("context: {:?}", context);
+
     if (*tx.inputs).len() == 0 {
-        return Result::Err("transaction inputs are empty");
+        return context.err_with_context("transaction inputs are empty");
     };
     if (*tx.outputs).len() == 0 {
-        return Result::Err("transaction outputs are empty");
+        return context.err_with_context("transaction outputs are empty");
     };
 
     // check if transaction is finalized
     // https://github.com/bitcoin/bitcoin/blob/master/src/consensus/tx_verify.cpp#L17
     validate_absolute_locktime(tx, block_height, block_time)?;
 
-    let mut maturity_result = Option::None;
+    let mut maturity_result = Result::Ok(0);
 
     // Coinbase maturity test
     for input in *tx
         .inputs {
+            context.push(Frame::TxIn((*input.previous_output.txid, *input.previous_output.vout)));
             if *input.previous_output.is_coinbase {
                 let coinbase_block_height = *input.previous_output.block_height;
                 if block_height <= coinbase_block_height + 100 {
-                    maturity_result =
-                        Option::Some(
+                    maturity_result = context
+                        .err_with_context(
                             format!(
-                                "[validate_transaction] coinbase input: ({}, {}) not mature (current height: {}, coinbase height: {})",
-                                *input.previous_output.txid,
-                                *input.previous_output.vout,
+                                "coinbase input not mature (current height: {}, coinbase height: {})",
                                 block_height,
                                 coinbase_block_height
                             )
@@ -69,10 +71,11 @@ pub fn validate_transaction(
                     break;
                 }
             }
+            context.pop();
         };
 
-    if let Option::Some(result) = maturity_result {
-        return Result::Err(result);
+    if maturity_result.is_err() {
+        return maturity_result;
     }
 
     let mut total_input_amount = 0;
@@ -86,13 +89,14 @@ pub fn validate_transaction(
     };
 
     if total_output_amount > total_input_amount {
-        return Result::Err(
-            format!(
-                "[validate_transaction] negative fee (output {total_output_amount} > input {total_input_amount})"
-            )
-        );
+        return context
+            .err_with_context(
+                format!("negative fee (output {total_output_amount} > input {total_input_amount})")
+            );
     }
     let tx_fee = total_input_amount - total_output_amount;
+
+    context.pop();
 
     Result::Ok(tx_fee)
 }
@@ -189,6 +193,7 @@ pub fn validate_relative_locktime(
 #[cfg(test)]
 mod tests {
     use crate::types::transaction::{Transaction, TxIn, TxOut, OutPoint};
+    use crate::types::context::{TraceContextTrait};
     use crate::utils::hex::{from_hex, hex_to_hash_rev};
     use super::{validate_transaction, validate_relative_locktime};
 
@@ -305,9 +310,12 @@ mod tests {
                 .span(),
             lock_time: 0
         };
-        assert!(validate_transaction(@tx, 0, 0).is_err());
 
-        let fee = validate_transaction(@tx, 101, 0).unwrap();
+        let mut context = TraceContextTrait::new();
+
+        assert!(validate_transaction(ref context, @tx, 0, 0).is_err());
+
+        let fee = validate_transaction(ref context, @tx, 101, 0).unwrap();
         assert_eq!(fee, 10);
     }
 
@@ -328,7 +336,8 @@ mod tests {
             lock_time: 0
         };
 
-        let result = validate_transaction(@tx, 0, 0);
+        let mut context = TraceContextTrait::new();
+        let result = validate_transaction(ref context, @tx, 0, 0);
         assert!(result.is_err());
         // assert_eq!(result.unwrap_err(), "transaction inputs are empty");
     }
@@ -360,7 +369,8 @@ mod tests {
             lock_time: 0
         };
 
-        let result = validate_transaction(@tx, 0, 0);
+        let mut context = TraceContextTrait::new();
+        let result = validate_transaction(ref context, @tx, 0, 0);
         assert!(result.is_err());
         // assert_eq!(result.unwrap_err(), "transaction outputs are empty");
     }
@@ -400,7 +410,8 @@ mod tests {
         };
 
         // Transaction should be invalid when current block height is less than locktime
-        let result = validate_transaction(@tx, 500000, 0);
+        let mut context = TraceContextTrait::new();
+        let result = validate_transaction(ref context, @tx, 500000, 0);
         assert!(result.is_err());
         assert_eq!(
             result.unwrap_err().into(),
@@ -409,7 +420,7 @@ mod tests {
 
         // Transaction should be valid when current block height is equal to or greater than
         // locktime
-        let result = validate_transaction(@tx, 500001, 0);
+        let result = validate_transaction(ref context, @tx, 500001, 0);
         assert!(result.is_ok());
     }
 
@@ -447,8 +458,9 @@ mod tests {
             lock_time: 1600000000 // UNIX timestamp locktime
         };
 
+        let mut context = TraceContextTrait::new();
         // Transaction should be invalid when current block time is not greater than locktime
-        let result = validate_transaction(@tx, 0, 1600000000);
+        let result = validate_transaction(ref context, @tx, 0, 1600000000);
         assert!(result.is_err());
         assert_eq!(
             result.unwrap_err().into(),
@@ -456,7 +468,7 @@ mod tests {
         );
 
         // Transaction should be valid when current block time is equal to or greater than locktime
-        let result = validate_transaction(@tx, 0, 1600000001);
+        let result = validate_transaction(ref context, @tx, 0, 1600000001);
         assert!(result.is_ok());
     }
 
@@ -494,12 +506,13 @@ mod tests {
             lock_time: 1600000000 // UNIX timestamp locktime
         };
 
+        let mut context = TraceContextTrait::new();
         // Transaction should still valid when current block time is not greater than locktime
-        let result = validate_transaction(@tx, 0, 1600000000);
+        let result = validate_transaction(ref context, @tx, 0, 1600000000);
         assert!(result.is_ok());
 
         // Transaction should be valid when current block time is greater than locktime
-        let result = validate_transaction(@tx, 0, 1600000001);
+        let result = validate_transaction(ref context, @tx, 0, 1600000001);
         assert!(result.is_ok());
     }
 
@@ -537,12 +550,13 @@ mod tests {
             lock_time: 500000 // Block height locktime
         };
 
+        let mut context = TraceContextTrait::new();
         // Transaction should still valid when current block time is not greater than locktime
-        let result = validate_transaction(@tx, 500000, 0);
+        let result = validate_transaction(ref context, @tx, 500000, 0);
         assert!(result.is_ok());
 
         // Transaction should be valid when current block time is greater than locktime
-        let result = validate_transaction(@tx, 500001, 0);
+        let result = validate_transaction(ref context, @tx, 500001, 0);
         assert!(result.is_ok());
     }
 }

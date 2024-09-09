@@ -1,5 +1,6 @@
 //! Block validation helpers.
 use crate::types::transaction::{Transaction};
+use crate::types::context::{TraceContext, Frame, TraceContextTrait};
 use crate::codec::{Encode, TransactionCodec};
 use crate::utils::{hash::Digest, merkle_tree::merkle_root, sha256::double_sha256_byte_array};
 use super::transaction::validate_transaction;
@@ -27,7 +28,7 @@ pub fn validate_block_weight(weight: usize) -> Result<(), ByteArray> {
 ///  - wTXID commitment (only for blocks after Segwit upgrade, otherwise return zero hash)
 ///  - Block weight
 pub fn compute_and_validate_tx_data(
-    txs: Span<Transaction>, block_height: u32, block_time: u32
+    ref context: TraceContext, txs: Span<Transaction>, block_height: u32, block_time: u32
 ) -> Result<(u64, Digest, Digest), ByteArray> {
     let mut txids: Array<Digest> = array![];
     let mut wtxids: Array<Digest> = array![];
@@ -40,6 +41,8 @@ pub fn compute_and_validate_tx_data(
             break Result::Ok(());
         }
         ///  - wTXID commitment (only for blocks after Segwit upgrade, otherwise return zero hash)
+
+        context.push(Frame::Transaction(i));
 
         let tx = txs[i];
         let tx_bytes_legacy = @tx.encode();
@@ -59,7 +62,7 @@ pub fn compute_and_validate_tx_data(
 
         // skipping the coinbase transaction
         if (i != 0) {
-            let fee = match validate_transaction(tx, block_height, block_time) {
+            let fee = match validate_transaction(ref context, tx, block_height, block_time) {
                 Result::Ok(fee) => fee,
                 Result::Err(err) => { break Result::Err(err); }
             };

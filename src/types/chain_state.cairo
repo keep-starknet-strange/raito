@@ -10,6 +10,7 @@ use crate::validation::{
     timestamp::{validate_timestamp, next_prev_timestamps},
     work::{validate_proof_of_work, compute_total_work}, block::{compute_and_validate_tx_data},
 };
+use super::context::{Frame, TraceContextTrait};
 use super::block::{BlockHash, Block, TransactionData};
 
 /// Represents the state of the blockchain.
@@ -55,7 +56,11 @@ impl ChainStateDefault of Default<ChainState> {
 #[generate_trait]
 pub impl BlockValidatorImpl of BlockValidator {
     fn validate_and_apply(self: ChainState, block: Block) -> Result<ChainState, ByteArray> {
+        let mut context = TraceContextTrait::new();
+
         let block_height = self.block_height + 1;
+
+        context.push(Frame::BlockHeight(block_height));
 
         validate_timestamp(self.prev_timestamps, block.header.time)?;
         let prev_block_time = *self.prev_timestamps[self.prev_timestamps.len() - 1];
@@ -65,7 +70,7 @@ pub impl BlockValidatorImpl of BlockValidator {
             TransactionData::MerkleRoot(root) => root,
             TransactionData::Transactions(txs) => {
                 let (total_fees, txid_root, wtxid_root) = compute_and_validate_tx_data(
-                    txs, block_height, block.header.time
+                    ref context, txs, block_height, block.header.time
                 )?;
                 validate_coinbase(txs[0], total_fees, block_height, wtxid_root)?;
                 txid_root
