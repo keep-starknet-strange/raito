@@ -19,7 +19,7 @@ def request_rpc(method: str, params: list):
     :return: parsed JSON result as Python object
     """
     url = BITCOIN_RPC or DEFAULT_URL
-    auth = USERPWD.split(":") if USERPWD else None
+    auth = tuple(USERPWD.split(":")) if USERPWD else None
     headers = {'content-type': 'application/json'}
     payload = {
         "jsonrpc": "2.0",
@@ -27,10 +27,11 @@ def request_rpc(method: str, params: list):
         "params": params,
         "id": 0,
     }
-    data = requests.post(url, auth=auth, headers=headers, json=payload).json()
-    if data['result'] is None:
-        raise ConnectionError("RPC response is null")
-    return data['result']
+    res = requests.post(url, auth=auth, headers=headers, json=payload)
+    try:
+        return res.json()['result']
+    except Exception:
+        raise ConnectionError(f"Unexpected RPC response:\n{res.text}")
 
 
 def fetch_chain_state(block_height: int):
