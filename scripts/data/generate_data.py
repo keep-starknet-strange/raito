@@ -5,6 +5,9 @@ import os
 import json
 import requests
 from pathlib import Path
+from decimal import Decimal, getcontext
+
+getcontext().prec = 16
 
 BITCOIN_RPC = os.getenv("BITCOIN_RPC")
 USERPWD = os.getenv("USERPWD")
@@ -187,14 +190,15 @@ def format_coinbase_input(input: dict):
             "block_time": 0,
             "is_coinbase": False,
         },
-        "witness": [],
+        "witness": ["0x0000000000000000000000000000000000000000000000000000000000000000"],
     }
 
 
 def format_output(output: dict):
     """Formats transaction output according to the Cairo type."""
+    value = (Decimal(str(output["value"])) * Decimal('100000000')).to_integral_value()
     return {
-        "value": int(output["value"] * 100000000),
+        "value": int(value),
         "pk_script": f'0x{output["scriptPubKey"]["hex"]}',
         "cached": False,
     }
