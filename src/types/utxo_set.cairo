@@ -8,19 +8,18 @@
 //!
 //! In order to prove that the UTXOs provided actually belong to the set we use either
 //! Utreexo accumulator or local cache.
-
 use core::dict::Felt252Dict;
 use super::utreexo::UtreexoState;
 use super::transaction::OutPoint;
 
-#[derive(Default)]
+#[derive(Default, Destruct)]
 pub struct UtxoSet {
     /// Utreexo state.
     utreexo_state: UtreexoState,
     /// Hashes of UTXOs created within the current block(s).
     /// Note that to preserve the ordering, cache has to be updated right after a
     /// particular output is created or spent.
-    cache: Felt252Dict<()>,
+    cache: Felt252Dict<bool>,
 }
 
 #[generate_trait]
