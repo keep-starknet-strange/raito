@@ -9,6 +9,7 @@ const BIP_34_BLOCK_HEIGHT: u32 = 227_836;
 const BIP_141_BLOCK_HEIGHT: u32 = 481_824;
 const WTNS_PK_SCRIPT_LEN: u32 = 38;
 const WTNS_PK_SCRIPT_PREFIX: felt252 = 116705705699821; // 0x6a24aa21a9ed
+const WITNESS_VALUE: felt252 = 0;
 
 /// Validates coinbase transaction.
 pub fn validate_coinbase(
@@ -37,12 +38,16 @@ pub fn validate_coinbase(
         let witness = tx.inputs[0].witness[0];
 
         // check witness value
-        if witness != @"\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0" {
+        let mut witness_value_byte: ByteArray = "";
+        witness_value_byte.append_word(WITNESS_VALUE, 32);
+
+        if witness != @witness_value_byte {
             return Result::Err("Wrong coinbase witness");
         }
 
         // validate BIP-141 segwit output
         if *tx.is_segwit {
+            //TODO: calculate wtxid commitment
             validate_segwit_output(*tx.outputs, wtxid_commitment)?;
         }
     }
@@ -108,6 +113,9 @@ fn validate_coinbase_sig_script(script: @ByteArray, block_height: u32) -> Result
 fn compute_block_reward(block_height: u32) -> u64 {
     shr(5000000000_u64, (block_height / 210000_u32))
 }
+
+// TODO
+fn calculate_wtxid_commitment() {}
 
 fn validate_segwit_output(
     mut outputs: Span<TxOut>, wtxid_commitment: Digest
