@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 
-set -e;
-set -o pipefail;
+#set -e;
+#set -o pipefail;
 
-base_dir=".raito"
+base_dir=".client_cache"
 
 start=${1:-0}
 end=${2:-100}
@@ -23,11 +23,11 @@ run_client() {
 
   batch_file=${base_dir}/${mode}_${initial_height}_${num_blocks}.json
   if [ ! -f "$batch_file" ]; then
-    python scripts/data/generate_data.py $mode $initial_height $num_blocks true $batch_file
+    python ../../scripts/data/generate_data.py $mode $initial_height $num_blocks true $batch_file
   fi
   
-  arguments=$(python scripts/data/format_args.py $batch_file)
-  output=$(scarb cairo-run --no-build --function test "$arguments")
+  arguments=$(python ../../scripts/data/format_args.py $batch_file)
+  output=$(scarb cairo-run --no-build --package client --function test "$arguments")
   if [[ "$output" == *"FAIL"* ]]; then
     echo " fail"
     echo $output

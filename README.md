@@ -74,7 +74,7 @@ Extend light client with partial transaction validation, but without UTXO checks
 
 Tasks:
 
-* [ ] reassess validation check list (analyze Bitcoin core codebase)
+* [x] reassess validation check list (analyze Bitcoin core codebase)
 * [x] generate & run integration tests e2e instead of Cairo codegen
 * [x] transaction ID calculation
 * [x] transaction root computation
@@ -135,39 +135,17 @@ Raito is a reference to Light Yagami (夜神月, Yagami Raito) from the manga/an
 
 ## Usage
 
-This will compile all the components:
+This will compile all the packages:
 
 ```bash
 scarb build
 ```
 
-This will run unit and integration tests:
+This will run tests for all the packages:
 
 ```bash
 scarb test
 ```
-
-For integration tests ony:
-
-```bash
-scarb run integration_tests
-```
-
-Run for specific test file(s):
-
-```bash
-scarb run integration_tests tests/data/light_481823.json
-```
-
-Re-generate integration test data:
-
-```base
-scarb run regenerate_tests --force
-```
-
-* Without `--force` flag only non-existent files will be created
-* Files are located in [tests/data/](https://github.com/keep-starknet-strange/raito/blob/main/tests/data)
-* If you want to add a new test case, edit [scripts/data/regenerate_tests.sh](https://github.com/keep-starknet-strange/raito/blob/main/scripts/data/regenerate_tests.sh)
 
 ## Build dependencies
 

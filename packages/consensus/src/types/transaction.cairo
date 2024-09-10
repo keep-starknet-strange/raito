@@ -3,7 +3,7 @@
 //! Types are extended with extra information required for validation.
 //! The data is expected to be prepared in advance and passed as program arguments.
 
-use crate::utils::{hash::Digest, bytearray::{ByteArraySnapHash, ByteArraySnapSerde}};
+use utils::{hash::Digest, bytearray::{ByteArraySnapHash, ByteArraySnapSerde}};
 
 /// Represents a transaction.
 /// https://learnmeabitcoin.com/technical/transaction/
@@ -134,7 +134,7 @@ mod tests {
     use core::hash::HashStateExTrait;
     use core::poseidon::PoseidonTrait;
     use super::{OutPoint, TxOut};
-    use crate::utils::{hash::{DigestTrait}};
+    use utils::hash::{DigestTrait};
 
     #[test]
     pub fn test_outpoint_poseidon_hash() {

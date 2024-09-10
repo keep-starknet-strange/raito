@@ -4,7 +4,7 @@
 //!   - https://learnmeabitcoin.com/technical/mining/target/
 //!   - https://learnmeabitcoin.com/technical/block/bits/
 
-use crate::utils::{bit_shifts::{shl, shr}};
+use utils::{bit_shifts::{shl, shr}};
 
 /// Maximum difficulty target allowed
 const MAX_TARGET: u256 = 0x00000000FFFF0000000000000000000000000000000000000000000000000000;
