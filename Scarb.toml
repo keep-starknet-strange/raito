@@ -3,6 +3,11 @@ name = "raito"
 version = "0.1.0"
 edition = "2024_07"
 
+[features]
+default = ["trace_context"]
+trace_context = []
+without_trace_context = []
+
 [scripts]
 regenerate_tests= "./scripts/data/regenerate_tests.sh"
 integration_tests = "scarb build && ./scripts/data/integration_tests.sh"
