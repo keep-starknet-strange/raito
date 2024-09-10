@@ -3,7 +3,8 @@
 //! https://learnmeabitcoin.com/technical/mining/coinbase-transaction/
 
 use crate::types::transaction::{Transaction, TxIn, TxOut};
-use crate::utils::{bit_shifts::shr, hash::Digest};
+use crate::utils::{bit_shifts::shr, hash::Digest, sha256::double_sha256_byte_array};
+
 
 const BIP_34_BLOCK_HEIGHT: u32 = 227_836;
 const BIP_141_BLOCK_HEIGHT: u32 = 481_824;
@@ -13,7 +14,7 @@ const WITNESS_VALUE: felt252 = 0;
 
 /// Validates coinbase transaction.
 pub fn validate_coinbase(
-    tx: @Transaction, total_fees: u64, block_height: u32, _wtxid_commitment: Digest,
+    tx: @Transaction, total_fees: u64, block_height: u32, wtxid_root: Digest,
 ) -> Result<(), ByteArray> {
     // Ensure there is exactly one coinbase input
     if (*tx.inputs).len() != 1 {
@@ -48,6 +49,9 @@ pub fn validate_coinbase(
         // validate BIP-141 segwit output
         if *tx.is_segwit {
             //TODO: calculate wtxid commitment
+            let wtxid_commitment = calculate_wtxid_commitment(wtxid_root);
+            println!("wtxid_commitment: {}", wtxid_commitment);
+            println!("wtxid_root: {}", wtxid_root);
             validate_segwit_output(*tx.outputs, wtxid_commitment)?;
         }
     }
@@ -115,7 +119,14 @@ fn compute_block_reward(block_height: u32) -> u64 {
 }
 
 // TODO
-fn calculate_wtxid_commitment() {}
+fn calculate_wtxid_commitment(wtxid_root: Digest) -> Digest {
+    let mut witness_value_byte: ByteArray = "";
+    witness_value_byte.append_word(WITNESS_VALUE, 32);
+
+    let mut res = ByteArrayTrait::concat(@wtxid_root.into(), @witness_value_byte);
+
+    double_sha256_byte_array(@res)
+}
 
 fn validate_segwit_output(
     mut outputs: Span<TxOut>, wtxid_commitment: Digest
@@ -161,11 +172,12 @@ fn validate_segwit_output(
 #[cfg(test)]
 mod tests {
     use crate::types::transaction::{TxIn, TxOut, Transaction, OutPoint};
-    use crate::utils::hex::from_hex;
     use super::{
         compute_block_reward, validate_coinbase, validate_coinbase_input,
         validate_coinbase_sig_script, validate_coinbase_witness
     };
+    use crate::utils::{hex::from_hex, hash::Digest};
+    // use crate::validation::block::compute_and_validate_tx_data;
 
     // Ref implementation here:
     // https://github.com/bitcoin/bitcoin/blob/0f68a05c084bef3e53e3f549c403bc90b1db319c/src/test/validation_tests.cpp#L24
@@ -703,3 +715,6 @@ mod tests {
         validate_coinbase(@tx, total_fees, block_height, Default::default()).unwrap_err();
     }
 }
+
+#[test]
+fn test_calculate_wtxid_commitment() {}
