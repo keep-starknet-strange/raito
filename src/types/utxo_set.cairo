@@ -8,6 +8,7 @@
 //!
 //! In order to prove that the UTXOs provided actually belong to the set we use either
 //! Utreexo accumulator or local cache.
+
 use core::dict::Felt252Dict;
 use super::utreexo::UtreexoState;
 use super::transaction::OutPoint;
