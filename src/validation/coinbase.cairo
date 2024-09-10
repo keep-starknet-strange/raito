@@ -60,7 +60,6 @@ fn validate_coinbase_input(input: @TxIn, block_height: u32) -> Result<(), ByteAr
     Result::Ok(())
 }
 
-#[inline]
 /// Validate coinbase sig script (BIP-34)
 fn validate_coinbase_sig_script(script: @ByteArray, block_height: u32) -> Result<(), ByteArray> {
     let script_len = script.len();
@@ -87,7 +86,6 @@ fn validate_coinbase_sig_script(script: @ByteArray, block_height: u32) -> Result
     Result::Ok(())
 }
 
-#[inline]
 /// Validate coinbase witness
 fn validate_coinbase_witness(witness: Span<ByteArray>) -> Result<(), ByteArray> {
     if witness.len() != 1 {
