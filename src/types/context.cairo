@@ -100,6 +100,10 @@ mod trace_context_impl {
 
 #[cfg(feature: "trace_context")]
 pub use trace_context_impl::TraceContext;
-
 #[cfg(feature: "trace_context")]
+pub use trace_context_impl::TraceContextImpl;
+
+#[cfg(feature: "without_trace_context")]
+pub use trace_context_impl::TraceContext;
+#[cfg(feature: "without_trace_context")]
 pub use trace_context_impl::TraceContextImpl;
