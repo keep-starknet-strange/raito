@@ -1,4 +1,5 @@
 pub mod utils {
+    pub mod bytearray;
     pub mod sha256;
     pub mod hash;
     pub mod bit_shifts;
@@ -11,6 +12,7 @@ pub mod utils {
 pub mod validation {
     pub mod difficulty;
     pub mod coinbase;
+    pub mod locktime;
     pub mod timestamp;
     pub mod transaction;
     pub mod work;

@@ -1,17 +1,9 @@
 //! Transaction validation helpers.
 
-use crate::types::transaction::{Transaction, TxIn};
-
-
-// Setting sequence to this value for every input in a transaction
-// disables the locktime feature
-const SEQUENCE_FINAL: u32 = 0xffffffff;
-
-// Threshold for lock_time: below this value it is interpreted as block number,
-// otherwise as UNIX timestamp.
-const LOCKTIME_THRESHOLD: u32 = 500000000; // Tue Nov  5 00:53:20 1985 UTC
-// 0x80000000 mask is used to determine if it is time-based (bit 31)
-const LOCKTIME_MASK: u32 = 0x80000000;
+use crate::types::transaction::Transaction;
+use crate::validation::locktime::{
+    is_input_final, validate_absolute_locktime, validate_relative_locktime
+};
 
 /// Validate transaction and return transaction fee.
 ///
@@ -19,254 +11,98 @@ const LOCKTIME_MASK: u32 = 0x80000000;
 pub fn validate_transaction(
     tx: @Transaction, block_height: u32, block_time: u32
 ) -> Result<u64, ByteArray> {
-    // TODO: validate that
-    //      - Inputs array is not empty
-    //      - Outputs array is not empty
-    //      - Output values are within the range [0, 21M]
-    //      - Total output value is within the range [0, 21M]
-    //      - Transaction fee is in the range [0, 21M]
-    //      - Transaction is final (check timelock and input sequences)
-    //      - Coinbase is mature (if some input spends coinbase tx from the past)
-    //
-    //  Skipped checks:
-    //      - There are no duplicate inputs - this should be actually done during the Utreexo proof
-    //      verification - Maybe we don't need to check the upper money range (21M)
-    //
-    // References:
-    //      - https://github.com/bitcoin/bitcoin/blob/master/src/consensus/tx_check.cpp
-    //      - https://github.com/bitcoin/bitcoin/blob/master/src/consensus/tx_verify.cpp
-    //      - https://github.com/bitcoin/bitcoin/blob/master/src/validation.cpp
-
-    if (*tx.inputs).len() == 0 {
+    if (*tx.inputs).is_empty() {
         return Result::Err("transaction inputs are empty");
     };
-    if (*tx.outputs).len() == 0 {
+
+    if (*tx.outputs).is_empty() {
         return Result::Err("transaction outputs are empty");
     };
 
-    // check if transaction is finalized
-    // https://github.com/bitcoin/bitcoin/blob/master/src/consensus/tx_verify.cpp#L17
-    validate_absolute_locktime(tx, block_height, block_time)?;
+    let mut inner_result: Result<(), ByteArray> = Result::Ok(());
 
-    let mut maturity_result = Option::None;
+    // Validate and process transaction inputs
+    let mut total_input_amount = 0;
+    let mut is_tx_final = true;
 
-    // Coinbase maturity test
+    // TODO: BIP68 enabled for tx with version >= 2 (is it critical?)
+
     for input in *tx
         .inputs {
             if *input.previous_output.is_coinbase {
-                let coinbase_block_height = *input.previous_output.block_height;
-                if block_height <= coinbase_block_height + 100 {
-                    maturity_result =
-                        Option::Some(
-                            format!(
-                                "[validate_transaction] coinbase input: ({}, {}) not mature (current height: {}, coinbase height: {})",
-                                *input.previous_output.txid,
-                                *input.previous_output.vout,
-                                block_height,
-                                coinbase_block_height
-                            )
-                        );
+                inner_result =
+                    validate_coinbase_maturity(*input.previous_output.block_height, block_height);
+                if inner_result.is_err() {
                     break;
                 }
             }
+
+            if !is_input_final(*input.sequence) {
+                inner_result = validate_relative_locktime(input, block_height, block_time);
+                if inner_result.is_err() {
+                    break;
+                }
+                is_tx_final = false;
+            }
+
+            total_input_amount += *input.previous_output.data.value;
         };
 
-    if let Option::Some(result) = maturity_result {
-        return Result::Err(result);
+    if let Result::Err(err) = inner_result {
+        return Result::Err(err);
     }
 
-    let mut total_input_amount = 0;
-    for input in *tx.inputs {
-        total_input_amount += *input.previous_output.data.value;
-    };
+    if !is_tx_final {
+        // If at least one input is not final
+        validate_absolute_locktime(*tx.lock_time, block_height, block_time)?;
+    }
 
+    // Validate and process transaction outputs
     let mut total_output_amount = 0;
+
     for output in *tx.outputs {
         total_output_amount += *output.value;
     };
 
+    return compute_transaction_fee(total_input_amount, total_output_amount);
+}
+
+#[inline]
+/// Ensure transaction fee is not negative.
+fn compute_transaction_fee(
+    total_input_amount: u64, total_output_amount: u64
+) -> Result<u64, ByteArray> {
     if total_output_amount > total_input_amount {
         return Result::Err(
-            format!(
-                "[validate_transaction] negative fee (output {total_output_amount} > input {total_input_amount})"
-            )
+            format!("Negative fee (output {total_output_amount} > input {total_input_amount})")
         );
     }
-    let tx_fee = total_input_amount - total_output_amount;
-
-    Result::Ok(tx_fee)
+    return Result::Ok(total_input_amount - total_output_amount);
 }
 
-pub fn validate_absolute_locktime(
-    tx: @Transaction, block_height: u32, block_time: u32
-) -> Result<(), ByteArray> {
-    if *tx.lock_time < LOCKTIME_THRESHOLD && *tx.lock_time < block_height {
-        return Result::Ok(());
-    };
-
-    if *tx.lock_time >= LOCKTIME_THRESHOLD && *tx.lock_time < block_time {
-        return Result::Ok(());
-    };
-
-    let mut check_threshold_result: Result<(), ByteArray> = Result::Ok(());
-    for input in *tx
-        .inputs {
-            if *input.sequence != SEQUENCE_FINAL {
-                check_threshold_result =
-                    Result::Err(
-                        if *tx.lock_time >= LOCKTIME_THRESHOLD {
-                            format!(
-                                "transaction is not final: transaction locktime {} is not lesser than current block time {}",
-                                *tx.lock_time,
-                                block_time
-                            )
-                        } else {
-                            format!(
-                                "transaction is not final: transaction locktime {} is not lesser than current block height {}",
-                                *tx.lock_time,
-                                block_height
-                            )
-                        }
-                    );
-                break;
-            };
-        };
-    check_threshold_result
-}
-
-/// Validate a transaction input. If relative locktime is enabled,
-/// ensure the input's locktime is respected.
-pub fn validate_relative_locktime(
-    tx_input: @TxIn, block_height: u32, block_time: u32
-) -> Result<(), ByteArray> {
-    // Get the input we are validating
-    //  let tx_input = *tx.inputs[input_index];
-
-    // If nSequence is set to 0xFFFFFFFF, it is not subject to relative locktime
-    if *tx_input.sequence == SEQUENCE_FINAL {
-        return Result::Ok(());
-    }
-
-    // BIP-68 relative locktime calculation
-    let sequence = *tx_input.sequence;
-    // 0x80000000 mask is used to determine if it is time-based (bit 31)
-    //  let locktime_mask = 0x80000000;
-    let relative_locktime = sequence & 0xFFFF;
-
-    //  If bit 22 (0x00400000) is set, relative locktime is in seconds (time-based), else
-    //  block-based
-    let is_time_based = (sequence & LOCKTIME_MASK) != 0;
-    if is_time_based {
-        // Time-based relative locktime (512 seconds per unit)
-        let locktime_in_seconds = relative_locktime * 512;
-        if block_time < locktime_in_seconds {
-            return Result::Err(
-                format!(
-                    "[validate_input] Transaction is not yet valid due to relative time-based locktime. Current time: {}, Required: {} seconds",
-                    block_time,
-                    locktime_in_seconds
-                )
-            );
-        }
+#[inline]
+/// Ensure than coinbase output is old enough to be spent.
+fn validate_coinbase_maturity(output_height: u32, block_height: u32) -> Result<(), ByteArray> {
+    if block_height <= output_height + 100 {
+        return Result::Err(
+            format!(
+                "Output is not mature (output height: {}, current block height: {})",
+                output_height,
+                block_height,
+            )
+        );
     } else {
-        // Block-based relative locktime
-        let locktime_in_blocks = relative_locktime;
-        if block_height < locktime_in_blocks {
-            return Result::Err(
-                format!(
-                    "[validate_input] Transaction is not yet valid due to relative block-based locktime. Current block: {}, Required: {}",
-                    block_height,
-                    locktime_in_blocks
-                )
-            );
-        }
+        return Result::Ok(());
     }
-
-    // Return success if all validations passed
-    Result::Ok(())
 }
 
 #[cfg(test)]
 mod tests {
     use crate::types::transaction::{Transaction, TxIn, TxOut, OutPoint};
     use crate::utils::hex::{from_hex, hex_to_hash_rev};
-    use super::{validate_transaction, validate_relative_locktime};
+    use super::validate_transaction;
 
-    #[test]
-    fn test_relative_locktime_disabled() {
-        let input_tx = TxIn {
-            script: @from_hex(""),
-            sequence: 0xffffffff, // Final, relative locktime disabled
-            previous_output: OutPoint {
-                txid: hex_to_hash_rev(
-                    "0000000000000000000000000000000000000000000000000000000000000000"
-                ),
-                vout: 0,
-                data: TxOut { value: 100, ..Default::default() },
-                block_height: 100, // Provide a valid block height
-                block_time: 1600000000, // Provide a valid block time
-                is_coinbase: false,
-            },
-            witness: array![].span(),
-        };
-        // Relative locktime should be ignored when sequence is 0xFFFFFFFF
-        // Case 1: Current block time less than locktime, but it should be valid
-        let result = validate_relative_locktime(@input_tx, 0, 1600000000);
-        assert!(result.is_ok());
-
-        // Case 2: Current block time greater than locktime, still valid
-        let result = validate_relative_locktime(@input_tx, 0, 1600000001);
-        assert!(result.is_ok());
-    }
-
-    #[test]
-    fn test_relative_locktime_enabled_block_height() {
-        let input_tx = TxIn {
-            script: @from_hex(""),
-            sequence: 10, // Relative locktime enabled, 10 blocks
-            previous_output: OutPoint {
-                txid: hex_to_hash_rev(
-                    "0000000000000000000000000000000000000000000000000000000000000000"
-                ),
-                vout: 0,
-                data: TxOut { value: 100, ..Default::default() },
-                block_height: 100, // The block height at which the UTXO was created
-                block_time: 1600000000, // The block time at which the UTXO was created
-                is_coinbase: false,
-            },
-            witness: array![].span(),
-        };
-
-        // UTXO block height + relative locktime = 100 + 10 = 110
-        // So at block height 110 or higher, the transaction should be valid
-        let result = validate_relative_locktime(@input_tx, 110, 1600000000);
-        assert!(result.is_ok());
-    }
-
-    #[test]
-    fn test_relative_locktime_enabled_block_time() {
-        let input_tx = TxIn {
-            script: @from_hex(""),
-            sequence: 0x0040000A, // Relative locktime enabled, time-based (10 * 512 seconds)
-            previous_output: OutPoint {
-                txid: hex_to_hash_rev(
-                    "0000000000000000000000000000000000000000000000000000000000000000"
-                ),
-                vout: 0,
-                data: TxOut { value: 100, ..Default::default() },
-                block_height: 100, // The block height when the UTXO was created
-                block_time: 1600000000, // The time at which the UTXO was created (in UNIX timestamp)
-                is_coinbase: false,
-            },
-            witness: array![].span(),
-        };
-
-        // Current block time meets or exceeds the required locktime
-        // So the transaction should be valid
-        let result = validate_relative_locktime(@input_tx, 100, 1600005120);
-        assert!(result.is_ok());
-    }
-
+    // TODO: tests for coinbase maturity
 
     #[test]
     fn test_tx_fee() {
@@ -404,7 +240,7 @@ mod tests {
         assert!(result.is_err());
         assert_eq!(
             result.unwrap_err().into(),
-            "transaction is not final: transaction locktime 500000 is not lesser than current block height 500000"
+            "Transaction locktime 500000 is not lesser than current block height 500000"
         );
 
         // Transaction should be valid when current block height is equal to or greater than
@@ -452,7 +288,7 @@ mod tests {
         assert!(result.is_err());
         assert_eq!(
             result.unwrap_err().into(),
-            "transaction is not final: transaction locktime 1600000000 is not lesser than current block time 1600000000"
+            "Transaction locktime 1600000000 is not lesser than current block time 1600000000"
         );
 
         // Transaction should be valid when current block time is equal to or greater than locktime
