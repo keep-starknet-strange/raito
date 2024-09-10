@@ -2,7 +2,7 @@
 //!
 //! https://learnmeabitcoin.com/technical/mining/coinbase-transaction/
 
-use crate::types::transaction::{Transaction, TxIn};
+use crate::types::transaction::{Transaction, TxIn, TxOut};
 use crate::utils::{bit_shifts::shr, hash::Digest};
 
 const BIP_34_BLOCK_HEIGHT: u32 = 227_836;
@@ -43,50 +43,7 @@ pub fn validate_coinbase(
 
         // validate BIP-141 segwit output
         if *tx.is_segwit {
-            let mut outputs = *tx.outputs;
-            let mut is_wtxid_commitment_present: bool = false;
-            let mut extracted_wtxid_commitment: ByteArray = "";
-            let mut x = 0;
-
-            // construct expected wtxid commitment
-            let mut fixed_prefix_byte: ByteArray = "";
-            fixed_prefix_byte.append_word(WTNS_PK_SCRIPT_PREFIX, 6);
-
-            let mut expected_wtxid_commitment = ByteArrayTrait::concat(
-                @fixed_prefix_byte, @wtxid_commitment.into()
-            );
-
-            while let Option::Some(output) = outputs.pop_back() {
-                let pk_script = *output.pk_script;
-
-                // check for pk_script with at least 38 bytes commitment length
-                if pk_script.len() >= WTNS_PK_SCRIPT_LEN {
-                    // get wtxid commitment
-                    while x != WTNS_PK_SCRIPT_LEN {
-                        extracted_wtxid_commitment.append_byte(pk_script[x]);
-                        x += 1;
-                    };
-
-                    // compare expected and extracted wtxid commitment
-                    if expected_wtxid_commitment == extracted_wtxid_commitment {
-                        is_wtxid_commitment_present = true;
-                        break;
-                    }
-                }
-            };
-
-            if !is_wtxid_commitment_present {
-                return Result::Err("No wtxid commitment found");
-            }
-            i += 1;
-        };
-
-        if !is_wtxid_commitment_present {
-            return Result::Err("No wtxid commitment found");
-        }
-
-        if !(extracted_wtxid_commitment == wtxid_commitment.into()) {
-            return Result::Err("Wrong wtxid commitment");
+            validate_segwit_output(*tx.outputs, wtxid_commitment)?;
         }
     }
 
@@ -150,6 +107,47 @@ fn validate_coinbase_sig_script(script: @ByteArray, block_height: u32) -> Result
 /// Return BTC reward in SATS
 fn compute_block_reward(block_height: u32) -> u64 {
     shr(5000000000_u64, (block_height / 210000_u32))
+}
+
+fn validate_segwit_output(
+    mut outputs: Span<TxOut>, wtxid_commitment: Digest
+) -> Result<(), ByteArray> {
+    let mut is_wtxid_commitment_present: bool = false;
+    let mut extracted_wtxid_commitment: ByteArray = "";
+    let mut x = 0;
+
+    // construct expected wtxid commitment
+    let mut fixed_prefix_byte: ByteArray = "";
+    fixed_prefix_byte.append_word(WTNS_PK_SCRIPT_PREFIX, 6);
+
+    let mut expected_wtxid_commitment = ByteArrayTrait::concat(
+        @fixed_prefix_byte, @wtxid_commitment.into()
+    );
+
+    while let Option::Some(output) = outputs.pop_back() {
+        let pk_script = *output.pk_script;
+
+        // check for pk_script with at least 38 bytes commitment length
+        if pk_script.len() >= WTNS_PK_SCRIPT_LEN {
+            // get wtxid commitment
+            while x != WTNS_PK_SCRIPT_LEN {
+                extracted_wtxid_commitment.append_byte(pk_script[x]);
+                x += 1;
+            };
+
+            // compare expected and extracted wtxid commitment
+            if expected_wtxid_commitment == extracted_wtxid_commitment {
+                is_wtxid_commitment_present = true;
+                break;
+            }
+        }
+    };
+
+    if !is_wtxid_commitment_present {
+        return Result::Err("No wtxid commitment found");
+    }
+
+    Result::Ok(())
 }
 
 #[cfg(test)]
