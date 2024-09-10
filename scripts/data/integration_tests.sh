@@ -13,7 +13,6 @@ failures=()
 test_files="tests/data"/*
 
 ignored_files=(
-    "tests/data/full_757738.json"
 )
 ignored="${ignored_files[@]}"
 

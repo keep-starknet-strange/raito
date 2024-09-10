@@ -49,7 +49,9 @@
                   "block_time": 0,
                   "is_coinbase": false
                 },
-                "witness": []
+                "witness": [
+                  "0x0000000000000000000000000000000000000000000000000000000000000000"
+                ]
               }
             ],
             "outputs": [
@@ -310,7 +312,7 @@
                 "cached": false
               },
               {
-                "value": 3244165,
+                "value": 3244166,
                 "pk_script": "0x76a91492953624999258111399827206da1b25951ea12b88ac",
                 "cached": false
               },
@@ -333,7 +335,7 @@
                   "txid": "7610dfe3a5dde5b982af9dd3c6a389ee7ac990c73b04b3378253b24d7aea7a4d",
                   "vout": 135,
                   "data": {
-                    "value": 14389748,
+                    "value": 14389749,
                     "pk_script": "0x001415d1e061eaa8f8d5e11c5f336a16be272bc356c0",
                     "cached": false
                   },
@@ -408,7 +410,7 @@
             ],
             "outputs": [
               {
-                "value": 1809579,
+                "value": 1809580,
                 "pk_script": "0xa914b8d1750c2f062807a1c98c674393c26ee53ca5aa87",
                 "cached": false
               },
@@ -657,7 +659,7 @@
                 "cached": false
               },
               {
-                "value": 54418,
+                "value": 54419,
                 "pk_script": "0xa9148fbb577dbc0d358170ffbc4a522a3fed490267c387",
                 "cached": false
               },
@@ -697,12 +699,12 @@
                 "cached": false
               },
               {
-                "value": 452043,
+                "value": 452044,
                 "pk_script": "0x76a91474a5273974608e9d822603713c5f5fb9ed4835f088ac",
                 "cached": false
               },
               {
-                "value": 792769,
+                "value": 792770,
                 "pk_script": "0x0014be5739bf1eb2d00bdda01bc1b9b6f6395ebeaf06",
                 "cached": false
               },
@@ -769,7 +771,7 @@
                   "txid": "4e998c40e1f4b25bf9a2cfcf3a9e7e4f892f35b475a97da3fcd55b259713401f",
                   "vout": 2,
                   "data": {
-                    "value": 29283990,
+                    "value": 29283991,
                     "pk_script": "0x00204bb6c5b9fd253342cfcba46a1920c71489d21734c8c5ebceaee2c983a3359c64",
                     "cached": false
                   },
@@ -1095,7 +1097,7 @@
             ],
             "outputs": [
               {
-                "value": 512699,
+                "value": 512700,
                 "pk_script": "0x00144e0e08535dfbc18ec4a5fc0423861a7ca450ff98",
                 "cached": false
               },
@@ -1266,7 +1268,7 @@
                   "txid": "6331a7ea2209c3ba8711c436e80aa1e9840cfe24bdf766aeac1419e77daf46dd",
                   "vout": 0,
                   "data": {
-                    "value": 25813315,
+                    "value": 25813316,
                     "pk_script": "0x76a9141bf21ed0f5ac8282bfc844ccb5f3187884524fb088ac",
                     "cached": false
                   },
@@ -2349,7 +2351,7 @@
                   "txid": "e5d88c1dfd82b42fbb32a67a0ae6a23a38824c8972f7f51805a2f8115fca5a2e",
                   "vout": 0,
                   "data": {
-                    "value": 500299,
+                    "value": 500300,
                     "pk_script": "0xa914bf1b8aa79d105a49d3de886210ac1c80357831df87",
                     "cached": false
                   },
@@ -2565,7 +2567,7 @@
                   "txid": "f3d8b0a2f586bba2824d2f5279241d4917080367e0bce2091ea16b13a1d76696",
                   "vout": 1,
                   "data": {
-                    "value": 101224,
+                    "value": 101225,
                     "pk_script": "0x0014317cb16153e35648d38123516c5bf076d2966b0d",
                     "cached": false
                   },
@@ -3002,7 +3004,7 @@
                   "txid": "4da79a432e1b0b4e461ff9ba1b13c18c70604e5b62f06696b25ab4dc9e433579",
                   "vout": 92,
                   "data": {
-                    "value": 398107,
+                    "value": 398108,
                     "pk_script": "0xa914f500fe6addcb5f128592b27cc855b8d0614900d687",
                     "cached": false
                   },
@@ -3102,7 +3104,7 @@
             ],
             "outputs": [
               {
-                "value": 999810,
+                "value": 999811,
                 "pk_script": "0xa914350c4a5875535bcfae8e8fa5c78fe8d31851e60e87",
                 "cached": false
               }
