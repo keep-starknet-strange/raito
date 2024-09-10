@@ -60,11 +60,13 @@ pub fn validate_coinbase(
 
     // validate BIP-141 witness field
     if block_height >= BIP_141_BLOCK_HEIGHT {
-        let witness = tx.inputs[0].witness[0];
+        if (*tx.inputs[0].witness).len() > 0 {
+            let witness = tx.inputs[0].witness[0];
 
-        // check witness value
-        if witness != @"\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0" {
-            return Result::Err("Wrong coinbase witness");
+            // check witness value
+            if witness != @"\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0" {
+                return Result::Err("Wrong coinbase witness");
+            }
         }
     }
 
