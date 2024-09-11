@@ -17,7 +17,7 @@ Raito is a zero-knowledge Bitcoin client implemented in Cairo. It aims to provid
 
 ```mermaid
 flowchart TB
-Pnm1(STARK proof of the chain state<br>up to the block <i>n - 1</i>,<br> including utxo accumulator) --> Vp(zk verifier)
+Pnm1(STARK proof of the chain state up to the block <i>n - 1</i>, including utxo accumulator) --> Vp(zk verifier)
 Bn(blocks <i>n..m</i>) ----> Vb
 
 subgraph Cairo
@@ -26,7 +26,7 @@ subgraph Cairo
     Vb --> ChS
 end
 
-Vb --> Pn(STARK proof of the chain state<br>up to the block <i>m</i>,<br> including utxo accumulator)
+Vb --> Pn(STARK proof of the chain state up to the block <i>m</i>,<br> including utxo accumulator)
 
 style Bn fill:pink
 style Pn fill:lightgreen
@@ -48,6 +48,8 @@ Although this is a highly experimental project without immediate plans for deplo
 * layer 2s
 
 ## Roadmap
+
+<img src="./docs/img/components.svg" alt="components"/>
 
 ### Milestone 1 - Block header validation
 
