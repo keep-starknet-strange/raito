@@ -4,7 +4,7 @@
 //!   - https://learnmeabitcoin.com/technical/mining/target/
 //!   - https://learnmeabitcoin.com/technical/block/bits/
 
-use crate::utils::{bit_shifts::{shl, shr}};
+use crate::utils::bit_shifts::{shl, shr};
 
 /// Maximum difficulty target allowed
 const MAX_TARGET: u256 = 0x00000000FFFF0000000000000000000000000000000000000000000000000000;
@@ -71,37 +71,35 @@ fn target_to_bits(target: u256) -> Result<u32, ByteArray> {
         return Result::Err("Exceeds max value");
     }
 
-    // Find the most significant byte
-    let mut size: u32 = 32;
-    let mut compact = target;
+    let mut divider = MAX_TARGET;
+    let mut tmp = target;
+    let mut padding = 3;
+    let mut last_coef = 0;
 
-    // Count leading zero bytes by finding the first non-zero byte
-    while size > 1 && shr(compact, (size - 1) * 8) == 0 {
-        size -= 1;
+    // Get bytes from most to least significant byte
+    for _ in 0
+        ..31_u8 {
+            let (q, r) = core::traits::DivRem::div_rem(tmp, divider.try_into().unwrap());
+            divider /= 0x100;
+            last_coef = tmp;
+            tmp = r;
+            if (q != 0) {
+                // Normalize
+                if (q > 0x80) {
+                    padding -= 1;
+                }
+                break;
+            }
+            padding += 1;
+        };
+
+    // 29 = 32 - 3(coefficient bytes)
+    for _ in 0..(29 - padding) {
+        last_coef /= 0x100;
     };
 
-    // Extract mantissa (most significant 3 bytes)
-    let mut mantissa: u32 = shr(compact, (size - 3) * 8).try_into().unwrap();
-
-    // Normalize
-    if mantissa > 0x7fffff {
-        mantissa = (mantissa + 0x80) / 0x100;
-        size += 1;
-    }
-
-    // Ensure the mantissa is only 3 bytes
-    mantissa = mantissa & 0xffffff;
-
-    // Check size doesn't exceed maximum
-    if size > 34 {
-        return Result::Err("Overflow");
-    }
-
-    // Convert size to u256
-    let size_u256: u256 = size.into();
-
-    // Combine size and mantissa
-    let result: u32 = (shl(size_u256, 24_u32) + mantissa.into()).try_into().unwrap();
+    // Combine exponent and coefficient
+    let result: u32 = (shl((32 - padding), 24_u32) + last_coef.into()).try_into().unwrap();
 
     Result::Ok(result)
 }
@@ -370,5 +368,12 @@ mod tests {
         let target: u256 = 0x01000000000000000000000000000000000000000000000000000000000000000;
         let result = target_to_bits(target);
         assert!(result.is_err(), "Should error on overflow target");
+    }
+
+    #[test]
+    fn test_target_to_bits_first_significant_byte_below_0x80() {
+        let target: u256 = 0x000000000000000000eb304f6a76a77000000000000000000000000000000000_u256;
+        let result = target_to_bits(target).unwrap();
+        assert!(result == 0x1800eb30, "Incorrect bits for target below 0x80");
     }
 }

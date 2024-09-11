@@ -34,9 +34,10 @@ pub fn compute_and_validate_tx_data(
     let mut total_fee = 0;
     let mut total_weight: u32 = 0;
     let mut i = 0;
+    let len = txs.len();
 
     let validate_transactions: Result<(), ByteArray> = loop {
-        if i >= txs.len() {
+        if i == len {
             break Result::Ok(());
         }
         ///  - wTXID commitment (only for blocks after Segwit upgrade, otherwise return zero hash)
