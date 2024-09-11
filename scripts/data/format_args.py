@@ -20,7 +20,7 @@ def serialize(obj):
         return 1 if obj else 0
     elif isinstance(obj, int):
         # This covers u8, u16, u32, u64, u128, felt252
-        assert(obj >= 0 and obj < 2 ** 252)
+        assert obj >= 0 and obj < 2**252
         return obj
     elif isinstance(obj, str):
         if obj == "0" * 64:
@@ -30,25 +30,27 @@ def serialize(obj):
             # TODO: there might still be collisions with hashes
             # Try to cast to int and then to low/high parts
             num = int(obj)
-            assert(num >= 0 and num < 2 ** 256)
-            lo = num % 2 ** 128
-            hi = num // 2 ** 128
+            assert num >= 0 and num < 2**256
+            lo = num % 2**128
+            hi = num // 2**128
             return (lo, hi)
-        elif obj.startswith('0x'):
+        elif obj.startswith("0x"):
             # Split into 31-byte chunks and save the remainder
             src = bytes.fromhex(obj[2:])
             num_chunks = len(src) // 31
             main_len = num_chunks * 31
             rem_len = len(src) - main_len
-            main = [int.from_bytes(src[i:i+31], 'big') for i in range(0, main_len, 31)]
+            main = [
+                int.from_bytes(src[i : i + 31], "big") for i in range(0, main_len, 31)
+            ]
             # TODO: check if this is how byte31 is implemented
-            rem = int.from_bytes(src[main_len:].rjust(31, b'\x00'), 'big')
+            rem = int.from_bytes(src[main_len:].rjust(31, b"\x00"), "big")
             return tuple([len(main)] + main + [rem, rem_len])
         else:
             # Reversed hex string into 4-byte words then into BE u32
-            assert(len(obj) == 64)
+            assert len(obj) == 64
             rev = list(reversed(bytes.fromhex(obj)))
-            return tuple(int.from_bytes(rev[i:i+4], 'big') for i in range(0, 32, 4))
+            return tuple(int.from_bytes(rev[i : i + 4], "big") for i in range(0, 32, 4))
     elif isinstance(obj, list):
         arr = list(map(serialize, obj))
         return tuple([len(arr)] + arr)
@@ -68,6 +70,7 @@ def flatten_tuples(src):
     :return: an object that can only contain integers and lists, top-level tuple converts to a list.
     """
     res = []
+
     def append_obj(obj, to):
         if isinstance(obj, int):
             to.append(obj)
@@ -81,6 +84,7 @@ def flatten_tuples(src):
                 append_obj(item, to)
         else:
             raise NotImplementedError(obj)
+
     append_obj(src, res)
     return res
 
@@ -92,12 +96,14 @@ def format_cairo1_run(args: list) -> str:
     :param args: Python object containing already processed arguments.
     :return: Returns string with removed commas.
     """
+
     def format_item(item):
         if isinstance(item, list):
             arr = " ".join(map(format_item, item))
-            return f'[{arr}]'
+            return f"[{arr}]"
         else:
             return str(item)
+
     return format_item(args)
 
 
@@ -106,12 +112,12 @@ def format_args():
     Expects a single CLI argument containing file path.
     Output is compatible with the Scarb runner arguments format.
     """
-    if (len(sys.argv) != 2):
+    if len(sys.argv) != 2:
         raise TypeError("Expected single argument")
     args = json.loads(Path(sys.argv[1]).read_text())
     res = flatten_tuples(serialize(args))
     print([res])
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     format_args()
