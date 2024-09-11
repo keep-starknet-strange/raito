@@ -3,14 +3,20 @@ import subprocess
 import sys
 import argparse
 
+
 def create_issue(title, body, labels):
     cmd = [
-        "gh", "issue", "create",
-        "--title", title,
-        "--body", body,
-        "--label", ",".join(labels)
+        "gh",
+        "issue",
+        "create",
+        "--title",
+        title,
+        "--body",
+        body,
+        "--label",
+        ",".join(labels),
     ]
-    
+
     try:
         subprocess.run(cmd, check=True)
         print(f"Successfully created issue: {title}")
@@ -19,8 +25,11 @@ def create_issue(title, body, labels):
         print(f"Error message: {e}")
         sys.exit(1)
 
+
 def main():
-    parser = argparse.ArgumentParser(description="Create GitHub issues from a JSON file.")
+    parser = argparse.ArgumentParser(
+        description="Create GitHub issues from a JSON file."
+    )
     parser.add_argument("json_file", help="Path to the JSON file containing issue data")
     args = parser.parse_args()
 
@@ -40,6 +49,7 @@ def main():
 
     for issue in data["issues"]:
         create_issue(issue["title"], issue["body"], issue["labels"])
+
 
 if __name__ == "__main__":
     main()

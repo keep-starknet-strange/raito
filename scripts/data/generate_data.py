@@ -190,13 +190,15 @@ def format_coinbase_input(input: dict):
             "block_time": 0,
             "is_coinbase": False,
         },
-        "witness": ["0x0000000000000000000000000000000000000000000000000000000000000000"],
+        "witness": [
+            "0x0000000000000000000000000000000000000000000000000000000000000000"
+        ],
     }
 
 
 def format_output(output: dict):
     """Formats transaction output according to the Cairo type."""
-    value = (Decimal(str(output["value"])) * Decimal('100000000')).to_integral_value()
+    value = (Decimal(str(output["value"])) * Decimal("100000000")).to_integral_value()
     return {
         "value": int(value),
         "pk_script": f'0x{output["scriptPubKey"]["hex"]}',
