@@ -8,6 +8,7 @@ regenerate_tests= "./scripts/data/regenerate_tests.sh"
 integration_tests = "scarb build && ./scripts/data/integration_tests.sh"
 client= "scarb build && ./scripts/data/client.sh"
 test = "scarb cairo-test && scarb run integration_tests"
+lint = "pip install -r requirements.txt && flake8 scripts/ && black --check scripts/"
 
 [dependencies]
 
