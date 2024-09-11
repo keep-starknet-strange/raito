@@ -4,8 +4,6 @@
 //!   - https://learnmeabitcoin.com/technical/mining/target/
 //!   - https://learnmeabitcoin.com/technical/block/bits/
 
-use crate::utils::bit_shifts::{shl, shr};
-
 /// Maximum difficulty target allowed
 const MAX_TARGET: u256 = 0x00000000FFFF0000000000000000000000000000000000000000000000000000;
 /// Number of blocks per epoch
@@ -107,8 +105,7 @@ fn target_to_bits(target: u256) -> Result<u32, ByteArray> {
 /// Convert target bits to the normal form
 fn bits_to_target(bits: u32) -> Result<u256, ByteArray> {
     // Extract exponent and mantissa
-    let exponent: u32 = (bits / 0x1000000);
-    let mantissa: u32 = bits & 0x00FFFFFF;
+    let (exponent, mantissa) = core::traits::DivRem::div_rem(bits, 0x1000000);
 
     // Check if mantissa is valid (should be less than 0x1000000)
     if mantissa > 0x7FFFFF && exponent != 0 {
@@ -123,11 +120,13 @@ fn bits_to_target(bits: u32) -> Result<u256, ByteArray> {
         return Result::Ok(target);
     } else if exponent <= 3 {
         // For exponents 1, 2, and 3, divide by 256^(3 - exponent) i.e right shift
-        let shift = 8 * (3 - exponent);
-        target = shr(target, shift);
+        for _ in 0..(3 - exponent) {
+            target /= 0x100;
+        }
     } else {
-        let shift = 8 * (exponent - 3);
-        target = shl(target, shift);
+        for _ in 0..(exponent - 3) {
+            target *= 0x100;
+        }
     }
 
     // Ensure the target doesn't exceed the maximum allowed value

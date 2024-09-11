@@ -3,7 +3,7 @@
 //! https://learnmeabitcoin.com/technical/mining/coinbase-transaction/
 
 use crate::types::transaction::{Transaction, TxIn};
-use crate::utils::{bit_shifts::shr, hash::Digest};
+use crate::utils::hash::Digest;
 
 const BIP_34_BLOCK_HEIGHT: u32 = 227_836;
 const BIP_141_BLOCK_HEIGHT: u32 = 481_824;
@@ -102,7 +102,13 @@ fn validate_coinbase_witness(witness: Span<ByteArray>) -> Result<(), ByteArray> 
 
 /// Return BTC reward in SATS
 fn compute_block_reward(block_height: u32) -> u64 {
-    shr(5000000000_u64, (block_height / 210000_u32))
+    let mut result: u64 = 5_000_000_000;
+
+    for _ in 0..(block_height / 210_000) {
+        result /= 2;
+    };
+
+    result
 }
 
 #[cfg(test)]
@@ -157,7 +163,6 @@ mod tests {
         let last_reward = compute_block_reward(max_halvings * block_height);
         assert_eq!(last_reward, 0);
     }
-
 
     #[test]
     fn test_validate_coinbase_with_multiple_input() {
