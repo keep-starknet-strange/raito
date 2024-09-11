@@ -31,7 +31,7 @@ use super::transaction::OutPoint;
 
 /// Accumulator representation of the state aka "Compact State Node".
 /// Part of the chain state.
-#[derive(Drop, Copy)]
+#[derive(Drop, Copy, Debug)]
 pub struct UtreexoState {
     /// Roots of the Merkle tree forest.
     /// Index is the root height, None means a gap.

@@ -1,10 +1,10 @@
 //! State is a top level struct containing the chain state and the utxo set
 
 use super::chain_state::ChainState;
-use super::utxo_set::UtxoSet;
+use super::utreexo::UtreexoState;
 
-#[derive(Default, Destruct)]
+#[derive(Default, Drop, Copy, Debug)]
 pub struct State {
     chain_state: ChainState,
-    utxo_set: UtxoSet
+    utreexo_state: UtreexoState
 }
