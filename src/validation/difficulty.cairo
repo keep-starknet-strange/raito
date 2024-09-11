@@ -99,7 +99,7 @@ fn target_to_bits(target: u256) -> Result<u32, ByteArray> {
     };
 
     // Combine exponent and coefficient
-    let result: u32 = (shl((32 - padding), 24_u32) + last_coef.into()).try_into().unwrap();
+    let result: u32 = (32 - padding) * 0x1000000 + last_coef.try_into().unwrap();
 
     Result::Ok(result)
 }
