@@ -48,6 +48,7 @@ Although this is a highly experimental project without immediate plans for deplo
 * layer 2s
 
 ## Roadmap
+
 <p align="center" width="100%">
   <img src="./docs/img/components.svg" alt="components"/>
 </p>
