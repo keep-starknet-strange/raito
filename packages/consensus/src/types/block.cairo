@@ -91,7 +91,8 @@ impl BlockDisplay of Display<Block> {
 
 impl HeaderDisplay of Display<Header> {
     fn fmt(self: @Header, ref f: Formatter) -> Result<(), Error> {
-        let str: ByteArray = format!("Header {{ version: {}, time: {}, bits: {}, nonce: {}}}",
+        let str: ByteArray = format!(
+            "Header {{ version: {}, time: {}, bits: {}, nonce: {}}}",
             *self.version,
             *self.time,
             *self.bits,
@@ -105,7 +106,9 @@ impl HeaderDisplay of Display<Header> {
 impl TransactionDataDisplay of Display<TransactionData> {
     fn fmt(self: @TransactionData, ref f: Formatter) -> Result<(), Error> {
         match *self {
-            TransactionData::MerkleRoot(root) => f.buffer.append(@format!("TransactionData {}", root)),
+            TransactionData::MerkleRoot(root) => f
+                .buffer
+                .append(@format!("TransactionData {}", root)),
             TransactionData::Transactions(txs) => f.buffer.append(@format!("{}", txs.len()))
         };
         Result::Ok(())

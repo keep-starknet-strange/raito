@@ -117,7 +117,9 @@ impl UtreexoProofDisplay of Display<UtreexoProof> {
         for proof in *self.proof {
             proofs.append(@format!("{},", proof));
         };
-        let str: ByteArray = format!("UtreexoProof {{ leaf_index: {}, proof: {}, }}", *self.leaf_index, @proofs);
+        let str: ByteArray = format!(
+            "UtreexoProof {{ leaf_index: {}, proof: {}, }}", *self.leaf_index, @proofs
+        );
         f.buffer.append(@str);
         Result::Ok(())
     }
@@ -133,7 +135,9 @@ impl UtreexoBatchProofDisplay of Display<UtreexoBatchProof> {
         for proof in *self.proof {
             proofs.append(@format!("{},", proof));
         };
-        let str: ByteArray = format!("UtreexoBatchProof {{ leaf_index: {}, proof: {} }}", @targets, @proofs);
+        let str: ByteArray = format!(
+            "UtreexoBatchProof {{ leaf_index: {}, proof: {} }}", @targets, @proofs
+        );
         f.buffer.append(@str);
         Result::Ok(())
     }
