@@ -187,6 +187,34 @@ mod tests {
         validate_relative_locktime(@input, 603450, 1573555667).unwrap();
     }
 
+#[test]
+fn test_relative_locktime_enabled_block_height_fail() {
+   
+    let input = TxIn {
+        script: @from_hex(""),
+        sequence: 144, // Lower sequence number with locktime enabled (block-based locktime)
+        previous_output: OutPoint {
+            txid: hex_to_hash_rev(
+                "0000000000000000000000000000000000000000000000000000000000000000"
+            ),
+            vout: 0,
+            data: TxOut { value: 188442, ..Default::default() },
+            block_height: 603018, // Initial block height
+            block_time: 1573324462,
+            is_coinbase: false,
+        },
+        witness: array![].span(),
+    };
+
+    // Pass a lower block height than required by the relative locktime
+    let block_height = 603019; 
+    let block_time = 1573401225; 
+
+   
+    assert!(validate_relative_locktime(@input, block_height, block_time).is_err());
+}
+
+
     #[test]
     fn test_absolute_locktime_block_height() {
         // Absolute locktime: block height
