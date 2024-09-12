@@ -4,6 +4,7 @@
 //! The data is expected to be prepared in advance and passed as program arguments.
 
 use utils::{hash::Digest, bytearray::{ByteArraySnapHash, ByteArraySnapSerde}};
+use core::fmt::{Display, Formatter, Error};
 
 /// Represents a transaction.
 /// https://learnmeabitcoin.com/technical/transaction/
@@ -125,6 +126,71 @@ pub struct TxOut {
 impl TxOutDefault of Default<TxOut> {
     fn default() -> TxOut {
         TxOut { value: 0, pk_script: @"", cached: false, }
+    }
+}
+
+impl TransactionDisplay of Display<Transaction> {
+    fn fmt(self: @Transaction, ref f: Formatter) -> Result<(), Error> {
+        let str: ByteArray = format!(
+            "Transaction {{ version: {}, is_segwit: {}, inputs: {}, outputs: {}, lock_time: {} }}",
+            *self.version,
+            *self.is_segwit,
+            (*self.inputs).len(),
+            (*self.outputs).len(),
+            *self.lock_time
+        );
+        f.buffer.append(@str);
+        Result::Ok(())
+    }
+}
+
+impl TxInDisplay of Display<TxIn> {
+    fn fmt(self: @TxIn, ref f: Formatter) -> Result<(), Error> {
+        let str: ByteArray = format!(
+            "TxIn {{ script: {}, sequence: {}, previous_output: {}, witness: {} }}",
+            *self.script,
+            *self.sequence,
+            *self.previous_output.txid,
+            (*self.witness).len()
+        );
+        f.buffer.append(@str);
+        Result::Ok(())
+    }
+}
+
+impl OutPointDisplay of Display<OutPoint> {
+    fn fmt(self: @OutPoint, ref f: Formatter) -> Result<(), Error> {
+        let str: ByteArray = format!(
+            "OutPoint {{
+		txid: {},
+		vout: {},
+		data: {},
+		block_height: {},
+		block_time: {},
+		is_coinbase: {},
+	}}",
+            *self.txid,
+            *self.vout,
+            *self.data,
+            *self.block_height,
+            *self.block_time,
+            *self.is_coinbase
+        );
+        f.buffer.append(@str);
+        Result::Ok(())
+    }
+}
+
+impl TxOutDisplay of Display<TxOut> {
+    fn fmt(self: @TxOut, ref f: Formatter) -> Result<(), Error> {
+        let str: ByteArray = format!(
+            "TxOut {{ value: {}, pk_script: {}, cached: {} }}",
+            *self.value,
+            *self.pk_script,
+            *self.cached
+        );
+        f.buffer.append(@str);
+        Result::Ok(())
     }
 }
 

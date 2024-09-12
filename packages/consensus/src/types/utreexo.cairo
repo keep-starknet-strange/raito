@@ -28,6 +28,7 @@
 //! Read more about utreexo: https://eprint.iacr.org/2019/611.pdf
 
 use super::transaction::OutPoint;
+use core::fmt::{Display, Formatter, Error};
 
 /// Accumulator representation of the state aka "Compact State Node".
 /// Part of the chain state.
@@ -97,5 +98,43 @@ pub struct UtreexoBatchProof {
 pub impl UtreexoStateDefault of Default<UtreexoState> {
     fn default() -> UtreexoState {
         UtreexoState { roots: array![].span(), num_leaves: 0, }
+    }
+}
+
+impl UtreexoStateDisplay of Display<UtreexoState> {
+    fn fmt(self: @UtreexoState, ref f: Formatter) -> Result<(), Error> {
+        let str: ByteArray = format!(
+            "UtreexoState {{ roots: {}, num_leaves: {}, }}", (*self.roots).len(), *self.num_leaves
+        );
+        f.buffer.append(@str);
+        Result::Ok(())
+    }
+}
+
+impl UtreexoProofDisplay of Display<UtreexoProof> {
+    fn fmt(self: @UtreexoProof, ref f: Formatter) -> Result<(), Error> {
+        let mut proofs: ByteArray = Default::default();
+        for proof in *self.proof {
+            proofs.append(@format!("{},", proof));
+        };
+        let str: ByteArray = format!("UtreexoProof {{ leaf_index: {}, proof: {}, }}", *self.leaf_index, @proofs);
+        f.buffer.append(@str);
+        Result::Ok(())
+    }
+}
+
+impl UtreexoBatchProofDisplay of Display<UtreexoBatchProof> {
+    fn fmt(self: @UtreexoBatchProof, ref f: Formatter) -> Result<(), Error> {
+        let mut targets: ByteArray = Default::default();
+        let mut proofs: ByteArray = Default::default();
+        for target in *self.targets {
+            targets.append(@format!("{},", target));
+        };
+        for proof in *self.proof {
+            proofs.append(@format!("{},", proof));
+        };
+        let str: ByteArray = format!("UtreexoBatchProof {{ leaf_index: {}, proof: {} }}", @targets, @proofs);
+        f.buffer.append(@str);
+        Result::Ok(())
     }
 }

@@ -6,6 +6,7 @@ use utils::hash::Digest;
 use utils::sha256::double_sha256_u32_array;
 use utils::numeric::u32_byte_reverse;
 use super::transaction::Transaction;
+use core::fmt::{Display, Formatter, Error};
 
 /// Represents a block in the blockchain.
 #[derive(Drop, Copy, Debug, PartialEq, Default, Serde)]
@@ -73,6 +74,41 @@ pub impl BlockHashImpl of BlockHash {
 pub impl TransactionDataDefault of Default<TransactionData> {
     fn default() -> TransactionData {
         TransactionData::Transactions(array![].span())
+    }
+}
+
+impl BlockDisplay of Display<Block> {
+    fn fmt(self: @Block, ref f: Formatter) -> Result<(), Error> {
+        let data = match *self.data {
+            TransactionData::MerkleRoot(root) => format!("{}", root),
+            TransactionData::Transactions(txs) => format!("{}", txs.len())
+        };
+        let str: ByteArray = format!(" Block {{ header: {}, data: {} }}", *self.header, @data);
+        f.buffer.append(@str);
+        Result::Ok(())
+    }
+}
+
+impl HeaderDisplay of Display<Header> {
+    fn fmt(self: @Header, ref f: Formatter) -> Result<(), Error> {
+        let str: ByteArray = format!("Header {{ version: {}, time: {}, bits: {}, nonce: {}}}",
+            *self.version,
+            *self.time,
+            *self.bits,
+            *self.nonce
+        );
+        f.buffer.append(@str);
+        Result::Ok(())
+    }
+}
+
+impl TransactionDataDisplay of Display<TransactionData> {
+    fn fmt(self: @TransactionData, ref f: Formatter) -> Result<(), Error> {
+        match *self {
+            TransactionData::MerkleRoot(root) => f.buffer.append(@format!("TransactionData {}", root)),
+            TransactionData::Transactions(txs) => f.buffer.append(@format!("{}", txs.len()))
+        };
+        Result::Ok(())
     }
 }
 
