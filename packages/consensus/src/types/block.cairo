@@ -2,9 +2,9 @@
 //!
 //! The data is expected to be prepared in advance and passed as program arguments.
 
-use crate::utils::hash::Digest;
-use crate::utils::sha256::double_sha256_u32_array;
-use crate::utils::numeric::u32_byte_reverse;
+use utils::hash::Digest;
+use utils::sha256::double_sha256_u32_array;
+use utils::numeric::u32_byte_reverse;
 use super::transaction::Transaction;
 
 /// Represents a block in the blockchain.
@@ -79,8 +79,8 @@ pub impl TransactionDataDefault of Default<TransactionData> {
 #[cfg(test)]
 mod tests {
     use super::{Header, BlockHash};
-    use raito::types::chain_state::ChainState;
-    use raito::utils::hash::Digest;
+    use crate::types::chain_state::ChainState;
+    use utils::hash::Digest;
 
     #[test]
     fn test_block_hash() {

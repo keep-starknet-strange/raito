@@ -1,5 +1,5 @@
 //! Hex helpers
-use raito::utils::hash::Digest;
+use crate::hash::Digest;
 
 /// Get bytes from hex (base16)
 pub fn from_hex(hex_string: ByteArray) -> ByteArray {
@@ -86,7 +86,7 @@ fn hex_char_to_nibble(hex_char: u8) -> u8 {
 #[cfg(test)]
 mod tests {
     use super::{from_hex, to_hex, hex_to_hash_rev};
-    use raito::utils::hash::Digest;
+    use crate::hash::Digest;
 
     #[test]
     fn test_bytes_from_hex() {

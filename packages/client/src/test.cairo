@@ -1,5 +1,5 @@
-use crate::types::block::Block;
-use crate::types::chain_state::{ChainState, BlockValidator};
+use consensus::types::block::Block;
+use consensus::types::chain_state::{ChainState, BlockValidator};
 use core::testing::get_available_gas;
 
 /// Integration testing program arguments.

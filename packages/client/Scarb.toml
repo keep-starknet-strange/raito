@@ -1,0 +1,16 @@
+[package]
+name = "client"
+version = "0.1.0"
+edition = "2024_07"
+
+[dependencies]
+consensus = { path = "../consensus" }
+
+[dev-dependencies]
+cairo_test.workspace = true
+
+[scripts]
+test = "scarb build && ../../scripts/data/integration_tests.sh"
+regenerate_tests= "../../scripts/data/regenerate_tests.sh"
+client = "scarb build && ../../scripts/data/client.sh"
+lint = "flake8 scripts/ && black --check scripts/ && scarb fmt"

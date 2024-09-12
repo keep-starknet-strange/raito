@@ -3,7 +3,7 @@
 //! https://learnmeabitcoin.com/technical/mining/coinbase-transaction/
 
 use crate::types::transaction::{Transaction, TxIn};
-use crate::utils::{bit_shifts::shr, hash::Digest};
+use utils::{bit_shifts::shr, hash::Digest};
 
 const BIP_34_BLOCK_HEIGHT: u32 = 227_836;
 const BIP_141_BLOCK_HEIGHT: u32 = 481_824;
@@ -109,7 +109,7 @@ fn compute_block_reward(block_height: u32) -> u64 {
 #[cfg(test)]
 mod tests {
     use crate::types::transaction::{TxIn, TxOut, Transaction, OutPoint};
-    use crate::utils::hex::from_hex;
+    use utils::hex::from_hex;
     use super::{
         compute_block_reward, validate_coinbase, validate_coinbase_input,
         validate_coinbase_sig_script, validate_coinbase_witness

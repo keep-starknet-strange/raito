@@ -4,7 +4,7 @@
 //! Chain state alone is not enough to do full block validation, however
 //! it is sufficient to validate block headers.
 
-use crate::utils::hash::Digest;
+use utils::hash::Digest;
 use crate::validation::{
     difficulty::{validate_bits, adjust_difficulty}, coinbase::validate_coinbase,
     timestamp::{validate_timestamp, next_prev_timestamps},
