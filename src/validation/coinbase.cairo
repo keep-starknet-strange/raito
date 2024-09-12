@@ -48,10 +48,6 @@ fn validate_coinbase_input(input: @TxIn, block_height: u32) -> Result<(), ByteAr
         return Result::Err("Previous txid must be zero");
     }
 
-    if *input.previous_output.block_height + COINBASE_MATURITY > block_height {
-        return Result::Err("Block height must be 100 blocks higher than output block height");
-    }
-
     // validate BIP-34 sig script
     if block_height >= BIP_34_BLOCK_HEIGHT {
         validate_coinbase_sig_script(*input.script, block_height)?;
@@ -244,48 +240,6 @@ mod tests {
             witness: array![].span(),
         };
         validate_coinbase_input(@input, 1).unwrap_err();
-    }
-
-    #[test]
-    fn test_immature_coinbase_transaction() {
-        let block_height = 50;
-
-        let input = TxIn {
-            script: @from_hex(""),
-            sequence: 4294967295,
-            previous_output: OutPoint {
-                txid: 0_u256.into(),
-                vout: 0xFFFFFFFF_u32,
-                data: TxOut { value: 0_64, ..Default::default(), },
-                block_height: Default::default(),
-                block_time: Default::default(),
-                is_coinbase: false,
-            },
-            witness: array![].span(),
-        };
-
-        validate_coinbase_input(@input, block_height).unwrap_err();
-    }
-
-    #[test]
-    fn test_mature_coinbase_transaction() {
-        let block_height = 150;
-
-        let input = TxIn {
-            script: @from_hex(""),
-            sequence: 4294967295,
-            previous_output: OutPoint {
-                txid: 0_u256.into(),
-                vout: 0xFFFFFFFF_u32,
-                data: TxOut { value: 0_64, ..Default::default(), },
-                block_height: Default::default(),
-                block_time: Default::default(),
-                is_coinbase: false,
-            },
-            witness: array![].span(),
-        };
-
-        validate_coinbase_input(@input, block_height).unwrap();
     }
 
     #[test]
