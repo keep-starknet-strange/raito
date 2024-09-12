@@ -7,7 +7,6 @@ use utils::{bit_shifts::shr, hash::Digest};
 
 const BIP_34_BLOCK_HEIGHT: u32 = 227_836;
 const BIP_141_BLOCK_HEIGHT: u32 = 481_824;
-const COINBASE_MATURITY: u32 = 100;
 
 /// Validates coinbase transaction.
 pub fn validate_coinbase(
