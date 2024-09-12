@@ -19,6 +19,7 @@ light_test_cases=(
     2015    # First new epoch (2016)
     24834   # Block containing first off ramp tx from Martti Malmi (24835)
     32255   # First target adjustment (32256)
+    542212
     57042   # Block containing pizza tx (57043)
     150012  # Small Block (150013)
     209999  # First halving block (210000)
@@ -35,6 +36,7 @@ light_test_cases=(
 
 full_test_cases=(
     169     # Block containing first P2P tx to Hal Finney (170)
+    542212
     757738  # Block with witness (757739)
 )
 
