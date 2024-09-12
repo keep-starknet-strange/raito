@@ -1,7 +1,7 @@
 //! Block validation helpers.
 use crate::types::transaction::{Transaction};
 use crate::codec::{Encode, TransactionCodec};
-use crate::utils::{hash::Digest, merkle_tree::merkle_root, sha256::double_sha256_byte_array};
+use utils::{hash::Digest, merkle_tree::merkle_root, sha256::double_sha256_byte_array};
 use super::transaction::validate_transaction;
 
 const MAX_BLOCK_WEIGHT_LEGACY: usize = 1_000_000;

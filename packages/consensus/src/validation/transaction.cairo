@@ -97,7 +97,7 @@ fn validate_coinbase_maturity(output_height: u32, block_height: u32) -> Result<(
 #[cfg(test)]
 mod tests {
     use crate::types::transaction::{Transaction, TxIn, TxOut, OutPoint};
-    use crate::utils::hex::{from_hex, hex_to_hash_rev};
+    use utils::hex::{from_hex, hex_to_hash_rev};
     use super::validate_transaction;
 
     // TODO: tests for coinbase maturity
