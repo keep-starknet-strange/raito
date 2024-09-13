@@ -4,8 +4,7 @@
 
 use crate::types::transaction::{Transaction, TxIn, TxOut};
 use crate::utils::{
-    bit_shifts::shr, hash::{Digest, DigestIntoByteArray}, hex::to_hex,
-    sha256::{double_sha256_byte_array}
+    bit_shifts::shr, hash::{Digest, DigestIntoByteArray}, sha256::{double_sha256_byte_array}
 };
 
 
@@ -51,10 +50,8 @@ pub fn validate_coinbase(
 
         // validate BIP-141 segwit output
         if *tx.is_segwit {
-            // calculate wtxid commitment
-            let wtxid_commitment = calculate_wtxid_commitment(wtxid_root);
-
-            validate_segwit_output(*tx.outputs, wtxid_commitment)?;
+            // calculate expected wtxid commitment and validate segwit output
+            validate_segwit_output(*tx.outputs, calculate_wtxid_commitment(wtxid_root))?;
         }
     }
 
@@ -136,24 +133,18 @@ fn compute_block_reward(block_height: u32) -> u64 {
 
 /// Calculate wtxid commitment
 fn calculate_wtxid_commitment(wtxid_root: Digest) -> Digest {
-    /// Big endian
+    // construct witness reserved value
+    // 0000000000000000000000000000000000000000000000000000000000000000
     let mut witness_value_byte: ByteArray = "";
     witness_value_byte.append_word(WITNESS_VALUE, 32);
 
+    // convert wtxid_root to ByteArray
     let wtxid_root_bytes: ByteArray = wtxid_root.into();
 
-    let mut res = ByteArrayTrait::concat(@wtxid_root_bytes.rev(), @witness_value_byte);
+    // concat (witness root hash | witness reserved value)
+    let mut res = ByteArrayTrait::concat(@wtxid_root_bytes, @witness_value_byte);
 
     double_sha256_byte_array(@res)
-    //     /// Little endian
-// let mut witness_value_byte: ByteArray = "";
-// witness_value_byte.append_word(WITNESS_VALUE, 32);
-
-    //     let wtxid_root_bytes: ByteArray = wtxid_root.into();
-
-    //     let mut res = ByteArrayTrait::concat(@wtxid_root_bytes, @witness_value_byte);
-
-    //     double_sha256_byte_array(@res)
 }
 
 fn validate_segwit_output(
@@ -189,12 +180,6 @@ fn validate_segwit_output(
             if expected_wtxid_commitment == extracted_wtxid_commitment {
                 is_wtxid_commitment_present = true;
                 break;
-            } else {
-                println!(
-                    "commitments: {} - {}",
-                    to_hex(@expected_wtxid_commitment),
-                    to_hex(@extracted_wtxid_commitment)
-                );
             }
         }
     };
@@ -597,7 +582,6 @@ mod tests {
         ]
             .span();
 
-        /// little endian
         let wtxid_commitment: Digest = hex_to_hash_rev(
             "15e787d38637d8ed668d5e1e573d2241739c3315190220a8d89ca27b63e80265"
         );
@@ -607,15 +591,9 @@ mod tests {
 
     #[test]
     fn test_calculate_wtxid_commitment() {
-        /// big endian
         let witness_root_hash: Digest = hex_to_hash_rev(
-            "dbee9a868a8caa2a1ddf683af1642a88dfb7ac7ce3ecb5d043586811a41fdbf2"
+            "f2db1fa411685843d0b5ece37cacb7df882a64f13a68df1d2aaa8c8a869aeedb"
         );
-
-        /// little endian
-        // let witness_root_hash: Digest = hex_to_hash_rev(
-        //     "f2db1fa411685843d0b5ece37cacb7df882a64f13a68df1d2aaa8c8a869aeedb"
-        // );
 
         let expected_wtxid_commitment = from_hex(
             "6502e8637ba29cd8a820021915339c7341223d571e5e8d66edd83786d387e715"
@@ -690,7 +668,7 @@ mod tests {
         let block_height = 500_000;
 
         let wtxid_root_hash: Digest = hex_to_hash_rev(
-            "dbee9a868a8caa2a1ddf683af1642a88dfb7ac7ce3ecb5d043586811a41fdbf2"
+            "f2db1fa411685843d0b5ece37cacb7df882a64f13a68df1d2aaa8c8a869aeedb"
         );
 
         validate_coinbase(@tx, total_fees, block_height, wtxid_root_hash).unwrap();
