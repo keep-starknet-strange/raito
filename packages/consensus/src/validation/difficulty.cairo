@@ -4,7 +4,7 @@
 //!   - https://learnmeabitcoin.com/technical/mining/target/
 //!   - https://learnmeabitcoin.com/technical/block/bits/
 
-use utils::{bit_shifts::{shl, shr}};
+use utils::{bit_shifts::{shl, shr, fast_pow}};
 
 /// Maximum difficulty target allowed
 const MAX_TARGET: u256 = 0x00000000FFFF0000000000000000000000000000000000000000000000000000;
@@ -67,26 +67,26 @@ pub fn adjust_difficulty(
 /// one is >= 0x80 (see "caution" section on https://learnmeabitcoin.com/technical/block/bits/).
 /// This helper assumes the given target is strictly less than MAX_TARGET.
 fn reduce_target_precision(target: u256) -> u256 {
-    let mut shift: u32 = 232; // 29 * 8 for MAX_TARGET
-    while shift != 0 {
-        // Shifting right trying to find the first non-zero byte
-        let msb = shr(target, shift);
-        if msb != 0 {
-            // Once we found the MSB we need to move 2 bytes right so that our
-            // shift covers only insignificant part (if shift is still >= 16)
-            if msb < 0x80 && shift != 8 {
-                shift -= 16;
-            } else {
-                // However in case of MSB having first bit set we need to make
-                // step back to account for "0x00" byte in the beginning.
-                shift -= 8;
-            }
-            break;
-        }
-        shift -= 8;
+    // Determine the byte size of the target
+    let mut size: u32 = 0;
+    let mut num = target;
+    while num != 0 {
+        num /= 256;
+        size += 1;
     };
-    // Do the rounding
-    shl(shr(target, shift), shift)
+    // Extract 3 most significant bytes and round down
+    if size > 2 {
+        let factor = fast_pow(256, size - 3);
+        let msb = target / factor;
+        if msb > 0x7fffff {
+            // If the most significant BIT is 1 then we need to prepend 0x00
+            (msb / 256) * factor * 256
+        } else {
+            msb * factor
+        }
+    } else {
+        target
+    }
 }
 
 /// Converts difficulty target the compact form (bits) to a big integer.
