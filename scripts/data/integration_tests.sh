@@ -37,7 +37,8 @@ for test_file in $test_files; do
                 echo -e "${RED} fail ${RESET}(gas usage est.: $gas_spent)"
                 num_fail=$((num_fail + 1))
                 error=$(echo $output | grep -o "error='[^']*'" | sed "s/error=//")
-                failures+="\te2e:$test_file — Panicked with $error\n"
+                failures+="\te2e:$test_file — Panicked with $error:\n"
+                failures+="\te2e:$test_file — output:\n$output\n"
             elif [[ "$output" == *"OK"* ]]; then
                 echo -e "${GREEN} ok ${RESET}(gas usage est.: $gas_spent)"
                 num_ok=$((num_ok + 1))
@@ -46,6 +47,7 @@ for test_file in $test_files; do
                 num_fail=$((num_fail + 1))
                 error=$(echo "$output" | sed '1d')
                 failures+="\te2e:$test_file — $error\n"
+                failures+="\te2e:$test_file — output:\n$output\n"
             fi
         fi
     fi

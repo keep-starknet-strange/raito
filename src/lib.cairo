@@ -6,7 +6,7 @@ pub mod utils {
     pub mod merkle_tree;
     pub mod numeric;
 
-    #[cfg(target: 'test')]
+    // #[cfg(target: 'test')]
     pub mod hex;
 }
 pub mod validation {

@@ -4,7 +4,8 @@
 
 use crate::types::transaction::{Transaction, TxIn, TxOut};
 use crate::utils::{
-    bit_shifts::shr, hash::{Digest, DigestIntoByteArray}, sha256::{double_sha256_byte_array}
+    bit_shifts::shr, hash::{Digest, DigestIntoByteArray}, hex::to_hex,
+    sha256::{double_sha256_byte_array}
 };
 
 
@@ -188,6 +189,12 @@ fn validate_segwit_output(
             if expected_wtxid_commitment == extracted_wtxid_commitment {
                 is_wtxid_commitment_present = true;
                 break;
+            } else {
+                println!(
+                    "commitments: {} - {}",
+                    to_hex(@expected_wtxid_commitment),
+                    to_hex(@extracted_wtxid_commitment)
+                );
             }
         }
     };
