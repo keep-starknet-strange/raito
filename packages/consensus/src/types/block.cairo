@@ -106,10 +106,10 @@ impl HeaderDisplay of Display<Header> {
 impl TransactionDataDisplay of Display<TransactionData> {
     fn fmt(self: @TransactionData, ref f: Formatter) -> Result<(), Error> {
         match *self {
-            TransactionData::MerkleRoot(root) => f
+            TransactionData::MerkleRoot(root) => f.buffer.append(@format!("MerkleRoot: {}", root)),
+            TransactionData::Transactions(txs) => f
                 .buffer
-                .append(@format!("TransactionData {}", root)),
-            TransactionData::Transactions(txs) => f.buffer.append(@format!("{}", txs.len()))
+                .append(@format!("Transactions: {}", txs.len()))
         };
         Result::Ok(())
     }

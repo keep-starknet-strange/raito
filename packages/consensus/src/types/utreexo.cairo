@@ -136,7 +136,7 @@ impl UtreexoBatchProofDisplay of Display<UtreexoBatchProof> {
             proofs.append(@format!("{},", proof));
         };
         let str: ByteArray = format!(
-            "UtreexoBatchProof {{ leaf_index: {}, proof: {} }}", @targets, @proofs
+            "UtreexoBatchProof {{ leaf_index: [{}], proof: [{}] }}", @targets, @proofs
         );
         f.buffer.append(@str);
         Result::Ok(())
