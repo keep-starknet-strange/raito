@@ -21,6 +21,7 @@ light_test_cases=(
     24834   # Block containing first off ramp tx from Martti Malmi (24835)
     32255   # First target adjustment (32256)
     57042   # Block containing pizza tx (57043)
+    72575
     150012  # Small Block (150013)
     209999  # First halving block (210000)
     478557  # Bitcoin Cash hard fork block (478558)
