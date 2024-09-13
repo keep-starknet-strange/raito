@@ -141,10 +141,8 @@ fn validate_segwit_output(
     let mut fixed_prefix_byte: ByteArray = "";
     fixed_prefix_byte.append_word(WTNS_PK_SCRIPT_PREFIX, 6);
 
-    let wtxid_commitment_bytes: ByteArray = wtxid_commitment.into();
-
     let mut expected_wtxid_commitment = ByteArrayTrait::concat(
-        @fixed_prefix_byte, @wtxid_commitment_bytes
+        @fixed_prefix_byte, @wtxid_commitment.into()
     );
 
     while let Option::Some(output) = outputs.pop_back() {
@@ -232,7 +230,7 @@ mod tests {
 
 
     #[test]
-    fn _with_segwit_tx_with_multiple_input() {
+    fn test_validate_coinbase_with_multiple_input() {
         let tx = Transaction {
             version: 1,
             is_segwit: false,
@@ -278,7 +276,7 @@ mod tests {
     }
 
     #[test]
-    fn _with_segwit_tx_with_wrong_vout() {
+    fn test_validate_coinbase_with_wrong_vout() {
         let input = TxIn {
             script: @from_hex(""),
             sequence: 4294967295,
@@ -296,7 +294,7 @@ mod tests {
     }
 
     #[test]
-    fn _with_segwit_tx_with_txid_not_zero() {
+    fn test_validate_coinbase_with_txid_not_zero() {
         let input = TxIn {
             script: @from_hex(""),
             sequence: 4294967295,
@@ -314,7 +312,7 @@ mod tests {
     }
 
     #[test]
-    fn _with_segwit_tx_outputs_amount() {
+    fn test_validate_coinbase_outputs_amount() {
         let tx = Transaction {
             version: 1,
             is_segwit: false,
@@ -348,7 +346,7 @@ mod tests {
     }
 
     #[test]
-    fn _with_segwit_tx() {
+    fn test_validate_coinbase() {
         let tx = Transaction {
             version: 1,
             is_segwit: false,
