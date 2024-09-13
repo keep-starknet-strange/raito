@@ -7,12 +7,10 @@ use utils::{
     bit_shifts::shr, hash::{Digest, DigestIntoByteArray}, sha256::{double_sha256_byte_array}
 };
 
-
 const BIP_34_BLOCK_HEIGHT: u32 = 227_836;
 const BIP_141_BLOCK_HEIGHT: u32 = 481_824;
 const WTNS_PK_SCRIPT_LEN: u32 = 38;
 const WTNS_PK_SCRIPT_PREFIX: felt252 = 116705705699821; // 0x6a24aa21a9ed
-const WITNESS_VALUE: felt252 = 0;
 
 /// Validates coinbase transaction.
 pub fn validate_coinbase(
@@ -41,8 +39,8 @@ pub fn validate_coinbase(
         let witness = tx.inputs[0].witness[0];
 
         // check witness value
-        let mut witness_value_byte: ByteArray = "";
-        witness_value_byte.append_word(WITNESS_VALUE, 32);
+        let witness_value_byte: ByteArray =
+            "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0";
 
         if witness != @witness_value_byte {
             return Result::Err("Wrong coinbase witness");
@@ -134,8 +132,8 @@ fn compute_block_reward(block_height: u32) -> u64 {
 fn calculate_wtxid_commitment(wtxid_root: Digest) -> Digest {
     // construct witness reserved value
     // 0000000000000000000000000000000000000000000000000000000000000000
-    let mut witness_value_byte: ByteArray = "";
-    witness_value_byte.append_word(WITNESS_VALUE, 32);
+    let witness_value_byte: ByteArray =
+        "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0";
 
     // convert wtxid_root to ByteArray
     let wtxid_root_bytes: ByteArray = wtxid_root.into();
