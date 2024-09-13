@@ -36,7 +36,7 @@ pub fn double_sha256_u32_array(words: Array<u32>) -> Digest {
 
 #[cfg(test)]
 mod tests {
-    use crate::utils::{hex::from_hex, hash::Digest};
+    use crate::{hex::from_hex, hash::Digest};
     use super::{double_sha256_byte_array, double_sha256_u32_array, double_sha256_parent};
 
     #[test]

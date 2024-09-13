@@ -91,9 +91,10 @@ pub fn merkle_root(ref txids: Array<Box<[u32; 8]>>) -> Box<[u32; 8]> {
 /// Calculate Merkle tree root given the array of leaves.
 // pub fn merkle_root(ref txids: Array<Digest>) -> Digest {
 
-//     let result: u256 = merkle_branch(ref txids);
-//     result.into()
-// }
+// #[cfg(test)]
+// mod tests {
+//     use crate::{hash::{Digest, U256IntoDigest}, hex::hex_to_hash_rev};
+//     use super::{merkle_root};
 
 // #[cfg(test)]
 // mod tests {
