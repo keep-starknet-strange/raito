@@ -188,7 +188,8 @@ mod tests {
     }
 
     #[test]
-    fn test_relative_locktime_enabled_block_height_fail() {
+    #[should_panic]
+    fn test_fail_relative_locktime_enabled_block_height() {
         let input = TxIn {
             script: @from_hex(""),
             sequence: 144, // Lower sequence number with locktime enabled (block-based locktime)
@@ -208,12 +209,13 @@ mod tests {
         // Pass a lower block height than required by the relative locktime
         let block_height = 603019;
         let block_time = 1573401225;
-
-        assert!(validate_relative_locktime(@input, block_height, block_time).is_err());
+        let result = validate_relative_locktime(@input, block_height, block_time);
+        result.unwrap();
     }
 
     #[test]
-    fn test_relative_locktime_enabled_block_time_fail() {
+    #[should_panic]
+    fn test_fail_relative_locktime_enabled_block_time() {
         // txid 12fa403cb22bf08c4c5542cc00673495a0c54c9cc8181bea850a12d40d7593a2
         // input 0
         // note: only relevant fields are initialized
@@ -238,11 +240,13 @@ mod tests {
         let block_time = 1573549250;
 
         // This should fail because the current block time does not satisfy the relative locktime
-        assert!(validate_relative_locktime(@input, block_height, block_time).is_err());
+        let result = validate_relative_locktime(@input, block_height, block_time);
+        result.unwrap();
     }
 
     #[test]
-    fn test_relative_locktime_enabled_fail() {
+    #[should_panic]
+    fn test_fail_relative_locktime_enabled() {
         let input = TxIn {
             script: @from_hex(""),
             sequence: 144, // Relative locktime enabled (no SEQUENCE_LOCKTIME_DISABLE_FLAG)
@@ -263,9 +267,8 @@ mod tests {
         let current_block_time = 1600000000;
 
         // This should fail because relative locktime is enabled and the conditions do not satisfy
-        assert!(
-            validate_relative_locktime(@input, current_block_height, current_block_time).is_err()
-        );
+        let result = validate_relative_locktime(@input, current_block_height, current_block_time);
+        result.unwrap()
     }
 
 
