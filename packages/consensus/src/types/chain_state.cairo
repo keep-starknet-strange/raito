@@ -11,6 +11,7 @@ use crate::validation::{
     work::{validate_proof_of_work, compute_total_work}, block::{compute_and_validate_tx_data},
 };
 use super::block::{BlockHash, Block, TransactionData};
+use core::fmt::{Display, Formatter, Error};
 
 /// Represents the state of the blockchain.
 #[derive(Drop, Copy, Debug, PartialEq, Serde)]
@@ -95,6 +96,33 @@ pub impl BlockValidatorImpl of BlockValidator {
                 prev_timestamps,
             }
         )
+    }
+}
+
+impl ChainStateDisplay of Display<ChainState> {
+    fn fmt(self: @ChainState, ref f: Formatter) -> Result<(), Error> {
+        let mut prev_ts: ByteArray = Default::default();
+        for ts in *self.prev_timestamps {
+            prev_ts.append(@format!("{},", ts));
+        };
+        let str: ByteArray = format!(
+            "
+	block_height: {}
+	total_work: {}
+	best_block_hash: {}
+	current_target: {}
+	epoch_start_time: {}
+	prev_timestamps: [{}]
+}}",
+            *self.block_height,
+            *self.total_work,
+            *self.best_block_hash,
+            *self.current_target,
+            *self.epoch_start_time,
+            @prev_ts
+        );
+        f.buffer.append(@str);
+        Result::Ok(())
     }
 }
 // TODO: implement Digest trait for ChainState
