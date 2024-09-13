@@ -21,15 +21,17 @@ if [ $# -gt 0 ]; then
     test_files="${args[@]}"
 fi
 
+echo "running integration tests ..."
+
 for test_file in $test_files; do
     if [ -f "$test_file" ]; then
-        echo -n "test e2e:$test_file ..."
+        echo -n "test $test_file ..."
 
         if [[ "$ignored" =~ "$test_file" ]]; then
             echo " ignored"
             num_ignored=$((num_ignored + 1))
         else
-            arguments=$(python scripts/data/format_args.py ${test_file})
+            arguments=$(python ../../scripts/data/format_args.py ${test_file})
             output=$(scarb cairo-run --no-build --function test "$arguments")
             gas_spent=$(echo $output | grep -o 'gas_spent=[0-9]*' | sed 's/gas_spent=//')
 
@@ -37,8 +39,7 @@ for test_file in $test_files; do
                 echo -e "${RED} fail ${RESET}(gas usage est.: $gas_spent)"
                 num_fail=$((num_fail + 1))
                 error=$(echo $output | grep -o "error='[^']*'" | sed "s/error=//")
-                failures+="\te2e:$test_file — Panicked with $error:\n"
-                failures+="\te2e:$test_file — output:\n$output\n"
+                failures+="\t$test_file — Panicked with $error\n"
             elif [[ "$output" == *"OK"* ]]; then
                 echo -e "${GREEN} ok ${RESET}(gas usage est.: $gas_spent)"
                 num_ok=$((num_ok + 1))
@@ -46,8 +47,7 @@ for test_file in $test_files; do
                 echo -e "${RED} fail ${RESET}(gas usage est.: 0)"
                 num_fail=$((num_fail + 1))
                 error=$(echo "$output" | sed '1d')
-                failures+="\te2e:$test_file — $error\n"
-                failures+="\te2e:$test_file — output:\n$output\n"
+                failures+="\t$test_file — $error\n"
             fi
         fi
     fi

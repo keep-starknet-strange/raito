@@ -1,0 +1,11 @@
+[package]
+name = "utils"
+version = "0.1.0"
+edition = "2024_07"
+
+[dev-dependencies]
+cairo_test.workspace = true
+
+[scripts]
+# TODO: cairo lint
+lint = "scarb fmt"

@@ -17,7 +17,7 @@ Raito is a zero-knowledge Bitcoin client implemented in Cairo. It aims to provid
 
 ```mermaid
 flowchart TB
-Pnm1(STARK proof of the chain state<br>up to the block <i>n - 1</i>,<br> including utxo accumulator) --> Vp(zk verifier)
+Pnm1(STARK proof of the chain state up to the block <i>n - 1</i>, including utxo accumulator) --> Vp(zk verifier)
 Bn(blocks <i>n..m</i>) ----> Vb
 
 subgraph Cairo
@@ -26,7 +26,7 @@ subgraph Cairo
     Vb --> ChS
 end
 
-Vb --> Pn(STARK proof of the chain state<br>up to the block <i>m</i>,<br> including utxo accumulator)
+Vb --> Pn(STARK proof of the chain state up to the block <i>m</i>,<br> including utxo accumulator)
 
 style Bn fill:pink
 style Pn fill:lightgreen
@@ -49,6 +49,10 @@ Although this is a highly experimental project without immediate plans for deplo
 
 ## Roadmap
 
+<p align="center" width="100%">
+  <img src="./docs/img/components.svg" alt="components"/>
+</p>
+
 ### Milestone 1 - Block header validation
 
 Implement a reduced light client that can verify a range of blocks starting at genesis.  
@@ -70,7 +74,7 @@ Extend light client with partial transaction validation, but without UTXO checks
 
 Tasks:
 
-* [ ] reassess validation check list (analyze Bitcoin core codebase)
+* [x] reassess validation check list (analyze Bitcoin core codebase)
 * [x] generate & run integration tests e2e instead of Cairo codegen
 * [x] transaction ID calculation
 * [x] transaction root computation
@@ -131,39 +135,17 @@ Raito is a reference to Light Yagami (夜神月, Yagami Raito) from the manga/an
 
 ## Usage
 
-This will compile all the components:
+This will compile all the packages:
 
 ```bash
 scarb build
 ```
 
-This will run unit and integration tests:
+This will run tests for all the packages:
 
 ```bash
 scarb test
 ```
-
-For integration tests ony:
-
-```bash
-scarb run integration_tests
-```
-
-Run for specific test file(s):
-
-```bash
-scarb run integration_tests tests/data/light_481823.json
-```
-
-Re-generate integration test data:
-
-```base
-scarb run regenerate_tests --force
-```
-
-* Without `--force` flag only non-existent files will be created
-* Files are located in [tests/data/](https://github.com/keep-starknet-strange/raito/blob/main/tests/data)
-* If you want to add a new test case, edit [scripts/data/regenerate_tests.sh](https://github.com/keep-starknet-strange/raito/blob/main/scripts/data/regenerate_tests.sh)
 
 ## Build dependencies
 
@@ -213,6 +195,9 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/Gerson2102"><img src="https://avatars.githubusercontent.com/u/71728860?v=4?s=100" width="100px;" alt="Gerson"/><br /><sub><b>Gerson</b></sub></a><br /><a href="https://github.com/keep-starknet-strange/raito/commits?author=Gerson2102" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/PavitraAgarwal21"><img src="https://avatars.githubusercontent.com/u/85789615?v=4?s=100" width="100px;" alt="PavitraAgarwal21"/><br /><sub><b>PavitraAgarwal21</b></sub></a><br /><a href="https://github.com/keep-starknet-strange/raito/commits?author=PavitraAgarwal21" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/bloomingpeach"><img src="https://avatars.githubusercontent.com/u/177087057?v=4?s=100" width="100px;" alt="bloomingpeach"/><br /><sub><b>Nguyen Dao</b></sub></a><br /><a href="https://github.com/keep-starknet-strange/raito/commits?author=bloomingpeach" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/od-hunter"><img src="https://avatars.githubusercontent.com/u/146340502?v=4?s=100" width="100px;" alt="od-hunter"/><br /><sub><b>Hunter001</b></sub></a><br /><a href="https://github.com/keep-starknet-strange/raito/commits?author=od-hunter" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/feltroidprime"><img src="https://avatars.githubusercontent.com/u/96737978?v=4?s=100" width="100px;" alt="feltroidprime"/><br /><sub><b>feltroid Prime</b></sub></a><br /><a href="https://github.com/keep-starknet-strange/raito/commits?author=feltroidprime" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/mexes20"><img src="https://avatars.githubusercontent.com/u/127276944?v=4?s=100" width="100px;" alt="mexes20"/><br /><sub><b>Mexes</b></sub></a><br /><a href="https://github.com/keep-starknet-strange/raito/commits?author=mexes20" title="Code">💻</a></td>
     </tr>
   </tbody>
 </table>

@@ -1,15 +1,13 @@
-[package]
-name = "raito"
+[workspace]
+members = ["packages/*"]
+
+[workspace.package]
+description = "Bitcoin ZK client."
+cairo-version = "2.8.2"
 version = "0.1.0"
-edition = "2024_07"
+readme = "README.md"
+repository = "https://github.com/keep-starknet-strange/raito"
+license-file = "LICENSE"
 
-[scripts]
-regenerate_tests= "./scripts/data/regenerate_tests.sh"
-integration_tests = "scarb build && ./scripts/data/integration_tests.sh"
-client= "scarb build && ./scripts/data/client.sh"
-test = "scarb cairo-test && scarb run integration_tests"
-
-[dependencies]
-
-[dev-dependencies]
+[workspace.dependencies]
 cairo_test = "2.8.0"

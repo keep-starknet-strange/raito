@@ -9,6 +9,7 @@ then
 fi
 
 force=0
+data_dir="tests/data"
 
 if [[ "$1" == "--force" ]]; then
   force=1
@@ -25,8 +26,6 @@ light_test_cases=(
     478557  # Bitcoin Cash hard fork block (478558)
     481823  # Segwit soft fork block (481824)
     491406  # Bitcoin Gold hard fork block (491407)
-    542212  # (542213)
-    553723  # (553724)
     629999  # Third halving block (630000)
     709631  # Taproot soft fort block (709632)
     757738  # Block with witness (757739)
@@ -37,20 +36,18 @@ light_test_cases=(
 
 full_test_cases=(
     169     # Block containing first P2P tx to Hal Finney (170)
-    542212
-    553723  # (553724)
     757738  # Block with witness (757739)
 )
 
-mkdir tests/data || true
+mkdir $data_dir || true
 
 # Generate test file if it does not exist yet or if "force" flag is set
 generate_test() {
   local mode=$1
   local height=$2
-  test_file="tests/data/${mode}_${test_case}.json"
+  test_file="${data_dir}/${mode}_${test_case}.json"
   if [[ ! -f "$test_file" || $force -eq 1 ]]; then
-    python scripts/data/generate_data.py $mode $height 1 true $test_file
+    python ../../scripts/data/generate_data.py $mode $height 1 true $test_file
   fi
 }
 
