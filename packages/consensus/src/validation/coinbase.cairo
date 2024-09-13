@@ -34,19 +34,8 @@ pub fn validate_coinbase(
     let block_reward = compute_block_reward(block_height);
     assert(total_output_amount <= total_fees + block_reward, 'total output > block rwd + fees');
 
-    // validate BIP-141 witness field
+    // validate BIP-141 segwit output
     if block_height >= BIP_141_BLOCK_HEIGHT {
-        let witness = tx.inputs[0].witness[0];
-
-        // check witness value
-        let witness_value_byte: ByteArray =
-            "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0";
-
-        if witness != @witness_value_byte {
-            return Result::Err("Wrong coinbase witness");
-        }
-
-        // validate BIP-141 segwit output
         if *tx.is_segwit {
             // calculate expected wtxid commitment and validate segwit output
             validate_segwit_output(*tx.outputs, calculate_wtxid_commitment(wtxid_root))?;
@@ -55,7 +44,6 @@ pub fn validate_coinbase(
 
     Result::Ok(())
 }
-
 
 /// Validates first and the only coinbase input
 fn validate_coinbase_input(input: @TxIn, block_height: u32) -> Result<(), ByteArray> {
@@ -122,7 +110,6 @@ fn validate_coinbase_witness(witness: Span<ByteArray>) -> Result<(), ByteArray> 
     Result::Ok(())
 }
 
-
 /// Return BTC reward in SATS
 fn compute_block_reward(block_height: u32) -> u64 {
     shr(5000000000_u64, (block_height / 210000_u32))
@@ -144,6 +131,7 @@ fn calculate_wtxid_commitment(wtxid_root: Digest) -> Digest {
     double_sha256_byte_array(@res)
 }
 
+/// validate segwit output (BIP-141)
 fn validate_segwit_output(
     mut outputs: Span<TxOut>, wtxid_commitment: Digest
 ) -> Result<(), ByteArray> {
