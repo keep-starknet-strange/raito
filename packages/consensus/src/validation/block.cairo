@@ -46,7 +46,14 @@ pub fn compute_and_validate_tx_data(
         let tx_bytes_segwit = @tx.encode_with_witness(tx_bytes_legacy);
 
         let txid = double_sha256_byte_array(tx_bytes_legacy);
-        let wtxid = double_sha256_byte_array(tx_bytes_segwit);
+
+        /// The wTXID for the coinbase transaction must be set to all zeros. This is because it's
+        /// eventually going to contain the commitment inside it
+        /// see https://learnmeabitcoin.com/technical/transaction/wtxid/#commitment
+        let mut wtxid = Default::default();
+        if i != 0 {
+            wtxid = double_sha256_byte_array(tx_bytes_segwit);
+        }
 
         // tx_byte_segwit represents all the bytes in the transaction, so the bytes in the segwit
         // fields are tx_byte_segwit - tx_byte_legacy.
