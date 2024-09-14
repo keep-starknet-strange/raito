@@ -16,5 +16,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "garaga"
+version = "0.1.0"
+source = "git+https://github.com/keep-starknet-strange/garaga.git#66abfdc0c825f60f96b3b83cb89ef7d1e9ff8f91"
+
+[[package]]
 name = "utils"
 version = "0.1.0"
+dependencies = [
+ "garaga",
+]

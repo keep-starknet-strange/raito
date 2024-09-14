@@ -3,6 +3,9 @@ name = "utils"
 version = "0.1.0"
 edition = "2024_07"
 
+[dependencies]
+garaga = { git = "https://github.com/keep-starknet-strange/garaga.git" }
+
 [dev-dependencies]
 cairo_test.workspace = true
 
