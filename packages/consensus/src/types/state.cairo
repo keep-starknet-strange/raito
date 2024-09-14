@@ -1,6 +1,7 @@
 //! State is a top level struct containing the chain state and the utxo set
 
 use crate::types::utreexo::{UtreexoState, UtreexoStateDefault};
+use crate::types::utxo_set::UtxoSet;
 use crate::validation::{
     difficulty::{validate_bits, adjust_difficulty}, coinbase::validate_coinbase,
     timestamp::{validate_timestamp, next_prev_timestamps},
@@ -19,6 +20,11 @@ pub struct State {
 #[generate_trait]
 pub impl BlockValidatorImpl of BlockValidator {
     fn validate_and_apply(self: State, block: Block) -> Result<State, ByteArray> {
+        let utxo_set = UtxoSet {
+            utreexo_state: self.utreexo_state,
+            cache: Default::default(),
+        };
+        
         let block_height = self.chain_state.block_height + 1;
 
         validate_timestamp(self.chain_state.prev_timestamps, block.header.time)?;
