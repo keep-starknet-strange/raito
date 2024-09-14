@@ -38,7 +38,7 @@ pub fn validate_coinbase(
     if block_height >= BIP_141_BLOCK_HEIGHT {
         if *tx.is_segwit {
             // calculate expected wtxid commitment and validate segwit output
-            validate_segwit_output(*tx.outputs, calculate_wtxid_commitment(wtxid_root))?;
+            validate_coinbase_outputs(*tx.outputs, calculate_wtxid_commitment(wtxid_root))?;
         }
     }
 
@@ -119,48 +119,42 @@ fn compute_block_reward(block_height: u32) -> u64 {
 fn calculate_wtxid_commitment(wtxid_root: Digest) -> Digest {
     // construct witness reserved value
     // 0000000000000000000000000000000000000000000000000000000000000000
-    let witness_value_byte: ByteArray =
+    let witness_value_bytes: ByteArray =
         "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0";
 
     // convert wtxid_root to ByteArray
     let wtxid_root_bytes: ByteArray = wtxid_root.into();
 
     // concat (witness root hash | witness reserved value)
-    let mut res = ByteArrayTrait::concat(@wtxid_root_bytes, @witness_value_byte);
+    let res = ByteArrayTrait::concat(@wtxid_root_bytes, @witness_value_bytes);
 
     double_sha256_byte_array(@res)
 }
 
 /// validate segwit output (BIP-141)
-fn validate_segwit_output(
+fn validate_coinbase_outputs(
     mut outputs: Span<TxOut>, wtxid_commitment: Digest
 ) -> Result<(), ByteArray> {
     let mut is_wtxid_commitment_present: bool = false;
 
-    // construct expected wtxid commitment
-    let mut fixed_prefix_byte: ByteArray = "";
-    fixed_prefix_byte.append_word(WTNS_PK_SCRIPT_PREFIX, 6);
-
-    let mut expected_wtxid_commitment = ByteArrayTrait::concat(
-        @fixed_prefix_byte, @wtxid_commitment.into()
-    );
+    // construct expected witness script combining prefix and wtxid commitment
+    let mut expected_witness_script: ByteArray = "";
+    expected_witness_script.append_word(WTNS_PK_SCRIPT_PREFIX, 6);
+    expected_witness_script.append(@wtxid_commitment.into());
 
     while let Option::Some(output) = outputs.pop_back() {
         let pk_script = *output.pk_script;
 
         // check for pk_script with at least 38 bytes commitment length
         if pk_script.len() >= WTNS_PK_SCRIPT_LEN {
-            // extract wtxid commitment
-            let mut extracted_wtxid_commitment: ByteArray = "";
-            let mut x = 0;
-
-            while x != WTNS_PK_SCRIPT_LEN {
-                extracted_wtxid_commitment.append_byte(pk_script[x]);
-                x += 1;
+            // extract witness script containing wtxid commitment
+            let mut extracted_witness_script: ByteArray = "";
+            for i in 0..WTNS_PK_SCRIPT_LEN {
+                extracted_witness_script.append_byte(pk_script[i]);
             };
 
-            // compare expected and extracted wtxid commitment
-            if expected_wtxid_commitment == extracted_wtxid_commitment {
+            // compare expected and extracted witness script
+            if expected_witness_script == extracted_witness_script {
                 is_wtxid_commitment_present = true;
                 break;
             }
@@ -179,7 +173,7 @@ mod tests {
     use crate::types::transaction::{TxIn, TxOut, Transaction, OutPoint};
     use super::{
         compute_block_reward, validate_coinbase, validate_coinbase_input,
-        validate_coinbase_sig_script, validate_coinbase_witness, validate_segwit_output,
+        validate_coinbase_sig_script, validate_coinbase_witness, validate_coinbase_outputs,
         calculate_wtxid_commitment
     };
     use utils::{hex::{from_hex, hex_to_hash_rev}, hash::Digest};
@@ -496,7 +490,7 @@ mod tests {
     }
 
     #[test]
-    fn test_validate_segwit_output_with_no_wtxid_commitment() {
+    fn test_validate_coinbase_outputs_with_no_wtxid_commitment() {
         let outputs = array![
             TxOut {
                 value: 625107042,
@@ -528,11 +522,11 @@ mod tests {
             ]
         };
 
-        validate_segwit_output(outputs, wtxid_commitment).unwrap_err();
+        validate_coinbase_outputs(outputs, wtxid_commitment).unwrap_err();
     }
 
     #[test]
-    fn test_validate_segwit_output() {
+    fn test_validate_coinbase_outputs() {
         let outputs = array![
             TxOut {
                 value: 625107042,
@@ -569,7 +563,7 @@ mod tests {
             "15e787d38637d8ed668d5e1e573d2241739c3315190220a8d89ca27b63e80265"
         );
 
-        validate_segwit_output(outputs, wtxid_commitment).unwrap();
+        validate_coinbase_outputs(outputs, wtxid_commitment).unwrap();
     }
 
     #[test]
