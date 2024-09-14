@@ -29,7 +29,7 @@ pub fn merkle_root(ref hashes: Array<Digest>) -> Digest {
 
 #[cfg(test)]
 mod tests {
-    use crate::utils::{hash::{Digest, U256IntoDigest}, hex::hex_to_hash_rev};
+    use crate::{hash::{Digest, U256IntoDigest}, hex::hex_to_hash_rev};
     use super::{merkle_root};
 
     #[test]

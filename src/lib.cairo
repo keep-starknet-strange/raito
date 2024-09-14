@@ -34,3 +34,4 @@ mod main;
 // Scarb does not support features when using cairo-run
 // neither it allows to run function from the "tests" folder
 mod test;
+

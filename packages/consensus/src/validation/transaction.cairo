@@ -97,7 +97,7 @@ fn validate_coinbase_maturity(output_height: u32, block_height: u32) -> Result<(
 #[cfg(test)]
 mod tests {
     use crate::types::transaction::{Transaction, TxIn, TxOut, OutPoint};
-    use crate::utils::hex::{from_hex, hex_to_hash_rev};
+    use utils::hex::{from_hex, hex_to_hash_rev};
     use super::validate_transaction;
 
     // TODO: tests for coinbase maturity
@@ -378,5 +378,83 @@ mod tests {
         // Transaction should be valid when current block time is greater than locktime
         let result = validate_transaction(@tx, 500001, 0);
         assert!(result.is_ok());
+    }
+
+    #[test]
+    fn test_immature_coinbase_transaction() {
+        let block_height = 50;
+
+        let tx = Transaction {
+            version: 1,
+            is_segwit: false,
+            inputs: array![
+                TxIn {
+                    script: @from_hex(""),
+                    sequence: 0xfffffffe,
+                    previous_output: OutPoint {
+                        txid: hex_to_hash_rev(
+                            "0000000000000000000000000000000000000000000000000000000000000000"
+                        ),
+                        vout: 0,
+                        data: TxOut { value: 100, ..Default::default() },
+                        block_height: Default::default(),
+                        block_time: Default::default(),
+                        is_coinbase: true,
+                    },
+                    witness: array![].span(),
+                }
+            ]
+                .span(),
+            outputs: array![
+                TxOut {
+                    value: 50,
+                    pk_script: @from_hex("76a914000000000000000000000000000000000000000088ac"),
+                    cached: false,
+                }
+            ]
+                .span(),
+            lock_time: 0
+        };
+
+        validate_transaction(@tx, block_height, 0).unwrap_err();
+    }
+
+    #[test]
+    fn test_mature_coinbase_transaction() {
+        let block_height = 150;
+
+        let tx = Transaction {
+            version: 1,
+            is_segwit: false,
+            inputs: array![
+                TxIn {
+                    script: @from_hex(""),
+                    sequence: 0xfffffffe,
+                    previous_output: OutPoint {
+                        txid: hex_to_hash_rev(
+                            "0000000000000000000000000000000000000000000000000000000000000000"
+                        ),
+                        vout: 0,
+                        data: TxOut { value: 100, ..Default::default() },
+                        block_height: Default::default(),
+                        block_time: Default::default(),
+                        is_coinbase: true,
+                    },
+                    witness: array![].span(),
+                }
+            ]
+                .span(),
+            outputs: array![
+                TxOut {
+                    value: 50,
+                    pk_script: @from_hex("76a914000000000000000000000000000000000000000088ac"),
+                    cached: false,
+                }
+            ]
+                .span(),
+            lock_time: 0
+        };
+
+        validate_transaction(@tx, block_height, 0).unwrap();
     }
 }

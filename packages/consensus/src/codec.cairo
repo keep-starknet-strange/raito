@@ -1,7 +1,7 @@
 //! Bitcoin binary codec traits, implementations, and helpers.
 
 use super::types::transaction::{Transaction, TxIn, TxOut, OutPoint};
-use raito::utils::hash::Digest;
+use utils::hash::Digest;
 
 pub trait Encode<T> {
     /// Encode using Bitcoin codec and append to the buffer.
@@ -133,8 +133,8 @@ pub fn encode_compact_size(len: usize, ref dest: ByteArray) {
 }
 #[cfg(test)]
 mod tests {
-    use raito::types::transaction::{Transaction, TxIn, TxOut, OutPoint};
-    use raito::utils::hex::{from_hex, hex_to_hash_rev};
+    use utils::hex::{from_hex, hex_to_hash_rev};
+    use crate::types::transaction::{Transaction, TxIn, TxOut, OutPoint};
     use super::{Encode, TransactionCodec, encode_compact_size};
 
     #[test]
