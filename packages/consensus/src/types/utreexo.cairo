@@ -88,13 +88,16 @@ pub impl UtreexoStateImpl of UtreexoAccumulator {
     ) -> Result<(), UtreexoError> {
         let proof_root = verify_helper(*proof.proof, *proof.leaf_index, (*output.txid).into());
 
-        // last node in the proof path.
-        let expected_proof_root: u256 = (*(*proof.proof).at((*proof.proof).len() - 1)).into();
-        if  expected_proof_root == proof_root {
-            return Result::Ok(());
+        // Get the expected root from the last node in the proof path.
+        let expected_root: u256 = (*proof.proof[(*proof.proof).len() - 1]).into();
+
+        if expected_root == proof_root {
+            Result::Ok(())
+        } else {
+            Result::Err(UtreexoError::ProofVerificationFailed)
         }
-        Result::Err(UtreexoError::VerifyFailure)
     }
+
 
     /// Removes single output from the accumlator (order is important).
     ///
@@ -137,7 +140,7 @@ fn verify_helper(mut proof: Span<felt252>, leaf_index: u64, curr_node: u256) -> 
 
 #[derive(Drop, Copy, PartialEq)]
 pub enum UtreexoError {
-    VerifyFailure
+    ProofVerificationFailed
 }
 
 /// Utreexo inclusion proof for a single transaction output.
