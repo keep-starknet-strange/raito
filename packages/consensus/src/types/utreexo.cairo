@@ -72,6 +72,38 @@ pub trait UtreexoAccumulator {
     fn delete_batch(ref self: UtreexoState, proof: @UtreexoBatchProof);
 }
 
+pub impl UtreexoAccumulatorImpl of UtreexoAccumulator{
+       /// Adds single output to the accumulator.
+    /// The order *is important*: adding A,B and B,A would result in different states.
+    ///
+    /// Note that this call also pushes old UTXOs "to the left", to a larger subtree.
+    /// This mechanism ensures that short-lived outputs have small inclusion proofs.
+    fn add(ref self: UtreexoState, output: OutPoint){}
+
+    /// Verifies inclusion proof for a single output.
+    fn verify(
+        self: @UtreexoState, output: @OutPoint, proof: @UtreexoProof
+    ) -> Result<(), UtreexoError>{
+        Result::Ok(())
+    }
+
+    /// Removes single output from the accumlator (order is important).
+    ///
+    /// Note that once verified, the output itself is not required for deletion,
+    /// the leaf index plus inclusion proof is enough.
+    fn delete(ref self: UtreexoState, proof: @UtreexoProof){}
+
+    /// Verifies batch proof for multiple outputs (e.g. all outputs in a block).
+    fn verify_batch(
+        self: @UtreexoState, outputs: Span<OutPoint>, proof: @UtreexoBatchProof
+    ) -> Result<(), UtreexoError>{
+        Result::Ok(())
+    }
+
+    /// Removes multiple outputs from the accumulator.
+    fn delete_batch(ref self: UtreexoState, proof: @UtreexoBatchProof){}
+}
+
 #[derive(Drop, Copy, PartialEq)]
 pub enum UtreexoError {}
 
