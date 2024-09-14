@@ -20,7 +20,7 @@ fn main(mut arguments: Span<felt252>) -> State {
         .expect('Failed to deserialize');
 
     for block in blocks {
-        state.chain_state = state.validate_and_apply(block).expect('Validation failed').chain_state;
+        state = state.validate_and_apply(block).expect('Validation failed');
     };
     
     state
