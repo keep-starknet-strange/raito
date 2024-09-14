@@ -1,11 +1,23 @@
 use crate::types::{
-    EngineTransactionInputTrait, EngineTransactionOutputTrait, EngineTransactionTrait,
-    HashCacheTrait, EngineTrait
+    EngineTransactionInput, EngineTransactionOutput, EngineTransaction, HashCache, Engine
 };
 
+#[derive(Drop)]
 struct HashCacheDummy {}
 
-impl HashCacheDummyImpl of HashCacheTrait<HashCacheDummy> {
+impl HashCacheDummyImpl<
+    I,
+    O,
+    T,
+    +Drop<T>,
+    +EngineTransactionInput<I>,
+    +EngineTransactionOutput<O>,
+    +EngineTransaction<T, I, O>,
+> of HashCache<HashCacheDummy, I, O, T> {
+    fn new(transaction: T) -> HashCacheDummy {
+        HashCacheDummy {}
+    }
+
     fn get_hash_prevouts_v0(self: HashCacheDummy) -> u256 {
         0
     }
@@ -38,31 +50,15 @@ impl HashCacheDummyImpl of HashCacheTrait<HashCacheDummy> {
 #[derive(Drop)]
 struct EngineDummy {}
 
-
 impl EngineDummyImpl<
     I,
-    impl IEngineTransactionInput: EngineTransactionInputTrait<I>,
     O,
-    impl IEngineTransactionOutput: EngineTransactionOutputTrait<O>,
     T,
-    impl IEngineTransaction: EngineTransactionTrait<
-        T, I, IEngineTransactionInput, O, IEngineTransactionOutput
-    >,
-    HashCacheDummy,
-    impl IHashCache: HashCacheTrait<
-        HashCacheDummy, I, IEngineTransactionInput, O, IEngineTransactionOutput, T
-    >
-> of EngineTrait<
-    EngineDummy,
-    I,
-    IEngineTransactionInput,
-    O,
-    IEngineTransactionOutput,
-    T,
-    IEngineTransaction,
-    HashCacheDummy,
-    IHashCache
-> {
+    +Drop<T>,
+    +EngineTransactionInput<I>,
+    +EngineTransactionOutput<O>,
+    +EngineTransaction<T, I, O>,
+> of Engine<EngineDummy, I, O, T, HashCacheDummy> {
     fn new(
         script_pubkey: @ByteArray,
         transaction: T,

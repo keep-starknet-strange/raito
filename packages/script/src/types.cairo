@@ -1,12 +1,12 @@
 // HashCache caches the midstate of segwit v0 and v1 sighashes
-pub trait HashCacheTrait<
+pub trait HashCache<
     C,
     I,
-    impl IEngineTransactionInput: EngineTransactionInputTrait<I>,
     O,
-    impl IEngineTransactionOutput: EngineTransactionOutputTrait<O>,
     T,
-    +EngineTransactionTrait<T, I, IEngineTransactionInput, O, IEngineTransactionOutput>,
+    +EngineTransactionInput<I>,
+    +EngineTransactionOutput<O>,
+    +EngineTransaction<T, I, O>,
 > {
     fn new(transaction: T) -> C;
 
@@ -22,7 +22,7 @@ pub trait HashCacheTrait<
     fn get_hash_input_scripts_v1(self: C) -> u256;
 }
 
-pub trait EngineTransactionInputTrait<I> {
+pub trait EngineTransactionInput<I> {
     fn get_prevout_txid(self: I) -> u256;
     fn get_prevout_vout(self: I) -> u32;
     fn get_signature_script(self: I) -> ByteArray;
@@ -30,30 +30,28 @@ pub trait EngineTransactionInputTrait<I> {
     fn get_sequence(self: I) -> u32;
 }
 
-pub trait EngineTransactionOutputTrait<O> {
+pub trait EngineTransactionOutput<O> {
     fn get_publickey_script(self: O) -> ByteArray;
     fn get_value(self: O) -> i64;
 }
 
-pub trait EngineTransactionTrait<
-    T, I, +EngineTransactionInputTrait<I>, O, +EngineTransactionOutputTrait<O>
-> {
+pub trait EngineTransaction<T, I, O, +EngineTransactionInput<I>, +EngineTransactionOutput<O>> {
     fn get_version(self: T) -> i32;
     fn get_transaction_inputs(self: T) -> Span<I>;
     fn get_transaction_outputs(self: T) -> Span<O>;
     fn get_locktime(self: T) -> u32;
 }
 
-pub trait EngineTrait<
+pub trait Engine<
     E,
     I,
-    impl IEngineTransactionInput: EngineTransactionInputTrait<I>,
     O,
-    impl IEngineTransactionOutput: EngineTransactionOutputTrait<O>,
     T,
-    +EngineTransactionTrait<T, I, IEngineTransactionInput, O, IEngineTransactionOutput>,
     C,
-    +HashCacheTrait<C, I, IEngineTransactionInput, O, IEngineTransactionOutput, T>
+    +EngineTransactionInput<I>,
+    +EngineTransactionOutput<O>,
+    +EngineTransaction<T, I, O>,
+    +HashCache<C, I, O, T>
 > {
     // Create a new Engine with the given script
     fn new(
