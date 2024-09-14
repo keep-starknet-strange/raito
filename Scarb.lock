@@ -12,6 +12,14 @@ dependencies = [
 name = "consensus"
 version = "0.1.0"
 dependencies = [
+ "script",
+ "utils",
+]
+
+[[package]]
+name = "script"
+version = "0.1.0"
+dependencies = [
  "utils",
 ]
 
