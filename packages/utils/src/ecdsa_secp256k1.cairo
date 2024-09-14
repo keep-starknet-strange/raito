@@ -1,4 +1,4 @@
-use garaga::definitions::{G1Point, u384, get_n};
+use garaga::definitions::{G1Point, u384};
 use garaga::ec_ops::{msm_g1, MSMHint, DerivePointFromXHint};
 use garaga::basic_field_ops::{inv_mod_p, mul_mod_p};
 
