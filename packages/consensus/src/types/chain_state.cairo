@@ -4,14 +4,9 @@
 //! Chain state alone is not enough to do full block validation, however
 //! it is sufficient to validate block headers.
 
-use utils::hash::Digest;
-use crate::validation::{
-    difficulty::{validate_bits, adjust_difficulty}, coinbase::validate_coinbase,
-    timestamp::{validate_timestamp, next_prev_timestamps},
-    work::{validate_proof_of_work, compute_total_work}, block::{compute_and_validate_tx_data},
-};
-use super::block::{BlockHash, Block, TransactionData};
 use core::fmt::{Display, Formatter, Error};
+use crate::types::utreexo::UtreexoStateDefault;
+use utils::hash::Digest;
 
 /// Represents the state of the blockchain.
 #[derive(Drop, Copy, Debug, PartialEq, Serde)]
@@ -49,53 +44,6 @@ impl ChainStateDefault of Default<ChainState> {
                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1231006505
             ].span(),
         }
-    }
-}
-
-/// Full block validator (w/o bitcoin script checks and utxo inclusion verification for now).
-#[generate_trait]
-pub impl BlockValidatorImpl of BlockValidator {
-    fn validate_and_apply(self: ChainState, block: Block) -> Result<ChainState, ByteArray> {
-        let block_height = self.block_height + 1;
-
-        validate_timestamp(self.prev_timestamps, block.header.time)?;
-        let prev_block_time = *self.prev_timestamps[self.prev_timestamps.len() - 1];
-        let prev_timestamps = next_prev_timestamps(self.prev_timestamps, block.header.time);
-
-        let txid_root = match block.data {
-            TransactionData::MerkleRoot(root) => root,
-            TransactionData::Transactions(txs) => {
-                let (total_fees, txid_root, wtxid_root) = compute_and_validate_tx_data(
-                    txs, block_height, block.header.time
-                )?;
-                validate_coinbase(txs[0], total_fees, block_height, wtxid_root)?;
-                txid_root
-            }
-        };
-
-        let (current_target, epoch_start_time) = adjust_difficulty(
-            self.current_target,
-            self.epoch_start_time,
-            self.block_height,
-            prev_block_time,
-            block.header.time
-        );
-        let total_work = compute_total_work(self.total_work, current_target);
-        let best_block_hash = block.header.hash(self.best_block_hash, txid_root);
-
-        validate_proof_of_work(current_target, best_block_hash)?;
-        validate_bits(current_target, block.header.bits)?;
-
-        Result::Ok(
-            ChainState {
-                block_height,
-                total_work,
-                best_block_hash,
-                current_target,
-                epoch_start_time,
-                prev_timestamps,
-            }
-        )
     }
 }
 
