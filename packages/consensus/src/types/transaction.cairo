@@ -77,7 +77,7 @@ pub struct TxIn {
 ///       one by one, first inputs then outputs. Output validation might put something to the
 ///       cache while input validation might remove an item, thus it's important to maintain
 ///       the order.
-#[derive(Drop, Copy, Debug, PartialEq, Serde, Hash, Default)]
+#[derive(Drop, Copy, Debug, PartialEq, Serde, Hash)]
 pub struct OutPoint {
     /// The hash of the referenced transaction.
     pub txid: Digest,
