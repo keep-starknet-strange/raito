@@ -4,7 +4,7 @@
 //! Chain state alone is not enough to do full block validation, however
 //! it is sufficient to validate block headers.
 
-use utils::hash::Digest;
+use core::fmt::{Display, Formatter, Error};
 use crate::validation::{
     difficulty::{validate_bits, adjust_difficulty}, coinbase::validate_coinbase,
     timestamp::{validate_timestamp, next_prev_timestamps},
@@ -12,7 +12,7 @@ use crate::validation::{
 };
 use super::block::{BlockHash, Block, TransactionData};
 use super::utxo_set::UtxoSet;
-use core::fmt::{Display, Formatter, Error};
+use utils::hash::Digest;
 
 /// Represents the state of the blockchain.
 #[derive(Drop, Copy, Debug, PartialEq, Serde)]

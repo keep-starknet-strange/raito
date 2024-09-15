@@ -21,7 +21,7 @@ fn main(mut arguments: Span<felt252>) -> State {
     let Args { mut state, blocks, } = Serde::deserialize(ref arguments)
         .expect('Failed to deserialize');
 
-    let mut utxo_set: UtxoSet = Default::default();
+    let mut utxo_set = UtxoSet { utreexo_state: state.utreexo_state, cache: Default::default(), };
 
     for block in blocks {
         state
@@ -31,5 +31,6 @@ fn main(mut arguments: Span<felt252>) -> State {
             .expect('Validation failed');
     };
 
+    state.utreexo_state = utxo_set.utreexo_state;
     state
 }
