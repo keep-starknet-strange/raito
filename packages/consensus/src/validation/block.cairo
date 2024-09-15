@@ -45,7 +45,6 @@ pub fn compute_and_validate_tx_data(
         ///  - wTXID commitment (only for blocks after Segwit upgrade, otherwise return zero hash)
 
         let tx = txs[i];
-
         let tx_bytes_legacy = @tx.encode();
         let tx_bytes_segwit = @tx.encode_with_witness(tx_bytes_legacy);
 
