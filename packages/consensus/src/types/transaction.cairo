@@ -5,6 +5,8 @@
 
 use utils::{hash::Digest, bytearray::{ByteArraySnapHash, ByteArraySnapSerde}};
 use core::fmt::{Display, Formatter, Error};
+use core::hash::{HashStateTrait, HashStateExTrait};
+use core::poseidon::PoseidonTrait;
 
 /// Represents a transaction.
 /// https://learnmeabitcoin.com/technical/transaction/

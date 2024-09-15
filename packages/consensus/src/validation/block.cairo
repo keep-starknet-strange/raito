@@ -1,4 +1,7 @@
 //! Block validation helpers.
+use core::hash::{HashStateTrait, HashStateExTrait};
+use core::poseidon::PoseidonTrait;
+use crate::types::utxo_set::UtxoSet;
 use crate::types::transaction::{Transaction};
 use crate::codec::{Encode, TransactionCodec};
 use utils::{hash::Digest, merkle_tree::merkle_root, sha256::double_sha256_byte_array};
@@ -27,7 +30,7 @@ pub fn validate_block_weight(weight: usize) -> Result<(), ByteArray> {
 ///  - wTXID commitment (only for blocks after Segwit upgrade, otherwise return zero hash)
 ///  - Block weight
 pub fn compute_and_validate_tx_data(
-    txs: Span<Transaction>, block_height: u32, block_time: u32
+    txs: Span<Transaction>, block_height: u32, block_time: u32, ref utxo_set: UtxoSet
 ) -> Result<(u64, Digest, Digest), ByteArray> {
     let mut txids: Array<Digest> = array![];
     let mut wtxids: Array<Digest> = array![];
@@ -42,6 +45,22 @@ pub fn compute_and_validate_tx_data(
         ///  - wTXID commitment (only for blocks after Segwit upgrade, otherwise return zero hash)
 
         let tx = txs[i];
+
+        let inputs = *tx.inputs;
+        let mut i = 0;
+        while i != inputs.len() {
+            let outpoint = (*inputs[i]).previous_output;
+            let outpoint_hash = PoseidonTrait::new().update_with(outpoint).finalize();
+
+            if (utxo_set.cache.get(outpoint_hash) == true){
+                utxo_set.cache.insert(outpoint_hash, false);
+            }
+
+            i+=1;
+
+
+        };
+
         let tx_bytes_legacy = @tx.encode();
         let tx_bytes_segwit = @tx.encode_with_witness(tx_bytes_legacy);
 

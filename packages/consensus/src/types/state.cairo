@@ -20,11 +20,11 @@ pub struct State {
 #[generate_trait]
 pub impl BlockValidatorImpl of BlockValidator {
     fn validate_and_apply(self: State, block: Block) -> Result<State, ByteArray> {
-        let utxo_set = UtxoSet {
+        let mut utxo_set = UtxoSet {
             utreexo_state: self.utreexo_state,
             cache: Default::default(),
         };
-        
+
         let block_height = self.chain_state.block_height + 1;
 
         validate_timestamp(self.chain_state.prev_timestamps, block.header.time)?;
@@ -35,7 +35,7 @@ pub impl BlockValidatorImpl of BlockValidator {
             TransactionData::MerkleRoot(root) => root,
             TransactionData::Transactions(txs) => {
                 let (total_fees, txid_root, wtxid_root) = compute_and_validate_tx_data(
-                    txs, block_height, block.header.time
+                    txs, block_height, block.header.time, ref utxo_set
                 )?;
                 validate_coinbase(txs[0], total_fees, block_height, wtxid_root)?;
                 txid_root
