@@ -56,7 +56,9 @@ impl ChainStateDefault of Default<ChainState> {
 /// Full block validator (w/o bitcoin script checks and utxo inclusion verification for now).
 #[generate_trait]
 pub impl BlockValidatorImpl of BlockValidator {
-    fn validate_and_apply(self: ChainState, block: Block, ref utxo_set: UtxoSet) -> Result<ChainState, ByteArray> {
+    fn validate_and_apply(
+        self: ChainState, block: Block, ref utxo_set: UtxoSet
+    ) -> Result<ChainState, ByteArray> {
         let block_height = self.block_height + 1;
 
         validate_timestamp(self.prev_timestamps, block.header.time)?;

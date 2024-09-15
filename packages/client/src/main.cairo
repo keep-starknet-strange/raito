@@ -24,7 +24,11 @@ fn main(mut arguments: Span<felt252>) -> State {
     let mut utxo_set: UtxoSet = Default::default();
 
     for block in blocks {
-        state.chain_state = state.chain_state.validate_and_apply(block, ref utxo_set).expect('Validation failed');
+        state
+            .chain_state = state
+            .chain_state
+            .validate_and_apply(block, ref utxo_set)
+            .expect('Validation failed');
     };
 
     state
