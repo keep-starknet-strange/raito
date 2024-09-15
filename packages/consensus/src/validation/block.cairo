@@ -2,7 +2,7 @@
 use core::hash::{HashStateTrait, HashStateExTrait};
 use core::poseidon::PoseidonTrait;
 use crate::types::utxo_set::UtxoSet;
-use crate::types::transaction::{Transaction, OutPoint};
+use crate::types::transaction::{Transaction, OutPoint, TxOut};
 use crate::codec::{Encode, TransactionCodec};
 use utils::{hash::Digest, merkle_tree::merkle_root, sha256::double_sha256_byte_array};
 use super::transaction::validate_transaction;
@@ -46,6 +46,12 @@ pub fn compute_and_validate_tx_data(
 
         let tx = txs[i];
 
+        let tx_bytes_legacy = @tx.encode();
+        let tx_bytes_segwit = @tx.encode_with_witness(tx_bytes_legacy);
+
+        let txid = double_sha256_byte_array(tx_bytes_legacy);
+
+        // Removes transactions inputs from the cache if needed.
         let inputs = *tx.inputs;
         let mut j = 0;
         while j != inputs.len() {
@@ -59,12 +65,27 @@ pub fn compute_and_validate_tx_data(
             j += 1;
         };
 
+        // Adds transactions outputs in the cache if needed.
         let outputs = *tx.outputs;
         let mut j = 0;
         while j != outputs.len() {
             if (*outputs[j]).cached {
-                // WIP: still need to construct the outpoint here
-                let outpoint: OutPoint = Default::default();
+                let is_coinbase: bool = if (i == 0) {
+                    true
+                } else {
+                    false
+                };
+
+                let outpoint = OutPoint {
+                    txid: txid,
+                    vout: j,
+                    data: TxOut {
+                        value: (*outputs[j]).value, pk_script: (*outputs[j]).pk_script, cached: true
+                    },
+                    block_height: block_height,
+                    block_time: block_time,
+                    is_coinbase: is_coinbase
+                };
 
                 let outpoint_hash = PoseidonTrait::new().update_with(outpoint).finalize();
                 utxo_set.cache.insert(outpoint_hash, true);
@@ -72,11 +93,6 @@ pub fn compute_and_validate_tx_data(
 
             j += 1;
         };
-
-        let tx_bytes_legacy = @tx.encode();
-        let tx_bytes_segwit = @tx.encode_with_witness(tx_bytes_legacy);
-
-        let txid = double_sha256_byte_array(tx_bytes_legacy);
 
         /// The wTXID for the coinbase transaction must be set to all zeros. This is because it's
         /// eventually going to contain the commitment inside it
