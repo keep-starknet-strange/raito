@@ -10,6 +10,8 @@
 //! Utreexo accumulator or local cache.
 
 use core::dict::Felt252Dict;
+use core::hash::{HashStateTrait, HashStateExTrait};
+use core::poseidon::PoseidonTrait;
 use super::utreexo::UtreexoState;
 use super::transaction::OutPoint;
 
@@ -30,13 +32,19 @@ pub impl UtxoSetImpl of UtxoSetTrait {
     }
 
     fn add(ref self: UtxoSet, output: OutPoint) {
-        if output.data.cached { // TODO: add to the local block cache
+        if output.data.cached {
+            let outpoint_hash = PoseidonTrait::new().update_with(output).finalize();
+            self.cache.insert(outpoint_hash, true);
         } else { // TODO: update utreexo roots
         }
     }
 
     fn delete(ref self: UtxoSet, output: @OutPoint) {
-        if *output.data.cached { // TODO: remove from cache (+ verify inclusion)
+        if *output.data.cached {
+            let outpoint_hash = PoseidonTrait::new().update_with(*output).finalize();
+            if (self.cache.get(outpoint_hash) == true) {
+                self.cache.insert(outpoint_hash, false);
+            }
         } else { // TODO: update utreexo roots (+ verify inclusion)
         // If batched proofs are used then do nothing
         }

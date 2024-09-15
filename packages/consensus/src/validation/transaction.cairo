@@ -3,7 +3,7 @@
 use core::hash::{HashStateTrait, HashStateExTrait};
 use core::poseidon::PoseidonTrait;
 use crate::types::transaction::{OutPoint, Transaction, TxOut};
-use crate::types::utxo_set::UtxoSet;
+use crate::types::utxo_set::{UtxoSet, UtxoSetTrait};
 use crate::validation::locktime::{
     is_input_final, validate_absolute_locktime, validate_relative_locktime
 };
@@ -35,10 +35,7 @@ pub fn validate_transaction(
         .inputs {
             // Removes the outpoint hash of a transaction input if it was in the cache.
             let outpoint = input.previous_output;
-            let outpoint_hash = PoseidonTrait::new().update_with(*outpoint).finalize();
-            if (utxo_set.cache.get(outpoint_hash) == true) {
-                utxo_set.cache.insert(outpoint_hash, false);
-            }
+            utxo_set.delete(outpoint);
 
             if *input.previous_output.is_coinbase {
                 inner_result =
@@ -88,8 +85,7 @@ pub fn validate_transaction(
                     is_coinbase: false,
                 };
 
-                let outpoint_hash = PoseidonTrait::new().update_with(outpoint).finalize();
-                utxo_set.cache.insert(outpoint_hash, true);
+                utxo_set.add(outpoint);
             }
 
             total_output_amount += *output.value;
