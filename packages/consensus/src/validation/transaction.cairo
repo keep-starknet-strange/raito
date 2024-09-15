@@ -74,6 +74,8 @@ pub fn validate_transaction(
     let mut vout = 1;
     for output in *tx
         .outputs {
+            // Adds outpoint hash in the cache if the corresponding transaction output will be used
+            // as a transaction input in the same block(s).
             if (*output.cached) {
                 let outpoint = OutPoint {
                     txid: txid,
