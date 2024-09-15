@@ -57,8 +57,6 @@ pub fn compute_and_validate_tx_data(
             }
 
             i+=1;
-
-
         };
 
         let tx_bytes_legacy = @tx.encode();
