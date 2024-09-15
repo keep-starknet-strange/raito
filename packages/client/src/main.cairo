@@ -12,9 +12,9 @@ struct Args {
 
 /// Raito program entrypoint.
 ///
-/// Receives current chain state and pending blocks,
+/// Receives current state (chain state + utreexo state) and pending blocks,
 /// then validates and applies them one by one.
-/// Returns new chain state in case of succes, otherwise raises an error.
+/// Returns new state in case of succes, otherwise raises an error.
 fn main(mut arguments: Span<felt252>) -> State {
     let Args { mut state, blocks, } = Serde::deserialize(ref arguments)
         .expect('Failed to deserialize');
