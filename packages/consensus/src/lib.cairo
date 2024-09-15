@@ -14,4 +14,5 @@ pub mod types {
     pub mod block;
     pub mod transaction;
     pub mod utxo_set;
+    pub mod state;
 }
