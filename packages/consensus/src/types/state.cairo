@@ -62,7 +62,6 @@ pub impl BlockValidatorImpl of BlockValidator {
         validate_proof_of_work(current_target, best_block_hash)?;
         validate_bits(current_target, block.header.bits)?;
 
-
         Result::Ok(
             State {
                 chain_state: ChainState {
