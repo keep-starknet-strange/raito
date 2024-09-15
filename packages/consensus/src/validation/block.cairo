@@ -50,50 +50,6 @@ pub fn compute_and_validate_tx_data(
 
         let txid = double_sha256_byte_array(tx_bytes_legacy);
 
-        // Removes the outpoint hash of a transaction input if it was in the cache.
-        let inputs = *tx.inputs;
-        let mut j = 0;
-        while j != inputs.len() {
-            let outpoint = (*inputs[j]).previous_output;
-            let outpoint_hash = PoseidonTrait::new().update_with(outpoint).finalize();
-
-            if (utxo_set.cache.get(outpoint_hash) == true) {
-                utxo_set.cache.insert(outpoint_hash, false);
-            }
-
-            j += 1;
-        };
-
-        // Adds outpoint hash in the cache if the corresponding transaction output will be used
-        // as a transaction input in the same block(s).
-        let outputs = *tx.outputs;
-        let mut j = 0;
-        while j != outputs.len() {
-            if (*outputs[j]).cached {
-                let is_coinbase: bool = if (i == 0) {
-                    true
-                } else {
-                    false
-                };
-
-                let outpoint = OutPoint {
-                    txid: txid,
-                    vout: j,
-                    data: TxOut {
-                        value: (*outputs[j]).value, pk_script: (*outputs[j]).pk_script, cached: true
-                    },
-                    block_height: block_height,
-                    block_time: block_time,
-                    is_coinbase: is_coinbase
-                };
-
-                let outpoint_hash = PoseidonTrait::new().update_with(outpoint).finalize();
-                utxo_set.cache.insert(outpoint_hash, true);
-            }
-
-            j += 1;
-        };
-
         /// The wTXID for the coinbase transaction must be set to all zeros. This is because it's
         /// eventually going to contain the commitment inside it
         /// see https://learnmeabitcoin.com/technical/transaction/wtxid/#commitment
@@ -113,7 +69,7 @@ pub fn compute_and_validate_tx_data(
 
         // skipping the coinbase transaction
         if (i != 0) {
-            let fee = match validate_transaction(tx, block_height, block_time) {
+            let fee = match validate_transaction(tx, block_height, block_time, txid, ref utxo_set) {
                 Result::Ok(fee) => fee,
                 Result::Err(err) => { break Result::Err(err); }
             };
