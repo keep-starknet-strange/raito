@@ -1,4 +1,5 @@
 use consensus::types::block::Block;
+use consensus::types::chain_state::ChainState;
 use consensus::types::state::{State, BlockValidatorImpl};
 use core::testing::get_available_gas;
 
@@ -6,11 +7,11 @@ use core::testing::get_available_gas;
 #[derive(Serde)]
 struct Args {
     /// Current (initial) chain state
-    state: State,
+    chain_state: ChainState,
     /// Batch of blocks that have to be applied to the current chain state
     blocks: Array<Block>,
     /// Expected chain state (that we want to compare the result with)
-    expected_state: State,
+    expected_chain_state: ChainState,
 }
 
 /// Integration testing program entrypoint.
@@ -19,8 +20,13 @@ struct Args {
 /// Panics in case of a validation error or chain state mismatch.
 /// Prints result to the stdout.
 fn test(mut arguments: Span<felt252>) {
-    let Args { mut state, blocks, expected_state } = Serde::deserialize(ref arguments)
+    let Args { mut chain_state, blocks, expected_chain_state } = Serde::deserialize(ref arguments)
         .expect('Failed to deserialize');
+
+    let mut state: State = State {
+        chain_state: chain_state,
+        utreexo_state: Default::default(),
+    };
 
     let mut gas_before = get_available_gas();
 
@@ -43,11 +49,11 @@ fn test(mut arguments: Span<felt252>) {
         }
     };
 
-    if state.chain_state != expected_state.chain_state {
+    if state.chain_state != expected_chain_state {
         println!(
             "FAIL: block={} error='expected state {:?}, actual {:?}'",
             state.chain_state.block_height,
-            expected_state.chain_state,
+            expected_chain_state,
             state.chain_state
         );
         panic!();
