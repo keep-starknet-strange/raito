@@ -51,7 +51,7 @@ pub fn compute_and_validate_tx_data(
 
         let txid = double_sha256_byte_array(tx_bytes_legacy);
 
-        // Removes transactions inputs from the cache if needed.
+        // Removes the outpoint hash of a transaction input if it was in the cache.
         let inputs = *tx.inputs;
         let mut j = 0;
         while j != inputs.len() {
@@ -65,7 +65,8 @@ pub fn compute_and_validate_tx_data(
             j += 1;
         };
 
-        // Adds transactions outputs in the cache if needed.
+        // Adds outpoint hash in the cache if the corresponding transaction output will be used
+        // as a transaction input in the same block(s).
         let outputs = *tx.outputs;
         let mut j = 0;
         while j != outputs.len() {
