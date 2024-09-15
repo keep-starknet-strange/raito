@@ -52,11 +52,11 @@ pub fn compute_and_validate_tx_data(
             let outpoint = (*inputs[i]).previous_output;
             let outpoint_hash = PoseidonTrait::new().update_with(outpoint).finalize();
 
-            if (utxo_set.cache.get(outpoint_hash) == true){
+            if (utxo_set.cache.get(outpoint_hash) == true) {
                 utxo_set.cache.insert(outpoint_hash, false);
             }
 
-            i+=1;
+            i += 1;
         };
 
         let tx_bytes_legacy = @tx.encode();

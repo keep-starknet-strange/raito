@@ -22,6 +22,6 @@ fn main(mut arguments: Span<felt252>) -> State {
     for block in blocks {
         state = state.validate_and_apply(block).expect('Validation failed');
     };
-    
+
     state
 }

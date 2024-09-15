@@ -21,15 +21,22 @@ pub struct State {
 pub impl BlockValidatorImpl of BlockValidator {
     fn validate_and_apply(self: State, block: Block) -> Result<State, ByteArray> {
         let mut utxo_set = UtxoSet {
-            utreexo_state: self.utreexo_state,
-            cache: Default::default(),
+            utreexo_state: self.utreexo_state, cache: Default::default(),
         };
 
         let block_height = self.chain_state.block_height + 1;
 
         validate_timestamp(self.chain_state.prev_timestamps, block.header.time)?;
-        let prev_block_time = *self.chain_state.prev_timestamps[self.chain_state.prev_timestamps.len() - 1];
-        let prev_timestamps = next_prev_timestamps(self.chain_state.prev_timestamps, block.header.time);
+        let prev_block_time = *self
+            .chain_state
+            .prev_timestamps[self
+            .chain_state
+            .prev_timestamps
+            .len()
+            - 1];
+        let prev_timestamps = next_prev_timestamps(
+            self.chain_state.prev_timestamps, block.header.time
+        );
 
         let txid_root = match block.data {
             TransactionData::MerkleRoot(root) => root,
@@ -57,15 +64,16 @@ pub impl BlockValidatorImpl of BlockValidator {
 
         Result::Ok(
             State {
-            chain_state: ChainState {
-                block_height,
-                total_work,
-                best_block_hash,
-                current_target,
-                epoch_start_time,
-                prev_timestamps,
-            }, 
-            utreexo_state: self.utreexo_state}
+                chain_state: ChainState {
+                    block_height,
+                    total_work,
+                    best_block_hash,
+                    current_target,
+                    epoch_start_time,
+                    prev_timestamps,
+                },
+                utreexo_state: self.utreexo_state
+            }
         )
     }
 }
