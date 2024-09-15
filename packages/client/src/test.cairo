@@ -23,10 +23,7 @@ fn test(mut arguments: Span<felt252>) {
     let Args { mut chain_state, blocks, expected_chain_state } = Serde::deserialize(ref arguments)
         .expect('Failed to deserialize');
 
-    let mut state: State = State {
-        chain_state: chain_state,
-        utreexo_state: Default::default(),
-    };
+    let mut state: State = State { chain_state: chain_state, utreexo_state: Default::default(), };
 
     let mut gas_before = get_available_gas();
 
