@@ -126,7 +126,7 @@ fn validate_coinbase_maturity(output_height: u32, block_height: u32) -> Result<(
 
 #[cfg(test)]
 mod tests {
-    use crate::codec::{Encode, TransactionCodec};
+    use crate::codec::Encode;
     use crate::types::transaction::{Transaction, TxIn, TxOut, OutPoint};
     use crate::types::utxo_set::UtxoSet;
     use utils::{hex::{from_hex, hex_to_hash_rev}, sha256::double_sha256_byte_array};

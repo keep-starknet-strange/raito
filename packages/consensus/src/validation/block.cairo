@@ -1,8 +1,6 @@
 //! Block validation helpers.
-use core::hash::{HashStateTrait, HashStateExTrait};
-use core::poseidon::PoseidonTrait;
 use crate::types::utxo_set::UtxoSet;
-use crate::types::transaction::{Transaction, OutPoint, TxOut};
+use crate::types::transaction::Transaction;
 use crate::codec::{Encode, TransactionCodec};
 use utils::{hash::Digest, merkle_tree::merkle_root, sha256::double_sha256_byte_array};
 use super::transaction::validate_transaction;
