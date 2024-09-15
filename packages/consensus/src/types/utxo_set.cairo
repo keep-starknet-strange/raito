@@ -43,7 +43,7 @@ pub impl UtxoSetImpl of UtxoSetTrait {
         if *output.data.cached {
             let outpoint_hash = PoseidonTrait::new().update_with(*output).finalize();
             // Extra check that can be removed later.
-            assert(self.cache.get(outpoint_hash), 'output indeed cached');
+            assert(self.cache.get(outpoint_hash), 'output is not cached');
             self.cache.insert(outpoint_hash, false);
         } else { // TODO: update utreexo roots (+ verify inclusion)
         // If batched proofs are used then do nothing.

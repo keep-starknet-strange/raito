@@ -122,6 +122,9 @@ fn validate_coinbase_maturity(output_height: u32, block_height: u32) -> Result<(
 
 #[cfg(test)]
 mod tests {
+    use core::dict::Felt252Dict;
+    use core::hash::{HashStateTrait, HashStateExTrait};
+    use core::poseidon::PoseidonTrait;
     use crate::codec::Encode;
     use crate::types::transaction::{Transaction, TxIn, TxOut, OutPoint};
     use crate::types::utxo_set::UtxoSet;
@@ -519,6 +522,99 @@ mod tests {
         let tx_bytes_legacy = @tx.encode();
         let txid = double_sha256_byte_array(tx_bytes_legacy);
         let mut utxo_set: UtxoSet = Default::default();
+
+        validate_transaction(@tx, block_height, 0, txid, ref utxo_set).unwrap();
+    }
+
+    #[test]
+    #[should_panic(expected: 'output is not cached')]
+    fn test_uncached_utxo_spending_attempt() {
+        let block_height = 150;
+
+        let tx = Transaction {
+            version: 1,
+            is_segwit: false,
+            inputs: array![
+                TxIn {
+                    script: @from_hex(""),
+                    sequence: 0xfffffffe,
+                    previous_output: OutPoint {
+                        txid: hex_to_hash_rev(
+                            "0000000000000000000000000000000000000000000000000000000000000000"
+                        ),
+                        vout: 0,
+                        data: TxOut { value: 100, pk_script: @from_hex(""), cached: true },
+                        block_height: Default::default(),
+                        block_time: Default::default(),
+                        is_coinbase: false,
+                    },
+                    witness: array![].span(),
+                }
+            ]
+                .span(),
+            outputs: array![
+                TxOut {
+                    value: 50,
+                    pk_script: @from_hex("76a914000000000000000000000000000000000000000088ac"),
+                    cached: false,
+                }
+            ]
+                .span(),
+            lock_time: 0
+        };
+
+        let tx_bytes_legacy = @tx.encode();
+        let txid = double_sha256_byte_array(tx_bytes_legacy);
+        let mut utxo_set: UtxoSet = Default::default();
+
+        validate_transaction(@tx, block_height, 0, txid, ref utxo_set).unwrap();
+    }
+
+    #[test]
+    fn test_cached_utxo_spending_attempt() {
+        let block_height = 150;
+
+        let tx = Transaction {
+            version: 1,
+            is_segwit: false,
+            inputs: array![
+                TxIn {
+                    script: @from_hex(""),
+                    sequence: 0xfffffffe,
+                    previous_output: OutPoint {
+                        txid: hex_to_hash_rev(
+                            "0000000000000000000000000000000000000000000000000000000000000000"
+                        ),
+                        vout: 0,
+                        data: TxOut { value: 100, pk_script: @from_hex(""), cached: true },
+                        block_height: Default::default(),
+                        block_time: Default::default(),
+                        is_coinbase: false,
+                    },
+                    witness: array![].span(),
+                }
+            ]
+                .span(),
+            outputs: array![
+                TxOut {
+                    value: 50,
+                    pk_script: @from_hex("76a914000000000000000000000000000000000000000088ac"),
+                    cached: false,
+                }
+            ]
+                .span(),
+            lock_time: 0
+        };
+
+        let tx_bytes_legacy = @tx.encode();
+        let txid = double_sha256_byte_array(tx_bytes_legacy);
+
+        let mut cache: Felt252Dict<bool> = Default::default();
+        let outpoint_hash = PoseidonTrait::new()
+            .update_with((*tx.inputs[0]).previous_output)
+            .finalize();
+        cache.insert(outpoint_hash, true);
+        let mut utxo_set: UtxoSet = UtxoSet { utreexo_state: Default::default(), cache: cache, };
 
         validate_transaction(@tx, block_height, 0, txid, ref utxo_set).unwrap();
     }
