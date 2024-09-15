@@ -19,7 +19,7 @@ pub struct State {
 /// Full block validator (w/o bitcoin script checks and utxo inclusion verification for now).
 #[generate_trait]
 pub impl BlockValidatorImpl of BlockValidator {
-    fn validate_and_apply(ref self: State, block: Block) -> Result<State, ByteArray> {
+    fn validate_and_apply(self: State, block: Block) -> Result<State, ByteArray> {
         let mut utxo_set = UtxoSet {
             utreexo_state: self.utreexo_state, cache: Default::default(),
         };
