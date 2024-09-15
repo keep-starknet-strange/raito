@@ -4,6 +4,7 @@ use core::fmt::{Display, Formatter, Error};
 use core::to_byte_array::AppendFormattedToByteArray;
 use core::integer::u128_byte_reverse;
 use core::hash::{Hash, HashStateTrait};
+use core::num::traits::zero::Zero;
 
 /// 256-bit hash digest.
 /// Represented as an array of 4-byte words.
@@ -17,6 +18,20 @@ pub impl DigestImpl of DigestTrait {
     #[inline(always)]
     fn new(array: [u32; 8]) -> Digest {
         Digest { value: array }
+    }
+}
+
+impl DigestZero of Zero<Digest> {
+    fn zero() -> Digest {
+        Digest { value: [0_u32; 8] }
+    }
+
+    fn is_zero(self: @Digest) -> bool {
+        self.value == @[0_u32; 8]
+    }
+
+    fn is_non_zero(self: @Digest) -> bool {
+        !self.is_zero()
     }
 }
 
