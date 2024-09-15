@@ -1,5 +1,7 @@
 use consensus::types::block::Block;
-use consensus::types::state::{State, BlockValidator};
+use consensus::types::state::State;
+use consensus::types::chain_state::BlockValidator;
+use consensus::types::utxo_set::UtxoSet;
 
 /// Raito program arguments.
 #[derive(Serde)]
@@ -19,8 +21,10 @@ fn main(mut arguments: Span<felt252>) -> State {
     let Args { mut state, blocks, } = Serde::deserialize(ref arguments)
         .expect('Failed to deserialize');
 
+    let mut utxo_set: UtxoSet = Default::default();
+
     for block in blocks {
-        state = state.validate_and_apply(block).expect('Validation failed');
+        state.chain_state = state.chain_state.validate_and_apply(block, ref utxo_set).expect('Validation failed');
     };
 
     state

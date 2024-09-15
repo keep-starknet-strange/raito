@@ -1,6 +1,7 @@
 use consensus::types::block::Block;
-use consensus::types::chain_state::ChainState;
-use consensus::types::state::{State, BlockValidatorImpl};
+use consensus::types::chain_state::{ChainState, BlockValidatorImpl};
+use consensus::types::state::{State};
+use consensus::types::utxo_set::UtxoSet;
 use core::testing::get_available_gas;
 
 /// Integration testing program arguments.
@@ -24,14 +25,15 @@ fn test(mut arguments: Span<felt252>) {
         .expect('Failed to deserialize');
 
     let mut state: State = State { chain_state: chain_state, utreexo_state: Default::default(), };
+    let mut utxo_set: UtxoSet = Default::default();
 
     let mut gas_before = get_available_gas();
 
     for block in blocks {
         let height = state.chain_state.block_height + 1;
-        match state.validate_and_apply(block) {
-            Result::Ok(new_state) => {
-                state = new_state;
+        match state.chain_state.validate_and_apply(block, ref utxo_set) {
+            Result::Ok(new_chain_state) => {
+                state.chain_state = new_chain_state;
                 let gas_after = get_available_gas();
                 println!("OK: block={} gas_spent={}", height, gas_before - gas_after);
                 gas_before = gas_after;
