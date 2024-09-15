@@ -1,7 +1,5 @@
 //! Transaction validation helpers.
 
-use core::hash::{HashStateTrait, HashStateExTrait};
-use core::poseidon::PoseidonTrait;
 use crate::types::transaction::{OutPoint, Transaction, TxOut};
 use crate::types::utxo_set::{UtxoSet, UtxoSetTrait};
 use crate::validation::locktime::{
