@@ -7,12 +7,14 @@ root_nodes = [None] * 27
 # The set of leaf nodes in the forest
 leaf_nodes = dict()
 
+
 class Node:
     def __init__(self, key, left=None, right=None):
         self.val = key
         self.left = left
         self.right = right
         self.parent = None
+
 
 def parent_node(root1, root2):
     # Convert hexadecimal strings to integers
@@ -27,9 +29,10 @@ def parent_node(root1, root2):
     root2.parent = root_node
     return root_node
 
+
 def utreexo_add(leaf):
     if leaf in leaf_nodes:
-        raise Exception('Leaf exists already')
+        raise Exception("Leaf exists already")
 
     n = Node(f"0x{leaf:064x}")
     leaf_nodes[leaf] = n
@@ -43,6 +46,7 @@ def utreexo_add(leaf):
 
     root_nodes[h] = n
     return root_nodes
+
 
 def utreexo_delete(leaf):
     leaf_node = leaf_nodes[leaf]
@@ -72,6 +76,7 @@ def utreexo_delete(leaf):
     proof = list(map(lambda node: node.val, proof))
     return proof, leaf_index
 
+
 def inclusion_proof(node):
     if node.parent is None:
         return [], 0
@@ -88,16 +93,22 @@ def inclusion_proof(node):
 
     return path, leaf_index
 
+
 def reset_utreexo():
     global root_nodes, leaf_nodes
     root_nodes = [None] * 27
     leaf_nodes = dict()
 
+
 def print_roots():
-    print('Roots:', list(map(lambda node: node.val if node is not None else '', root_nodes)))
+    print(
+        "Roots:",
+        list(map(lambda node: node.val if node is not None else "", root_nodes)),
+    )
+
 
 # Example usage
-if __name__ == '__main__':
+if __name__ == "__main__":
     # Add some elements
     utreexo_add(0x111111111111111111111111)
     utreexo_add(0x222222222222222222222222)
