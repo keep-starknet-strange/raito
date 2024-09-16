@@ -71,10 +71,45 @@ pub fn double_sha256_byte_array(bytes: @ByteArray) -> Digest {
 /// It's important that there are no trailing bytes, otherwise the
 /// data will be truncated.
 pub fn double_sha256_u32_array(words: Array<u32>) -> Digest {
-    let mut input2: Array<u32> = array![];
-    input2.append_span(compute_sha256_u32_array(words, 0, 0).span());
+    let mut input: Array<u8> = array![];
 
-    DigestTrait::new(compute_sha256_u32_array(input2, 0, 0))
+    for value in words
+        .span() {
+            input.append((shr(*value, 24_u32) & 0xFF_u32).try_into().unwrap());
+            input.append((shr(*value, 16_u32) & 0xFF_u32).try_into().unwrap());
+            input.append((shr(*value, 8_u32) & 0xFF_u32).try_into().unwrap());
+            input.append((*value & 0xFF_u32).try_into().unwrap());
+        };
+
+    let hash = sha256(input);
+    let hash = sha256(hash);
+
+    let mut final_digest: Array<u32> = array![];
+    let mut i = 0;
+    while i != hash.len() {
+        let a: u32 = (*hash[i]).into();
+        let b: u32 = (*hash[i + 1]).into();
+        let c: u32 = (*hash[i + 2]).into();
+        let d: u32 = (*hash[i + 3]).into();
+
+        let value = shl(a, 24_u32) | shl(b, 16_u32) | shl(c, 8_u32) | d;
+
+        final_digest.append(value);
+        i += 4;
+    };
+
+    let fixed_size_final_digest: [u32; 8] = [
+        *final_digest[0],
+        *final_digest[1],
+        *final_digest[2],
+        *final_digest[3],
+        *final_digest[4],
+        *final_digest[5],
+        *final_digest[6],
+        *final_digest[7]
+    ];
+
+    DigestTrait::new(fixed_size_final_digest)
 }
 
 fn sha256(mut data: Array<u8>) -> Array<u8> {
