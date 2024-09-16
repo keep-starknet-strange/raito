@@ -7,27 +7,27 @@ use super::bit_shifts::{shr, shl};
 
 /// Calculate double sha256 digest of a concatenation of two hashes
 pub fn double_sha256_parent(a: @Digest, b: @Digest) -> Digest {
-    let mut input1: Array<u8> = array![];
+    let mut input: Array<u8> = array![];
 
     for value in a
         .value
         .span() {
-            input1.append((shr(*value, 24_u32) & 0xFF_u32).try_into().unwrap());
-            input1.append((shr(*value, 16_u32) & 0xFF_u32).try_into().unwrap());
-            input1.append((shr(*value, 8_u32) & 0xFF_u32).try_into().unwrap());
-            input1.append((*value & 0xFF_u32).try_into().unwrap());
+            input.append((shr(*value, 24_u32) & 0xFF_u32).try_into().unwrap());
+            input.append((shr(*value, 16_u32) & 0xFF_u32).try_into().unwrap());
+            input.append((shr(*value, 8_u32) & 0xFF_u32).try_into().unwrap());
+            input.append((*value & 0xFF_u32).try_into().unwrap());
         };
 
     for value in b
         .value
         .span() {
-            input1.append((shr(*value, 24_u32) & 0xFF_u32).try_into().unwrap());
-            input1.append((shr(*value, 16_u32) & 0xFF_u32).try_into().unwrap());
-            input1.append((shr(*value, 8_u32) & 0xFF_u32).try_into().unwrap());
-            input1.append((*value & 0xFF_u32).try_into().unwrap());
+            input.append((shr(*value, 24_u32) & 0xFF_u32).try_into().unwrap());
+            input.append((shr(*value, 16_u32) & 0xFF_u32).try_into().unwrap());
+            input.append((shr(*value, 8_u32) & 0xFF_u32).try_into().unwrap());
+            input.append((*value & 0xFF_u32).try_into().unwrap());
         };
 
-    let hash = sha256(input1);
+    let hash = sha256(input);
     let hash = sha256(hash);
 
     let mut final_digest: Array<u32> = array![];
