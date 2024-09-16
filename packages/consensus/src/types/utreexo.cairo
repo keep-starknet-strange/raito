@@ -76,7 +76,7 @@ pub trait UtreexoAccumulator {
     fn delete_batch(ref self: UtreexoState, proof: @UtreexoBatchProof);
 }
 
-    // https://eprint.iacr.org/2019/611.pdf Algorithm 1 AddOne
+// https://eprint.iacr.org/2019/611.pdf Algorithm 1 AddOne
 // p18
 // To prevent such an attack, we require that the data inserted into the
 // accumulator be not just the hash of a TXO, which is controllable by the
@@ -87,7 +87,7 @@ pub trait UtreexoAccumulator {
 // the accumulator, perform this concatenation themselves after checking the
 // proof of work of the block. Inclusion proofs contain this block hash data so
 // that the leaf hash value can be correctly computed.
-fn parent_hash(left: felt252, right: felt252, _block_hash: Digest) -> felt252{
+fn parent_hash(left: felt252, right: felt252, _block_hash: Digest) -> felt252 {
     return PoseidonTrait::new().update_with(left).update_with(right).finalize();
 }
 
@@ -110,7 +110,7 @@ pub impl UtreexoStateImpl of UtreexoAccumulator {
 
         // Get the expected root
         let root_index = (*proof.proof).len();
-        if root_index >= self.roots.deref().len(){
+        if root_index >= self.roots.deref().len() {
             return Result::Err(UtreexoError::RootIndexOutOfBound);
         }
         let expected_root = self.roots[root_index];
@@ -142,8 +142,6 @@ pub impl UtreexoStateImpl of UtreexoAccumulator {
 
     /// Removes multiple outputs from the accumulator.
     fn delete_batch(ref self: UtreexoState, proof: @UtreexoBatchProof) {}
-
-   
 }
 
 /// Computes the root given a leaf, its index, and a proof.
