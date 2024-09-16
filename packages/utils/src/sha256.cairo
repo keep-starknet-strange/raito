@@ -29,30 +29,7 @@ pub fn double_sha256_parent(a: @Digest, b: @Digest) -> Digest {
     let hash = sha256(input);
     let hash = sha256(hash);
 
-    let mut final_digest: Array<u32> = array![];
-    let mut i = 0;
-    while i != hash.len() {
-        let a: u32 = (*hash[i]).into();
-        let b: u32 = (*hash[i + 1]).into();
-        let c: u32 = (*hash[i + 2]).into();
-        let d: u32 = (*hash[i + 3]).into();
-
-        let value = shl(a, 24_u32) | shl(b, 16_u32) | shl(c, 8_u32) | d;
-
-        final_digest.append(value);
-        i += 4;
-    };
-
-    let fixed_size_final_digest: [u32; 8] = [
-        *final_digest[0],
-        *final_digest[1],
-        *final_digest[2],
-        *final_digest[3],
-        *final_digest[4],
-        *final_digest[5],
-        *final_digest[6],
-        *final_digest[7]
-    ];
+    let fixed_size_final_digest = u8_array_to_u32_8_fixed_size_array(hash);
 
     DigestTrait::new(fixed_size_final_digest)
 }
@@ -70,30 +47,7 @@ pub fn double_sha256_byte_array(bytes: @ByteArray) -> Digest {
     let hash = sha256(input);
     let hash = sha256(hash);
 
-    let mut final_digest: Array<u32> = array![];
-    let mut i = 0;
-    while i != hash.len() {
-        let a: u32 = (*hash[i]).into();
-        let b: u32 = (*hash[i + 1]).into();
-        let c: u32 = (*hash[i + 2]).into();
-        let d: u32 = (*hash[i + 3]).into();
-
-        let value = shl(a, 24_u32) | shl(b, 16_u32) | shl(c, 8_u32) | d;
-
-        final_digest.append(value);
-        i += 4;
-    };
-
-    let fixed_size_final_digest: [u32; 8] = [
-        *final_digest[0],
-        *final_digest[1],
-        *final_digest[2],
-        *final_digest[3],
-        *final_digest[4],
-        *final_digest[5],
-        *final_digest[6],
-        *final_digest[7]
-    ];
+    let fixed_size_final_digest = u8_array_to_u32_8_fixed_size_array(hash);
 
     DigestTrait::new(fixed_size_final_digest)
 }
@@ -116,13 +70,19 @@ pub fn double_sha256_u32_array(words: Array<u32>) -> Digest {
     let hash = sha256(input);
     let hash = sha256(hash);
 
+    let fixed_size_final_digest = u8_array_to_u32_8_fixed_size_array(hash);
+
+    DigestTrait::new(fixed_size_final_digest)
+}
+
+fn u8_array_to_u32_8_fixed_size_array(input: Array<u8>) -> [u32; 8] {
     let mut final_digest: Array<u32> = array![];
     let mut i = 0;
-    while i != hash.len() {
-        let a: u32 = (*hash[i]).into();
-        let b: u32 = (*hash[i + 1]).into();
-        let c: u32 = (*hash[i + 2]).into();
-        let d: u32 = (*hash[i + 3]).into();
+    while i != input.len() {
+        let a: u32 = (*input[i]).into();
+        let b: u32 = (*input[i + 1]).into();
+        let c: u32 = (*input[i + 2]).into();
+        let d: u32 = (*input[i + 3]).into();
 
         let value = shl(a, 24_u32) | shl(b, 16_u32) | shl(c, 8_u32) | d;
 
@@ -130,7 +90,7 @@ pub fn double_sha256_u32_array(words: Array<u32>) -> Digest {
         i += 4;
     };
 
-    let fixed_size_final_digest: [u32; 8] = [
+    [
         *final_digest[0],
         *final_digest[1],
         *final_digest[2],
@@ -139,9 +99,7 @@ pub fn double_sha256_u32_array(words: Array<u32>) -> Digest {
         *final_digest[5],
         *final_digest[6],
         *final_digest[7]
-    ];
-
-    DigestTrait::new(fixed_size_final_digest)
+    ]
 }
 
 fn sha256(mut data: Array<u8>) -> Array<u8> {
