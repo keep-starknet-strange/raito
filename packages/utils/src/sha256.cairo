@@ -371,7 +371,7 @@ const k: [
 #[cfg(test)]
 mod tests {
     use crate::{hex::from_hex, hash::Digest};
-    use super::{double_sha256_byte_array, double_sha256_u32_array, double_sha256_parent};
+    use super::{double_sha256_byte_array, double_sha256_u32_array, double_sha256_parent, sha256};
 
     #[test]
     fn test_double_sha256_byte_array() {
@@ -399,5 +399,85 @@ mod tests {
             double_sha256_parent(@Digest { value: [1; 8] }, @Digest { value: [2; 8] }).into(),
             from_hex("14a6e4a4caef969126944266724d11866b39b3390cee070b0aa4c9390cd77f47")
         )
+    }
+
+    #[test]
+    fn test_cairo_sha256() {
+        let mut input: Array<u8> = array![];
+        let result = sha256(input);
+
+        // 0xE3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855
+        assert_eq!(result.len(), 32);
+        assert_eq!(*result[0], 0xE3);
+        assert_eq!(*result[1], 0xB0);
+        assert_eq!(*result[2], 0xC4);
+        assert_eq!(*result[3], 0x42);
+        assert_eq!(*result[4], 0x98);
+        assert_eq!(*result[5], 0xFC);
+        assert_eq!(*result[6], 0x1C);
+        assert_eq!(*result[7], 0x14);
+        assert_eq!(*result[8], 0x9A);
+        assert_eq!(*result[9], 0xFB);
+        assert_eq!(*result[10], 0xF4);
+        assert_eq!(*result[11], 0xC8);
+        assert_eq!(*result[12], 0x99);
+        assert_eq!(*result[13], 0x6F);
+        assert_eq!(*result[14], 0xB9);
+        assert_eq!(*result[15], 0x24);
+        assert_eq!(*result[16], 0x27);
+        assert_eq!(*result[17], 0xAE);
+        assert_eq!(*result[18], 0x41);
+        assert_eq!(*result[19], 0xE4);
+        assert_eq!(*result[20], 0x64);
+        assert_eq!(*result[21], 0x9B);
+        assert_eq!(*result[22], 0x93);
+        assert_eq!(*result[23], 0x4C);
+        assert_eq!(*result[24], 0xA4);
+        assert_eq!(*result[25], 0x95);
+        assert_eq!(*result[26], 0x99);
+        assert_eq!(*result[27], 0x1B);
+        assert_eq!(*result[28], 0x78);
+        assert_eq!(*result[29], 0x52);
+        assert_eq!(*result[30], 0xB8);
+        assert_eq!(*result[31], 0x55);
+
+        let input: Array<u8> = array!['a', 'b', 'c'];
+        let result = sha256(input);
+
+        // 0xba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad
+        assert_eq!(result.len(), 32);
+        assert_eq!(*result[0], 0xba);
+        assert_eq!(*result[1], 0x78);
+        assert_eq!(*result[2], 0x16);
+        assert_eq!(*result[3], 0xbf);
+        assert_eq!(*result[4], 0x8f);
+        assert_eq!(*result[5], 0x01);
+        assert_eq!(*result[6], 0xcf);
+        assert_eq!(*result[7], 0xea);
+        assert_eq!(*result[8], 0x41);
+        assert_eq!(*result[9], 0x41);
+        assert_eq!(*result[10], 0x40);
+        assert_eq!(*result[11], 0xde);
+        assert_eq!(*result[12], 0x5d);
+        assert_eq!(*result[13], 0xae);
+        assert_eq!(*result[14], 0x22);
+        assert_eq!(*result[15], 0x23);
+        assert_eq!(*result[16], 0xb0);
+        assert_eq!(*result[17], 0x03);
+        assert_eq!(*result[18], 0x61);
+        assert_eq!(*result[19], 0xa3);
+        assert_eq!(*result[20], 0x96);
+        assert_eq!(*result[21], 0x17);
+        assert_eq!(*result[22], 0x7a);
+        assert_eq!(*result[23], 0x9c);
+        assert_eq!(*result[24], 0xb4);
+        assert_eq!(*result[25], 0x10);
+        assert_eq!(*result[26], 0xff);
+        assert_eq!(*result[27], 0x61);
+        assert_eq!(*result[28], 0xf2);
+        assert_eq!(*result[29], 0x00);
+        assert_eq!(*result[30], 0x15);
+        assert_eq!(*result[31], 0xad);
+
     }
 }
