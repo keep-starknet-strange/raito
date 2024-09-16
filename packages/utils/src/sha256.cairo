@@ -478,6 +478,5 @@ mod tests {
         assert_eq!(*result[29], 0x00);
         assert_eq!(*result[30], 0x15);
         assert_eq!(*result[31], 0xad);
-
     }
 }
