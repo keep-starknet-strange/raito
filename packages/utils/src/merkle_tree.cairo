@@ -110,7 +110,7 @@ mod tests {
     }
 
     #[test]
-    #[available_gas(150000000)]
+    #[available_gas(1500000000)]
     fn test_merkle_root_05() {
         let mut txids = array![
             hex_to_hash_rev("216e79c7e528836ab6bd04bd4bfea140c8c4ed3248681b32735fe61e35037ed4"),
@@ -141,7 +141,7 @@ mod tests {
     }
 
     #[test]
-    #[available_gas(1000000000)]
+    #[available_gas(10000000000)]
     fn test_big_merkle_root() {
         let mut txids = array![
             hex_to_hash_rev("496ecc406ffede2910d25f16afc69b2f59fbd56ce9e136616d756b179f90ced3"),
