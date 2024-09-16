@@ -1,7 +1,6 @@
 //! Helpers for calculating double SHA256 hash digest.
 
 use core::num::traits::{Bounded, OverflowingAdd};
-use core::sha256::{compute_sha256_byte_array, compute_sha256_u32_array};
 use super::hash::{Digest, DigestTrait};
 use super::bit_shifts::{shr, shl};
 
@@ -60,10 +59,43 @@ pub fn double_sha256_parent(a: @Digest, b: @Digest) -> Digest {
 
 /// Calculate double sha256 digest of bytes
 pub fn double_sha256_byte_array(bytes: @ByteArray) -> Digest {
-    let mut input2: Array<u32> = array![];
-    input2.append_span(compute_sha256_byte_array(bytes).span());
+    let mut input: Array<u8> = array![];
 
-    DigestTrait::new(compute_sha256_u32_array(input2, 0, 0))
+    let mut i: usize = 0;
+    while i != bytes.len() {
+        input.append(bytes[i]);
+        i += 1;
+    };
+
+    let hash = sha256(input);
+    let hash = sha256(hash);
+
+    let mut final_digest: Array<u32> = array![];
+    let mut i = 0;
+    while i != hash.len() {
+        let a: u32 = (*hash[i]).into();
+        let b: u32 = (*hash[i + 1]).into();
+        let c: u32 = (*hash[i + 2]).into();
+        let d: u32 = (*hash[i + 3]).into();
+
+        let value = shl(a, 24_u32) | shl(b, 16_u32) | shl(c, 8_u32) | d;
+
+        final_digest.append(value);
+        i += 4;
+    };
+
+    let fixed_size_final_digest: [u32; 8] = [
+        *final_digest[0],
+        *final_digest[1],
+        *final_digest[2],
+        *final_digest[3],
+        *final_digest[4],
+        *final_digest[5],
+        *final_digest[6],
+        *final_digest[7]
+    ];
+
+    DigestTrait::new(fixed_size_final_digest)
 }
 
 /// Calculate double sha256 digest of an array of full 4 byte words
