@@ -83,7 +83,7 @@ fn bsig0(x: u32) -> u32 {
     let x2 = (x / 0x2000) | (x * 0x80000);
     let x3 = (x / 0x400000) | (x * 0x400);
     let result = (x1 ^ x2 ^ x3) & Bounded::<u32>::MAX.into();
-    
+
     result.try_into().unwrap()
 }
 
