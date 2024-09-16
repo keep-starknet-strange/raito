@@ -28,11 +28,10 @@
 //! Read more about utreexo: https://eprint.iacr.org/2019/611.pdf
 
 use super::transaction::OutPoint;
-use utils::hash::{DigestImpl, DigestIntoU256};
+use utils::hash::{DigestImpl, DigestIntoU256, Digest};
 use core::fmt::{Display, Formatter, Error};
 use core::poseidon::PoseidonTrait;
 use core::hash::{HashStateExTrait, HashStateTrait};
-use utils::bit_shifts::shr;
 const TWO: NonZero<u64> = 2;
 
 /// Accumulator representation of the state aka "Compact State Node".
@@ -77,6 +76,21 @@ pub trait UtreexoAccumulator {
     fn delete_batch(ref self: UtreexoState, proof: @UtreexoBatchProof);
 }
 
+    // https://eprint.iacr.org/2019/611.pdf Algorithm 1 AddOne
+// p18
+// To prevent such an attack, we require that the data inserted into the
+// accumulator be not just the hash of a TXO, which is controllable by the
+// attacker, but instead the concatenation of the TXO data with the block
+// hash in which the TXO is confirmed. The attacker does not know the block
+// hash before the TXO is confirmed, and it is not alterable by the attacker
+// after confirmation (without significant cost). Verifiers, when inserting into
+// the accumulator, perform this concatenation themselves after checking the
+// proof of work of the block. Inclusion proofs contain this block hash data so
+// that the leaf hash value can be correctly computed.
+fn parent_hash(left: felt252, right: felt252, _block_hash: Digest) -> felt252{
+    return PoseidonTrait::new().update_with(left).update_with(right).finalize();
+}
+
 pub impl UtreexoStateImpl of UtreexoAccumulator {
     /// Adds single output to the accumulator.
     /// The order *is important*: adding A,B and B,A would result in different states.
@@ -89,18 +103,21 @@ pub impl UtreexoStateImpl of UtreexoAccumulator {
     fn verify(
         self: @UtreexoState, output: @OutPoint, proof: @UtreexoProof
     ) -> Result<(), UtreexoError> {
-        let txid_u256: u256 = (*output.txid).into();
+        let txid_u256: u256 = output.txid.deref().into();
         let proof_root = verify_helper(
             *proof.proof, *proof.leaf_index, txid_u256.try_into().expect('value too large')
         );
 
         // Get the expected root
         let root_index = (*proof.proof).len();
+        if root_index >= self.roots.deref().len(){
+            return Result::Err(UtreexoError::RootIndexOutOfBound);
+        }
         let expected_root = self.roots[root_index];
 
         match expected_root {
             Option::Some(root) => {
-                if (*root).into() == proof_root {
+                if root.deref().into() == proof_root {
                     return Result::Ok(());
                 };
                 Result::Err(UtreexoError::ProofVerificationFailed)
@@ -125,8 +142,14 @@ pub impl UtreexoStateImpl of UtreexoAccumulator {
 
     /// Removes multiple outputs from the accumulator.
     fn delete_batch(ref self: UtreexoState, proof: @UtreexoBatchProof) {}
+
+   
 }
 
+/// Computes the root given a leaf, its index, and a proof.
+///
+/// Traverses the tree from leaf to root, hashing paired nodes.
+/// Proof order is bottom-up. Returns the computed root.
 fn verify_helper(proof: Span<felt252>, mut leaf_index: u64, mut curr_node: felt252) -> felt252 {
     let mut proof = proof.clone();
     let proof_length = proof.len();
@@ -146,7 +169,8 @@ fn verify_helper(proof: Span<felt252>, mut leaf_index: u64, mut curr_node: felt2
                 (sibling, curr_node)
             };
 
-            curr_node = PoseidonTrait::new().update_with(left).update_with(right).finalize();
+            // TODO: refactor
+            curr_node = parent_hash(left, right, 0x0_u256.into());
             leaf_index = next_left_index;
             let _ = proof.pop_front();
         };
@@ -156,7 +180,8 @@ fn verify_helper(proof: Span<felt252>, mut leaf_index: u64, mut curr_node: felt2
 
 #[derive(Drop, Copy, PartialEq, Debug)]
 pub enum UtreexoError {
-    ProofVerificationFailed
+    ProofVerificationFailed,
+    RootIndexOutOfBound
 }
 
 /// Utreexo inclusion proof for a single transaction output.
