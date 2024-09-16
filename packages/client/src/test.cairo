@@ -42,7 +42,6 @@ fn test(mut arguments: Span<felt252>) {
             }
         }
     };
-
     if chain_state != expected_chain_state {
         println!(
             "FAIL: block={} error='expected state {:?}, actual {:?}'",

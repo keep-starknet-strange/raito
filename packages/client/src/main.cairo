@@ -18,7 +18,6 @@ struct Args {
 fn main(mut arguments: Span<felt252>) -> ChainState {
     let Args { mut chain_state, blocks, } = Serde::deserialize(ref arguments)
         .expect('Failed to deserialize');
-
     for block in blocks {
         chain_state = chain_state.validate_and_apply(block).expect('Validation failed');
     };
