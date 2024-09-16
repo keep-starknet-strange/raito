@@ -63,10 +63,10 @@ fn sha256(mut data: Array<u8>) -> Array<u8> {
     res = data_len.into() & 0xff;
     data.append(res.try_into().unwrap());
 
-    let data = from_u8Array_to_u32Array(data.span());
+    let data = from_u8_array_to_u32_array(data.span());
     let res = sha256_inner(data.span(), 0, k.span(), h.span());
 
-    from_u32Array_to_u8Array(res)
+    from_u32_array_to_u8_array(res)
 }
 
 fn ch(x: u32, y: u32, z: u32) -> u32 {
@@ -117,7 +117,7 @@ fn ssig1(x: u32) -> u32 {
     result.try_into().unwrap()
 }
 
-fn from_u32Array_to_u8Array(mut data: Span<u32>) -> Array<u8> {
+fn from_u32_array_to_u8_array(mut data: Span<u32>) -> Array<u8> {
     let mut result = array![];
     for val in data {
         let mut res = (*val & 0xff000000) / 0x1000000;
@@ -133,7 +133,7 @@ fn from_u32Array_to_u8Array(mut data: Span<u32>) -> Array<u8> {
     result
 }
 
-fn from_u8Array_to_u32Array(mut data: Span<u8>) -> Array<u32> {
+fn from_u8_array_to_u32_array(mut data: Span<u8>) -> Array<u32> {
     let mut result = array![];
     while let Option::Some(val1) = data.pop_front() {
         let val2 = data.pop_front().unwrap();
