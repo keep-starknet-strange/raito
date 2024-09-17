@@ -15,14 +15,18 @@ use core::poseidon::PoseidonTrait;
 use super::utreexo::UtreexoState;
 use super::transaction::OutPoint;
 
+pub const TX_OUTPUT_STATUS_NONE: u8 = 0;
+pub const TX_OUTPUT_STATUS_UNSPENT: u8 = 1;
+pub const TX_OUTPUT_STATUS_SPENT: u8 = 2;
+
 #[derive(Default, Destruct)]
 pub struct UtxoSet {
     /// Utreexo state.
     pub utreexo_state: UtreexoState,
-    /// Hashes of UTXOs created within the current block(s).
+    /// Hashes and statuses of tx outputs created or spent within the current block(s).
     /// Note that to preserve the ordering, cache has to be updated right after a
     /// particular output is created or spent.
-    pub cache: Felt252Dict<bool>,
+    pub cache: Felt252Dict<u8>,
 }
 
 #[generate_trait]
@@ -31,22 +35,32 @@ pub impl UtxoSetImpl of UtxoSetTrait {
         UtxoSet { utreexo_state, ..Default::default() }
     }
 
-    fn add(ref self: UtxoSet, output: OutPoint) {
+    fn add(ref self: UtxoSet, output: OutPoint) -> Result<(), ByteArray> {
         if output.data.cached {
-            let outpoint_hash = PoseidonTrait::new().update_with(output).finalize();
-            self.cache.insert(outpoint_hash, true);
-        } else { // TODO: update utreexo roots
+            let hash = PoseidonTrait::new().update_with(output).finalize();
+            if self.cache.get(hash) != TX_OUTPUT_STATUS_NONE {
+                return Result::Err("The output has already been added");
+            }
+            self.cache.insert(hash, TX_OUTPUT_STATUS_UNSPENT);
         }
+        else {
+            // TODO: update utreexo roots
+        }
+        Result::Ok(())
     }
 
-    fn delete(ref self: UtxoSet, output: @OutPoint) {
-        if *output.data.cached {
-            let outpoint_hash = PoseidonTrait::new().update_with(*output).finalize();
+    fn spend(ref self: UtxoSet, output: @OutPoint) -> Result<(), ByteArray> {
+        let hash = PoseidonTrait::new().update_with(*output).finalize();
+        let status = self.cache.get(hash);
+        if status == TX_OUTPUT_STATUS_NONE {
             // Extra check that can be removed later.
-            assert(self.cache.get(outpoint_hash), 'output is not cached');
-            self.cache.insert(outpoint_hash, false);
-        } else { // TODO: update utreexo roots (+ verify inclusion)
-        // If batched proofs are used then do nothing.
+            assert(!*output.data.cached, 'output is not cached');
+            // TODO: verify inclusion and update utreexo roots
         }
+        else if status == TX_OUTPUT_STATUS_SPENT {
+            return Result::Err("The output has already been spent");
+        }
+        self.cache.insert(hash, TX_OUTPUT_STATUS_SPENT);
+        Result::Ok(())
     }
 }
