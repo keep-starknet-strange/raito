@@ -1,6 +1,6 @@
 //! Merkle tree helpers.
 
-use super::{sha256::double_sha256_parent, hash::Digest};
+use super::{double_sha256::double_sha256_parent, hash::Digest};
 
 /// Calculate Merkle tree root given the array of leaves.
 pub fn merkle_root(ref hashes: Array<Digest>) -> Digest {
