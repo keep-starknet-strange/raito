@@ -28,7 +28,10 @@
 //! Read more about utreexo: https://eprint.iacr.org/2019/611.pdf
 
 use super::transaction::OutPoint;
+use core::poseidon::PoseidonTrait;
+use core::hash::{HashStateTrait, HashStateExTrait};
 use core::fmt::{Display, Formatter, Error};
+use utils::hash::Digest;
 
 /// Accumulator representation of the state aka "Compact State Node".
 /// Part of the chain state.
@@ -50,7 +53,7 @@ pub trait UtreexoAccumulator {
     ///
     /// Note that this call also pushes old UTXOs "to the left", to a larger subtree.
     /// This mechanism ensures that short-lived outputs have small inclusion proofs.
-    fn add(ref self: UtreexoState, output: OutPoint);
+    fn add(ref self: UtreexoState, outpoint_hash: felt252);
 
     /// Verifies inclusion proof for a single output.
     fn verify(
@@ -70,6 +73,70 @@ pub trait UtreexoAccumulator {
 
     /// Removes multiple outputs from the accumulator.
     fn delete_batch(ref self: UtreexoState, proof: @UtreexoBatchProof);
+}
+
+// https://eprint.iacr.org/2019/611.pdf Algorithm 1 AddOne
+// p18
+// To prevent such an attack, we require that the data inserted into the
+// accumulator be not just the hash of a TXO, which is controllable by the
+// attacker, but instead the concatenation of the TXO data with the block
+// hash in which the TXO is confirmed. The attacker does not know the block
+// hash before the TXO is confirmed, and it is not alterable by the attacker
+// after confirmation (without significant cost). Verifiers, when inserting into
+// the accumulator, perform this concatenation themselves after checking the
+// proof of work of the block. Inclusion proofs contain this block hash data so
+// that the leaf hash value can be correctly computed.
+fn parent_hash(left: felt252, right: felt252, _block_hash: Digest) -> felt252 {
+    let parent_data = (left, right);
+    PoseidonTrait::new().update_with(parent_data).finalize()
+}
+
+pub impl UtreexoAccumulatorImpl of UtreexoAccumulator {
+    // https://eprint.iacr.org/2019/611.pdf Algorithm 1 AddOne
+    fn add(ref self: UtreexoState, outpoint_hash: felt252) {
+        let mut new_roots: Array<Option<felt252>> = Default::default();
+        let mut n: felt252 = outpoint_hash;
+        let mut first_none_found: bool = false;
+
+        for root in self
+            .roots {
+                if (!first_none_found) {
+                    if (root.is_none()) {
+                        first_none_found = true;
+                        new_roots.append(Option::Some(n));
+                    } else {
+                        n = parent_hash((*root).unwrap(), n, 0x0_u256.into());
+                        new_roots.append(Option::None);
+                    }
+                } else {
+                    new_roots.append(*root);
+                }
+            };
+
+        //check if end with Option::None
+        if (new_roots[new_roots.len() - 1].is_some()) {
+            new_roots.append(Option::None);
+        }
+
+        self.roots = new_roots.span();
+        self.num_leaves += 1_u64;
+    }
+
+    fn verify(
+        self: @UtreexoState, output: @OutPoint, proof: @UtreexoProof
+    ) -> Result<(), UtreexoError> {
+        Result::Ok(())
+    }
+
+    fn delete(ref self: UtreexoState, proof: @UtreexoProof) {}
+
+    fn verify_batch(
+        self: @UtreexoState, outputs: Span<OutPoint>, proof: @UtreexoBatchProof
+    ) -> Result<(), UtreexoError> {
+        Result::Ok(())
+    }
+
+    fn delete_batch(ref self: UtreexoState, proof: @UtreexoBatchProof) {}
 }
 
 #[derive(Drop, Copy, PartialEq)]
@@ -97,7 +164,7 @@ pub struct UtreexoBatchProof {
 
 pub impl UtreexoStateDefault of Default<UtreexoState> {
     fn default() -> UtreexoState {
-        UtreexoState { roots: array![].span(), num_leaves: 0, }
+        UtreexoState { roots: array![Option::None].span(), num_leaves: 0, }
     }
 }
 
