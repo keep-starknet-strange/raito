@@ -5,17 +5,29 @@ use super::bit_shifts::{shr, shl};
 
 /// Cairo implementation of the corelib `compute_sha256_byte_array` function.
 pub fn compute_sha256_byte_array(arr: @ByteArray) -> [u32; 8] {
-    let mut sha_input: Array<u8> = array![];
-
-    let mut i: usize = 0;
-    while i != arr.len() {
-        sha_input.append(arr[i]);
-        i += 1;
+    let mut word_arr = array![];
+    let len = arr.len();
+    let rem = len % 4;
+    let mut index = 0;
+    let rounded_len = len - rem;
+    while index != rounded_len {
+        let word = arr.at(index + 3).unwrap().into()
+            + arr.at(index + 2).unwrap().into() * 0x100
+            + arr.at(index + 1).unwrap().into() * 0x10000
+            + arr.at(index).unwrap().into() * 0x1000000;
+        word_arr.append(word);
+        index = index + 4;
     };
-
-    let hash = sha256(sha_input);
-
-    u8_array_to_u32_8_fixed_size_array(hash)
+    let last = match rem {
+        0 => 0,
+        1 => arr.at(len - 1).unwrap().into(),
+        2 => arr.at(len - 1).unwrap().into() + arr.at(len - 2).unwrap().into() * 0x100,
+        _ => arr.at(len - 1).unwrap().into()
+            + arr.at(len - 2).unwrap().into() * 0x100
+            + arr.at(len - 3).unwrap().into() * 0x10000,
+    };
+    
+    compute_sha256_u32_array(word_arr, last, rem.into())
 }
 
 /// Cairo implementation of the corelib `compute_sha256_u32_array` function.
