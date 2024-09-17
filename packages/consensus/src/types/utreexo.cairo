@@ -104,7 +104,7 @@ pub impl UtreexoStateImpl of UtreexoAccumulator {
         self: @UtreexoState, output: @OutPoint, proof: @UtreexoProof
     ) -> Result<(), UtreexoError> {
         let txid_u256: u256 = output.txid.deref().into();
-        let proof_root = verify_helper(
+        let proof_root = compute_root(
             *proof.proof, *proof.leaf_index, txid_u256.try_into().expect('value too large')
         );
 
@@ -157,19 +157,19 @@ fn compute_root(proof: Span<felt252>, mut leaf_index: u64, mut curr_node: felt25
     }
 
     for sibling in proof {
-            let (next_left_index, is_right) = DivRem::div_rem(leaf_index, TWO);
+        let (next_left_index, is_right) = DivRem::div_rem(leaf_index, TWO);
 
-            let (left, right) = if is_right == 0 {
-                (curr_node, *sibling)
-            } else {
-                (*sibling, curr_node)
-            };
-
-            // TODO: refactor
-            curr_node = parent_hash(left, right, 0x0_u256.into());
-            leaf_index = next_left_index;
-            let _ = proof.pop_front();
+        let (left, right) = if is_right == 0 {
+            (curr_node, *sibling)
+        } else {
+            (*sibling, curr_node)
         };
+
+        // TODO: refactor
+        curr_node = parent_hash(left, right, 0x0_u256.into());
+        leaf_index = next_left_index;
+        let _ = proof.pop_front();
+    };
 
     curr_node // Return the computed root
 }
