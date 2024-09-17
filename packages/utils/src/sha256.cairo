@@ -345,34 +345,54 @@ const k: [
 #[cfg(test)]
 mod tests {
     use super::compute_sha256_byte_array;
+    use crate::hash::DigestTrait;
+    use crate::hex::from_hex;
 
     #[test]
     fn test_cairo_sha256() {
-        let mut input: ByteArray = "";
-        let [a, b, c, d, e, f, g, h]: [u32; 8] = compute_sha256_byte_array(@input);
 
-        // 0xE3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855
-        assert_eq!(a, 0xE3B0C442);
-        assert_eq!(b, 0x98FC1C14);
-        assert_eq!(c, 0x9AFBF4C8);
-        assert_eq!(d, 0x996FB924);
-        assert_eq!(e, 0x27AE41E4);
-        assert_eq!(f, 0x649B934C);
-        assert_eq!(g, 0xA495991B);
-        assert_eq!(h, 0x7852B855);
+
+        let mut input: ByteArray = "";
+        let digest = DigestTrait::new(compute_sha256_byte_array(@input));
+        assert_eq!(from_hex("E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855"), digest.into());
 
         let input: ByteArray = "abc";
-        let [a, b, c, d, e, f, g, h] = compute_sha256_byte_array(@input);
+        let digest = DigestTrait::new(compute_sha256_byte_array(@input));
+        assert_eq!(from_hex("ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad"), digest.into());
 
-        // 0xba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad
-        assert_eq!(a, 0xBA7816BF);
-        assert_eq!(b, 0x8F01CFEA);
-        assert_eq!(c, 0x414140DE);
-        assert_eq!(d, 0x5DAE2223);
-        assert_eq!(e, 0xB00361A3);
-        assert_eq!(f, 0x96177A9C);
-        assert_eq!(g, 0xB410FF61);
-        assert_eq!(h, 0xF20015AD);
+        let input: ByteArray = "abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq";
+        let digest = DigestTrait::new(compute_sha256_byte_array(@input));
+        assert_eq!(from_hex("248d6a61d20638b8e5c026930c3e6039a33ce45964ff2167f6ecedd419db06c1"), digest.into());
+
+        let input: ByteArray = "abcdefghbcdefghicdefghijdefghijkefghijklfghijklmghijklmnhijklmnoijklmnopjklmnopqklmnopqrlmnopqrsmnopqrstnopqrstu";
+        let digest = DigestTrait::new(compute_sha256_byte_array(@input));
+        assert_eq!(from_hex("cf5b16a778af8380036ce59e7b0492370b249b11e8f07a51afac45037afee9d1"), digest.into());
+
+        let input: ByteArray = "This is exactly 64 bytes long, not counting the terminating byte";
+        let digest = DigestTrait::new(compute_sha256_byte_array(@input));
+        assert_eq!(from_hex("ab64eff7e88e2e46165e29f2bce41826bd4c7b3552f6b382a9e7d3af47c245f8"), digest.into());
+
+        let input: ByteArray = "For this sample, this 63-byte string will be used as input data";
+        let digest = DigestTrait::new(compute_sha256_byte_array(@input));
+        assert_eq!(from_hex("f08a78cbbaee082b052ae0708f32fa1e50c5c421aa772ba5dbb406a2ea6be342"), digest.into());
+
+        let input: ByteArray = "And this textual data, astonishing as it may appear, is exactly 128 bytes in length, as are both SHA-384 and SHA-512 block sizes";
+        let digest = DigestTrait::new(compute_sha256_byte_array(@input));
+        assert_eq!(from_hex("0ab803344830f92089494fb635ad00d76164ad6e57012b237722df0d7ad26896"), digest.into());
+
+        let input: ByteArray = "By hashing data that is one byte less than a multiple of a hash block length (like this 127-byte string), bugs may be revealed.";
+        let digest = DigestTrait::new(compute_sha256_byte_array(@input));
+        assert_eq!(from_hex("e4326d0459653d7d3514674d713e74dc3df11ed4d30b4013fd327fdb9e394c26"), digest.into());
+
+        let input: ByteArray = "The quick brown fox jumps over the lazy dog";
+        let digest = DigestTrait::new(compute_sha256_byte_array(@input));
+        assert_eq!(from_hex("d7a8fbb307d7809469ca9abcb0082e4f8d5651e46d3cdb762d02d0bf37c9e592"), digest.into());
+
+        let input: ByteArray = "This test tries to use the n-block utility from the hash library and as a matter of fact we're trying to get only 128 characters";
+        let digest = DigestTrait::new(compute_sha256_byte_array(@input));
+        assert_eq!(from_hex("2ce675bd3b70e104d696d1b25bf3d42b2b45cd776d4f590f210f12c44bf473d5"), digest.into());
+
     }
+    
 }
 
