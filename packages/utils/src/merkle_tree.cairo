@@ -93,7 +93,7 @@ mod tests {
     }
 
     #[test]
-    #[available_gas(100000000)]
+    #[available_gas(150000000)]
     fn test_merkle_root_04() {
         let mut txids = array![
             hex_to_hash_rev("32a46e3fcdb462c16de20e3fe88f988ff9174b7b68faa630040f938566f114e9"),

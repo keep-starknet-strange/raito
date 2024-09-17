@@ -4,77 +4,82 @@ use core::num::traits::{Bounded, OverflowingAdd};
 use super::hash::{Digest, DigestTrait};
 use super::bit_shifts::{shr, shl};
 
-/// Calculate double sha256 digest of a concatenation of two hashes
+/// Calculates double sha256 digest of a concatenation of two hashes.
 pub fn double_sha256_parent(a: @Digest, b: @Digest) -> Digest {
-    let mut input: Array<u8> = array![];
+    let mut input1: Array<u32> = array![];
+    input1.append_span(a.value.span());
+    input1.append_span(b.value.span());
 
-    for value in a
-        .value
-        .span() {
-            input.append((shr(*value, 24_u32) & 0xFF_u32).try_into().unwrap());
-            input.append((shr(*value, 16_u32) & 0xFF_u32).try_into().unwrap());
-            input.append((shr(*value, 8_u32) & 0xFF_u32).try_into().unwrap());
-            input.append((*value & 0xFF_u32).try_into().unwrap());
-        };
+    let mut input2: Array<u32> = array![];
+    input2.append_span(compute_sha256_u32_array(input1, 0, 0).span());
 
-    for value in b
-        .value
-        .span() {
-            input.append((shr(*value, 24_u32) & 0xFF_u32).try_into().unwrap());
-            input.append((shr(*value, 16_u32) & 0xFF_u32).try_into().unwrap());
-            input.append((shr(*value, 8_u32) & 0xFF_u32).try_into().unwrap());
-            input.append((*value & 0xFF_u32).try_into().unwrap());
-        };
-
-    let hash = sha256(input);
-    let hash = sha256(hash);
-
-    let fixed_size_final_digest = u8_array_to_u32_8_fixed_size_array(hash);
-
-    DigestTrait::new(fixed_size_final_digest)
+    DigestTrait::new(compute_sha256_u32_array(input2, 0, 0))
 }
 
-/// Calculate double sha256 digest of bytes
+/// Calculates double sha256 digest of bytes.
 pub fn double_sha256_byte_array(bytes: @ByteArray) -> Digest {
-    let mut input: Array<u8> = array![];
+    let mut input2: Array<u32> = array![];
+    input2.append_span(compute_sha256_byte_array(bytes).span());
 
-    let mut i: usize = 0;
-    while i != bytes.len() {
-        input.append(bytes[i]);
-        i += 1;
-    };
-
-    let hash = sha256(input);
-    let hash = sha256(hash);
-
-    let fixed_size_final_digest = u8_array_to_u32_8_fixed_size_array(hash);
-
-    DigestTrait::new(fixed_size_final_digest)
+    DigestTrait::new(compute_sha256_u32_array(input2, 0, 0))
 }
 
-/// Calculate double sha256 digest of an array of full 4 byte words
+/// Calculates double sha256 digest of an array of full 4 byte words.
 ///
 /// It's important that there are no trailing bytes, otherwise the
 /// data will be truncated.
 pub fn double_sha256_u32_array(words: Array<u32>) -> Digest {
-    let mut input: Array<u8> = array![];
+    let mut input2: Array<u32> = array![];
+    input2.append_span(compute_sha256_u32_array(words, 0, 0).span());
 
-    for value in words
-        .span() {
-            input.append((shr(*value, 24_u32) & 0xFF_u32).try_into().unwrap());
-            input.append((shr(*value, 16_u32) & 0xFF_u32).try_into().unwrap());
-            input.append((shr(*value, 8_u32) & 0xFF_u32).try_into().unwrap());
-            input.append((*value & 0xFF_u32).try_into().unwrap());
-        };
-
-    let hash = sha256(input);
-    let hash = sha256(hash);
-
-    let fixed_size_final_digest = u8_array_to_u32_8_fixed_size_array(hash);
-
-    DigestTrait::new(fixed_size_final_digest)
+    DigestTrait::new(compute_sha256_u32_array(input2, 0, 0))
 }
 
+/// Cairo implementation of the corelib `compute_sha256_byte_array` function.
+fn compute_sha256_byte_array(arr: @ByteArray) -> [u32; 8] {
+    let mut sha_input: Array<u8> = array![];
+
+    let mut i: usize = 0;
+    while i != arr.len() {
+        sha_input.append(arr[i]);
+        i += 1;
+    };
+
+    let hash = sha256(sha_input);
+
+    u8_array_to_u32_8_fixed_size_array(hash)
+}
+
+/// Cairo implementation of the corelib `compute_sha256_u32_array` function.
+fn compute_sha256_u32_array(
+    mut input: Array<u32>, last_input_word: u32, last_input_num_bytes: u32
+    ) -> [
+    u32
+; 8] {
+    let mut sha_input: Array<u8> = array![];
+
+    for value in input
+        .span() {
+            sha_input.append((shr(*value, 24_u32) & 0xFF_u32).try_into().unwrap());
+            sha_input.append((shr(*value, 16_u32) & 0xFF_u32).try_into().unwrap());
+            sha_input.append((shr(*value, 8_u32) & 0xFF_u32).try_into().unwrap());
+            sha_input.append((*value & 0xFF_u32).try_into().unwrap());
+        };
+
+    if last_input_num_bytes > 0 {
+        for i in 0
+            ..last_input_num_bytes {
+                let shift = 24_u32 - i * 8_u32;
+                sha_input.append((shr(last_input_word, shift) & 0xFF_u32).try_into().unwrap());
+            }
+    }
+
+    let hash = sha256(sha_input);
+
+    u8_array_to_u32_8_fixed_size_array(hash)
+}
+
+/// Converts an array of u8 to a fixed size array of 8 u32.
 fn u8_array_to_u32_8_fixed_size_array(input: Array<u8>) -> [u32; 8] {
     let mut final_digest: Array<u32> = array![];
     let mut i = 0;
@@ -102,6 +107,7 @@ fn u8_array_to_u32_8_fixed_size_array(input: Array<u8>) -> [u32; 8] {
     ]
 }
 
+/// Cairo implementation of sha256 hash function.
 fn sha256(mut data: Array<u8>) -> Array<u8> {
     let data_len: u64 = (data.len() * 8).into();
 
