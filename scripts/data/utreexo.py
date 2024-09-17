@@ -1,5 +1,5 @@
 # SPDX-FileCopyrightText: 2022 ZeroSync <hello@zerosync.org>
-# 
+#
 # SPDX-License-Identifier: MIT
 
 from poseidon_py.poseidon_hash import poseidon_hash_many
@@ -11,6 +11,7 @@ root_nodes = [None] * 27
 
 # The set of leaf nodes in the forest
 leaf_nodes = dict()
+
 
 class Node:
     def __init__(self, key, left=None, right=None):
@@ -110,6 +111,7 @@ def print_roots():
         list(map(lambda node: node.val if node is not None else "", root_nodes)),
     )
 
+
 def test_utreexo_add():
     # Add first leaf to the empty Utreexo
     utreexo_add(0x291F8F5FC449D42C715B529E542F24A80136D18F4A85DE28829CD3DCAAC1B9C)
@@ -133,15 +135,16 @@ def test_utreexo_add():
 
     # Add 3 leaves
     for i in range(3):
-      utreexo_add(0x291F8F5FC449D42C715B529E542F24A80136D18F4A85DE28829CD3DCAAC1B9C)
+        utreexo_add(0x291F8F5FC449D42C715B529E542F24A80136D18F4A85DE28829CD3DCAAC1B9C)
     print_roots()
 
     # Add 22 leaves
     for i in range(22):
         utreexo_add(0x291F8F5FC449D42C715B529E542F24A80136D18F4A85DE28829CD3DCAAC1B9C)
     print_roots()
-    
+
+
 # Example usage
 if __name__ == "__main__":
-     # Add some elements
+    # Add some elements
     test_utreexo_add()
