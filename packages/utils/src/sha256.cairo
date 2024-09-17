@@ -364,7 +364,8 @@ mod tests {
             digest.into()
         );
 
-        // Following tests have been inspired by the test suite https://github.com/SystemsCyber/CAN-Logger-3/blob/master/tests/sha256-test/sha256-test.ino
+        // Following tests have been inspired by the test suite
+        // https://github.com/SystemsCyber/CAN-Logger-3/blob/master/tests/sha256-test/sha256-test.ino
         let input: ByteArray = "abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq";
         let digest = DigestTrait::new(compute_sha256_byte_array(@input));
         assert_eq!(
