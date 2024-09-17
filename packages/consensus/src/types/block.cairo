@@ -3,7 +3,7 @@
 //! The data is expected to be prepared in advance and passed as program arguments.
 
 use utils::hash::Digest;
-use utils::sha256::double_sha256_u32_array;
+use utils::double_sha256::double_sha256_u32_array;
 use utils::numeric::u32_byte_reverse;
 use super::transaction::Transaction;
 use core::fmt::{Display, Formatter, Error};

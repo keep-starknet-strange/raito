@@ -4,7 +4,7 @@
 
 use crate::types::transaction::{Transaction, TxIn, TxOut};
 use utils::{
-    bit_shifts::shr, hash::{Digest, DigestIntoByteArray}, sha256::{double_sha256_byte_array}
+    bit_shifts::shr, hash::{Digest, DigestIntoByteArray}, double_sha256::{double_sha256_byte_array}
 };
 
 const BIP_34_BLOCK_HEIGHT: u32 = 227_836;
