@@ -1,6 +1,6 @@
 //! Transaction validation helpers.
 
-use crate::types::transaction::{OutPoint, Transaction, TxOut};
+use crate::types::transaction::{OutPoint, Transaction};
 use crate::types::utxo_set::{UtxoSet, UtxoSetTrait};
 use crate::validation::locktime::{
     is_input_final, validate_absolute_locktime, validate_relative_locktime
@@ -31,9 +31,11 @@ pub fn validate_transaction(
 
     for input in *tx
         .inputs {
-            // Removes the outpoint hash of a transaction input if it was in the cache.
-            let outpoint = input.previous_output;
-            utxo_set.delete(outpoint);
+            // Ensures that the output is not yet spent and spends it
+            inner_result = utxo_set.spend(input.previous_output);
+            if inner_result.is_err() {
+                break;
+            }
 
             if *input.previous_output.is_coinbase {
                 inner_result =
@@ -54,8 +56,8 @@ pub fn validate_transaction(
             total_input_amount += *input.previous_output.data.value;
         };
 
-    if let Result::Err(err) = inner_result {
-        return Result::Err(err);
+    if inner_result.is_err() {
+        return Result::Err(inner_result.unwrap_err());
     }
 
     if !is_tx_final {
@@ -66,30 +68,25 @@ pub fn validate_transaction(
     // Validate and process transaction outputs
     let mut total_output_amount = 0;
 
-    let mut vout = 1;
+    let mut vout = 0;
     for output in *tx
         .outputs {
-            // Adds outpoint hash in the cache if the corresponding transaction output will be used
-            // as a transaction input in the same block(s).
-            if (*output.cached) {
-                let outpoint = OutPoint {
-                    txid: txid,
-                    vout: vout,
-                    data: TxOut {
-                        value: *output.value, pk_script: *output.pk_script, cached: true
-                    },
-                    block_height: block_height,
-                    block_time: block_time,
-                    is_coinbase: false,
-                };
+            // Adds outpoint to the cache if the corresponding transaction output will be used
+            // as a transaction input in the same block(s), or adds it to the utreexo otherwise.
+            let outpoint = OutPoint {
+                txid, vout, data: *output, block_height, block_time, is_coinbase: false,
+            };
 
-                utxo_set.add(outpoint);
+            inner_result = utxo_set.add(outpoint);
+            if inner_result.is_err() {
+                break;
             }
 
             total_output_amount += *output.value;
             vout += 1;
         };
 
+    inner_result?;
     return compute_transaction_fee(total_input_amount, total_output_amount);
 }
 
@@ -127,7 +124,7 @@ mod tests {
     use core::poseidon::PoseidonTrait;
     use crate::codec::Encode;
     use crate::types::transaction::{Transaction, TxIn, TxOut, OutPoint};
-    use crate::types::utxo_set::UtxoSet;
+    use crate::types::utxo_set::{UtxoSet, TX_OUTPUT_STATUS_UNSPENT};
     use utils::{hex::{from_hex, hex_to_hash_rev}, double_sha256::double_sha256_byte_array};
     use super::validate_transaction;
 
@@ -176,6 +173,8 @@ mod tests {
         let mut utxo_set: UtxoSet = Default::default();
 
         assert!(validate_transaction(@tx, 0, 0, txid, ref utxo_set).is_err());
+
+        utxo_set = Default::default();
 
         let fee = validate_transaction(@tx, 101, 0, txid, ref utxo_set).unwrap();
         assert_eq!(fee, 10);
@@ -289,6 +288,8 @@ mod tests {
             "Transaction locktime 500000 is not lesser than current block height 500000"
         );
 
+        utxo_set = Default::default();
+
         // Transaction should be valid when current block height is equal to or greater than
         // locktime
         let result = validate_transaction(@tx, 500001, 0, txid, ref utxo_set);
@@ -341,6 +342,8 @@ mod tests {
             "Transaction locktime 1600000000 is not lesser than current block time 1600000000"
         );
 
+        utxo_set = Default::default();
+
         // Transaction should be valid when current block time is equal to or greater than locktime
         let result = validate_transaction(@tx, 0, 1600000001, txid, ref utxo_set);
         assert!(result.is_ok());
@@ -388,6 +391,8 @@ mod tests {
         let result = validate_transaction(@tx, 0, 1600000000, txid, ref utxo_set);
         assert!(result.is_ok());
 
+        utxo_set = Default::default();
+
         // Transaction should be valid when current block time is greater than locktime
         let result = validate_transaction(@tx, 0, 1600000001, txid, ref utxo_set);
         assert!(result.is_ok());
@@ -434,6 +439,8 @@ mod tests {
         // Transaction should still valid when current block time is not greater than locktime
         let result = validate_transaction(@tx, 500000, 0, txid, ref utxo_set);
         assert!(result.is_ok());
+
+        utxo_set = Default::default();
 
         // Transaction should be valid when current block time is greater than locktime
         let result = validate_transaction(@tx, 500001, 0, txid, ref utxo_set);
@@ -609,15 +616,205 @@ mod tests {
         let tx_bytes_legacy = @tx.encode();
         let txid = double_sha256_byte_array(tx_bytes_legacy);
 
-        let mut cache: Felt252Dict<bool> = Default::default();
+        let mut cache: Felt252Dict<u8> = Default::default();
         let outpoint_hash = PoseidonTrait::new()
             .update_with((*tx.inputs[0]).previous_output)
             .finalize();
-        cache.insert(outpoint_hash, true);
+        cache.insert(outpoint_hash, TX_OUTPUT_STATUS_UNSPENT);
         let mut utxo_set: UtxoSet = UtxoSet {
             utreexo_state: Default::default(), leaves_to_add: Default::default(), cache: cache,
         };
 
         validate_transaction(@tx, block_height, 0, txid, ref utxo_set).unwrap();
+    }
+
+    #[test]
+    fn test_cached_utxo_duplicates() {
+        let block_height = 150;
+
+        let tx = Transaction {
+            version: 1,
+            is_segwit: false,
+            inputs: array![
+                TxIn {
+                    script: @from_hex(""),
+                    sequence: 0xfffffffe,
+                    previous_output: OutPoint {
+                        txid: hex_to_hash_rev(
+                            "0000000000000000000000000000000000000000000000000000000000000000"
+                        ),
+                        vout: 0,
+                        data: TxOut { value: 100, pk_script: @from_hex(""), cached: false },
+                        block_height: Default::default(),
+                        block_time: Default::default(),
+                        is_coinbase: false,
+                    },
+                    witness: array![].span(),
+                }
+            ]
+                .span(),
+            outputs: array![
+                TxOut {
+                    value: 50,
+                    pk_script: @from_hex("76a914000000000000000000000000000000000000000088ac"),
+                    cached: true,
+                }
+            ]
+                .span(),
+            lock_time: 0,
+        };
+
+        let tx_bytes_legacy = @tx.encode();
+        let txid = double_sha256_byte_array(tx_bytes_legacy);
+
+        let mut cache: Felt252Dict<u8> = Default::default();
+        let outpoint_hash = PoseidonTrait::new()
+            .update_with(
+                OutPoint {
+                    txid,
+                    vout: 0,
+                    data: *tx.outputs[0],
+                    block_height,
+                    block_time: Default::default(),
+                    is_coinbase: false,
+                }
+            )
+            .finalize();
+        cache.insert(outpoint_hash, TX_OUTPUT_STATUS_UNSPENT);
+        let mut utxo_set: UtxoSet = UtxoSet {
+            utreexo_state: Default::default(), leaves_to_add: Default::default(), cache,
+        };
+
+        let result = validate_transaction(@tx, block_height, 0, txid, ref utxo_set);
+        assert!(result.is_err());
+        assert_eq!(result.unwrap_err(), "The output has already been added");
+    }
+
+    #[test]
+    fn test_cached_utxo_double_spending() {
+        let block_height = 150;
+
+        let tx = Transaction {
+            version: 1,
+            is_segwit: false,
+            inputs: array![
+                TxIn {
+                    script: @from_hex(""),
+                    sequence: 0xfffffffe,
+                    previous_output: OutPoint {
+                        txid: hex_to_hash_rev(
+                            "0000000000000000000000000000000000000000000000000000000000000000"
+                        ),
+                        vout: 0,
+                        data: TxOut { value: 100, pk_script: @from_hex(""), cached: true },
+                        block_height: Default::default(),
+                        block_time: Default::default(),
+                        is_coinbase: false,
+                    },
+                    witness: array![].span(),
+                },
+                TxIn {
+                    script: @from_hex(""),
+                    sequence: 0xfffffffe,
+                    previous_output: OutPoint {
+                        txid: hex_to_hash_rev(
+                            "0000000000000000000000000000000000000000000000000000000000000000"
+                        ),
+                        vout: 0,
+                        data: TxOut { value: 100, pk_script: @from_hex(""), cached: true },
+                        block_height: Default::default(),
+                        block_time: Default::default(),
+                        is_coinbase: false,
+                    },
+                    witness: array![].span(),
+                }
+            ]
+                .span(),
+            outputs: array![
+                TxOut {
+                    value: 50,
+                    pk_script: @from_hex("76a914000000000000000000000000000000000000000088ac"),
+                    cached: false,
+                }
+            ]
+                .span(),
+            lock_time: 0,
+        };
+
+        let tx_bytes_legacy = @tx.encode();
+        let txid = double_sha256_byte_array(tx_bytes_legacy);
+
+        let mut cache: Felt252Dict<u8> = Default::default();
+        let outpoint_hash = PoseidonTrait::new()
+            .update_with((*tx.inputs[0]).previous_output)
+            .finalize();
+        cache.insert(outpoint_hash, TX_OUTPUT_STATUS_UNSPENT);
+        let mut utxo_set: UtxoSet = UtxoSet {
+            utreexo_state: Default::default(), leaves_to_add: Default::default(), cache,
+        };
+
+        let result = validate_transaction(@tx, block_height, 0, txid, ref utxo_set);
+        assert!(result.is_err());
+        assert_eq!(result.unwrap_err(), "The output has already been spent");
+    }
+
+    #[test]
+    fn test_noncached_utxo_double_spending() {
+        let block_height = 150;
+
+        let tx = Transaction {
+            version: 1,
+            is_segwit: false,
+            inputs: array![
+                TxIn {
+                    script: @from_hex(""),
+                    sequence: 0xfffffffe,
+                    previous_output: OutPoint {
+                        txid: hex_to_hash_rev(
+                            "0000000000000000000000000000000000000000000000000000000000000000"
+                        ),
+                        vout: 0,
+                        data: TxOut { value: 100, pk_script: @from_hex(""), cached: false },
+                        block_height: Default::default(),
+                        block_time: Default::default(),
+                        is_coinbase: false,
+                    },
+                    witness: array![].span(),
+                },
+                TxIn {
+                    script: @from_hex(""),
+                    sequence: 0xfffffffe,
+                    previous_output: OutPoint {
+                        txid: hex_to_hash_rev(
+                            "0000000000000000000000000000000000000000000000000000000000000000"
+                        ),
+                        vout: 0,
+                        data: TxOut { value: 100, pk_script: @from_hex(""), cached: false },
+                        block_height: Default::default(),
+                        block_time: Default::default(),
+                        is_coinbase: false,
+                    },
+                    witness: array![].span(),
+                }
+            ]
+                .span(),
+            outputs: array![
+                TxOut {
+                    value: 50,
+                    pk_script: @from_hex("76a914000000000000000000000000000000000000000088ac"),
+                    cached: false,
+                }
+            ]
+                .span(),
+            lock_time: 0,
+        };
+
+        let tx_bytes_legacy = @tx.encode();
+        let txid = double_sha256_byte_array(tx_bytes_legacy);
+        let mut utxo_set: UtxoSet = Default::default();
+
+        let result = validate_transaction(@tx, block_height, 0, txid, ref utxo_set);
+        assert!(result.is_err());
+        assert_eq!(result.unwrap_err(), "The output has already been spent");
     }
 }
