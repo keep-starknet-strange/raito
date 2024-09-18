@@ -28,12 +28,10 @@
 //! Read more about utreexo: https://eprint.iacr.org/2019/611.pdf
 
 use super::transaction::OutPoint;
-use utils::hash::{DigestImpl, DigestIntoU256, Digest};
+use utils::hash::{DigestImpl, DigestIntoU256};
 use core::poseidon::PoseidonTrait;
 use core::hash::{HashStateTrait, HashStateExTrait};
 use core::fmt::{Display, Formatter, Error};
-use core::poseidon::PoseidonTrait;
-use core::hash::{HashStateExTrait, HashStateTrait};
 const TWO: NonZero<u64> = 2;
 
 /// Accumulator representation of the state aka "Compact State Node".
@@ -78,7 +76,7 @@ pub trait UtreexoAccumulator {
     fn delete_batch(ref self: UtreexoState, proof: @UtreexoBatchProof);
 }
 
-// https://eprint.iacr.org/2019/611.pdf page6, Adding and removing elements 
+// https://eprint.iacr.org/2019/611.pdf page6, Adding and removing elements
 fn parent_hash(left: felt252, right: felt252) -> felt252 {
     return PoseidonTrait::new().update_with(left).update_with(right).finalize();
 }
@@ -114,7 +112,7 @@ pub impl UtreexoAccumulatorImpl of UtreexoAccumulator {
         self.num_leaves += 1_u64;
     }
 
-/// Verifies inclusion proof for a single output.
+    /// Verifies inclusion proof for a single output.
     fn verify(
         self: @UtreexoState, outpoint_hash: felt252, proof: @UtreexoProof
     ) -> Result<(), UtreexoError> {
