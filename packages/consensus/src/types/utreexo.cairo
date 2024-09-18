@@ -58,7 +58,7 @@ pub trait UtreexoAccumulator {
 
     /// Verifies inclusion proof for a single output.
     fn verify(
-        self: @UtreexoState, output: @OutPoint, proof: @UtreexoProof
+        self: @UtreexoState, outpoint_hash: felt252, proof: @UtreexoProof
     ) -> Result<(), UtreexoError>;
 
     /// Removes single output from the accumlator (order is important).
@@ -101,11 +101,10 @@ pub impl UtreexoStateImpl of UtreexoAccumulator {
 
     /// Verifies inclusion proof for a single output.
     fn verify(
-        self: @UtreexoState, output: @OutPoint, proof: @UtreexoProof
+        self: @UtreexoState, outpoint_hash: felt252, proof: @UtreexoProof
     ) -> Result<(), UtreexoError> {
-        let txid_u256: u256 = output.txid.deref().into();
         let proof_root = compute_root(
-            *proof.proof, *proof.leaf_index, txid_u256.try_into().expect('value too large')
+            *proof.proof, *proof.leaf_index, outpoint_hash
         );
 
         // Get the expected root
@@ -164,11 +163,8 @@ fn compute_root(proof: Span<felt252>, mut leaf_index: u64, mut curr_node: felt25
         } else {
             (*sibling, curr_node)
         };
-
-        // TODO: refactor
         curr_node = parent_hash(left, right, 0x0_u256.into());
         leaf_index = next_left_index;
-        let _ = proof.pop_front();
     };
 
     curr_node // Return the computed root
@@ -250,8 +246,7 @@ impl UtreexoBatchProofDisplay of Display<UtreexoBatchProof> {
 
 #[cfg(test)]
 mod tests {
-    use super::{UtreexoState, UtreexoAccumulator, UtreexoProof, OutPoint};
-    use crate::types::transaction::{TxOut};
+    use super::{UtreexoState, UtreexoAccumulator, UtreexoProof};
 
 
     // Test the basic functionality of the Utreexo accumulator
@@ -273,36 +268,18 @@ mod tests {
     #[test]
     fn test_utreexo_basics() {
         // Add the first leaf (0x111111111111111111111111)
-        let leaf1_txid = 0x111111111111111111111111;
-        let leaf1_txid_u256: u256 = leaf1_txid.into();
+        let leaf1 = 0x111111111111111111111111;
 
-        let leaf1 = OutPoint {
-            txid: leaf1_txid_u256.into(),
-            vout: 0_u32,
-            data: TxOut { value: 0, pk_script: @"", cached: false, },
-            block_height: 0,
-            block_time: 0,
-            is_coinbase: false,
-        };
         let mut utxo_state = UtreexoState {
             roots: array![Option::Some(0x111111111111111111111111)].into(), num_leaves: 1
         };
         let proof = UtreexoProof { leaf_index: 0, proof: array![].span(), };
-        let result = utxo_state.verify(@leaf1, @proof);
+        let result = utxo_state.verify(leaf1, @proof);
         assert!(result.is_ok(), "Root at index 0 should be 0x111111111111111111111111");
 
         // Add the second leaf (0x222222222222222222222222)
-        let leaf2_txid = 0x222222222222222222222222;
-        let leaf2_txid_u256: u256 = leaf2_txid.into();
-        // Add the second leaf (0x222222222222222222222222)
-        let leaf2 = OutPoint {
-            txid: leaf2_txid_u256.into(),
-            vout: 0_u32,
-            data: TxOut { value: 0, pk_script: @"", cached: false, },
-            block_height: 0,
-            block_time: 0,
-            is_coinbase: false,
-        };
+        let leaf2 = 0x222222222222222222222222;
+        
         utxo_state =
             UtreexoState {
                 roots: array![
@@ -316,28 +293,18 @@ mod tests {
         let proof = UtreexoProof {
             leaf_index: 1, proof: array![0x111111111111111111111111].span(),
         };
-        let result = utxo_state.verify(@leaf2, @proof);
+        let result = utxo_state.verify(leaf2, @proof);
         assert!(
             result.is_ok(),
             "Root at index 1 should be 0x05fb342b44641ae6d67310cf9da5566e1a398fd6b0121d40e2c5acd16e1ddb4a"
         );
 
         // Add the third leaf (0x333333333333333333333333)
-        let leaf3_txid = 0x333333333333333333333333;
-        let leaf3_txid_u256: u256 = leaf3_txid.into();
-        // Add the second leaf (0x222222222222222222222222)
-        let leaf3 = OutPoint {
-            txid: leaf3_txid_u256.into(),
-            vout: 0_u32,
-            data: TxOut { value: 0, pk_script: @"", cached: false, },
-            block_height: 0,
-            block_time: 0,
-            is_coinbase: false,
-        };
+        let leaf3 = 0x333333333333333333333333;
         utxo_state =
             UtreexoState {
                 roots: array![
-                    Option::Some(leaf3_txid),
+                    Option::Some(leaf3),
                     Option::Some(0x05fb342b44641ae6d67310cf9da5566e1a398fd6b0121d40e2c5acd16e1ddb4a)
                 ]
                     .into(),
@@ -347,7 +314,7 @@ mod tests {
         let proof = UtreexoProof {
             leaf_index: 1, proof: array![0x111111111111111111111111].span(),
         };
-        let result = utxo_state.verify(@leaf2, @proof);
+        let result = utxo_state.verify(leaf2, @proof);
         assert!(
             result.is_ok(),
             "Root at index 1 should be 0x05fb342b44641ae6d67310cf9da5566e1a398fd6b0121d40e2c5acd16e1ddb4a"
@@ -355,17 +322,7 @@ mod tests {
 
         // Add the fourth leaf (0x444444444444444444444444)
 
-        let leaf4_txid = 0x444444444444444444444444;
-        let leaf4_txid_u256: u256 = leaf4_txid.into();
-        // Add the second leaf (0x222222222222222222222222)
-        let leaf4 = OutPoint {
-            txid: leaf4_txid_u256.into(),
-            vout: 0_u32,
-            data: TxOut { value: 0, pk_script: @"", cached: false, },
-            block_height: 0,
-            block_time: 0,
-            is_coinbase: false,
-        };
+        let leaf4 = 0x444444444444444444444444;
 
         utxo_state =
             UtreexoState {
@@ -388,45 +345,45 @@ mod tests {
                 .span(),
         };
         // Call the verify function
-        let result = utxo_state.verify(@leaf1, @proof);
+        let result = utxo_state.verify(leaf1, @proof);
         assert!(result.is_ok(), "verify leaf index 0 failed");
         // Create the UtreexoProof for leaf 2
         let proof = UtreexoProof {
             leaf_index: 1,
             proof: array![
-                0x111111111111111111111111,
+                leaf1,
                 0x02a6b2ae998d30e1ac356c32b2750c3126cd6b3ecf02e6918a93021d17b2b026
             ]
                 .span(),
         };
         // Call the verify function
-        let result = utxo_state.verify(@leaf2, @proof);
+        let result = utxo_state.verify(leaf2, @proof);
         assert!(result.is_ok(), "verify leaf index 1 failed");
 
         // Create the UtreexoProof for leaf 3
         let proof = UtreexoProof {
             leaf_index: 2,
             proof: array![
-                0x444444444444444444444444,
+                leaf4,
                 0x05fb342b44641ae6d67310cf9da5566e1a398fd6b0121d40e2c5acd16e1ddb4a
             ]
                 .span(),
         };
         // Call the verify function
-        let result = utxo_state.verify(@leaf3, @proof);
+        let result = utxo_state.verify(leaf3, @proof);
         assert!(result.is_ok(), "verify leaf index 2 failed");
 
         // Create the UtreexoProof for leaf 4
         let proof = UtreexoProof {
             leaf_index: 3,
             proof: array![
-                0x333333333333333333333333,
+                leaf3,
                 0x05fb342b44641ae6d67310cf9da5566e1a398fd6b0121d40e2c5acd16e1ddb4a
             ]
                 .span(),
         };
         // Call the verify function
-        let result = utxo_state.verify(@leaf4, @proof);
+        let result = utxo_state.verify(leaf4, @proof);
         assert!(result.is_ok(), "verify leaf index 3 failed");
     }
     // #[test]
