@@ -104,6 +104,12 @@ if __name__ == "__main__":
     utreexo.add(0x222222222222222222222222)
     utreexo.add(0x333333333333333333333333)
     utreexo.add(0x444444444444444444444444)
+    utreexo.add(0x555555555555555555555555)
+    utreexo.add(0x666666666666666666666666)
+    utreexo.add(0x777777777777777777777777)
+    utreexo.add(0x888888888888888888888888)
+    utreexo.add(0x999999999999999999999999)
+    utreexo.add(0xaaaaaaaaaaaaaaaaaaaaaaaa)
     utreexo.print_roots()
 
     # Reset the Utreexo

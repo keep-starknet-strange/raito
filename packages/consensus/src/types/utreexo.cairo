@@ -266,7 +266,7 @@ mod tests {
     /// The test uses predefined txid values (0x111111..., 0x222222..., etc.) for simplicity.
     /// It checks the correct root values at each stage of the Utreexo tree's growth.
     #[test]
-    fn test_utreexo_basics() {
+    fn test_verify_inclusion() {
         // Add the first leaf (0x111111111111111111111111)
         let leaf1 = 0x111111111111111111111111;
 
@@ -385,86 +385,18 @@ mod tests {
         // Call the verify function
         let result = utxo_state.verify(leaf4, @proof);
         assert!(result.is_ok(), "verify leaf index 3 failed");
+
+        // Create the UtreexoProof for leaf 4
+        let proof = UtreexoProof {
+            leaf_index: 3,
+            proof: array![
+                leaf2,
+                0x05fb342b44641ae6d67310cf9da5566e1a398fd6b0121d40e2c5acd16e1ddb4a
+            ]
+                .span(),
+        };
+        // Call the verify function
+        let result = utxo_state.verify(leaf4, @proof);
+        assert!(result.is_err(), "verify leaf index 3 should fail");
     }
-    // #[test]
-// fn test_verify_inclusion() {
-//     // Manually construct the Utreexo roots
-//     let roots: Span<Option<felt252>> = array![
-//         Option::None, // Note: Zero values can be represented as Some(0) or None
-//         Option::Some(0x060eca2f5761f335018c8349e3009266cecb15ca0aafebf16fff82294b58a927),
-//         Option::None,
-//         Option::Some(0x02da545c9e563a98924b88674350c101473dfc830cfc8294149009482e692d38),
-//         Option::None,
-//         Option::Some(0x00b821cae677cb979640f3174d902df305e43801f1341dc4d6e688b38d582f63),
-//         Option::None,
-//         Option::Some(0x079165659241d0f009f93ba979fdcbdf392d608a2e312df19f225725ab48a03d),
-//         Option::None,
-//         Option::None,
-//         Option::None,
-//         Option::None,
-//         Option::None,
-//         Option::None,
-//         Option::None,
-//         Option::None,
-//         Option::None,
-//         Option::None,
-//         Option::None,
-//         Option::None,
-//         Option::None,
-//         Option::None,
-//         Option::None,
-//         Option::None,
-//         Option::None,
-//         Option::None,
-//         Option::None
-//     ]
-//         .span();
-
-    //     // Manually construct the UtreexoState
-//     let utxo_state = UtreexoState {
-//         roots: roots, num_leaves: 10_u64,
-//     };
-
-    //     // Define the leaf (OutPoint)
-//     let leaf_txid: u256 = 0x017da72c9147f43a3491e2f378f3d62f626136ca5d5c77d61f7cee2f76d595ea;
-//     let leaf = OutPoint {
-//         txid: leaf_txid.into(),
-//         vout: 0_u32, //
-//         data: TxOut { value: 0, pk_script: @"", cached: false, },
-//         block_height: 0,
-//         block_time: 0,
-//         is_coinbase: false
-//     };
-
-    //     // Define the leaf index
-//     let leaf_index = 9_u64;
-
-    //     // Manually construct the inclusion proof
-//     let proof_elements: Span<felt252> = array![
-//         0x04ce2e86eb35ce480db8e78be4a8ce0ef6b954f1fa2a6f212292a80945561af0,
-//         0x01562e0628478c3f51de8fa35997bbd88a6f88de01ef5e4173cec5c7d0467515,
-//         0x0488e519ce1f3792fd89ce87c976d19ce67b1a27a7f5a8cab92b39be10a853b7,
-//         0x05fc2a2790b3dabe66f73b5f850b630ff986cdaacf1561a7aa1dd30c47aab9a4,
-//         0x05234b6e55ded0e42e4733293f6da7e934d1912507bf1832815d98a4b9c05b07,
-//         0x06aa8b88954fbac89b8b792b1ab5503736b4bea9a6f29b81f4f807b63a0ed4d5,
-//         0x018a171f75918e2721982736cd51d849ef640a1d544b847330c56ba98f589d94
-//     ]
-//         .span();
-
-    //     // Create the UtreexoProof
-//     let proof = UtreexoProof { leaf_index: leaf_index, proof: proof_elements, };
-
-    //     // Call the verify function
-//     let result = utxo_state.verify(@leaf, @proof);
-
-    //     // Assert that the verification is successful
-//     match result {
-//         Result::Ok(()) => {// Verification succeeded
-//         },
-//         Result::Err(error) => {
-//             panic!("Utreexo inclusion proof verification failed: {:?}", error);
-//         },
-//     }
-// }
-
 }
