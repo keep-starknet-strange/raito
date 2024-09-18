@@ -3,9 +3,7 @@
 //! https://learnmeabitcoin.com/technical/mining/coinbase-transaction/
 
 use crate::types::transaction::{Transaction, TxIn, TxOut};
-use utils::{
-    bit_shifts::shr, hash::{Digest, DigestIntoByteArray}, double_sha256::{double_sha256_byte_array}
-};
+use utils::{hash::{Digest, DigestIntoByteArray}, double_sha256::{double_sha256_byte_array}};
 
 const BIP_34_BLOCK_HEIGHT: u32 = 227_836;
 const BIP_141_BLOCK_HEIGHT: u32 = 481_824;
@@ -112,7 +110,13 @@ fn validate_coinbase_witness(witness: Span<ByteArray>) -> Result<(), ByteArray> 
 
 /// Return BTC reward in SATS
 fn compute_block_reward(block_height: u32) -> u64 {
-    shr(5000000000_u64, (block_height / 210000_u32))
+    let mut result: u64 = 5_000_000_000;
+
+    for _ in 0..block_height / 210_000 {
+        result /= 2;
+    };
+
+    result
 }
 
 /// Calculate wtxid commitment

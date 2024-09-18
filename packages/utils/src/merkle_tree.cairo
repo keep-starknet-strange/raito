@@ -3,28 +3,32 @@
 use super::{double_sha256::double_sha256_parent, hash::Digest};
 
 /// Calculate Merkle tree root given the array of leaves.
-pub fn merkle_root(ref hashes: Array<Digest>) -> Digest {
+pub fn merkle_root(hashes: Span<Digest>) -> Digest {
     let len = hashes.len();
+    let (_, is_odd) = core::traits::DivRem::div_rem(len, 2);
 
     if len == 1 {
         return *hashes[0];
     }
 
-    if len % 2 == 1 {
-        hashes.append(*hashes[len - 1]);
+    let mut arr = hashes;
+    let mut next_hashes: Array<Digest> = array![];
+
+    while let Option::Some(v) = arr.multi_pop_front::<2>() {
+        let [a, b] = (*v).unbox();
+        next_hashes.append(double_sha256_parent(@a, @b));
+    };
+
+    if (is_odd == 1) {
+        let truc = *arr.pop_front().unwrap();
+        next_hashes.append(double_sha256_parent(@truc, @truc));
     } else {
         // CVE-2012-2459 bug fix
         assert!(*hashes[len - 1] != *hashes[len - 2], "unexpected node duplication in merkle tree");
     }
 
-    let mut next_hashes: Array<Digest> = array![];
-    let mut i = 0;
-    while i < len {
-        next_hashes.append(double_sha256_parent(hashes[i], hashes[i + 1]));
-        i += 2;
-    };
-
-    merkle_root(ref next_hashes)
+    let next = next_hashes.span();
+    merkle_root(next)
 }
 
 #[cfg(test)]
@@ -43,7 +47,7 @@ mod tests {
             "acd9825be8bece7782ec746a80b52f44d6a8af41c63dbab59b03e29558469682"
         );
 
-        assert_eq!(merkle_root(ref txids), expected_merkle_root);
+        assert_eq!(merkle_root(txids.span()), expected_merkle_root);
     }
 
     #[test]
@@ -58,7 +62,7 @@ mod tests {
             "7dac2c5666815c17a3b36427de37bb9d2e2c5ccec3f8633eb91a4205cb4c10ff"
         );
 
-        assert_eq!(merkle_root(ref txids), expected_merkle_root);
+        assert_eq!(merkle_root(txids.span()), expected_merkle_root);
     }
 
     #[test]
@@ -73,7 +77,7 @@ mod tests {
             "035dff4bfc62ff255ddac842dd31be4d28756b3625b0c4fecade7011f8dada20"
         );
 
-        assert_eq!(merkle_root(ref txids), expected_merkle_root);
+        assert_eq!(merkle_root(txids.span()), expected_merkle_root);
     }
 
     #[test]
@@ -89,7 +93,7 @@ mod tests {
             "222ae86adb1f65c0458f53f4c4c5d70966e12f122ef00bfdf2eac04022865013"
         );
 
-        assert_eq!(merkle_root(ref txids), expected_merkle_root);
+        assert_eq!(merkle_root(txids.span()), expected_merkle_root);
     }
 
     #[test]
@@ -106,9 +110,8 @@ mod tests {
             "968bd407fe881936f5140e3794c85962db7e8614c1bb9894bb78b59e56be4555"
         );
 
-        assert_eq!(merkle_root(ref txids), expected_merkle_root);
+        assert_eq!(merkle_root(txids.span()), expected_merkle_root);
     }
-
     #[test]
     #[available_gas(1500000000)]
     fn test_merkle_root_05() {
@@ -137,7 +140,7 @@ mod tests {
             "af77d9974359ae0699e62990b300d1e4663d03996176528bfa92aa24a65a45e1"
         );
 
-        assert_eq!(merkle_root(ref txids), expected_merkle_root);
+        assert_eq!(merkle_root(txids.span()), expected_merkle_root);
     }
 
     #[test]
@@ -184,6 +187,6 @@ mod tests {
             "c78e335cb8908ecda32ff5dd44e9985099572692761f7809a400f60ec58d452c"
         );
 
-        assert_eq!(merkle_root(ref txids), expected_merkle_root);
+        assert_eq!(merkle_root(txids.span()), expected_merkle_root);
     }
 }

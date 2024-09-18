@@ -36,9 +36,10 @@ pub fn compute_and_validate_tx_data(
     let mut total_fee = 0;
     let mut total_weight: u32 = 0;
     let mut i = 0;
+    let len = txs.len();
 
     let validate_transactions: Result<(), ByteArray> = loop {
-        if i >= txs.len() {
+        if i == len {
             break Result::Ok(());
         }
 
@@ -86,10 +87,10 @@ pub fn compute_and_validate_tx_data(
     validate_block_weight(total_weight)?;
 
     let wtxid_root = if block_height >= SEGWIT_BLOCK {
-        merkle_root(ref wtxids)
+        merkle_root(wtxids.span())
     } else {
         Zero::zero()
     };
 
-    Result::Ok((total_fee, merkle_root(ref txids), wtxid_root))
+    Result::Ok((total_fee, merkle_root(txids.span()), wtxid_root))
 }
