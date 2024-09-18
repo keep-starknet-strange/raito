@@ -146,10 +146,7 @@ pub impl UtreexoStateImpl of UtreexoAccumulator {
 /// Traverses the tree from leaf to root, hashing paired nodes.
 /// Proof order is bottom-up. Returns the computed root.
 fn compute_root(proof: Span<felt252>, mut leaf_index: u64, mut curr_node: felt252) -> felt252 {
-    let mut proof = proof.clone();
-    let proof_length = proof.len();
-
-    if proof_length == 0 {
+    if proof.is_empty() {
         return curr_node;
     }
 
