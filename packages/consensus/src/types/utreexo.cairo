@@ -87,7 +87,7 @@ pub trait UtreexoAccumulator {
 // the accumulator, perform this concatenation themselves after checking the
 // proof of work of the block. Inclusion proofs contain this block hash data so
 // that the leaf hash value can be correctly computed.
-fn parent_hash(left: felt252, right: felt252, _block_hash: Digest) -> felt252 {
+fn parent_hash(left: felt252, right: felt252) -> felt252 {
     return PoseidonTrait::new().update_with(left).update_with(right).finalize();
 }
 
@@ -161,7 +161,7 @@ fn compute_root(proof: Span<felt252>, mut leaf_index: u64, mut curr_node: felt25
         } else {
             (*sibling, curr_node)
         };
-        curr_node = parent_hash(left, right, 0x0_u256.into());
+        curr_node = parent_hash(left, right);
         leaf_index = next_left_index;
     };
 
