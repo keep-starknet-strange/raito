@@ -68,7 +68,7 @@ pub fn validate_transaction(
     // Validate and process transaction outputs
     let mut total_output_amount = 0;
 
-    let mut vout = 1;
+    let mut vout = 0;
     for output in *tx
         .outputs {
             // Adds outpoint to the cache if the corresponding transaction output will be used
@@ -86,10 +86,7 @@ pub fn validate_transaction(
             vout += 1;
         };
 
-    if inner_result.is_err() {
-        return Result::Err(inner_result.unwrap_err());
-    }
-
+    inner_result?;
     return compute_transaction_fee(total_input_amount, total_output_amount);
 }
 
@@ -673,7 +670,7 @@ mod tests {
             .update_with(
                 OutPoint {
                     txid,
-                    vout: 1,
+                    vout: 0,
                     data: *tx.outputs[0],
                     block_height,
                     block_time: Default::default(),
