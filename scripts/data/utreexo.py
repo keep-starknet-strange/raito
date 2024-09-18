@@ -3,12 +3,14 @@
 # SPDX-License-Identifier: MIT
 from poseidon_py.poseidon_hash import poseidon_hash_many
 
+
 class Node:
     def __init__(self, key, left=None, right=None):
         self.val = key
         self.left = left
         self.right = right
         self.parent = None
+
 
 class Utreexo:
     def __init__(self):
@@ -96,9 +98,10 @@ class Utreexo:
             [node.val if node is not None else "" for node in self.root_nodes],
         )
 
+
 if __name__ == "__main__":
     utreexo = Utreexo()
-    
+
     # Add some elements
     utreexo.add(0x111111111111111111111111)
     utreexo.add(0x222222222222222222222222)
@@ -109,7 +112,7 @@ if __name__ == "__main__":
     utreexo.add(0x777777777777777777777777)
     utreexo.add(0x888888888888888888888888)
     utreexo.add(0x999999999999999999999999)
-    utreexo.add(0xaaaaaaaaaaaaaaaaaaaaaaaa)
+    utreexo.add(0xAAAAAAAAAAAAAAAAAAAAAAAA)
     utreexo.print_roots()
 
     # Reset the Utreexo

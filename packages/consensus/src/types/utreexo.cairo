@@ -103,9 +103,7 @@ pub impl UtreexoStateImpl of UtreexoAccumulator {
     fn verify(
         self: @UtreexoState, outpoint_hash: felt252, proof: @UtreexoProof
     ) -> Result<(), UtreexoError> {
-        let proof_root = compute_root(
-            *proof.proof, *proof.leaf_index, outpoint_hash
-        );
+        let proof_root = compute_root(*proof.proof, *proof.leaf_index, outpoint_hash);
 
         // Get the expected root
         let root_index = (*proof.proof).len();
@@ -279,7 +277,7 @@ mod tests {
 
         // Add the second leaf (0x222222222222222222222222)
         let leaf2 = 0x222222222222222222222222;
-        
+
         utxo_state =
             UtreexoState {
                 roots: array![
@@ -350,10 +348,7 @@ mod tests {
         // Create the UtreexoProof for leaf 2
         let proof = UtreexoProof {
             leaf_index: 1,
-            proof: array![
-                leaf1,
-                0x02a6b2ae998d30e1ac356c32b2750c3126cd6b3ecf02e6918a93021d17b2b026
-            ]
+            proof: array![leaf1, 0x02a6b2ae998d30e1ac356c32b2750c3126cd6b3ecf02e6918a93021d17b2b026]
                 .span(),
         };
         // Call the verify function
@@ -363,10 +358,7 @@ mod tests {
         // Create the UtreexoProof for leaf 3
         let proof = UtreexoProof {
             leaf_index: 2,
-            proof: array![
-                leaf4,
-                0x05fb342b44641ae6d67310cf9da5566e1a398fd6b0121d40e2c5acd16e1ddb4a
-            ]
+            proof: array![leaf4, 0x05fb342b44641ae6d67310cf9da5566e1a398fd6b0121d40e2c5acd16e1ddb4a]
                 .span(),
         };
         // Call the verify function
@@ -376,10 +368,7 @@ mod tests {
         // Create the UtreexoProof for leaf 4
         let proof = UtreexoProof {
             leaf_index: 3,
-            proof: array![
-                leaf3,
-                0x05fb342b44641ae6d67310cf9da5566e1a398fd6b0121d40e2c5acd16e1ddb4a
-            ]
+            proof: array![leaf3, 0x05fb342b44641ae6d67310cf9da5566e1a398fd6b0121d40e2c5acd16e1ddb4a]
                 .span(),
         };
         // Call the verify function
@@ -389,10 +378,7 @@ mod tests {
         // Create the UtreexoProof for leaf 4
         let proof = UtreexoProof {
             leaf_index: 3,
-            proof: array![
-                leaf2,
-                0x05fb342b44641ae6d67310cf9da5566e1a398fd6b0121d40e2c5acd16e1ddb4a
-            ]
+            proof: array![leaf2, 0x05fb342b44641ae6d67310cf9da5566e1a398fd6b0121d40e2c5acd16e1ddb4a]
                 .span(),
         };
         // Call the verify function
