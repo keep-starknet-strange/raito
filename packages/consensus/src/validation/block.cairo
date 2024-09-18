@@ -1,6 +1,6 @@
 //! Block validation helpers.
-use crate::types::utxo_set::UtxoSet;
-use crate::types::transaction::Transaction;
+use crate::types::utxo_set::{UtxoSet, UtxoSetTrait};
+use crate::types::transaction::{OutPoint, Transaction};
 use crate::codec::{Encode, TransactionCodec};
 use utils::{hash::Digest, merkle_tree::merkle_root, double_sha256::double_sha256_byte_array};
 use super::transaction::validate_transaction;
@@ -35,15 +35,10 @@ pub fn compute_and_validate_tx_data(
     let mut wtxids: Array<Digest> = array![];
     let mut total_fee = 0;
     let mut total_weight: u32 = 0;
-    let mut i = 0;
-    let len = txs.len();
+    let mut inner_result = Result::Ok(());
+    let mut is_coinbase = true;
 
-    let validate_transactions: Result<(), ByteArray> = loop {
-        if i == len {
-            break Result::Ok(());
-        }
-
-        let tx = txs[i];
+    for tx in txs {
         let tx_bytes_legacy = @tx.encode();
         let txid = double_sha256_byte_array(tx_bytes_legacy);
 
@@ -54,10 +49,10 @@ pub fn compute_and_validate_tx_data(
             /// The wTXID for the coinbase transaction must be set to all zeros. This is because
             /// it's eventually going to contain the commitment inside it
             /// see https://learnmeabitcoin.com/technical/transaction/wtxid/#commitment
-            let wtxid = if i != 0 {
-                double_sha256_byte_array(tx_bytes_segwit)
-            } else {
+            let wtxid = if is_coinbase {
                 Zero::zero()
+            } else {
+                double_sha256_byte_array(tx_bytes_segwit)
             };
 
             total_weight += 3 * tx_bytes_legacy.len()
@@ -71,19 +66,33 @@ pub fn compute_and_validate_tx_data(
 
         txids.append(txid);
 
-        // skipping the coinbase transaction
-        if i != 0 {
+        if (is_coinbase) {
+            let mut vout = 0;
+            for output in *tx
+                .outputs {
+                    let outpoint = OutPoint {
+                        txid, vout, data: *output, block_height, block_time, is_coinbase: true,
+                    };
+                    inner_result = utxo_set.add(outpoint);
+                    if inner_result.is_err() {
+                        break;
+                    }
+                    vout += 1;
+                };
+            is_coinbase = false;
+        } else {
             let fee = match validate_transaction(tx, block_height, block_time, txid, ref utxo_set) {
                 Result::Ok(fee) => fee,
-                Result::Err(err) => { break Result::Err(err); }
+                Result::Err(err) => {
+                    inner_result = Result::Err(err);
+                    break;
+                }
             };
             total_fee += fee;
         }
-
-        i += 1;
     };
 
-    validate_transactions?;
+    inner_result?;
     validate_block_weight(total_weight)?;
 
     let wtxid_root = if block_height >= SEGWIT_BLOCK {
