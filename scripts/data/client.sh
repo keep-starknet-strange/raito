@@ -4,6 +4,7 @@
 #set -o pipefail;
 
 base_dir=".client_cache"
+
 start=${1:-0}
 end=${2:-100}
 step=${3:-1}
