@@ -28,7 +28,9 @@ fn test(mut arguments: Span<felt252>) {
     // Allows to test one isolated block, or a batch of blocks starting from genesis.
     let mut state: State = State { chain_state: chain_state, utreexo_state: Default::default(), };
     let mut utxo_set: UtxoSet = UtxoSet {
-        utreexo_state: state.utreexo_state, cache: Default::default()
+        utreexo_state: state.utreexo_state,
+        leaves_to_add: Default::default(),
+        cache: Default::default()
     };
 
     let mut gas_before = get_available_gas();

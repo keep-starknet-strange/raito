@@ -12,13 +12,15 @@
 use core::dict::Felt252Dict;
 use core::hash::{HashStateTrait, HashStateExTrait};
 use core::poseidon::PoseidonTrait;
-use super::utreexo::UtreexoState;
 use super::transaction::OutPoint;
+use super::utreexo::{UtreexoState, UtreexoAccumulator};
 
 #[derive(Default, Destruct)]
 pub struct UtxoSet {
     /// Utreexo state.
     pub utreexo_state: UtreexoState,
+    /// The leaves represent the poseidon hashes of a block's outpoints, i.e. utxos
+    pub leaves_to_add: Array<felt252>,
     /// Hashes of UTXOs created within the current block(s).
     /// Note that to preserve the ordering, cache has to be updated right after a
     /// particular output is created or spent.
@@ -32,10 +34,17 @@ pub impl UtxoSetImpl of UtxoSetTrait {
     }
 
     fn add(ref self: UtxoSet, output: OutPoint) {
+        let outpoint_hash = PoseidonTrait::new().update_with(output).finalize();
         if output.data.cached {
-            let outpoint_hash = PoseidonTrait::new().update_with(output).finalize();
             self.cache.insert(outpoint_hash, true);
-        } else { // TODO: update utreexo roots
+        } else {
+            self.leaves_to_add.append(outpoint_hash);
+        }
+    }
+
+    fn utreexo_add(ref self: UtxoSet) {
+        for leave in self.leaves_to_add.clone() {
+            self.utreexo_state.add(leave);
         }
     }
 
