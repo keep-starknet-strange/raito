@@ -2,15 +2,19 @@
 //!
 //! https://learnmeabitcoin.com/technical/mining/coinbase-transaction/
 
-use crate::types::transaction::{Transaction, TxIn};
-use utils::{bit_shifts::shr, hash::Digest};
+use crate::types::transaction::{Transaction, TxIn, TxOut};
+use utils::{
+    bit_shifts::shr, hash::{Digest, DigestIntoByteArray}, double_sha256::{double_sha256_byte_array}
+};
 
 const BIP_34_BLOCK_HEIGHT: u32 = 227_836;
 const BIP_141_BLOCK_HEIGHT: u32 = 481_824;
+const WTNS_PK_SCRIPT_LEN: u32 = 38;
+const WTNS_PK_SCRIPT_PREFIX: felt252 = 116705705699821; // 0x6a24aa21a9ed
 
 /// Validates coinbase transaction.
 pub fn validate_coinbase(
-    tx: @Transaction, total_fees: u64, block_height: u32, _wtxid_commitment: Digest,
+    tx: @Transaction, total_fees: u64, block_height: u32, wtxid_root: Digest,
 ) -> Result<(), ByteArray> {
     // Ensure there is exactly one coinbase input
     if (*tx.inputs).len() != 1 {
@@ -30,7 +34,13 @@ pub fn validate_coinbase(
     let block_reward = compute_block_reward(block_height);
     assert(total_output_amount <= total_fees + block_reward, 'total output > block rwd + fees');
 
-    // TODO: validate BIP-141 segwit output
+    // validate BIP-141 segwit output
+    if block_height >= BIP_141_BLOCK_HEIGHT {
+        if *tx.is_segwit {
+            // calculate expected wtxid commitment and validate segwit output
+            validate_coinbase_outputs(*tx.outputs, calculate_wtxid_commitment(wtxid_root))?;
+        }
+    }
 
     Result::Ok(())
 }
@@ -105,14 +115,68 @@ fn compute_block_reward(block_height: u32) -> u64 {
     shr(5000000000_u64, (block_height / 210000_u32))
 }
 
+/// Calculate wtxid commitment
+fn calculate_wtxid_commitment(wtxid_root: Digest) -> Digest {
+    // construct witness reserved value
+    // 0000000000000000000000000000000000000000000000000000000000000000
+    let witness_value_bytes: ByteArray =
+        "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0";
+
+    // convert wtxid_root to ByteArray
+    let wtxid_root_bytes: ByteArray = wtxid_root.into();
+
+    // concat (witness root hash | witness reserved value)
+    let res = ByteArrayTrait::concat(@wtxid_root_bytes, @witness_value_bytes);
+
+    double_sha256_byte_array(@res)
+}
+
+/// validate segwit output (BIP-141)
+fn validate_coinbase_outputs(
+    mut outputs: Span<TxOut>, wtxid_commitment: Digest
+) -> Result<(), ByteArray> {
+    let mut is_wtxid_commitment_present: bool = false;
+
+    // construct expected witness script combining prefix and wtxid commitment
+    let mut expected_witness_script: ByteArray = "";
+    expected_witness_script.append_word(WTNS_PK_SCRIPT_PREFIX, 6);
+    expected_witness_script.append(@wtxid_commitment.into());
+
+    while let Option::Some(output) = outputs.pop_back() {
+        let pk_script = *output.pk_script;
+
+        // check for pk_script with at least 38 bytes commitment length
+        if pk_script.len() >= WTNS_PK_SCRIPT_LEN {
+            // extract witness script containing wtxid commitment
+            let mut extracted_witness_script: ByteArray = "";
+            for i in 0..WTNS_PK_SCRIPT_LEN {
+                extracted_witness_script.append_byte(pk_script[i]);
+            };
+
+            // compare expected and extracted witness script
+            if expected_witness_script == extracted_witness_script {
+                is_wtxid_commitment_present = true;
+                break;
+            }
+        }
+    };
+
+    if !is_wtxid_commitment_present {
+        return Result::Err("No wtxid commitment found");
+    }
+
+    Result::Ok(())
+}
+
 #[cfg(test)]
 mod tests {
     use crate::types::transaction::{TxIn, TxOut, Transaction, OutPoint};
-    use utils::hex::from_hex;
     use super::{
         compute_block_reward, validate_coinbase, validate_coinbase_input,
-        validate_coinbase_sig_script, validate_coinbase_witness
+        validate_coinbase_sig_script, validate_coinbase_witness, validate_coinbase_outputs,
+        calculate_wtxid_commitment
     };
+    use utils::{hex::{from_hex, hex_to_hash_rev}, hash::Digest};
 
     // Ref implementation here:
     // https://github.com/bitcoin/bitcoin/blob/0f68a05c084bef3e53e3f549c403bc90b1db319c/src/test/validation_tests.cpp#L24
@@ -424,4 +488,167 @@ mod tests {
             .span();
         validate_coinbase_witness(witness).unwrap();
     }
+
+    #[test]
+    fn test_validate_coinbase_outputs_with_no_wtxid_commitment() {
+        let outputs = array![
+            TxOut {
+                value: 625107042,
+                pk_script: @from_hex(
+                    "0000000000000000000000000000000000000000000000000000000000000000000000000000"
+                ),
+                cached: false
+            },
+            TxOut {
+                value: 0_u64,
+                pk_script: @from_hex(
+                    "0000000000000000000000000000000000000000000000000000000000000000000000000000"
+                ),
+                cached: false
+            }
+        ]
+            .span();
+
+        let wtxid_commitment = Digest {
+            value: [
+                0x10109f4b,
+                0x82aa3ed7,
+                0xec9d02a2,
+                0xa9024647,
+                0x8b3308c8,
+                0xb85daf62,
+                0xfe501d58,
+                0xd05727a4
+            ]
+        };
+
+        validate_coinbase_outputs(outputs, wtxid_commitment).unwrap_err();
+    }
+
+    #[test]
+    fn test_validate_coinbase_outputs() {
+        let outputs = array![
+            TxOut {
+                value: 625107042,
+                pk_script: @from_hex(
+                    "0000000000000000000000000000000000000000000000000000000000000000000000000000"
+                ),
+                cached: false
+            },
+            TxOut {
+                value: 0_u64,
+                pk_script: @from_hex(
+                    "6a24aa21a9ed6502e8637ba29cd8a820021915339c7341223d571e5e8d66edd83786d387e715"
+                ),
+                cached: false
+            },
+            TxOut {
+                value: 0_u64,
+                pk_script: @from_hex(
+                    "0000000000000000000000000000000000000000000000000000000000000000000000000000"
+                ),
+                cached: false
+            },
+            TxOut {
+                value: 0_u64,
+                pk_script: @from_hex(
+                    "0000000000000000000000000000000000000000000000000000000000000000000000000000"
+                ),
+                cached: false
+            }
+        ]
+            .span();
+
+        let wtxid_commitment: Digest = hex_to_hash_rev(
+            "15e787d38637d8ed668d5e1e573d2241739c3315190220a8d89ca27b63e80265"
+        );
+
+        validate_coinbase_outputs(outputs, wtxid_commitment).unwrap();
+    }
+
+    #[test]
+    fn test_calculate_wtxid_commitment() {
+        let witness_root_hash: Digest = hex_to_hash_rev(
+            "f2db1fa411685843d0b5ece37cacb7df882a64f13a68df1d2aaa8c8a869aeedb"
+        );
+
+        let expected_wtxid_commitment = from_hex(
+            "6502e8637ba29cd8a820021915339c7341223d571e5e8d66edd83786d387e715"
+        );
+
+        assert_eq!(
+            (calculate_wtxid_commitment(witness_root_hash)).into(), expected_wtxid_commitment
+        );
+    }
+
+    #[test]
+    fn test_validate_coinbase_with_segwit_tx() {
+        let tx = Transaction {
+            version: 1,
+            is_segwit: true,
+            inputs: array![
+                TxIn {
+                    script: @from_hex(
+                        "0320a107046f0a385a632f4254432e434f4d2ffabe6d6dbdd0ee86f9a1badfd0aa1b3c9dac8d90840cf973f7b2590d6c9adde1a6e0974a010000000000000001283da9a172020000000000"
+                    ),
+                    sequence: 4294967295,
+                    previous_output: OutPoint {
+                        txid: 0x0_u256.into(),
+                        vout: 0xffffffff_u32,
+                        data: Default::default(),
+                        block_height: Default::default(),
+                        block_time: Default::default(),
+                        is_coinbase: false,
+                    },
+                    witness: array![
+                        from_hex("0000000000000000000000000000000000000000000000000000000000000000")
+                    ]
+                        .span(),
+                }
+            ]
+                .span(),
+            outputs: array![
+                TxOut {
+                    value: 0_u64,
+                    pk_script: @from_hex(
+                        "0000000000000000000000000000000000000000000000000000000000000000"
+                    ),
+                    cached: false,
+                },
+                TxOut {
+                    value: 0_u64,
+                    pk_script: @from_hex(
+                        "6a24aa21a9ed6502e8637ba29cd8a820021915339c7341223d571e5e8d66edd83786d387e715"
+                    ),
+                    cached: false,
+                },
+                TxOut {
+                    value: 0_u64,
+                    pk_script: @from_hex(
+                        "0000000000000000000000000000000000000000000000000000000000000000"
+                    ),
+                    cached: false,
+                },
+                TxOut {
+                    value: 0_u64,
+                    pk_script: @from_hex(
+                        "0000000000000000000000000000000000000000000000000000000000000000"
+                    ),
+                    cached: false,
+                }
+            ]
+                .span(),
+            lock_time: 0
+        };
+
+        let total_fees = 0_u64;
+        let block_height = 500_000;
+
+        let wtxid_root_hash: Digest = hex_to_hash_rev(
+            "f2db1fa411685843d0b5ece37cacb7df882a64f13a68df1d2aaa8c8a869aeedb"
+        );
+
+        validate_coinbase(@tx, total_fees, block_height, wtxid_root_hash).unwrap();
+    }
 }
+

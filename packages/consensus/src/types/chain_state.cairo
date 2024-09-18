@@ -4,14 +4,15 @@
 //! Chain state alone is not enough to do full block validation, however
 //! it is sufficient to validate block headers.
 
-use utils::hash::Digest;
+use core::fmt::{Display, Formatter, Error};
 use crate::validation::{
     difficulty::{validate_bits, adjust_difficulty}, coinbase::validate_coinbase,
     timestamp::{validate_timestamp, next_prev_timestamps},
     work::{validate_proof_of_work, compute_total_work}, block::{compute_and_validate_tx_data},
 };
 use super::block::{BlockHash, Block, TransactionData};
-use core::fmt::{Display, Formatter, Error};
+use super::utxo_set::UtxoSet;
+use utils::hash::Digest;
 
 /// Represents the state of the blockchain.
 #[derive(Drop, Copy, Debug, PartialEq, Serde)]
@@ -55,7 +56,9 @@ impl ChainStateDefault of Default<ChainState> {
 /// Full block validator (w/o bitcoin script checks and utxo inclusion verification for now).
 #[generate_trait]
 pub impl BlockValidatorImpl of BlockValidator {
-    fn validate_and_apply(self: ChainState, block: Block) -> Result<ChainState, ByteArray> {
+    fn validate_and_apply(
+        self: ChainState, block: Block, ref utxo_set: UtxoSet
+    ) -> Result<ChainState, ByteArray> {
         let block_height = self.block_height + 1;
 
         validate_timestamp(self.prev_timestamps, block.header.time)?;
@@ -66,7 +69,7 @@ pub impl BlockValidatorImpl of BlockValidator {
             TransactionData::MerkleRoot(root) => root,
             TransactionData::Transactions(txs) => {
                 let (total_fees, txid_root, wtxid_root) = compute_and_validate_tx_data(
-                    txs, block_height, block.header.time
+                    txs, block_height, block.header.time, ref utxo_set
                 )?;
                 validate_coinbase(txs[0], total_fees, block_height, wtxid_root)?;
                 txid_root
@@ -76,7 +79,7 @@ pub impl BlockValidatorImpl of BlockValidator {
         let (current_target, epoch_start_time) = adjust_difficulty(
             self.current_target,
             self.epoch_start_time,
-            self.block_height,
+            block_height,
             prev_block_time,
             block.header.time
         );

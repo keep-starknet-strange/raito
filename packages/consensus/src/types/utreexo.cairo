@@ -29,6 +29,8 @@
 
 use super::transaction::OutPoint;
 use utils::hash::{DigestImpl, DigestIntoU256, Digest};
+use core::poseidon::PoseidonTrait;
+use core::hash::{HashStateTrait, HashStateExTrait};
 use core::fmt::{Display, Formatter, Error};
 use core::poseidon::PoseidonTrait;
 use core::hash::{HashStateExTrait, HashStateTrait};
@@ -54,7 +56,7 @@ pub trait UtreexoAccumulator {
     ///
     /// Note that this call also pushes old UTXOs "to the left", to a larger subtree.
     /// This mechanism ensures that short-lived outputs have small inclusion proofs.
-    fn add(ref self: UtreexoState, output: OutPoint);
+    fn add(ref self: UtreexoState, outpoint_hash: felt252);
 
     /// Verifies inclusion proof for a single output.
     fn verify(
@@ -76,30 +78,43 @@ pub trait UtreexoAccumulator {
     fn delete_batch(ref self: UtreexoState, proof: @UtreexoBatchProof);
 }
 
-// https://eprint.iacr.org/2019/611.pdf Algorithm 1 AddOne
-// p18
-// To prevent such an attack, we require that the data inserted into the
-// accumulator be not just the hash of a TXO, which is controllable by the
-// attacker, but instead the concatenation of the TXO data with the block
-// hash in which the TXO is confirmed. The attacker does not know the block
-// hash before the TXO is confirmed, and it is not alterable by the attacker
-// after confirmation (without significant cost). Verifiers, when inserting into
-// the accumulator, perform this concatenation themselves after checking the
-// proof of work of the block. Inclusion proofs contain this block hash data so
-// that the leaf hash value can be correctly computed.
+// https://eprint.iacr.org/2019/611.pdf page6, Adding and removing elements 
 fn parent_hash(left: felt252, right: felt252) -> felt252 {
     return PoseidonTrait::new().update_with(left).update_with(right).finalize();
 }
 
-pub impl UtreexoStateImpl of UtreexoAccumulator {
-    /// Adds single output to the accumulator.
-    /// The order *is important*: adding A,B and B,A would result in different states.
-    ///
-    /// Note that this call also pushes old UTXOs "to the left", to a larger subtree.
-    /// This mechanism ensures that short-lived outputs have small inclusion proofs.
-    fn add(ref self: UtreexoState, output: OutPoint) {}
+pub impl UtreexoAccumulatorImpl of UtreexoAccumulator {
+    // https://eprint.iacr.org/2019/611.pdf Algorithm 1 AddOne
+    fn add(ref self: UtreexoState, outpoint_hash: felt252) {
+        let mut new_roots: Array<Option<felt252>> = Default::default();
+        let mut n: felt252 = outpoint_hash;
+        let mut first_none_found: bool = false;
 
-    /// Verifies inclusion proof for a single output.
+        for root in self
+            .roots {
+                if (!first_none_found) {
+                    if (root.is_none()) {
+                        first_none_found = true;
+                        new_roots.append(Option::Some(n));
+                    } else {
+                        n = PoseidonTrait::new().update_with(((*root).unwrap(), n)).finalize();
+                        new_roots.append(Option::None);
+                    }
+                } else {
+                    new_roots.append(*root);
+                }
+            };
+
+        //check if end with Option::None
+        if (new_roots[new_roots.len() - 1].is_some()) {
+            new_roots.append(Option::None);
+        }
+
+        self.roots = new_roots.span();
+        self.num_leaves += 1_u64;
+    }
+
+/// Verifies inclusion proof for a single output.
     fn verify(
         self: @UtreexoState, outpoint_hash: felt252, proof: @UtreexoProof
     ) -> Result<(), UtreexoError> {
@@ -123,20 +138,13 @@ pub impl UtreexoStateImpl of UtreexoAccumulator {
         }
     }
 
-
-    /// Removes single output from the accumlator (order is important).
-    ///
-    /// Note that once verified, the output itself is not required for deletion,
-    /// the leaf index plus inclusion proof is enough.
     fn delete(ref self: UtreexoState, proof: @UtreexoProof) {}
 
-    /// Verifies batch proof for multiple outputs (e.g. all outputs in a block).
     fn verify_batch(
         self: @UtreexoState, outputs: Span<OutPoint>, proof: @UtreexoBatchProof
     ) -> Result<(), UtreexoError> {
         Result::Ok(())
     }
-
     /// Removes multiple outputs from the accumulator.
     fn delete_batch(ref self: UtreexoState, proof: @UtreexoBatchProof) {}
 }
@@ -171,6 +179,7 @@ pub enum UtreexoError {
     RootIndexOutOfBound
 }
 
+
 /// Utreexo inclusion proof for a single transaction output.
 #[derive(Drop, Copy)]
 pub struct UtreexoProof {
@@ -193,7 +202,7 @@ pub struct UtreexoBatchProof {
 
 pub impl UtreexoStateDefault of Default<UtreexoState> {
     fn default() -> UtreexoState {
-        UtreexoState { roots: array![].span(), num_leaves: 0, }
+        UtreexoState { roots: array![Option::None].span(), num_leaves: 0, }
     }
 }
 
@@ -242,6 +251,7 @@ impl UtreexoBatchProofDisplay of Display<UtreexoBatchProof> {
 #[cfg(test)]
 mod tests {
     use super::{UtreexoState, UtreexoAccumulator, UtreexoProof};
+    use consensus::types::utxo_set::{UtxoSet, UtxoSetTrait};
 
 
     // Test the basic functionality of the Utreexo accumulator
@@ -382,4 +392,165 @@ mod tests {
         let result = utxo_state.verify(leaf4, @proof);
         assert!(result.is_err(), "verify leaf index 3 should fail");
     }
+
+
+    #[test]
+    /// To check the validity of expected fields, there is a python program from ZeroSync
+    /// https://github.com/ZeroSync/ZeroSync/blob/main/src/utxo_set/bridge_node.py
+    /// $ python scripts/data/utreexo.py
+    fn test_utreexo_add1() {
+        let mut utxo_set: UtxoSet = UtxoSetTrait::new(Default::default());
+        let outpoint: felt252 = 0x291F8F5FC449D42C715B529E542F24A80136D18F4A85DE28829CD3DCAAC1B9C;
+
+        // add first leave to empty utreexo
+        utxo_set.leaves_to_add = array![outpoint];
+        utxo_set.utreexo_add();
+
+        let expected: Span<Option<felt252>> = array![
+            Option::Some(0x291F8F5FC449D42C715B529E542F24A80136D18F4A85DE28829CD3DCAAC1B9C),
+            Option::None
+        ]
+            .span();
+        assert_eq!(utxo_set.utreexo_state.roots, expected, "cannot add first leave");
+        assert_eq!(utxo_set.utreexo_state.num_leaves, 1);
+
+        // add second leave
+        utxo_set.leaves_to_add = array![outpoint];
+        utxo_set.utreexo_add();
+
+        let expected: Span<Option<felt252>> = array![
+            Option::None,
+            Option::Some(0x738A7C495E564574993BBCB6A62D65C3C570BB81C63801066AF8934649F66F6),
+            Option::None
+        ]
+            .span();
+        assert_eq!(utxo_set.utreexo_state.roots, expected, "cannot add second leave");
+        assert_eq!(utxo_set.utreexo_state.num_leaves, 2);
+
+        // add thirdth leave
+        utxo_set.leaves_to_add = array![outpoint];
+        utxo_set.utreexo_add();
+
+        let expected: Span<Option<felt252>> = array![
+            Option::Some(0x291F8F5FC449D42C715B529E542F24A80136D18F4A85DE28829CD3DCAAC1B9C),
+            Option::Some(0x738A7C495E564574993BBCB6A62D65C3C570BB81C63801066AF8934649F66F6),
+            Option::None
+        ]
+            .span();
+        assert_eq!(utxo_set.utreexo_state.roots, expected, "cannot add thirdth leave");
+        assert_eq!(utxo_set.utreexo_state.num_leaves, 3);
+
+        // add fourth leave
+        utxo_set.leaves_to_add = array![outpoint];
+        utxo_set.utreexo_add();
+
+        let expected: Span<Option<felt252>> = array![
+            Option::None,
+            Option::None,
+            Option::Some(0x25D0DE35DD446E3D35504866FD7A04D4245E01B5908E19EAA70ABA84DD5A1F1),
+            Option::None
+        ]
+            .span();
+        assert_eq!(utxo_set.utreexo_state.roots, expected, "cannot add fourth leave");
+        assert_eq!(utxo_set.utreexo_state.num_leaves, 4);
+
+        // add fifth leave
+        utxo_set.leaves_to_add = array![outpoint];
+        utxo_set.utreexo_add();
+
+        let expected: Span<Option<felt252>> = array![
+            Option::Some(0x291F8F5FC449D42C715B529E542F24A80136D18F4A85DE28829CD3DCAAC1B9C),
+            Option::None,
+            Option::Some(0x25D0DE35DD446E3D35504866FD7A04D4245E01B5908E19EAA70ABA84DD5A1F1),
+            Option::None
+        ]
+            .span();
+        assert_eq!(utxo_set.utreexo_state.roots, expected, "cannot add fifth leave");
+        assert_eq!(utxo_set.utreexo_state.num_leaves, 5);
+
+        // add 3 leaves
+        utxo_set.leaves_to_add = array![outpoint, outpoint, outpoint];
+        utxo_set.utreexo_add();
+
+        let expected: Span<Option<felt252>> = array![
+            Option::None,
+            Option::None,
+            Option::None,
+            Option::Some(0x708EB39E30B035376EC871F8F17CD3BADAE6A68406B13C3BB671009D56F5AD),
+            Option::None
+        ]
+            .span();
+        assert_eq!(utxo_set.utreexo_state.roots, expected, "cannot add 3 leaves");
+        assert_eq!(utxo_set.utreexo_state.num_leaves, 8);
+
+        // add 22 leaves
+        utxo_set
+            .leaves_to_add =
+                array![
+                    outpoint,
+                    outpoint,
+                    outpoint,
+                    outpoint,
+                    outpoint,
+                    outpoint,
+                    outpoint,
+                    outpoint,
+                    outpoint,
+                    outpoint,
+                    outpoint,
+                    outpoint,
+                    outpoint,
+                    outpoint,
+                    outpoint,
+                    outpoint,
+                    outpoint,
+                    outpoint,
+                    outpoint,
+                    outpoint,
+                    outpoint,
+                    outpoint
+                ];
+        utxo_set.utreexo_add();
+
+        let expected: Span<Option<felt252>> = [
+            Option::None(()),
+            Option::Some(0x738A7C495E564574993BBCB6A62D65C3C570BB81C63801066AF8934649F66F6),
+            Option::Some(0x25D0DE35DD446E3D35504866FD7A04D4245E01B5908E19EAA70ABA84DD5A1F1),
+            Option::Some(0x708EB39E30B035376EC871F8F17CD3BADAE6A68406B13C3BB671009D56F5AD),
+            Option::Some(0x58D6BEF6CFC28638FB4C8271355961F50922BCC1577DD2B6D04E11B7A911702),
+            Option::None(())
+        ].span();
+        assert_eq!(utxo_set.utreexo_state.roots, expected, "cannot add 22 leaves");
+        assert_eq!(utxo_set.utreexo_state.num_leaves, 30);
+    }
+    ///
+/// python scripts/data/utreexo.py
+///
+/// Roots:
+/// ['0x0291f8f5fc449d42c715b529e542f24a80136d18f4a85de28829cd3dcaac1b9c', '', '', '', '', '',
+/// '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '']
+///
+/// Roots:
+/// ['', '0x0738a7c495e564574993bbcb6a62d65c3c570bb81c63801066af8934649f66f6', '', '', '', '',
+/// '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '']
+///
+/// Roots: ['0x0291f8f5fc449d42c715b529e542f24a80136d18f4a85de28829cd3dcaac1b9c',
+/// '0x0738a7c495e564574993bbcb6a62d65c3c570bb81c63801066af8934649f66f6', '', '', '', '', '',
+/// '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '']
+///
+/// Roots: ['', '', '0x025d0de35dd446e3d35504866fd7a04d4245e01b5908e19eaa70aba84dd5a1f1', '',
+/// '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '']
+///
+/// Roots: ['0x0291f8f5fc449d42c715b529e542f24a80136d18f4a85de28829cd3dcaac1b9c', '',
+/// '0x025d0de35dd446e3d35504866fd7a04d4245e01b5908e19eaa70aba84dd5a1f1', '', '', '', '', '',
+/// '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '']
+///
+/// Roots: ['', '', '', '0x00708eb39e30b035376ec871f8f17cd3badae6a68406b13c3bb671009d56f5ad',
+/// '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '']
+///
+/// Roots: ['', '0x0738a7c495e564574993bbcb6a62d65c3c570bb81c63801066af8934649f66f6',
+/// '0x025d0de35dd446e3d35504866fd7a04d4245e01b5908e19eaa70aba84dd5a1f1',
+/// '0x00708eb39e30b035376ec871f8f17cd3badae6a68406b13c3bb671009d56f5ad',
+/// '0x058d6bef6cfc28638fb4c8271355961f50922bcc1577dd2b6d04e11b7a911702', '', '', '', '', '',
+/// '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '']
 }
