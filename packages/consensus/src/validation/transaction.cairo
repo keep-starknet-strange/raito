@@ -29,31 +29,32 @@ pub fn validate_transaction(
 
     // TODO: BIP68 enabled for tx with version >= 2 (is it critical?)
 
-    for input in *tx.inputs {
-        // Ensures that the output is not yet spent and spends it
-        inner_result = utxo_set.spend(input.previous_output);
-        if inner_result.is_err() {
-            break;
-        }
-
-        if *input.previous_output.is_coinbase {
-            inner_result =
-                validate_coinbase_maturity(*input.previous_output.block_height, block_height);
+    for input in *tx
+        .inputs {
+            // Ensures that the output is not yet spent and spends it
+            inner_result = utxo_set.spend(input.previous_output);
             if inner_result.is_err() {
                 break;
             }
-        }
 
-        if !is_input_final(*input.sequence) {
-            inner_result = validate_relative_locktime(input, block_height, block_time);
-            if inner_result.is_err() {
-                break;
+            if *input.previous_output.is_coinbase {
+                inner_result =
+                    validate_coinbase_maturity(*input.previous_output.block_height, block_height);
+                if inner_result.is_err() {
+                    break;
+                }
             }
-            is_tx_final = false;
-        }
 
-        total_input_amount += *input.previous_output.data.value;
-    };
+            if !is_input_final(*input.sequence) {
+                inner_result = validate_relative_locktime(input, block_height, block_time);
+                if inner_result.is_err() {
+                    break;
+                }
+                is_tx_final = false;
+            }
+
+            total_input_amount += *input.previous_output.data.value;
+        };
 
     if inner_result.is_err() {
         return Result::Err(inner_result.unwrap_err());
@@ -68,26 +69,22 @@ pub fn validate_transaction(
     let mut total_output_amount = 0;
 
     let mut vout = 1;
-    for output in *tx.outputs {
-        // Adds outpoint to the cache if the corresponding transaction output will be used
-        // as a transaction input in the same block(s), or adds it to the utreexo otherwise.
-        let outpoint = OutPoint {
-            txid,
-            vout,
-            data: *output,
-            block_height,
-            block_time,
-            is_coinbase: false,
-        };
-        
-        inner_result = utxo_set.add(outpoint);
-        if inner_result.is_err() {
-            break;
-        }
+    for output in *tx
+        .outputs {
+            // Adds outpoint to the cache if the corresponding transaction output will be used
+            // as a transaction input in the same block(s), or adds it to the utreexo otherwise.
+            let outpoint = OutPoint {
+                txid, vout, data: *output, block_height, block_time, is_coinbase: false,
+            };
 
-        total_output_amount += *output.value;
-        vout += 1;
-    };
+            inner_result = utxo_set.add(outpoint);
+            if inner_result.is_err() {
+                break;
+            }
+
+            total_output_amount += *output.value;
+            vout += 1;
+        };
 
     if inner_result.is_err() {
         return Result::Err(inner_result.unwrap_err());
@@ -179,7 +176,7 @@ mod tests {
         let mut utxo_set: UtxoSet = Default::default();
 
         assert!(validate_transaction(@tx, 0, 0, txid, ref utxo_set).is_err());
-        
+
         utxo_set = Default::default();
 
         let fee = validate_transaction(@tx, 101, 0, txid, ref utxo_set).unwrap();
@@ -293,7 +290,7 @@ mod tests {
             result.unwrap_err().into(),
             "Transaction locktime 500000 is not lesser than current block height 500000"
         );
-        
+
         utxo_set = Default::default();
 
         // Transaction should be valid when current block height is equal to or greater than
@@ -347,7 +344,7 @@ mod tests {
             result.unwrap_err().into(),
             "Transaction locktime 1600000000 is not lesser than current block time 1600000000"
         );
-        
+
         utxo_set = Default::default();
 
         // Transaction should be valid when current block time is equal to or greater than locktime
@@ -396,7 +393,7 @@ mod tests {
         // Transaction should still valid when current block time is not greater than locktime
         let result = validate_transaction(@tx, 0, 1600000000, txid, ref utxo_set);
         assert!(result.is_ok());
-        
+
         utxo_set = Default::default();
 
         // Transaction should be valid when current block time is greater than locktime
@@ -445,7 +442,7 @@ mod tests {
         // Transaction should still valid when current block time is not greater than locktime
         let result = validate_transaction(@tx, 500000, 0, txid, ref utxo_set);
         assert!(result.is_ok());
-        
+
         utxo_set = Default::default();
 
         // Transaction should be valid when current block time is greater than locktime
@@ -655,14 +652,16 @@ mod tests {
                     },
                     witness: array![].span(),
                 }
-            ].span(),
+            ]
+                .span(),
             outputs: array![
                 TxOut {
                     value: 50,
                     pk_script: @from_hex("76a914000000000000000000000000000000000000000088ac"),
                     cached: true,
                 }
-            ].span(),
+            ]
+                .span(),
             lock_time: 0,
         };
 
@@ -671,14 +670,16 @@ mod tests {
 
         let mut cache: Felt252Dict<u8> = Default::default();
         let outpoint_hash = PoseidonTrait::new()
-            .update_with(OutPoint {
-                txid,
-                vout: 1,
-                data: *tx.outputs[0],
-                block_height,
-                block_time: Default::default(),
-                is_coinbase: false,
-            })
+            .update_with(
+                OutPoint {
+                    txid,
+                    vout: 1,
+                    data: *tx.outputs[0],
+                    block_height,
+                    block_time: Default::default(),
+                    is_coinbase: false,
+                }
+            )
             .finalize();
         cache.insert(outpoint_hash, TX_OUTPUT_STATUS_UNSPENT);
         let mut utxo_set: UtxoSet = UtxoSet { utreexo_state: Default::default(), cache };
@@ -726,14 +727,16 @@ mod tests {
                     },
                     witness: array![].span(),
                 }
-            ].span(),
+            ]
+                .span(),
             outputs: array![
                 TxOut {
                     value: 50,
                     pk_script: @from_hex("76a914000000000000000000000000000000000000000088ac"),
                     cached: false,
                 }
-            ].span(),
+            ]
+                .span(),
             lock_time: 0,
         };
 
@@ -790,14 +793,16 @@ mod tests {
                     },
                     witness: array![].span(),
                 }
-            ].span(),
+            ]
+                .span(),
             outputs: array![
                 TxOut {
                     value: 50,
                     pk_script: @from_hex("76a914000000000000000000000000000000000000000088ac"),
                     cached: false,
                 }
-            ].span(),
+            ]
+                .span(),
             lock_time: 0,
         };
 
