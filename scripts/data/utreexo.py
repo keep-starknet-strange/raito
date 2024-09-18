@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2022 ZeroSync <hello@zerosync.org>
+#
+# SPDX-License-Identifier: MIT
 from poseidon_py.poseidon_hash import poseidon_hash_many
 
 # The array of trees in the forest
