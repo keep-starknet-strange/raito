@@ -1,6 +1,7 @@
-use crate::types::{
-    EngineTransactionInput, EngineTransactionOutput, EngineTransaction, HashCache, Engine
+use shinigami_engine::transaction::{
+    EngineTransactionInputTrait, EngineTransactionOutputTrait, EngineTransactionTrait
 };
+use shinigami_engine::engine::{HashCacheTrait, EngineTrait};
 
 #[derive(Drop)]
 pub struct HashCacheDummy {}
@@ -10,10 +11,10 @@ pub impl HashCacheDummyImpl<
     O,
     T,
     +Drop<T>,
-    +EngineTransactionInput<I>,
-    +EngineTransactionOutput<O>,
-    +EngineTransaction<T, I, O>,
-> of HashCache<HashCacheDummy, I, O, T> {
+    +EngineTransactionInputTrait<I>,
+    +EngineTransactionOutputTrait<O>,
+    +EngineTransactionTrait<T, I, O>,
+> of HashCacheTrait<HashCacheDummy, I, O, T> {
     fn new(transaction: @T) -> HashCacheDummy {
         HashCacheDummy {}
     }
@@ -55,16 +56,16 @@ pub impl EngineDummyImpl<
     O,
     T,
     +Drop<T>,
-    +EngineTransactionInput<I>,
-    +EngineTransactionOutput<O>,
-    +EngineTransaction<T, I, O>,
-> of Engine<EngineDummy, I, O, T, HashCacheDummy> {
+    +EngineTransactionInputTrait<I>,
+    +EngineTransactionOutputTrait<O>,
+    +EngineTransactionTrait<T, I, O>,
+> of EngineTrait<EngineDummy, I, O, T, HashCacheDummy> {
     fn new(
         script_pubkey: @ByteArray,
         transaction: @T,
         tx_idx: u32,
         flags: u32,
-        amount: u64,
+        amount: i64,
         hash_cache: @HashCacheDummy
     ) -> Result<EngineDummy, felt252> {
         Result::Ok(EngineDummy {})
