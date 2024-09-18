@@ -621,7 +621,9 @@ mod tests {
             .update_with((*tx.inputs[0]).previous_output)
             .finalize();
         cache.insert(outpoint_hash, TX_OUTPUT_STATUS_UNSPENT);
-        let mut utxo_set: UtxoSet = UtxoSet { utreexo_state: Default::default(), cache: cache, };
+        let mut utxo_set: UtxoSet = UtxoSet {
+            utreexo_state: Default::default(), leaves_to_add: Default::default(), cache: cache,
+        };
 
         validate_transaction(@tx, block_height, 0, txid, ref utxo_set).unwrap();
     }
@@ -679,7 +681,9 @@ mod tests {
             )
             .finalize();
         cache.insert(outpoint_hash, TX_OUTPUT_STATUS_UNSPENT);
-        let mut utxo_set: UtxoSet = UtxoSet { utreexo_state: Default::default(), cache };
+        let mut utxo_set: UtxoSet = UtxoSet {
+            utreexo_state: Default::default(), leaves_to_add: Default::default(), cache,
+        };
 
         let result = validate_transaction(@tx, block_height, 0, txid, ref utxo_set);
         assert!(result.is_err());
@@ -745,7 +749,9 @@ mod tests {
             .update_with((*tx.inputs[0]).previous_output)
             .finalize();
         cache.insert(outpoint_hash, TX_OUTPUT_STATUS_UNSPENT);
-        let mut utxo_set: UtxoSet = UtxoSet { utreexo_state: Default::default(), cache };
+        let mut utxo_set: UtxoSet = UtxoSet {
+            utreexo_state: Default::default(), leaves_to_add: Default::default(), cache,
+        };
 
         let result = validate_transaction(@tx, block_height, 0, txid, ref utxo_set);
         assert!(result.is_err());

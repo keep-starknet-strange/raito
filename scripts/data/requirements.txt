@@ -2,3 +2,4 @@ requests==2.32.3
 black==24.8.0
 flake8==7.1.1
 flake8-black==0.3.6
+poseidon_py==0.1.5

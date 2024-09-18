@@ -12,8 +12,8 @@
 use core::dict::Felt252Dict;
 use core::hash::{HashStateTrait, HashStateExTrait};
 use core::poseidon::PoseidonTrait;
-use super::utreexo::UtreexoState;
 use super::transaction::OutPoint;
+use super::utreexo::{UtreexoState, UtreexoAccumulator};
 
 pub const TX_OUTPUT_STATUS_NONE: u8 = 0;
 pub const TX_OUTPUT_STATUS_UNSPENT: u8 = 1;
@@ -23,7 +23,9 @@ pub const TX_OUTPUT_STATUS_SPENT: u8 = 2;
 pub struct UtxoSet {
     /// Utreexo state.
     pub utreexo_state: UtreexoState,
-    /// Hashes and statuses of tx outputs created or spent within the current block(s).
+    /// The leaves represent the poseidon hashes of a block's outpoints, i.e. utxos
+    pub leaves_to_add: Array<felt252>,
+    /// Hashes of UTXOs created within the current block(s).
     /// Note that to preserve the ordering, cache has to be updated right after a
     /// particular output is created or spent.
     pub cache: Felt252Dict<u8>,
@@ -36,15 +38,22 @@ pub impl UtxoSetImpl of UtxoSetTrait {
     }
 
     fn add(ref self: UtxoSet, output: OutPoint) -> Result<(), ByteArray> {
+        let hash = PoseidonTrait::new().update_with(output).finalize();
         if output.data.cached {
-            let hash = PoseidonTrait::new().update_with(output).finalize();
             if self.cache.get(hash) != TX_OUTPUT_STATUS_NONE {
                 return Result::Err("The output has already been added");
             }
             self.cache.insert(hash, TX_OUTPUT_STATUS_UNSPENT);
-        } else { // TODO: update utreexo roots
+        } else {
+            self.leaves_to_add.append(hash);
         }
         Result::Ok(())
+    }
+
+    fn utreexo_add(ref self: UtxoSet) {
+        for leave in self.leaves_to_add.clone() {
+            self.utreexo_state.add(leave);
+        }
     }
 
     fn spend(ref self: UtxoSet, output: @OutPoint) -> Result<(), ByteArray> {
