@@ -172,6 +172,10 @@ fn validate_coinbase_outputs(
     Result::Ok(())
 }
 
+pub fn is_bip30_unspendable(block_height: u32) -> bool {
+    block_height == 91722 || block_height == 91812
+}
+
 #[cfg(test)]
 mod tests {
     use crate::types::transaction::{TxIn, TxOut, Transaction, OutPoint};

@@ -7,6 +7,9 @@ use crate::validation::locktime::{
 };
 use utils::hash::Digest;
 
+const OP_RETURN: u32 = 0x6a;
+const MAX_SCRIPT_SIZE: u32 = 10000;
+
 /// Validate transaction and return transaction fee.
 ///
 /// This does not include script checks and outpoint inclusion verification.
@@ -115,6 +118,10 @@ fn validate_coinbase_maturity(output_height: u32, block_height: u32) -> Result<(
     } else {
         return Result::Ok(());
     }
+}
+
+fn is_pubscript_unspendable(pubscript: @ByteArray) -> bool {
+    pubscript[0].into() == OP_RETURN || pubscript.len() > MAX_SCRIPT_SIZE
 }
 
 #[cfg(test)]

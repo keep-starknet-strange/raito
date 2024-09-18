@@ -2,7 +2,10 @@
 use crate::types::utxo_set::{UtxoSet, UtxoSetTrait};
 use crate::types::transaction::{OutPoint, Transaction};
 use crate::codec::{Encode, TransactionCodec};
-use utils::{hash::Digest, merkle_tree::merkle_root, double_sha256::double_sha256_byte_array};
+use utils::{
+    hash::Digest, merkle_tree::merkle_root, double_sha256::double_sha256_byte_array,
+    hex::hex_to_hash_rev
+};
 use super::transaction::validate_transaction;
 use core::num::traits::zero::Zero;
 
@@ -102,4 +105,24 @@ pub fn compute_and_validate_tx_data(
     };
 
     Result::Ok((total_fee, merkle_root(txids.span()), wtxid_root))
+}
+
+
+pub fn validate_bip30_block_hash(block_height: u32, block_hash: @Digest) -> Result<(), ByteArray> {
+    if block_height == 91722 {
+        let expected_hash: Digest = hex_to_hash_rev(
+            "00000000000271a2dc26e7667f8419f2e15416dc6955e5a6c6cdf3f2574dd08e"
+        );
+        if *block_hash != expected_hash {
+            return Result::Err("Block hash mismatch for BIP-30 exception at height 91722");
+        }
+    } else if block_height == 91812 {
+        let expected_hash: Digest = hex_to_hash_rev(
+            "00000000000af0aed4792b1acee3d966af36cf5def14935db8de83d6f9306f2f"
+        );
+        if *block_hash != expected_hash {
+            return Result::Err("Block hash mismatch for BIP-30 exception at height 91812");
+        }
+    }
+    Result::Ok(())
 }
