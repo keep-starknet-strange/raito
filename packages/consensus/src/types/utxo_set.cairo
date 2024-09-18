@@ -42,7 +42,7 @@ pub impl UtxoSetImpl of UtxoSetTrait {
                 return Result::Err("The output has already been added");
             }
             self.cache.insert(hash, TX_OUTPUT_STATUS_UNSPENT);
-        } else {// TODO: update utreexo roots
+        } else { // TODO: update utreexo roots
         }
         Result::Ok(())
     }
