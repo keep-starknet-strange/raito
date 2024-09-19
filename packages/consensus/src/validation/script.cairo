@@ -1,11 +1,11 @@
-use script::types::{EngineTransactionInput, EngineTransactionOutput, EngineTransaction};
-
-use script::dummy::{EngineDummy, HashCacheDummy, HashCacheDummyImpl, EngineDummyImpl};
-
+use shinigami_engine::engine::EngineImpl;
+use shinigami_engine::transaction::{
+    EngineTransactionInputTrait, EngineTransactionOutputTrait, EngineTransactionTrait
+};
+use script::dummy::{HashCacheDummy, HashCacheDummyImpl};
 use crate::types::transaction::{Transaction, TxIn, TxOut};
 
-
-impl EngineTransactionInputImpl of EngineTransactionInput<TxIn> {
+impl EngineTransactionInputImpl of EngineTransactionInputTrait<TxIn> {
     fn get_prevout_txid(self: @TxIn) -> u256 {
         0
     }
@@ -14,8 +14,8 @@ impl EngineTransactionInputImpl of EngineTransactionInput<TxIn> {
         0
     }
 
-    fn get_signature_script(self: @TxIn) -> ByteArray {
-        ""
+    fn get_signature_script(self: @TxIn) -> @ByteArray {
+        @""
     }
 
     fn get_witness(self: @TxIn) -> Span<ByteArray> {
@@ -27,9 +27,9 @@ impl EngineTransactionInputImpl of EngineTransactionInput<TxIn> {
     }
 }
 
-impl EngineTransactionOutputDummyImpl of EngineTransactionOutput<TxOut> {
-    fn get_publickey_script(self: @TxOut) -> ByteArray {
-        ""
+impl EngineTransactionOutputDummyImpl of EngineTransactionOutputTrait<TxOut> {
+    fn get_publickey_script(self: @TxOut) -> @ByteArray {
+        @""
     }
 
     fn get_value(self: @TxOut) -> i64 {
@@ -37,9 +37,9 @@ impl EngineTransactionOutputDummyImpl of EngineTransactionOutput<TxOut> {
     }
 }
 
-impl EngineTransactionDummyImpl of EngineTransaction<Transaction, TxIn, TxOut,> {
-    fn get_version(self: @Transaction) -> u32 {
-        *self.version
+impl EngineTransactionDummyImpl of EngineTransactionTrait<Transaction, TxIn, TxOut,> {
+    fn get_version(self: @Transaction) -> i32 {
+        Into::<u32, i64>::into(*self.version).try_into().unwrap()
     }
 
     fn get_transaction_inputs(self: @Transaction) -> Span<TxIn> {
@@ -63,19 +63,19 @@ pub fn validate_authorization(tx: @Transaction) -> Result<(), ByteArray> {
         ..(*tx.inputs)
             .len() {
                 let previous_output = *tx.inputs[i].previous_output;
-                let mut engine: EngineDummy = EngineDummyImpl::<
+                let mut engine = EngineImpl::<
                     TxIn, TxOut, Transaction
                 >::new(
                     previous_output.data.pk_script,
                     tx,
                     i,
                     0, //TODO: flags
-                    previous_output.data.value,
+                    Into::<u64, i128>::into(previous_output.data.value).try_into().unwrap(),
                     @cache
                 )
                     .unwrap(); //TODO: handle error
 
-                match EngineDummyImpl::<TxIn, TxOut, Transaction>::execute(ref engine) {
+                match EngineImpl::<TxIn, TxOut, Transaction, HashCacheDummy>::execute(ref engine) {
                     Result::Ok(stack) => if stack.len() != 0 {
                         result =
                             Option::Some(format!("Script returned with nonempty stack: {}", stack));

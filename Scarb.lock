@@ -13,15 +13,52 @@ name = "consensus"
 version = "0.1.0"
 dependencies = [
  "script",
+ "shinigami_engine",
  "utils",
 ]
+
+[[package]]
+name = "ripemd160"
+version = "0.1.0"
+source = "git+https://github.com/j1mbo64/ripemd160_cairo.git#cdc5ab58b0acc64db87e0b03851fb18213977dc8"
 
 [[package]]
 name = "script"
 version = "0.1.0"
 dependencies = [
+ "shinigami_engine",
  "utils",
 ]
+
+[[package]]
+name = "sha1"
+version = "0.1.0"
+source = "git+https://github.com/j1mbo64/sha1_cairo.git#280b4c64ae457fdc4bd7cd807efd17e8dced654e"
+
+[[package]]
+name = "shinigami_compiler"
+version = "0.1.0"
+source = "git+https://github.com/keep-starknet-strange/shinigami.git?rev=3e672c8#3e672c829080f8c4c712cd27aeca1b11b9c44a9d"
+dependencies = [
+ "shinigami_engine",
+ "shinigami_utils",
+]
+
+[[package]]
+name = "shinigami_engine"
+version = "0.1.0"
+source = "git+https://github.com/keep-starknet-strange/shinigami.git?rev=3e672c8#3e672c829080f8c4c712cd27aeca1b11b9c44a9d"
+dependencies = [
+ "ripemd160",
+ "sha1",
+ "shinigami_compiler",
+ "shinigami_utils",
+]
+
+[[package]]
+name = "shinigami_utils"
+version = "0.1.0"
+source = "git+https://github.com/keep-starknet-strange/shinigami.git?rev=3e672c8#3e672c829080f8c4c712cd27aeca1b11b9c44a9d"
 
 [[package]]
 name = "utils"
