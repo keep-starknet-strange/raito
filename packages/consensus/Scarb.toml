@@ -15,5 +15,7 @@ cairo_test.workspace = true
 lint = "scarb fmt"
 
 [features]
+default = ["log_level_none"]
+log_level_none = []
 log_level_trace = []
 log_level_debug = []

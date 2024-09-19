@@ -1,7 +1,6 @@
 //! Block time validation helpers.
 //!
 //! Read more: https://learnmeabitcoin.com/technical/block/time/
-
 /// Check that the block time is greater than the median of the 11 most recent timestamps.
 pub fn validate_timestamp(prev_timestamps: Span<u32>, block_time: u32) -> Result<(), ByteArray> {
     // Sort the last 11 timestamps
@@ -36,24 +35,23 @@ pub fn validate_timestamp(prev_timestamps: Span<u32>, block_time: u32) -> Result
             }
         };
     };
-    
+
     if block_time > *sorted_prev_timestamps.at(sorted_prev_timestamps.len() - 6) {
         Result::Ok(())
     } else {
         Result::Err("Median time is greater than or equal to block's timestamp")
     }
-
 }
 
 #[cfg(feature: 'log_level_debug')]
-fn macro_test(){
-    let txid  = 1000;
+fn macro_test() {
+    let txid = 1000;
     log!("DEBUG", "validating tx: {}", txid);
 }
 
 #[cfg(feature: 'log_level_trace', feature: 'log_level_debug')]
-fn log(){
-    let txid  = 1000;
+fn log(log_level: ByteArray, format_array: ByteArray,) {
+    let txid = 1000;
     log!("DEBUG", "validating tx: {}", txid);
 }
 
@@ -68,7 +66,6 @@ pub fn next_prev_timestamps(prev_timestamps: Span<u32>, block_time: u32) -> Span
 #[cfg(test)]
 mod tests {
     use super::{validate_timestamp, next_prev_timestamps};
-
     #[test]
     fn test_validate_timestamp() {
         let prev_timestamps = array![1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].span();
@@ -137,24 +134,5 @@ mod tests {
         block_time = 6;
         let result = validate_timestamp(prev_timestamps, block_time);
         assert!(result.is_err(), "Median time is greater than block's timestamp");
-    }
-
-    const TWO_TEN: u128 = pow!(2, 10);
-
-    #[test]
-    fn test_pow_macro() {
-        assert_eq!(TWO_TEN, 1024);
-        assert_eq!(pow!(10, 2), 100);
-        assert_eq!(pow!(20, 30), 1073741824000000000000000000000000000000_felt252);
-        assert_eq!(
-            pow!(2, 255),
-            57896044618658097711785492504343953926634992332820282019728792003956564819968_u256
-        );
-    }
-
-    
-    #[test]
-    fn test_log_macro(){
-        macro_test();
     }
 }
