@@ -96,10 +96,10 @@ pub fn compute_and_validate_tx_data(
     validate_block_weight(total_weight)?;
 
     let wtxid_root = if block_height >= SEGWIT_BLOCK {
-        merkle_root(ref wtxids)
+        merkle_root(wtxids.span())
     } else {
         Zero::zero()
     };
 
-    Result::Ok((total_fee, merkle_root(ref txids), wtxid_root))
+    Result::Ok((total_fee, merkle_root(txids.span()), wtxid_root))
 }

@@ -201,12 +201,12 @@ fn compression(w: Span<u32>, i: usize, k: Span<u32>, mut h: Span<u32>) -> Span<u
 fn create_message_schedule(data: Span<u32>, i: usize) -> Span<u32> {
     let mut j = 0;
     let mut result = array![];
-    while (j < 16) {
+    while (j != 16) {
         result.append(*data[i * 16 + j]);
         j += 1;
     };
     let mut i = 16;
-    while (i < 64) {
+    while (i != 64) {
         let s0 = ssig0(*result[i - 15]);
         let s1 = ssig1(*result[i - 2]);
 

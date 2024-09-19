@@ -9,7 +9,7 @@ pub fn from_hex(hex_string: ByteArray) -> ByteArray {
     let mut bytes: ByteArray = Default::default();
     let mut i = 0;
 
-    while i < num_characters {
+    while i != num_characters {
         let hi = hex_char_to_nibble(hex_string[i]);
         let lo = hex_char_to_nibble(hex_string[i + 1]);
         bytes.append_byte(hi * 16 + lo);
@@ -25,10 +25,9 @@ pub fn to_hex(data: @ByteArray) -> ByteArray {
     let mut result: ByteArray = Default::default();
 
     let mut i = 0;
-    while i < data.len() {
-        let value = data[i];
-        let l: u32 = (value / 16).into();
-        let r: u32 = (value % 16).into();
+    while i != data.len() {
+        let value: u32 = data[i].into();
+        let (l, r) = core::traits::DivRem::div_rem(value, 16);
         result.append_byte(alphabet.at(l).unwrap());
         result.append_byte(alphabet.at(r).unwrap());
         i += 1;
@@ -39,16 +38,16 @@ pub fn to_hex(data: @ByteArray) -> ByteArray {
 // Get `Digest` form `ByteArray` reversed
 pub fn hex_to_hash_rev(hex_string: ByteArray) -> Digest {
     let mut result: Array<u32> = array![];
-    let mut i = 1;
+    let mut i = 0;
     let mut unit: u32 = 0;
     let len = hex_string.len();
-    while (i < len) {
-        if ((i - 1) % 8 == 0 && i - 1 > 0) {
+    while i != len {
+        if (i != 0 && i % 8 == 0) {
             result.append(unit);
             unit = 0;
         }
-        let hi = hex_char_to_nibble(hex_string[len - i - 1]);
-        let lo = hex_char_to_nibble(hex_string[len - i]);
+        let hi = hex_char_to_nibble(hex_string[len - i - 2]);
+        let lo = hex_char_to_nibble(hex_string[len - i - 1]);
         unit = (unit * 256) + (hi * 16 + lo).into();
         i += 2;
     };
