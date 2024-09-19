@@ -10,17 +10,25 @@
 //! Utreexo accumulator or local cache.
 
 use core::dict::Felt252Dict;
-use super::utreexo::UtreexoState;
+use core::hash::{HashStateTrait, HashStateExTrait};
+use core::poseidon::PoseidonTrait;
 use super::transaction::OutPoint;
+use super::utreexo::{UtreexoState, UtreexoAccumulator};
 
-#[derive(Default)]
+pub const TX_OUTPUT_STATUS_NONE: u8 = 0;
+pub const TX_OUTPUT_STATUS_UNSPENT: u8 = 1;
+pub const TX_OUTPUT_STATUS_SPENT: u8 = 2;
+
+#[derive(Default, Destruct)]
 pub struct UtxoSet {
     /// Utreexo state.
-    utreexo_state: UtreexoState,
+    pub utreexo_state: UtreexoState,
+    /// The leaves represent the poseidon hashes of a block's outpoints, i.e. utxos
+    pub leaves_to_add: Array<felt252>,
     /// Hashes of UTXOs created within the current block(s).
     /// Note that to preserve the ordering, cache has to be updated right after a
     /// particular output is created or spent.
-    cache: Felt252Dict<()>,
+    pub cache: Felt252Dict<u8>,
 }
 
 #[generate_trait]
@@ -29,16 +37,36 @@ pub impl UtxoSetImpl of UtxoSetTrait {
         UtxoSet { utreexo_state, ..Default::default() }
     }
 
-    fn add(ref self: UtxoSet, output: OutPoint) {
-        if output.data.cached { // TODO: add to the local block cache
-        } else { // TODO: update utreexo roots
+    fn add(ref self: UtxoSet, output: OutPoint) -> Result<(), ByteArray> {
+        let hash = PoseidonTrait::new().update_with(output).finalize();
+        if output.data.cached {
+            if self.cache.get(hash) != TX_OUTPUT_STATUS_NONE {
+                return Result::Err("The output has already been added");
+            }
+            self.cache.insert(hash, TX_OUTPUT_STATUS_UNSPENT);
+        } else {
+            self.leaves_to_add.append(hash);
+        }
+        Result::Ok(())
+    }
+
+    fn utreexo_add(ref self: UtxoSet) {
+        for leave in self.leaves_to_add.clone() {
+            self.utreexo_state.add(leave);
         }
     }
 
-    fn delete(ref self: UtxoSet, output: @OutPoint) {
-        if *output.data.cached { // TODO: remove from cache (+ verify inclusion)
-        } else { // TODO: update utreexo roots (+ verify inclusion)
-        // If batched proofs are used then do nothing
+    fn spend(ref self: UtxoSet, output: @OutPoint) -> Result<(), ByteArray> {
+        let hash = PoseidonTrait::new().update_with(*output).finalize();
+        let status = self.cache.get(hash);
+        if status == TX_OUTPUT_STATUS_NONE {
+            // Extra check that can be removed later.
+            assert(!*output.data.cached, 'output is not cached');
+            // TODO: verify inclusion and update utreexo roots
+        } else if status == TX_OUTPUT_STATUS_SPENT {
+            return Result::Err("The output has already been spent");
         }
+        self.cache.insert(hash, TX_OUTPUT_STATUS_SPENT);
+        Result::Ok(())
     }
 }

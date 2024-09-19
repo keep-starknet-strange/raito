@@ -80,11 +80,11 @@ Tasks:
 * [x] transaction root computation
 * [x] validate transaction fee
 * [x] validate coinbase transaction
-* [ ] validate that transaction can be mined (locktime, sequence, coinbase maturity)
-* [ ] validate segwit specific data (wtxid commitment)
-* [ ] validate block weight
+* [x] validate that transaction can be mined (locktime, sequence, coinbase maturity)
+* [x] validate segwit specific data (wtxid commitment)
+* [x] validate block weight
 * [x] script that fetches blocks extended with references UTXOs
-* [ ] script that runs the program e2e for a span of blocks
+* [x] script that runs the program e2e for a span of blocks
 
 ### Milestone 3 - Bitcoin script validation
 

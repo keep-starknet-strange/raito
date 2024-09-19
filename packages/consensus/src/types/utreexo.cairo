@@ -28,6 +28,9 @@
 //! Read more about utreexo: https://eprint.iacr.org/2019/611.pdf
 
 use super::transaction::OutPoint;
+use utils::hash::{DigestImpl, DigestIntoU256};
+use core::poseidon::PoseidonTrait;
+use core::hash::{HashStateTrait, HashStateExTrait};
 use core::fmt::{Display, Formatter, Error};
 
 /// Accumulator representation of the state aka "Compact State Node".
@@ -50,11 +53,11 @@ pub trait UtreexoAccumulator {
     ///
     /// Note that this call also pushes old UTXOs "to the left", to a larger subtree.
     /// This mechanism ensures that short-lived outputs have small inclusion proofs.
-    fn add(ref self: UtreexoState, output: OutPoint);
+    fn add(ref self: UtreexoState, outpoint_hash: felt252);
 
     /// Verifies inclusion proof for a single output.
     fn verify(
-        self: @UtreexoState, output: @OutPoint, proof: @UtreexoProof
+        self: @UtreexoState, outpoint_hash: felt252, proof: @UtreexoProof
     ) -> Result<(), UtreexoError>;
 
     /// Removes single output from the accumlator (order is important).
@@ -72,8 +75,102 @@ pub trait UtreexoAccumulator {
     fn delete_batch(ref self: UtreexoState, proof: @UtreexoBatchProof);
 }
 
-#[derive(Drop, Copy, PartialEq)]
-pub enum UtreexoError {}
+// https://eprint.iacr.org/2019/611.pdf page6, Adding and removing elements
+fn parent_hash(left: felt252, right: felt252) -> felt252 {
+    return PoseidonTrait::new().update_with(left).update_with(right).finalize();
+}
+
+pub impl UtreexoAccumulatorImpl of UtreexoAccumulator {
+    // https://eprint.iacr.org/2019/611.pdf Algorithm 1 AddOne
+    fn add(ref self: UtreexoState, outpoint_hash: felt252) {
+        let mut new_roots: Array<Option<felt252>> = Default::default();
+        let mut n: felt252 = outpoint_hash;
+        let mut first_none_found: bool = false;
+
+        for root in self
+            .roots {
+                if (!first_none_found) {
+                    if (root.is_none()) {
+                        first_none_found = true;
+                        new_roots.append(Option::Some(n));
+                    } else {
+                        n = PoseidonTrait::new().update_with(((*root).unwrap(), n)).finalize();
+                        new_roots.append(Option::None);
+                    }
+                } else {
+                    new_roots.append(*root);
+                }
+            };
+
+        //check if end with Option::None
+        if (new_roots[new_roots.len() - 1].is_some()) {
+            new_roots.append(Option::None);
+        }
+
+        self.roots = new_roots.span();
+        self.num_leaves += 1_u64;
+    }
+
+    /// Verifies inclusion proof for a single output.
+    fn verify(
+        self: @UtreexoState, outpoint_hash: felt252, proof: @UtreexoProof
+    ) -> Result<(), UtreexoError> {
+        let proof_root = compute_root(*proof.proof, *proof.leaf_index, outpoint_hash);
+
+        // Get the expected root
+        let root_index = (*proof.proof).len();
+        if root_index >= self.roots.deref().len() {
+            return Result::Err(UtreexoError::RootIndexOutOfBound);
+        }
+        let expected_root = self.roots[root_index];
+
+        match expected_root {
+            Option::Some(root) => {
+                if root.deref().into() == proof_root {
+                    return Result::Ok(());
+                };
+                Result::Err(UtreexoError::ProofVerificationFailed)
+            },
+            _ => Result::Err(UtreexoError::ProofVerificationFailed)
+        }
+    }
+
+    fn delete(ref self: UtreexoState, proof: @UtreexoProof) {}
+
+    fn verify_batch(
+        self: @UtreexoState, outputs: Span<OutPoint>, proof: @UtreexoBatchProof
+    ) -> Result<(), UtreexoError> {
+        Result::Ok(())
+    }
+    /// Removes multiple outputs from the accumulator.
+    fn delete_batch(ref self: UtreexoState, proof: @UtreexoBatchProof) {}
+}
+
+/// Computes the root given a leaf, its index, and a proof.
+///
+/// Traverses the tree from leaf to root, hashing paired nodes.
+/// Proof order is bottom-up. Returns the computed root.
+fn compute_root(proof: Span<felt252>, mut leaf_index: u64, mut curr_node: felt252) -> felt252 {
+    for sibling in proof {
+        let (next_left_index, is_right) = DivRem::div_rem(leaf_index, 2);
+
+        let (left, right) = if is_right == 0 {
+            (curr_node, *sibling)
+        } else {
+            (*sibling, curr_node)
+        };
+        curr_node = parent_hash(left, right);
+        leaf_index = next_left_index;
+    };
+    // Return the computed root (or the node itself if the proof is empty)
+    curr_node
+}
+
+#[derive(Drop, Copy, PartialEq, Debug)]
+pub enum UtreexoError {
+    ProofVerificationFailed,
+    RootIndexOutOfBound
+}
 
 /// Utreexo inclusion proof for a single transaction output.
 #[derive(Drop, Copy)]
@@ -97,7 +194,7 @@ pub struct UtreexoBatchProof {
 
 pub impl UtreexoStateDefault of Default<UtreexoState> {
     fn default() -> UtreexoState {
-        UtreexoState { roots: array![].span(), num_leaves: 0, }
+        UtreexoState { roots: array![Option::None].span(), num_leaves: 0, }
     }
 }
 
@@ -140,5 +237,279 @@ impl UtreexoBatchProofDisplay of Display<UtreexoBatchProof> {
         );
         f.buffer.append(@str);
         Result::Ok(())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{UtreexoState, UtreexoAccumulator, UtreexoProof};
+    use consensus::types::utxo_set::{UtxoSet, UtxoSetTrait};
+
+    /// Test the basic functionality of the Utreexo accumulator
+    ///
+    /// This test covers the following scenarios:
+    /// 1. Adding a single leaf and verifying it
+    /// 2. Adding a second leaf and verifying both leaves
+    /// 3. Adding a third leaf and verifying previous leaves
+    /// 4. Adding a fourth leaf and verifying all leaves
+    ///
+    /// For each scenario, the test:
+    /// - Initializes the UtreexoState with the appropriate roots and number of leaves
+    /// - Creates an OutPoint representing the leaf
+    /// - Constructs a UtreexoProof for the leaf
+    /// - Calls the verify function and asserts that it succeeds
+    ///
+    /// The test uses predefined txid values (0x111111..., 0x222222..., etc.) for simplicity.
+    /// It checks the correct root values at each stage of the Utreexo tree's growth.
+    #[test]
+    fn test_verify_inclusion() {
+        // Add the first leaf (0x111111111111111111111111)
+        let leaf1 = 0x111111111111111111111111;
+
+        let mut utxo_state = UtreexoState {
+            roots: array![Option::Some(0x111111111111111111111111)].into(), num_leaves: 1
+        };
+        let proof = UtreexoProof { leaf_index: 0, proof: array![].span(), };
+        let result = utxo_state.verify(leaf1, @proof);
+        assert!(result.is_ok(), "Root at index 0 should be 0x111111111111111111111111");
+
+        // Add the second leaf (0x222222222222222222222222)
+        let leaf2 = 0x222222222222222222222222;
+
+        utxo_state =
+            UtreexoState {
+                roots: array![
+                    Option::None,
+                    Option::Some(0x05fb342b44641ae6d67310cf9da5566e1a398fd6b0121d40e2c5acd16e1ddb4a)
+                ]
+                    .into(),
+                num_leaves: 1
+            };
+
+        let proof = UtreexoProof {
+            leaf_index: 1, proof: array![0x111111111111111111111111].span(),
+        };
+        let result = utxo_state.verify(leaf2, @proof);
+        assert!(
+            result.is_ok(),
+            "Root at index 1 should be 0x05fb342b44641ae6d67310cf9da5566e1a398fd6b0121d40e2c5acd16e1ddb4a"
+        );
+
+        // Add the third leaf (0x333333333333333333333333)
+        let leaf3 = 0x333333333333333333333333;
+        utxo_state =
+            UtreexoState {
+                roots: array![
+                    Option::Some(leaf3),
+                    Option::Some(0x05fb342b44641ae6d67310cf9da5566e1a398fd6b0121d40e2c5acd16e1ddb4a)
+                ]
+                    .into(),
+                num_leaves: 1
+            };
+
+        let proof = UtreexoProof {
+            leaf_index: 1, proof: array![0x111111111111111111111111].span(),
+        };
+        let result = utxo_state.verify(leaf2, @proof);
+        assert!(
+            result.is_ok(),
+            "Root at index 1 should be 0x05fb342b44641ae6d67310cf9da5566e1a398fd6b0121d40e2c5acd16e1ddb4a"
+        );
+
+        // Add the fourth leaf (0x444444444444444444444444)
+
+        let leaf4 = 0x444444444444444444444444;
+
+        utxo_state =
+            UtreexoState {
+                roots: array![
+                    Option::None,
+                    Option::None,
+                    Option::Some(0x018674e0c40577cb5ba4728d6ac7bedfd9548f4020161223261941b2a8ae84b2)
+                ]
+                    .into(),
+                num_leaves: 1
+            };
+
+        // Create the UtreexoProof for leaf 1
+        let proof = UtreexoProof {
+            leaf_index: 0,
+            proof: array![
+                0x222222222222222222222222,
+                0x02a6b2ae998d30e1ac356c32b2750c3126cd6b3ecf02e6918a93021d17b2b026
+            ]
+                .span(),
+        };
+        // Call the verify function
+        let result = utxo_state.verify(leaf1, @proof);
+        assert!(result.is_ok(), "verify leaf index 0 failed");
+        // Create the UtreexoProof for leaf 2
+        let proof = UtreexoProof {
+            leaf_index: 1,
+            proof: array![leaf1, 0x02a6b2ae998d30e1ac356c32b2750c3126cd6b3ecf02e6918a93021d17b2b026]
+                .span(),
+        };
+        // Call the verify function
+        let result = utxo_state.verify(leaf2, @proof);
+        assert!(result.is_ok(), "verify leaf index 1 failed");
+
+        // Create the UtreexoProof for leaf 3
+        let proof = UtreexoProof {
+            leaf_index: 2,
+            proof: array![leaf4, 0x05fb342b44641ae6d67310cf9da5566e1a398fd6b0121d40e2c5acd16e1ddb4a]
+                .span(),
+        };
+        // Call the verify function
+        let result = utxo_state.verify(leaf3, @proof);
+        assert!(result.is_ok(), "verify leaf index 2 failed");
+
+        // Create the UtreexoProof for leaf 4
+        let proof = UtreexoProof {
+            leaf_index: 3,
+            proof: array![leaf3, 0x05fb342b44641ae6d67310cf9da5566e1a398fd6b0121d40e2c5acd16e1ddb4a]
+                .span(),
+        };
+        // Call the verify function
+        let result = utxo_state.verify(leaf4, @proof);
+        assert!(result.is_ok(), "verify leaf index 3 failed");
+
+        // Create the UtreexoProof for leaf 4
+        let proof = UtreexoProof {
+            leaf_index: 3,
+            proof: array![leaf2, 0x05fb342b44641ae6d67310cf9da5566e1a398fd6b0121d40e2c5acd16e1ddb4a]
+                .span(),
+        };
+        // Call the verify function
+        let result = utxo_state.verify(leaf4, @proof);
+        assert!(result.is_err(), "verify leaf index 3 should fail");
+    }
+
+    #[test]
+    fn test_utreexo_add() {
+        // Test data is generated using scripts/data/utreexo.py
+
+        let mut utxo_set: UtxoSet = UtxoSetTrait::new(Default::default());
+        let outpoint: felt252 = 0x291F8F5FC449D42C715B529E542F24A80136D18F4A85DE28829CD3DCAAC1B9C;
+
+        // add first leave to empty utreexo
+        utxo_set.leaves_to_add = array![outpoint];
+        utxo_set.utreexo_add();
+
+        let expected: Span<Option<felt252>> = array![
+            Option::Some(0x291F8F5FC449D42C715B529E542F24A80136D18F4A85DE28829CD3DCAAC1B9C),
+            Option::None
+        ]
+            .span();
+        assert_eq!(utxo_set.utreexo_state.roots, expected, "cannot add first leave");
+        assert_eq!(utxo_set.utreexo_state.num_leaves, 1);
+
+        // add second leave
+        utxo_set.leaves_to_add = array![outpoint];
+        utxo_set.utreexo_add();
+
+        let expected: Span<Option<felt252>> = array![
+            Option::None,
+            Option::Some(0x738A7C495E564574993BBCB6A62D65C3C570BB81C63801066AF8934649F66F6),
+            Option::None
+        ]
+            .span();
+        assert_eq!(utxo_set.utreexo_state.roots, expected, "cannot add second leave");
+        assert_eq!(utxo_set.utreexo_state.num_leaves, 2);
+
+        // add thirdth leave
+        utxo_set.leaves_to_add = array![outpoint];
+        utxo_set.utreexo_add();
+
+        let expected: Span<Option<felt252>> = array![
+            Option::Some(0x291F8F5FC449D42C715B529E542F24A80136D18F4A85DE28829CD3DCAAC1B9C),
+            Option::Some(0x738A7C495E564574993BBCB6A62D65C3C570BB81C63801066AF8934649F66F6),
+            Option::None
+        ]
+            .span();
+        assert_eq!(utxo_set.utreexo_state.roots, expected, "cannot add thirdth leave");
+        assert_eq!(utxo_set.utreexo_state.num_leaves, 3);
+
+        // add fourth leave
+        utxo_set.leaves_to_add = array![outpoint];
+        utxo_set.utreexo_add();
+
+        let expected: Span<Option<felt252>> = array![
+            Option::None,
+            Option::None,
+            Option::Some(0x25D0DE35DD446E3D35504866FD7A04D4245E01B5908E19EAA70ABA84DD5A1F1),
+            Option::None
+        ]
+            .span();
+        assert_eq!(utxo_set.utreexo_state.roots, expected, "cannot add fourth leave");
+        assert_eq!(utxo_set.utreexo_state.num_leaves, 4);
+
+        // add fifth leave
+        utxo_set.leaves_to_add = array![outpoint];
+        utxo_set.utreexo_add();
+
+        let expected: Span<Option<felt252>> = array![
+            Option::Some(0x291F8F5FC449D42C715B529E542F24A80136D18F4A85DE28829CD3DCAAC1B9C),
+            Option::None,
+            Option::Some(0x25D0DE35DD446E3D35504866FD7A04D4245E01B5908E19EAA70ABA84DD5A1F1),
+            Option::None
+        ]
+            .span();
+        assert_eq!(utxo_set.utreexo_state.roots, expected, "cannot add fifth leave");
+        assert_eq!(utxo_set.utreexo_state.num_leaves, 5);
+
+        // add 3 leaves
+        utxo_set.leaves_to_add = array![outpoint, outpoint, outpoint];
+        utxo_set.utreexo_add();
+
+        let expected: Span<Option<felt252>> = array![
+            Option::None,
+            Option::None,
+            Option::None,
+            Option::Some(0x708EB39E30B035376EC871F8F17CD3BADAE6A68406B13C3BB671009D56F5AD),
+            Option::None
+        ]
+            .span();
+        assert_eq!(utxo_set.utreexo_state.roots, expected, "cannot add 3 leaves");
+        assert_eq!(utxo_set.utreexo_state.num_leaves, 8);
+
+        // add 22 leaves
+        utxo_set
+            .leaves_to_add =
+                array![
+                    outpoint,
+                    outpoint,
+                    outpoint,
+                    outpoint,
+                    outpoint,
+                    outpoint,
+                    outpoint,
+                    outpoint,
+                    outpoint,
+                    outpoint,
+                    outpoint,
+                    outpoint,
+                    outpoint,
+                    outpoint,
+                    outpoint,
+                    outpoint,
+                    outpoint,
+                    outpoint,
+                    outpoint,
+                    outpoint,
+                    outpoint,
+                    outpoint
+                ];
+        utxo_set.utreexo_add();
+
+        let expected: Span<Option<felt252>> = [
+            Option::None(()),
+            Option::Some(0x738A7C495E564574993BBCB6A62D65C3C570BB81C63801066AF8934649F66F6),
+            Option::Some(0x25D0DE35DD446E3D35504866FD7A04D4245E01B5908E19EAA70ABA84DD5A1F1),
+            Option::Some(0x708EB39E30B035376EC871F8F17CD3BADAE6A68406B13C3BB671009D56F5AD),
+            Option::Some(0x58D6BEF6CFC28638FB4C8271355961F50922BCC1577DD2B6D04E11B7A911702),
+            Option::None(())
+        ].span();
+        assert_eq!(utxo_set.utreexo_state.roots, expected, "cannot add 22 leaves");
+        assert_eq!(utxo_set.utreexo_state.num_leaves, 30);
     }
 }
