@@ -1,6 +1,7 @@
 use consensus::types::block::Block;
 use consensus::types::chain_state::{ChainState, BlockValidatorImpl};
 use consensus::types::state::{State};
+use consensus::types::utreexo::UtreexoStateTrait;
 use consensus::types::utxo_set::UtxoSet;
 use core::testing::get_available_gas;
 
@@ -27,11 +28,7 @@ fn test(mut arguments: Span<felt252>) {
     // Temporary solution while script doesn't handle utreexo.
     // Allows to test one isolated block, or a batch of blocks starting from genesis.
     let mut state: State = State { chain_state: chain_state, utreexo_state: Default::default(), };
-    let mut utxo_set: UtxoSet = UtxoSet {
-        utreexo_state: state.utreexo_state,
-        leaves_to_add: Default::default(),
-        cache: Default::default()
-    };
+    let mut utxo_set: UtxoSet = Default::default();
 
     let mut gas_before = get_available_gas();
 
@@ -56,11 +53,35 @@ fn test(mut arguments: Span<felt252>) {
 
     if state.chain_state != expected_chain_state {
         println!(
-            "FAIL: block={} error='expected state {:?}, actual {:?}'",
+            "FAIL: block={} error='expected chain state {:?}, actual {:?}'",
             state.chain_state.block_height,
             expected_chain_state,
             state.chain_state
         );
         panic!();
     }
+
+    gas_before = get_available_gas();
+
+    match state.utreexo_state.validate_and_apply(utxo_set) {
+        Result::Ok(()) => {
+            let gas_after = get_available_gas();
+            println!("OK: gas_spent={}", gas_before - gas_after);
+        },
+        Result::Err(err) => {
+            let gas_after = get_available_gas();
+            println!("FAIL: gas_spent={} error='{:?}'", gas_before - gas_after, err);
+            panic!();
+        }
+    }
+    // TODO: provide the expected utreexo state via args and compare it with the actual one
+//
+// if state.utreexo_state != expected_utreexo_state {
+//     println!(
+//         "FAIL: error='expected utreexo state {:?}, actual {:?}'",
+//         expected_utreexo_state,
+//         state.utreexo_state
+//     );
+//     panic!();
+// }
 }

@@ -13,7 +13,6 @@ use core::dict::Felt252Dict;
 use core::hash::{HashStateTrait, HashStateExTrait};
 use core::poseidon::PoseidonTrait;
 use super::transaction::OutPoint;
-use super::utreexo::{UtreexoState, UtreexoAccumulator};
 
 pub const TX_OUTPUT_STATUS_NONE: u8 = 0;
 pub const TX_OUTPUT_STATUS_UNSPENT: u8 = 1;
@@ -21,8 +20,6 @@ pub const TX_OUTPUT_STATUS_SPENT: u8 = 2;
 
 #[derive(Default, Destruct)]
 pub struct UtxoSet {
-    /// Utreexo state.
-    pub utreexo_state: UtreexoState,
     /// The leaves represent the poseidon hashes of a block's outpoints, i.e. utxos
     pub leaves_to_add: Array<felt252>,
     /// Hashes of UTXOs created within the current block(s).
@@ -33,10 +30,6 @@ pub struct UtxoSet {
 
 #[generate_trait]
 pub impl UtxoSetImpl of UtxoSetTrait {
-    fn new(utreexo_state: UtreexoState) -> UtxoSet {
-        UtxoSet { utreexo_state, ..Default::default() }
-    }
-
     fn add(ref self: UtxoSet, output: OutPoint) -> Result<(), ByteArray> {
         let hash = PoseidonTrait::new().update_with(output).finalize();
         if output.data.cached {
@@ -48,12 +41,6 @@ pub impl UtxoSetImpl of UtxoSetTrait {
             self.leaves_to_add.append(hash);
         }
         Result::Ok(())
-    }
-
-    fn utreexo_add(ref self: UtxoSet) {
-        for leave in self.leaves_to_add.clone() {
-            self.utreexo_state.add(leave);
-        }
     }
 
     fn spend(ref self: UtxoSet, output: @OutPoint) -> Result<(), ByteArray> {
