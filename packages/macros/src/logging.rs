@@ -1,7 +1,6 @@
-use bigdecimal::{num_traits::pow, BigDecimal};
 use cairo_lang_macro::{inline_macro, Diagnostic, ProcMacroResult, TokenStream};
 use cairo_lang_parser::utils::SimpleParserDatabase;
-use cairo_lang_syntax::node::{self, kind::SyntaxKind};
+use cairo_lang_syntax::node::{kind::SyntaxKind};
 
 #[inline_macro]
 pub fn log(token_stream: TokenStream) -> ProcMacroResult {
@@ -87,6 +86,7 @@ mod tests {
     use cairo_lang_macro::TokenStream;
 
     // Helper function to expand macros
+    #[allow(unused)]
     fn expand_macro(macro_fn: fn(TokenStream) -> ProcMacroResult, input: &str) -> String {
         let token_stream = TokenStream::new(input.to_string());
         let result = macro_fn(token_stream);
