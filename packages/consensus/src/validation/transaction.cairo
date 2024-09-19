@@ -7,7 +7,7 @@ use crate::validation::locktime::{
 };
 use utils::hash::Digest;
 
-const OP_RETURN: u32 = 0x6a;
+const OP_RETURN: u8 = 0x6a;
 const MAX_SCRIPT_SIZE: u32 = 10000;
 
 /// Validate transaction and return transaction fee.
@@ -120,6 +120,11 @@ fn validate_coinbase_maturity(output_height: u32, block_height: u32) -> Result<(
     }
 }
 
+/// Checks if a public key script (pubscript) is provably unspendable.
+///
+/// A pubscript is considered unspendable if:
+/// - It starts with `OP_RETURN`.
+/// - Its size exceeds the maximum allowed script size.
 fn is_pubscript_unspendable(pubscript: @ByteArray) -> bool {
     pubscript[0].into() == OP_RETURN || pubscript.len() > MAX_SCRIPT_SIZE
 }

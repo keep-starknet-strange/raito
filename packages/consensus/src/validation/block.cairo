@@ -3,8 +3,7 @@ use crate::types::utxo_set::{UtxoSet, UtxoSetTrait};
 use crate::types::transaction::{OutPoint, Transaction};
 use crate::codec::{Encode, TransactionCodec};
 use utils::{
-    hash::Digest, merkle_tree::merkle_root, double_sha256::double_sha256_byte_array,
-    hex::hex_to_hash_rev
+    hash::{Digest, DigestTrait}, merkle_tree::merkle_root, double_sha256::double_sha256_byte_array,
 };
 use super::transaction::validate_transaction;
 use core::num::traits::zero::Zero;
@@ -107,18 +106,43 @@ pub fn compute_and_validate_tx_data(
     Result::Ok((total_fee, merkle_root(txids.span()), wtxid_root))
 }
 
-
-pub fn validate_bip30_block_hash(block_height: u32, block_hash: @Digest) -> Result<(), ByteArray> {
+/// Validates that the block hash at certain heights matches the expected hash according to BIP-30.
+///
+/// This function ensures that for the two exceptional blocks affected by BIP-30 (heights 91722 and
+/// 91812), the block hash matches the known hash for those heights. This prevents accepting
+/// incorrect blocks at these critical heights, which could lead to security issues.
+///
+/// BIP-30 - Reject duplicate (https://github.com/bitcoin/bips/blob/master/bip-0030.mediawiki)
+pub fn validate_bip30_block_hash(block_height: u32, block_hash: @Digest,) -> Result<(), ByteArray> {
     if block_height == 91722 {
-        let expected_hash: Digest = hex_to_hash_rev(
-            "00000000000271a2dc26e7667f8419f2e15416dc6955e5a6c6cdf3f2574dd08e"
+        // Expected hash for block at height 91722
+        let expected_hash = DigestTrait::new(
+            [
+                0x8ed04d57,
+                0xf2f3cd6c,
+                0xa6e55569,
+                0xdc1654e1,
+                0xf219847f,
+                0x66e726dc,
+                0xa2710200,
+                0x00000000,
+            ]
         );
         if *block_hash != expected_hash {
             return Result::Err("Block hash mismatch for BIP-30 exception at height 91722");
         }
     } else if block_height == 91812 {
-        let expected_hash: Digest = hex_to_hash_rev(
-            "00000000000af0aed4792b1acee3d966af36cf5def14935db8de83d6f9306f2f"
+        let expected_hash = DigestTrait::new(
+            [
+                0x2f6f306f,
+                0xd683deb8,
+                0x5d9314ef,
+                0xfdcf36af,
+                0x66d9e3ac,
+                0xaceb79d4,
+                0xaed00a00,
+                0x00000000,
+            ]
         );
         if *block_hash != expected_hash {
             return Result::Err("Block hash mismatch for BIP-30 exception at height 91812");

@@ -172,6 +172,11 @@ fn validate_coinbase_outputs(
     Result::Ok(())
 }
 
+
+/// Determines if the transaction outputs of a block at a given height are unspendable due to BIP-30.
+///
+/// This function checks if the block height corresponds to one of the two exceptional blocks
+/// where transactions with duplicate TXIDs were allowed.
 pub fn is_bip30_unspendable(block_height: u32) -> bool {
     block_height == 91722 || block_height == 91812
 }
