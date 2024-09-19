@@ -199,6 +199,11 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/feltroidprime"><img src="https://avatars.githubusercontent.com/u/96737978?v=4?s=100" width="100px;" alt="feltroidprime"/><br /><sub><b>feltroid Prime</b></sub></a><br /><a href="https://github.com/keep-starknet-strange/raito/commits?author=feltroidprime" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/mexes20"><img src="https://avatars.githubusercontent.com/u/127276944?v=4?s=100" width="100px;" alt="mexes20"/><br /><sub><b>Mexes</b></sub></a><br /><a href="https://github.com/keep-starknet-strange/raito/commits?author=mexes20" title="Code">💻</a></td>
     </tr>
+    <tr>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/JoE11-y"><img src="https://avatars.githubusercontent.com/u/55321462?v=4?s=100" width="100px;" alt="BlockyJ"/><br /><sub><b>BlockyJ</b></sub></a><br /><a href="https://github.com/keep-starknet-strange/raito/commits?author=JoE11-y" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/Groxan"><img src="https://avatars.githubusercontent.com/u/7966898?v=4?s=100" width="100px;" alt="Maksim Strebkov"/><br /><sub><b>Maksim Strebkov</b></sub></a><br /><a href="https://github.com/keep-starknet-strange/raito/commits?author=Groxan" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/hwildwood"><img src="https://avatars.githubusercontent.com/u/9042313?v=4?s=100" width="100px;" alt="Herbie Wildwood"/><br /><sub><b>Herbie Wildwood</b></sub></a><br /><a href="https://github.com/keep-starknet-strange/raito/commits?author=hwildwood" title="Code">💻</a></td>
+    </tr>
   </tbody>
 </table>
 
