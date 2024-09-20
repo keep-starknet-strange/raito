@@ -115,7 +115,6 @@ pub fn compute_and_validate_tx_data(
 /// BIP-30 - Reject duplicate (https://github.com/bitcoin/bips/blob/master/bip-0030.mediawiki)
 pub fn validate_bip30_block_hash(block_height: u32, block_hash: @Digest,) -> Result<(), ByteArray> {
     if block_height == 91722 {
-        // Expected hash for block at height 91722
         let expected_hash = DigestTrait::new(
             [
                 0x8ed04d57,
@@ -131,6 +130,7 @@ pub fn validate_bip30_block_hash(block_height: u32, block_hash: @Digest,) -> Res
         if *block_hash != expected_hash {
             return Result::Err("Block hash mismatch for BIP-30 exception at height 91722");
         }
+        Result::Ok(())
     } else if block_height == 91812 {
         let expected_hash = DigestTrait::new(
             [
@@ -147,6 +147,91 @@ pub fn validate_bip30_block_hash(block_height: u32, block_hash: @Digest,) -> Res
         if *block_hash != expected_hash {
             return Result::Err("Block hash mismatch for BIP-30 exception at height 91812");
         }
+        Result::Ok(())
+    } else {
+        Result::Ok(())
     }
-    Result::Ok(())
+}
+
+
+#[cfg(test)]
+mod tests {
+    use super::{validate_bip30_block_hash};
+    use utils::hash::{DigestTrait};
+
+    #[test]
+    fn test_bip30_block_hash() {
+        // Expected hash for block at height 91722
+        let expected_hash = DigestTrait::new(
+            [
+                0x8ed04d57,
+                0xf2f3cd6c,
+                0xa6e55569,
+                0xdc1654e1,
+                0xf219847f,
+                0x66e726dc,
+                0xa2710200,
+                0x00000000,
+            ]
+        );
+        let result = validate_bip30_block_hash(91722, @expected_hash);
+        assert_eq!(result, Result::Ok(()));
+    }
+
+    #[test]
+    fn test_bip30_block_hash_wrong_hash() {
+        // Expected hash for block at height 91722
+        let expected_hash = DigestTrait::new(
+            [
+                0x8ed04d56,
+                0xf2f3cd6c,
+                0xa6e55569,
+                0xdc1654e1,
+                0xf219847f,
+                0x66e726dc,
+                0xa2710200,
+                0x00000000,
+            ]
+        );
+        let result = validate_bip30_block_hash(91722, @expected_hash);
+        assert_eq!(result, Result::Err("Block hash mismatch for BIP-30 exception at height 91722"));
+    }
+
+    #[test]
+    fn test_bip30_block_hash_height_91812() {
+        // Expected hash for block at height 91812
+        let expected_hash = DigestTrait::new(
+            [
+                0x2f6f306f,
+                0xd683deb8,
+                0x5d9314ef,
+                0xfdcf36af,
+                0x66d9e3ac,
+                0xaceb79d4,
+                0xaed00a00,
+                0x00000000,
+            ]
+        );
+        let result = validate_bip30_block_hash(91812, @expected_hash);
+        assert_eq!(result, Result::Ok(()));
+    }
+
+    #[test]
+    fn test_bip30_block_hash_wrong_hash_91812() {
+        // Expected hash for block at height 91812
+        let expected_hash = DigestTrait::new(
+            [
+                0x9ed04d56,
+                0xf2f3cd6c,
+                0xa6e55569,
+                0xdc1654e1,
+                0xf219847f,
+                0x66e726dc,
+                0xa2710200,
+                0x00000000,
+            ]
+        );
+        let result = validate_bip30_block_hash(91812, @expected_hash);
+        assert_eq!(result, Result::Err("Block hash mismatch for BIP-30 exception at height 91812"));
+    }
 }
