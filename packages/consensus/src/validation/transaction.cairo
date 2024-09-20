@@ -534,8 +534,8 @@ mod tests {
     }
 
     #[test]
-    #[should_panic(expected: 'output is not cached')]
-    fn test_uncached_utxo_spending_attempt() {
+    #[should_panic(expected: 'cached output was not cached')]
+    fn test_missed_cached_utxo() {
         let block_height = 150;
 
         let tx = Transaction {
@@ -573,6 +573,56 @@ mod tests {
         let tx_bytes_legacy = @tx.encode();
         let txid = double_sha256_byte_array(tx_bytes_legacy);
         let mut utxo_set: UtxoSet = Default::default();
+
+        validate_transaction(@tx, block_height, 0, txid, ref utxo_set).unwrap();
+    }
+
+    #[test]
+    #[should_panic(expected: 'non-cached output was cached')]
+    fn test_wrongly_cached_utxo() {
+        let block_height = 150;
+
+        let tx = Transaction {
+            version: 1,
+            is_segwit: false,
+            inputs: array![
+                TxIn {
+                    script: @from_hex(""),
+                    sequence: 0xfffffffe,
+                    previous_output: OutPoint {
+                        txid: hex_to_hash_rev(
+                            "0000000000000000000000000000000000000000000000000000000000000000"
+                        ),
+                        vout: 0,
+                        data: TxOut { value: 100, pk_script: @from_hex(""), cached: false },
+                        block_height: Default::default(),
+                        block_time: Default::default(),
+                        is_coinbase: false,
+                    },
+                    witness: array![].span(),
+                }
+            ]
+                .span(),
+            outputs: array![
+                TxOut {
+                    value: 50,
+                    pk_script: @from_hex("76a914000000000000000000000000000000000000000088ac"),
+                    cached: false,
+                }
+            ]
+                .span(),
+            lock_time: 0
+        };
+
+        let tx_bytes_legacy = @tx.encode();
+        let txid = double_sha256_byte_array(tx_bytes_legacy);
+
+        let mut cache: Felt252Dict<u8> = Default::default();
+        let outpoint_hash = PoseidonTrait::new()
+            .update_with((*tx.inputs[0]).previous_output)
+            .finalize();
+        cache.insert(outpoint_hash, TX_OUTPUT_STATUS_UNSPENT);
+        let mut utxo_set = UtxoSet { cache, ..Default::default() };
 
         validate_transaction(@tx, block_height, 0, txid, ref utxo_set).unwrap();
     }

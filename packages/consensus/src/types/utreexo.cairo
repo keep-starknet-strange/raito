@@ -49,12 +49,16 @@ pub struct UtreexoState {
 
 #[generate_trait]
 pub impl UtreexoStateImpl of UtreexoStateTrait {
-    fn validate_and_apply(
-        ref self: UtreexoState, mut utxo_set: UtxoSet
-    ) -> Result<(), UtreexoError> {
+    fn validate_and_apply(ref self: UtreexoState, mut utxo_set: UtxoSet) -> Result<(), ByteArray> {
+        if utxo_set.num_cached != 0 {
+            return Result::Err("There are unprocessed cached outputs");
+        }
         while let Option::Some(leave) = utxo_set.leaves_to_add.pop_front() {
             self.add(leave);
         };
+        // TODO: delete leaves from utreexo
+        // while let Option::Some(leave) = utxo_set.leaves_to_delete.pop_front() {
+        // };
         Result::Ok(())
     }
 }
