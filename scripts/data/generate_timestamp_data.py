@@ -1,3 +1,7 @@
+import sys
+import json
+
+
 def calculate_median_timestamps(data):
     result = {}
     block_height = data["chain_state"]["block_height"]
@@ -5,9 +9,7 @@ def calculate_median_timestamps(data):
     timestamps = data["chain_state"]["prev_timestamps"]
     results = {}
     for block_number, block in enumerate(blocks, start=block_height):
-
         # maintain the list
-
         prev_timestamp = timestamps[-1]
         median_timestamp = sorted(timestamps)[len(timestamps) // 2]
         results[block_number] = {
@@ -24,7 +26,6 @@ if __name__ == "__main__":
 
     # example useage python3 generate_timestamp_data.py light_20_30.json timestamp_20_30.json
     # light_20_30.json data dump file from the generate data file
-
     if len(sys.argv) != 3:
         raise TypeError("Expected two arguments: input_file_path output_file_path")
     input_file = sys.argv[1]
