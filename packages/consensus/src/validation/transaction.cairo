@@ -138,7 +138,7 @@ mod tests {
     use crate::types::transaction::{Transaction, TxIn, TxOut, OutPoint};
     use crate::types::utxo_set::{UtxoSet, TX_OUTPUT_STATUS_UNSPENT};
     use utils::{hex::{from_hex, hex_to_hash_rev}, double_sha256::double_sha256_byte_array};
-    use super::validate_transaction;
+    use super::{validate_transaction, is_pubscript_unspendable, MAX_SCRIPT_SIZE};
 
     // TODO: tests for coinbase maturity
 
@@ -828,5 +828,25 @@ mod tests {
         let result = validate_transaction(@tx, block_height, 0, txid, ref utxo_set);
         assert!(result.is_err());
         assert_eq!(result.unwrap_err(), "The output has already been spent");
+    }
+
+    #[test]
+    fn test_pubscript_starts_with_op_return() {
+        let op_return_script = from_hex("6a146f6e65207069656365206f6620646174612068657265");
+        assert!(is_pubscript_unspendable(@op_return_script));
+    }
+
+    #[test]
+    fn test_pubscript_within_size_limit() {
+        let normal_script = from_hex("76a91489abcdefabbaabbaabbaabbaabbaabbaabbaabba88ac");
+        assert!(!is_pubscript_unspendable(@normal_script));
+    }
+    #[test]
+    fn test_pubscript_exceeds_max_size() {
+        let mut large_script: ByteArray = Default::default();
+        for _ in 0..(MAX_SCRIPT_SIZE + 1) {
+            large_script.append_byte(0x00);
+        };
+        assert!(is_pubscript_unspendable(@large_script));
     }
 }
