@@ -241,6 +241,7 @@ def format_header(header: dict):
     :param header: block header obtained from RPC
     """
     return {
+        "hash": header["hash"],
         "version": header["version"],
         "time": header["time"],
         "bits": int.from_bytes(bytes.fromhex(header["bits"]), "big"),

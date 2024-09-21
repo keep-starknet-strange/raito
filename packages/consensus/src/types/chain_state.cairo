@@ -76,6 +76,8 @@ pub impl BlockValidatorImpl of BlockValidator {
             }
         };
 
+        block.header.validate_hash(self.best_block_hash, txid_root)?;
+
         let (current_target, epoch_start_time) = adjust_difficulty(
             self.current_target,
             self.epoch_start_time,
@@ -84,7 +86,7 @@ pub impl BlockValidatorImpl of BlockValidator {
             block.header.time
         );
         let total_work = compute_total_work(self.total_work, current_target);
-        let best_block_hash = block.header.hash(self.best_block_hash, txid_root);
+        let best_block_hash = block.header.hash;
 
         validate_proof_of_work(current_target, best_block_hash)?;
         validate_bits(current_target, block.header.bits)?;
