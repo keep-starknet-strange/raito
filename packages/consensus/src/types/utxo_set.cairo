@@ -36,18 +36,17 @@ pub struct UtxoSet {
 pub impl UtxoSetImpl of UtxoSetTrait {
     fn add(ref self: UtxoSet, output: OutPoint) -> Result<(), ByteArray> {
         let hash = PoseidonTrait::new().update_with(output).finalize();
-        if output.data.cached {
-            if self.cache.get(hash) != TX_OUTPUT_STATUS_NONE {
-                return Result::Err("The output has already been added");
+        if self.cache.get(hash) == TX_OUTPUT_STATUS_NONE {
+            if output.data.cached {
+                self.num_cached += 1;
+            } else {
+                self.leaves_to_add.append(hash);
             }
             self.cache.insert(hash, TX_OUTPUT_STATUS_UNSPENT);
-            self.num_cached += 1;
+            Result::Ok(())
         } else {
-            // Note that it's possible to add duplicated non-cached UTXOs,
-            // because we do not check if it has already been added
-            self.leaves_to_add.append(hash);
+            Result::Err("The output has already been added")
         }
-        Result::Ok(())
     }
 
     fn spend(ref self: UtxoSet, output: @OutPoint) -> Result<(), ByteArray> {
@@ -94,6 +93,10 @@ mod tests {
 
         // Test cached duplicates
         let result = utxo_set.add(dummy_outpoint(1, true));
+        assert_eq!(result.unwrap_err(), "The output has already been added");
+
+        // Test non-cached duplicates
+        let result = utxo_set.add(dummy_outpoint(0, false));
         assert_eq!(result.unwrap_err(), "The output has already been added");
     }
 
