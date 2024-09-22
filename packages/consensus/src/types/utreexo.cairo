@@ -75,7 +75,7 @@ pub trait UtreexoAccumulator {
     ) -> Result<(), UtreexoError>;
 }
 
-/// https://eprint.iacr.org/2019/611.pdf page6, Adding and removing elements
+/// https://eprint.iacr.org/2019/611.pdf page 6 - Adding and removing elements.
 fn parent_hash(left: felt252, right: felt252) -> felt252 {
     return PoseidonTrait::new().update_with(left).update_with(right).finalize();
 }
