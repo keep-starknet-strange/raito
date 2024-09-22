@@ -16,8 +16,8 @@ pub const LOG_LEVEL_TRACE: bool = false;
 #[cfg(feature: 'log_level_none')]
 pub const LOG_LEVEL_DEBUG: bool = false;
 
+#[cfg(test)]
 mod tests{
-    use super::{LOG_LEVEL_TRACE, LOG_LEVEL_DEBUG};
     #[test]
     fn test_log_level_debug() {
         log!("DEBUG", "log! works")
