@@ -142,7 +142,6 @@ pub impl UtreexoAccumulatorImpl of UtreexoAccumulator {
         };
 
         roots.append(n);
-
         h += 1;
         while h != self.roots.len() {
             roots.append(*self.roots[h]);
