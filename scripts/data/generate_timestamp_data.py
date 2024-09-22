@@ -6,7 +6,7 @@ GCS_BASE_URL = "https://storage.cloud.google.com/shinigami-consensus/previous_ou
 BASE_DIR = "previous_outputs"
 
 
-def download_and_split(file_name: str):
+def download_timestamp(file_name: str):
     """Download a file from GCS and save it locally."""
     os.makedirs(BASE_DIR, exist_ok=True)
     file_path = os.path.join(BASE_DIR, file_name)
@@ -42,9 +42,8 @@ if __name__ == "__main__":
 
     for i in range(100):
         file_name = f"{i:012}.json"
-        print(f"Downloading {file_name}")
-        download_and_split(file_name)
+        download_timestamp(file_name)
 
     formatted_data = mapped_data(BASE_DIR)
-    with open("formatted_data.json", "w") as outfile:
+    with open("timestamp_data.json", "w") as outfile:
         json.dump(formatted_data, outfile, indent=4)
