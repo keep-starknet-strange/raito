@@ -10,10 +10,11 @@ BASE_DIR = "utxo_data"
 CHUNK_SIZE = 10000
 INDEX_FILE = "utxo_index.json"
 
+
 def download_and_split(file_name: str):
     """Download a file from GCS and split it into chunks."""
     os.makedirs(BASE_DIR, exist_ok=True)
-    file_dir = os.path.join(BASE_DIR, file_name.split('.')[0])
+    file_dir = os.path.join(BASE_DIR, file_name.split(".")[0])
     os.makedirs(file_dir, exist_ok=True)
 
     url = f"{GCS_BASE_URL}{file_name}"
@@ -22,7 +23,7 @@ def download_and_split(file_name: str):
         raise Exception(f"Failed to download {file_name}")
 
     file_path = os.path.join(BASE_DIR, file_name)
-    with open(file_path, 'wb') as f:
+    with open(file_path, "wb") as f:
         f.write(response.content)
 
     # Split file
@@ -31,6 +32,7 @@ def download_and_split(file_name: str):
 
     # Remove original file
     os.remove(file_path)
+
 
 def create_index():
     """Create an index mapping block numbers to chunk files."""
@@ -43,16 +45,17 @@ def create_index():
 
         for chunk_file in os.listdir(dir_path):
             chunk_path = os.path.join(dir_path, chunk_file)
-            with open(chunk_path, 'r') as f:
+            with open(chunk_path, "r") as f:
                 for line in f:
                     data = json.loads(line)
-                    block_number = data['block_number']
+                    block_number = data["block_number"]
                     if block_number in index:
                         raise Exception(f"Duplicate block number {block_number}")
                     index[block_number] = chunk_path
 
-    with open(INDEX_FILE, 'w') as f:
+    with open(INDEX_FILE, "w") as f:
         json.dump(index, f)
+
 
 def get_utxo_set(block_number: int) -> Dict[str, Any]:
     """Get the UTXO set for a given block number."""
@@ -60,7 +63,7 @@ def get_utxo_set(block_number: int) -> Dict[str, Any]:
     if not os.path.exists(INDEX_FILE):
         create_index()
 
-    with open(INDEX_FILE, 'r') as f:
+    with open(INDEX_FILE, "r") as f:
         index = json.load(f)
 
     # Find chunk file
@@ -70,17 +73,18 @@ def get_utxo_set(block_number: int) -> Dict[str, Any]:
 
     # If chunk file doesn't exist, download and split
     if not os.path.exists(chunk_file):
-        file_name = os.path.basename(os.path.dirname(chunk_file)) + '.json'
+        file_name = os.path.basename(os.path.dirname(chunk_file)) + ".json"
         download_and_split(file_name)
 
     # Find and return data for the block
-    with open(chunk_file, 'r') as f:
+    with open(chunk_file, "r") as f:
         for line in f:
             data = json.loads(line)
-            if data['block_number'] == block_number:
+            if data["block_number"] == block_number:
                 return data
 
     raise Exception(f"Block {block_number} not found in chunk file {chunk_file}")
+
 
 # Example usage
 if __name__ == "__main__":
