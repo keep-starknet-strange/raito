@@ -10,9 +10,7 @@
 //! Utreexo accumulator or local cache.
 
 use core::dict::Felt252Dict;
-use core::hash::{HashStateTrait, HashStateExTrait};
-use core::poseidon::PoseidonTrait;
-use super::transaction::OutPoint;
+use super::transaction::{OutPoint, OutPointTrait};
 
 pub const TX_OUTPUT_STATUS_NONE: u8 = 0;
 pub const TX_OUTPUT_STATUS_UNSPENT: u8 = 1;
@@ -34,10 +32,10 @@ pub struct UtxoSet {
 
 #[generate_trait]
 pub impl UtxoSetImpl of UtxoSetTrait {
-    fn add(ref self: UtxoSet, output: OutPoint) -> Result<(), ByteArray> {
-        let hash = PoseidonTrait::new().update_with(output).finalize();
+    fn add(ref self: UtxoSet, outpoint: OutPoint) -> Result<(), ByteArray> {
+        let hash = outpoint.hash();
         if self.cache.get(hash) == TX_OUTPUT_STATUS_NONE {
-            if output.data.cached {
+            if outpoint.data.cached {
                 self.num_cached += 1;
             } else {
                 self.leaves_to_add.append(hash);
@@ -49,19 +47,19 @@ pub impl UtxoSetImpl of UtxoSetTrait {
         }
     }
 
-    fn spend(ref self: UtxoSet, output: @OutPoint) -> Result<(), ByteArray> {
-        let hash = PoseidonTrait::new().update_with(*output).finalize();
+    fn spend(ref self: UtxoSet, outpoint: @OutPoint) -> Result<(), ByteArray> {
+        let hash = outpoint.hash();
         let status = self.cache.get(hash);
         if status == TX_OUTPUT_STATUS_NONE {
             // Extra check that can be removed later.
-            assert(!*output.data.cached, 'cached output was not cached');
+            assert(!*outpoint.data.cached, 'cached output was not cached');
 
             self.cache.insert(hash, TX_OUTPUT_STATUS_SPENT);
             self.leaves_to_delete.append(hash);
             Result::Ok(())
         } else if status == TX_OUTPUT_STATUS_UNSPENT {
             // Extra check that can be removed later.
-            assert(*output.data.cached, 'non-cached output was cached');
+            assert(*outpoint.data.cached, 'non-cached output was cached');
 
             self.cache.insert(hash, TX_OUTPUT_STATUS_SPENT);
             self.num_cached -= 1;
@@ -138,7 +136,8 @@ mod tests {
                 pk_script: @from_hex("76a914000000000000000000000000000000000000000088ac"),
                 cached,
             },
-            block_height: 1234,
+            block_hash: Default::default(),
+            block_height: Default::default(),
             block_time: Default::default(),
             is_coinbase: false,
         }

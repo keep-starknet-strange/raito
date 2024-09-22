@@ -69,7 +69,7 @@ pub impl BlockValidatorImpl of BlockValidator {
             TransactionData::MerkleRoot(root) => root,
             TransactionData::Transactions(txs) => {
                 let (total_fees, txid_root, wtxid_root) = compute_and_validate_tx_data(
-                    txs, block_height, block.header.time, ref utxo_set
+                    txs, block.header.hash, block_height, block.header.time, ref utxo_set
                 )?;
                 validate_coinbase(txs[0], total_fees, block_height, wtxid_root)?;
                 txid_root

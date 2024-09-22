@@ -132,6 +132,8 @@ mod tests {
                 ),
                 vout: 0,
                 data: TxOut { value: 100, ..Default::default() },
+                block_hash: 0x000000007bc154e0fa7ea32218a72fe2c1bb9f86cf8c9ebf9a715ed27fdb229a_u256
+                    .into(),
                 block_height: 100,
                 block_time: 1600000000,
                 is_coinbase: false,
@@ -155,6 +157,8 @@ mod tests {
                 ),
                 vout: 0,
                 data: TxOut { value: 188442, ..Default::default() },
+                block_hash: 0x00000000000000000006440de711734db5ed23115a2689539f99376c0385f8a6_u256
+                    .into(),
                 block_height: 603018,
                 block_time: 1573324462,
                 is_coinbase: false,
@@ -178,6 +182,8 @@ mod tests {
                 ),
                 vout: 0,
                 data: TxOut { value: 13671, ..Default::default() },
+                block_hash: 0x0000000000000000000e0c3650a889c4831a957f2fefc3d5f74f4faba7db7565_u256
+                    .into(),
                 block_height: 603434,
                 block_time: 1573549241,
                 is_coinbase: false,
@@ -198,6 +204,8 @@ mod tests {
                 ),
                 vout: 0,
                 data: TxOut { value: 188442, ..Default::default() },
+                block_hash: 0x00000000000000000006440de711734db5ed23115a2689539f99376c0385f8a6_u256
+                    .into(),
                 block_height: 603018, // Initial block height
                 block_time: 1573324462,
                 is_coinbase: false,
@@ -226,6 +234,8 @@ mod tests {
                 ),
                 vout: 0,
                 data: TxOut { value: 13671, ..Default::default() },
+                block_hash: 0x0000000000000000000e0c3650a889c4831a957f2fefc3d5f74f4faba7db7565_u256
+                    .into(),
                 block_height: 603434,
                 block_time: 1573549241, // Initial block time
                 is_coinbase: false,
@@ -253,6 +263,8 @@ mod tests {
                 ),
                 vout: 0,
                 data: TxOut { value: 100, ..Default::default() },
+                block_hash: 0x000000007bc154e0fa7ea32218a72fe2c1bb9f86cf8c9ebf9a715ed27fdb229a_u256
+                    .into(),
                 block_height: 100, // Previous block height
                 block_time: 1600000000, // Previous block time
                 is_coinbase: false,
