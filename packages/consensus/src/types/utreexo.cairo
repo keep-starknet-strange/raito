@@ -55,33 +55,34 @@ pub trait UtreexoAccumulator {
     /// This mechanism ensures that short-lived outputs have small inclusion proofs.
     fn add(ref self: UtreexoState, outpoint_hash: felt252);
 
-    /// Verifies inclusion proof for a single output.
-    fn verify(
-        self: @UtreexoState, outpoint_hash: felt252, proof: @UtreexoProof
-    ) -> Result<(), UtreexoError>;
-
     /// Removes single output from the accumlator (order is important).
     ///
     /// Note that once verified, the output itself is not required for deletion,
     /// the leaf index plus inclusion proof is enough.
     fn delete(ref self: UtreexoState, proof: @UtreexoProof);
 
+    /// Removes multiple outputs from the accumulator.
+    fn delete_batch(ref self: UtreexoState, proof: @UtreexoBatchProof);
+
+    /// Verifies inclusion proof for a single output.
+    fn verify(
+        self: @UtreexoState, outpoint_hash: felt252, proof: @UtreexoProof
+    ) -> Result<(), UtreexoError>;
+
     /// Verifies batch proof for multiple outputs (e.g. all outputs in a block).
     fn verify_batch(
         self: @UtreexoState, outputs: Span<OutPoint>, proof: @UtreexoBatchProof
     ) -> Result<(), UtreexoError>;
-
-    /// Removes multiple outputs from the accumulator.
-    fn delete_batch(ref self: UtreexoState, proof: @UtreexoBatchProof);
 }
 
-// https://eprint.iacr.org/2019/611.pdf page6, Adding and removing elements
+/// https://eprint.iacr.org/2019/611.pdf page6, Adding and removing elements
 fn parent_hash(left: felt252, right: felt252) -> felt252 {
     return PoseidonTrait::new().update_with(left).update_with(right).finalize();
 }
 
 pub impl UtreexoAccumulatorImpl of UtreexoAccumulator {
-    // https://eprint.iacr.org/2019/611.pdf Algorithm 1 AddOne
+    /// Adds an output from the accumulator.
+    /// https://eprint.iacr.org/2019/611.pdf Algorithm 1 AddOne
     fn add(ref self: UtreexoState, outpoint_hash: felt252) {
         let mut new_roots: Array<Option<felt252>> = Default::default();
         let mut n: felt252 = outpoint_hash;
@@ -102,7 +103,7 @@ pub impl UtreexoAccumulatorImpl of UtreexoAccumulator {
                 }
             };
 
-        //check if end with Option::None
+        // Checks if end with Option::None
         if (new_roots[new_roots.len() - 1].is_some()) {
             new_roots.append(Option::None);
         }
@@ -110,6 +111,38 @@ pub impl UtreexoAccumulatorImpl of UtreexoAccumulator {
         self.roots = new_roots.span();
         self.num_leaves += 1_u64;
     }
+
+    /// Removes an output from the accumulator.
+    /// https://eprint.iacr.org/2019/611.pdf Algorithm 2 DeleteOne
+    fn delete(ref self: UtreexoState, proof: @UtreexoProof) {
+        let mut roots: Array<Option<felt252>> = array![];
+        let mut n: Option<felt252> = Option::None;
+        let mut h: usize = 0;
+
+        while h < (*proof.proof).len() {
+            let p = proof.proof[h];
+
+            if n != Option::None {
+                n = Option::Some(parent_hash(*p, n.unwrap()));
+                roots.append(Option::None);
+            } else if *self.roots[h] == Option::None {
+                roots.append(Option::Some(*p));
+            } else {
+                n = Option::Some(parent_hash(*p, (*self.roots[h]).unwrap()));
+                roots.append(Option::None);
+            }
+
+            h += 1;
+        };
+
+        roots.append(n);
+
+        self.roots = roots.span();
+        self.num_leaves -= 1;
+    }
+
+    /// Removes multiple outputs from the accumulator.
+    fn delete_batch(ref self: UtreexoState, proof: @UtreexoBatchProof) {}
 
     /// Verifies inclusion proof for a single output.
     fn verify(
@@ -135,15 +168,12 @@ pub impl UtreexoAccumulatorImpl of UtreexoAccumulator {
         }
     }
 
-    fn delete(ref self: UtreexoState, proof: @UtreexoProof) {}
-
+    /// Verifies inclusion proof for multiple outputs.
     fn verify_batch(
         self: @UtreexoState, outputs: Span<OutPoint>, proof: @UtreexoBatchProof
     ) -> Result<(), UtreexoError> {
         Result::Ok(())
     }
-    /// Removes multiple outputs from the accumulator.
-    fn delete_batch(ref self: UtreexoState, proof: @UtreexoBatchProof) {}
 }
 
 /// Computes the root given a leaf, its index, and a proof.
@@ -162,7 +192,7 @@ fn compute_root(proof: Span<felt252>, mut leaf_index: u64, mut curr_node: felt25
         curr_node = parent_hash(left, right);
         leaf_index = next_left_index;
     };
-    // Return the computed root (or the node itself if the proof is empty)
+    // Returns the computed root (or the node itself if the proof is empty).
     curr_node
 }
 
