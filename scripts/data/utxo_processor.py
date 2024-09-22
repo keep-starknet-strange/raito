@@ -46,15 +46,26 @@ def create_index():
         for chunk_file in os.listdir(dir_path):
             chunk_path = os.path.join(dir_path, chunk_file)
             with open(chunk_path, "r") as f:
-                for line in f:
-                    data = json.loads(line)
-                    block_number = data["block_number"]
-                    if block_number in index:
-                        raise Exception(f"Duplicate block number {block_number}")
-                    index[block_number] = chunk_path
+                for line_num, line in enumerate(f, 1):
+                    try:
+                        data = json.loads(line.strip())
+                        block_number = data["block_number"]
+                        if block_number in index:
+                            print(f"Warning: Duplicate block number {block_number}")
+                        index[block_number] = chunk_path
+                    except json.JSONDecodeError as e:
+                        print(
+                            f"Error decoding JSON in file {chunk_path}, line {line_num}: {e}"
+                        )
+                        print(f"Problematic line: {line.strip()}")
+                    except KeyError as e:
+                        print(f"KeyError in file {chunk_path}, line {line_num}: {e}")
+                        print(f"Data: {data}")
 
     with open(INDEX_FILE, "w") as f:
         json.dump(index, f)
+
+    print(f"Index created with {len(index)} entries")
 
 
 def get_utxo_set(block_number: int) -> Dict[str, Any]:
@@ -79,7 +90,7 @@ def get_utxo_set(block_number: int) -> Dict[str, Any]:
     # Find and return data for the block
     with open(chunk_file, "r") as f:
         for line in f:
-            data = json.loads(line)
+            data = json.loads(line.strip())
             if data["block_number"] == block_number:
                 return data
 
