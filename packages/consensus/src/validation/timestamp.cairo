@@ -43,18 +43,6 @@ pub fn validate_timestamp(prev_timestamps: Span<u32>, block_time: u32) -> Result
     }
 }
 
-#[cfg(feature: 'log_level_debug')]
-fn macro_test() {
-    let txid = 1000;
-    log!("DEBUG", "validating tx: {}", txid);
-}
-
-#[cfg(feature: 'log_level_trace', feature: 'log_level_debug')]
-fn log(log_level: ByteArray, format_array: ByteArray,) {
-    let txid = 1000;
-    log!("DEBUG", "validating tx: {}", txid);
-}
-
 /// Update the list of the recent timestamps, removing the oldest and appending the most recent one.
 pub fn next_prev_timestamps(prev_timestamps: Span<u32>, block_time: u32) -> Span<u32> {
     let mut timestamps: Array<u32> = prev_timestamps.into();

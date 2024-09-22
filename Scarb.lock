@@ -12,9 +12,13 @@ dependencies = [
 name = "consensus"
 version = "0.1.0"
 dependencies = [
- "raito_macros",
+ "raito_logging",
  "utils",
 ]
+
+[[package]]
+name = "raito_logging"
+version = "0.1.0"
 
 [[package]]
 name = "raito_macros"

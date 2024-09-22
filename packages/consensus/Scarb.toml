@@ -5,7 +5,7 @@ edition = "2024_07"
 
 [dependencies]
 utils = { path = "../utils" }
-raito_macros = { path = "../macros" }
+raito_logging = { path = "../logging" }
 
 [dev-dependencies]
 cairo_test.workspace = true
