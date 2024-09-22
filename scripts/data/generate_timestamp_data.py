@@ -44,7 +44,7 @@ if __name__ == "__main__":
         file_name = f"{i:012}.json"
         print(f"Downloading {file_name}")
         download_and_split(file_name)
-        
+
     formatted_data = mapped_data(BASE_DIR)
     with open("formatted_data.json", "w") as outfile:
         json.dump(formatted_data, outfile, indent=4)
