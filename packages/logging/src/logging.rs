@@ -30,14 +30,18 @@ pub fn log(token_stream: TokenStream) -> ProcMacroResult {
 
     // Extract remaining arguments
     let log_args: Vec<String> = args
-        .filter_map(|node| {
+        .map(|node| {
             if matches!(node.kind(&db), SyntaxKind::Arg) {
-                Some(node.get_text(&db))
+                Ok(node.get_text(&db))
             } else {
-                return create_error_result("Invalid log argument");
+                Err(())
             }
         })
-        .collect();
+        .collect::<Result<Vec<String>, ()>>()
+        .unwrap_or_else(|_| {
+            create_error_result("Invalid log argument");
+            Vec::new()
+        });
 
     // Generate the log statement
     let log_statement = generate_log_statement(&level, &format_string, &log_args);

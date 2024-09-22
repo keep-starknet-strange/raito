@@ -17,7 +17,7 @@ pub const LOG_LEVEL_TRACE: bool = false;
 pub const LOG_LEVEL_DEBUG: bool = false;
 
 #[cfg(test)]
-mod tests{
+mod tests {
     #[test]
     fn test_log_level_debug() {
         log!("DEBUG", "log! works")
