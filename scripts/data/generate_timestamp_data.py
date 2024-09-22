@@ -1,37 +1,50 @@
-import sys
 import json
+import os
+import requests
+
+GCS_BASE_URL = "https://storage.cloud.google.com/shinigami-consensus/previous_outputs/"
+BASE_DIR = "previous_outputs"
 
 
-def calculate_median_timestamps(data):
-    result = {}
-    block_height = data["chain_state"]["block_height"]
-    blocks = data["blocks"]
-    timestamps = data["chain_state"]["prev_timestamps"]
-    results = {}
-    for block_number, block in enumerate(blocks, start=block_height):
-        # maintain the list
-        prev_timestamp = timestamps[-1]
-        median_timestamp = sorted(timestamps)[len(timestamps) // 2]
-        results[block_number] = {
-            "prev_timestamp": prev_timestamp,
-            "median_timestamp": median_timestamp,
-        }
-        timestamps.pop(0)
-        timestamps.append(block["header"]["time"])
+def download_and_split(file_name: str):
+    """Download a file from GCS and save it locally."""
+    os.makedirs(BASE_DIR, exist_ok=True)
+    file_path = os.path.join(BASE_DIR, file_name)
+    if os.path.exists(file_path):
+        print(f"{file_name} already exists, skipping download.")
+        return
 
-    return results
+    url = f"{GCS_BASE_URL}{file_name}"
+    response = requests.get(url)
+    if response.status_code != 200:
+        raise Exception(f"Failed to download {file_name}")
+
+    with open(file_path, "wb") as f:
+        f.write(response.content)
+
+
+def mapped_data(folder_path):
+    formatted_data = {}
+    for filename in os.listdir(folder_path):
+        if filename.endswith(".json"):
+            with open(os.path.join(folder_path, filename), "r") as file:
+                data = [json.loads(line.rstrip()) for line in file]
+                for entry in data:
+                    block_number = entry["block_number"]
+                    formatted_data[block_number] = {
+                        "previous_timestamps": entry["previous_timestamps"],
+                        "median_timestamp": entry["median_timestamp"],
+                    }
+    return formatted_data
 
 
 if __name__ == "__main__":
 
-    # example useage python3 generate_timestamp_data.py light_20_30.json timestamp_20_30.json
-    # light_20_30.json data dump file from the generate data file
-    if len(sys.argv) != 3:
-        raise TypeError("Expected two arguments: input_file_path output_file_path")
-    input_file = sys.argv[1]
-    output_file = sys.argv[2]
-    with open(input_file, "r") as file:
-        data = json.load(file)
-    results = calculate_median_timestamps(data)
-    with open(output_file, "w") as file:
-        json.dump(results, file, indent=2)
+    for i in range(100):
+        file_name = f"{i:012}.json"
+        print(f"Downloading {file_name}")
+        download_and_split(file_name)
+        
+    formatted_data = mapped_data(BASE_DIR)
+    with open("formatted_data.json", "w") as outfile:
+        json.dump(formatted_data, outfile, indent=4)
