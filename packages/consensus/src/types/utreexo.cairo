@@ -143,6 +143,7 @@ pub impl UtreexoAccumulatorImpl of UtreexoAccumulator {
 
         roots.append(n);
 
+        h += 1;
         while h != self.roots.len() {
             roots.append(*self.roots[h]);
             h += 1;
@@ -552,5 +553,40 @@ mod tests {
         ].span();
         assert_eq!(utxo_set.utreexo_state.roots, expected, "cannot add 22 leaves");
         assert_eq!(utxo_set.utreexo_state.num_leaves, 30);
+    }
+
+    #[test]
+    fn test_utreexo_delete() {
+        let mut utxo_set: UtxoSet = UtxoSetTrait::new(Default::default());
+        let outpoint: felt252 = 0x291F8F5FC449D42C715B529E542F24A80136D18F4A85DE28829CD3DCAAC1B9C;
+
+        // adds 2 leaves to empty utreexo
+        utxo_set.leaves_to_add = array![outpoint, outpoint];
+        utxo_set.utreexo_add();
+
+        let expected: Span<Option<felt252>> = array![
+            Option::None,
+            Option::Some(0x738A7C495E564574993BBCB6A62D65C3C570BB81C63801066AF8934649F66F6),
+            Option::None
+        ]
+            .span();
+        assert_eq!(utxo_set.utreexo_state.roots, expected, "cannot add second leave");
+        assert_eq!(utxo_set.utreexo_state.num_leaves, 2);
+
+        let proof: UtreexoProof = UtreexoProof {
+            leaf_index: 0,
+            proof: array![0x291F8F5FC449D42C715B529E542F24A80136D18F4A85DE28829CD3DCAAC1B9C].span()
+        };
+
+        utxo_set.utreexo_state.delete(@proof);
+
+        let expected: Span<Option<felt252>> = array![
+            Option::Some(0x291F8F5FC449D42C715B529E542F24A80136D18F4A85DE28829CD3DCAAC1B9C),
+            Option::None,
+            Option::None,
+        ]
+            .span();
+        assert_eq!(utxo_set.utreexo_state.roots, expected, "cannot remove leave");
+        assert_eq!(utxo_set.utreexo_state.num_leaves, 1);
     }
 }
