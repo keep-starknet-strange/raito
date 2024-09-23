@@ -81,7 +81,7 @@ def next_chain_state(head: dict, blocks: list):
     prev_timestamps = head["prev_timestamps"] + list(map(lambda x: x["time"], blocks))
     next_head["prev_timestamps"] = prev_timestamps[-11:]
 
-    # Update epoch start time if neccesary
+    # Update epoch start time if necessary
     if head["height"] // 2016 != block_height // 2016:
         next_head["epoch_start_time"] = get_epoch_start_time(block_height)
     else:
