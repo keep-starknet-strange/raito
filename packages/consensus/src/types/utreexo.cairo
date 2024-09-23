@@ -60,7 +60,7 @@ pub trait UtreexoAccumulator {
         self: @UtreexoState, outpoint_hash: felt252, proof: @UtreexoProof
     ) -> Result<(), UtreexoError>;
 
-    /// Removes single output from the accumlator (order is important).
+    /// Removes single output from the accumulator (order is important).
     ///
     /// Note that once verified, the output itself is not required for deletion,
     /// the leaf index plus inclusion proof is enough.
