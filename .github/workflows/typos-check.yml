@@ -1,5 +1,11 @@
 name: Typos Check
-on: [pull_request]
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+  pull_request:
+permissions: read-all
 
 jobs:
   run:
