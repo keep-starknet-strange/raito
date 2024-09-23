@@ -2,7 +2,7 @@ use consensus::types::block::Block;
 use consensus::types::state::State;
 use consensus::types::chain_state::BlockValidator;
 use consensus::types::utreexo::UtreexoStateTrait;
-use consensus::types::utxo_set::UtxoSet;
+use consensus::types::utxo_set::{UtxoSet, UtxoSetTrait};
 
 /// Raito program arguments.
 #[derive(Serde)]
@@ -34,7 +34,10 @@ fn main(mut arguments: Span<felt252>) -> State {
     };
 
     // Validate and apply UTXO updates
-    state.utreexo_state.validate_and_apply(utxo_set).expect('Utreexo validation failed');
+    state.utreexo_state.validate_and_apply(ref utxo_set).expect('Utreexo validation failed');
+
+    // Ensure all UTXOs have been processed
+    utxo_set.finalize().expect('UtxoSet finalization failed');
 
     state
 }

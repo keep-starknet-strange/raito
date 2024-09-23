@@ -68,6 +68,20 @@ pub impl UtxoSetImpl of UtxoSetTrait {
             Result::Err("The output has already been spent")
         }
     }
+
+    fn finalize(ref self: UtxoSet) -> Result<(), ByteArray> {
+        if self.num_cached != 0 {
+            Result::Err("There are unprocessed cached outputs")
+        } // TODO: uncomment when utreexo is enabled
+        // else if self.leaves_to_add.len() != 0 {
+        //     Result::Err("There are unprocessed leaves to add")
+        // } else if self.leaves_to_delete.len() != 0 {
+        //     Result::Err("There are unprocessed leaves to delete")
+        // }
+        else {
+            Result::Ok(())
+        }
+    }
 }
 
 #[cfg(test)]

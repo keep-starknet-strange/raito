@@ -1,8 +1,7 @@
 use consensus::types::block::Block;
 use consensus::types::chain_state::{ChainState, BlockValidatorImpl};
 use consensus::types::state::{State};
-use consensus::types::utreexo::UtreexoStateTrait;
-use consensus::types::utxo_set::UtxoSet;
+use consensus::types::utxo_set::{UtxoSet, UtxoSetTrait};
 use core::testing::get_available_gas;
 
 /// Integration testing program arguments.
@@ -61,27 +60,33 @@ fn test(mut arguments: Span<felt252>) {
         panic!();
     }
 
-    gas_before = get_available_gas();
-
-    match state.utreexo_state.validate_and_apply(utxo_set) {
-        Result::Ok(()) => {
-            let gas_after = get_available_gas();
-            println!("OK: gas_spent={}", gas_before - gas_after);
-        },
-        Result::Err(err) => {
-            let gas_after = get_available_gas();
-            println!("FAIL: gas_spent={} error='{:?}'", gas_before - gas_after, err);
-            panic!();
-        }
-    }
     // TODO: provide the expected utreexo state via args and compare it with the actual one
-//
-// if state.utreexo_state != expected_utreexo_state {
-//     println!(
-//         "FAIL: error='expected utreexo state {:?}, actual {:?}'",
-//         expected_utreexo_state,
-//         state.utreexo_state
-//     );
-//     panic!();
-// }
+    //
+    // gas_before = get_available_gas();
+    //
+    // match state.utreexo_state.validate_and_apply(ref utxo_set) {
+    //     Result::Ok(()) => {
+    //         let gas_after = get_available_gas();
+    //         println!("OK: gas_spent={}", gas_before - gas_after);
+    //     },
+    //     Result::Err(err) => {
+    //         let gas_after = get_available_gas();
+    //         println!("FAIL: gas_spent={} error='{:?}'", gas_before - gas_after, err);
+    //         panic!();
+    //     }
+    // }
+    //
+    // if state.utreexo_state != expected_utreexo_state {
+    //     println!(
+    //         "FAIL: error='expected utreexo state {:?}, actual {:?}'",
+    //         expected_utreexo_state,
+    //         state.utreexo_state
+    //     );
+    //     panic!();
+    // }
+
+    if let Result::Err(err) = utxo_set.finalize() {
+        println!("FAIL: error='{}'", err);
+        panic!();
+    }
 }
