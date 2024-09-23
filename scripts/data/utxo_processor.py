@@ -114,7 +114,7 @@ def process_file_range(start_file: str, end_file: str):
     print("Index creation completed.")
 
 
-# Example usage
+# usage
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Process UTXO files.")
     parser.add_argument(
