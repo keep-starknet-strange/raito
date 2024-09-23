@@ -131,6 +131,7 @@ mod tests {
     use super::{Header, BlockHash};
     use crate::types::chain_state::ChainState;
     use utils::hash::Digest;
+    use utils::hex::hex_to_hash_rev;
 
     #[test]
     fn test_block_hash() {
@@ -141,7 +142,9 @@ mod tests {
             .into();
         // block 170
         let header = Header {
-            hash: 0x00000000d1145790a8694403d4063f323d499e655c83426834d4ce2f8dd4a2ee_u256.into(),
+            hash: hex_to_hash_rev(
+                "00000000d1145790a8694403d4063f323d499e655c83426834d4ce2f8dd4a2ee"
+            ),
             version: 1_u32,
             time: 1231731025_u32,
             bits: 0x1d00ffff_u32,
@@ -164,7 +167,9 @@ mod tests {
             .into();
         // block 170
         let header = Header {
-            hash: 0x00000000d1145790a8694403d4063f323d499e655c83426834d4ce2f8dd4a2ee_u256.into(),
+            hash: hex_to_hash_rev(
+                "00000000d1145790a8694403d4063f323d499e655c83426834d4ce2f8dd4a2ee"
+            ),
             version: 1_u32,
             time: 1231731025_u32,
             bits: 0x1d00ffff_u32,
@@ -187,7 +192,9 @@ mod tests {
             .into();
         // block 170
         let header = Header {
-            hash: 0x00000000d1145790a8694403d4063f323d499e655c83426834d4ce2f8dd4a2ee_u256.into(),
+            hash: hex_to_hash_rev(
+                "00000000d1145790a8694403d4063f323d499e655c83426834d4ce2f8dd4a2ee"
+            ),
             version: 1_u32,
             time: 1231731025_u32,
             bits: 0x1d00ffff_u32,
