@@ -37,8 +37,13 @@ def download_and_split(file_name: str):
 
 
 def create_index():
-    """Create an index mapping block numbers to chunk files."""
+    """Create or update an index mapping block numbers to chunk files."""
     index: Dict[int, str] = {}
+
+    # Load existing index if it exists
+    if os.path.exists(INDEX_FILE):
+        with open(INDEX_FILE, "r") as f:
+            index = json.load(f)
 
     for dir_name in os.listdir(BASE_DIR):
         dir_path = os.path.join(BASE_DIR, dir_name)
@@ -67,7 +72,7 @@ def create_index():
     with open(INDEX_FILE, "w") as f:
         json.dump(index, f)
 
-    print(f"Index created with {len(index)} entries")
+    print(f"Index created or updated with {len(index)} entries")
 
 
 def get_utxo_set(block_number: int) -> Dict[str, Any]:
