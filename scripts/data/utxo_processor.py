@@ -3,6 +3,8 @@ import json
 import requests
 import subprocess
 from typing import Dict, Any
+import argparse
+from tqdm import tqdm
 
 # Constants
 GCS_BASE_URL = "https://storage.cloud.google.com/shinigami-consensus/utxos/"
@@ -97,15 +99,39 @@ def get_utxo_set(block_number: int) -> Dict[str, Any]:
     raise Exception(f"Block {block_number} not found in chunk file {chunk_file}")
 
 
+def process_file_range(start_file: str, end_file: str):
+    """Process a range of files from start_file to end_file."""
+    start_num = int(start_file.split(".")[0])
+    end_num = int(end_file.split(".")[0])
+
+    for file_num in tqdm(range(start_num, end_num + 1), desc="Processing files"):
+        file_name = f"{file_num:012d}.json"
+        print(f"\nProcessing file: {file_name}")
+        download_and_split(file_name)
+
+    print("\nCreating index...")
+    create_index()
+    print("Index creation completed.")
+
+
 # Example usage
 if __name__ == "__main__":
-    # Download and split a couple of files
-    download_and_split("000000000000.json")
-    download_and_split("000000000001.json")
+    parser = argparse.ArgumentParser(description="Process UTXO files.")
+    parser.add_argument(
+        "--from",
+        dest="start_file",
+        required=True,
+        help="Starting file number (e.g., 000000000001)",
+    )
+    parser.add_argument(
+        "--to",
+        dest="end_file",
+        required=True,
+        help="Ending file number (e.g., 000000000050)",
+    )
 
-    # Create index
-    create_index()
+    args = parser.parse_args()
 
-    # Get UTXO set for a specific block
-    utxo_set = get_utxo_set(100000)
-    print(json.dumps(utxo_set, indent=2))
+    process_file_range(args.start_file, args.end_file)
+
+    print("All files processed successfully.")
