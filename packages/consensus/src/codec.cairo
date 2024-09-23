@@ -414,8 +414,9 @@ mod tests {
                             ),
                             cached: false,
                         },
-                        block_hash: 0x000000000000000931112ca80c5badf6047373b1bb53587fc23344871734bbff_u256
-                            .into(),
+                        block_hash: hex_to_hash_rev(
+                            "000000000000000931112ca80c5badf6047373b1bb53587fc23344871734bbff"
+                        ),
                         block_height: 149994_u32,
                         block_time: 1319114701_u32,
                         is_coinbase: true,
