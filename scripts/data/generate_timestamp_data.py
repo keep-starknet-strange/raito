@@ -1,9 +1,13 @@
 import json
 import os
 import requests
+from google.cloud import storage
+
 
 GCS_BASE_URL = "https://storage.cloud.google.com/shinigami-consensus/previous_outputs/"
 BASE_DIR = "previous_outputs"
+bucket_name = "shinigami-consensus"
+folder_prefix = "previous_outputs/"
 
 
 def download_timestamp(file_name: str):
@@ -23,27 +27,37 @@ def download_timestamp(file_name: str):
         f.write(response.content)
 
 
-def mapped_data(folder_path):
-    formatted_data = {}
+def create_index(folder_path):
+    index = {}
     for filename in os.listdir(folder_path):
         if filename.endswith(".json"):
             with open(os.path.join(folder_path, filename), "r") as file:
                 data = [json.loads(line.rstrip()) for line in file]
                 for entry in data:
                     block_number = entry["block_number"]
-                    formatted_data[block_number] = {
+                    index[block_number] = {
                         "previous_timestamps": entry["previous_timestamps"],
                         "median_timestamp": entry["median_timestamp"],
                     }
-    return formatted_data
+    return index
+
+
+def list_files_in_gcs(bucket_name: str, prefix: str):
+    """List all files in a GCS bucket under a specific folder (prefix)."""
+    client = storage.Client()
+    bucket = client.get_bucket(bucket_name)
+    blobs = bucket.list_blobs(prefix=prefix)
+    return [blob.name for blob in blobs if blob.name.endswith(".json")]
 
 
 if __name__ == "__main__":
 
-    for i in range(100):
-        file_name = f"{i:012}.json"
+    bucket_name = "shinigami-consensus"
+    folder_prefix = "previous_outputs/"
+    file_names = list_files_in_gcs(bucket_name, folder_prefix)
+    for file_name in file_names:
         download_timestamp(file_name)
 
-    formatted_data = mapped_data(BASE_DIR)
+    index = create_index(BASE_DIR)
     with open("timestamp_data.json", "w") as outfile:
-        json.dump(formatted_data, outfile, indent=4)
+        json.dump(index, outfile, indent=4)
