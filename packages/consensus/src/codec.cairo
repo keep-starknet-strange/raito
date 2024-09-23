@@ -113,7 +113,7 @@ pub impl TransactionCodecImpl of TransactionCodec {
 }
 
 /// Variable size codec.
-/// Converts lenght value into Compact Size bytes and appends to the buffer.
+/// Converts length value into Compact Size bytes and appends to the buffer.
 ///
 /// https://learnmeabitcoin.com/technical/general/compact-size/
 pub fn encode_compact_size(len: usize, ref dest: ByteArray) {
