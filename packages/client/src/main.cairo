@@ -1,7 +1,8 @@
 use consensus::types::block::Block;
 use consensus::types::state::State;
 use consensus::types::chain_state::BlockValidator;
-use consensus::types::utxo_set::UtxoSet;
+use consensus::types::utreexo::UtreexoStateTrait;
+use consensus::types::utxo_set::{UtxoSet, UtxoSetTrait};
 
 /// Raito program arguments.
 #[derive(Serde)]
@@ -21,20 +22,22 @@ fn main(mut arguments: Span<felt252>) -> State {
     let Args { mut state, blocks, } = Serde::deserialize(ref arguments)
         .expect('Failed to deserialize');
 
-    let mut utxo_set = UtxoSet {
-        utreexo_state: state.utreexo_state,
-        leaves_to_add: Default::default(),
-        cache: Default::default(),
-    };
+    let mut utxo_set: UtxoSet = Default::default();
 
+    // Validate and apply block, accumulating UTXO updates in utxo_set
     for block in blocks {
         state
             .chain_state = state
             .chain_state
             .validate_and_apply(block, ref utxo_set)
-            .expect('Validation failed');
+            .expect('Block validation failed');
     };
 
-    state.utreexo_state = utxo_set.utreexo_state;
+    // Validate and apply UTXO updates
+    state.utreexo_state.validate_and_apply(ref utxo_set).expect('Utreexo validation failed');
+
+    // Ensure all UTXOs have been processed
+    utxo_set.finalize().expect('UtxoSet finalization failed');
+
     state
 }

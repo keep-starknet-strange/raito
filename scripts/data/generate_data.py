@@ -167,6 +167,7 @@ def resolve_outpoint(input: dict):
         "txid": input["txid"],
         "vout": input["vout"],
         "data": format_output(tx["vout"][input["vout"]]),
+        "block_hash": block["hash"],
         "block_height": block["height"],
         "block_time": block["time"],
         "is_coinbase": tx["vin"][0].get("coinbase") is not None,
@@ -186,6 +187,7 @@ def format_coinbase_input(input: dict):
                 "pk_script": "0x",
                 "cached": False,
             },
+            "block_hash": "0" * 64,
             "block_height": 0,
             "block_time": 0,
             "is_coinbase": False,
@@ -241,6 +243,7 @@ def format_header(header: dict):
     :param header: block header obtained from RPC
     """
     return {
+        "hash": header["hash"],
         "version": header["version"],
         "time": header["time"],
         "bits": int.from_bytes(bytes.fromhex(header["bits"]), "big"),
