@@ -56,6 +56,9 @@ def list_files_in_gcs(bucket_name: str, prefix: str):
     blobs = bucket.list_blobs(prefix=prefix)
     return [os.path.basename(blob.name) for blob in blobs if blob.name.endswith(".json")]
 
+def index_file_name(key):
+    return f"{BASE_DIR}/timestamp_index_{key}.json"
+
 def partition_and_dump(index, partition):
     """Partition the index and dump each partition to a separate file."""
     
@@ -65,7 +68,7 @@ def partition_and_dump(index, partition):
         partitions[group][key] = value
 
     for key, partition in tqdm(partitions.items(), "Saving partitions"):
-        with open(f"{BASE_DIR}/timestamp_index_{key}.json", "w") as f:
+        with open(index_file_name(key), "w") as f:
             json.dump(partition, f)
 
 @lru_cache(maxsize=None)
@@ -78,7 +81,7 @@ def load_index(file_name):
 
 def get_timestamp_data(block_number):
     """Get the timestamp data for a given block number."""
-    file_name = f"{BASE_DIR}/timestamp_index_{int(block_number) // INDEX_SIZE}.json"
+    file_name = index_file_name(int(block_number) // INDEX_SIZE)
     index = load_index(file_name)
     median, previous_timestamps = index[block_number]
     return median, previous_timestamps
