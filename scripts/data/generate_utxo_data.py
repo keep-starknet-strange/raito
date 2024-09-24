@@ -1,4 +1,7 @@
+#!/usr/bin/env python
+
 import os
+import sys
 import json
 import requests
 import subprocess
@@ -7,11 +10,10 @@ import argparse
 from tqdm import tqdm
 
 # Constants
-GCS_BASE_URL = "https://storage.cloud.google.com/shinigami-consensus/utxos/"
+GCS_BASE_URL = "https://storage.googleapis.com/shinigami-consensus/utxos/"
 BASE_DIR = "utxo_data"
-CHUNK_SIZE = 10000
+CHUNK_SIZE = 100
 INDEX_FILE = "utxo_index.json"
-
 
 def download_and_split(file_name: str):
     """Download a file from GCS and split it into chunks."""
@@ -23,6 +25,9 @@ def download_and_split(file_name: str):
     response = requests.get(url)
     if response.status_code != 200:
         raise Exception(f"Failed to download {file_name}")
+
+    if response.headers.get('Content-Encoding') == 'gzip':
+        print("Content is GZIP encoded")
 
     file_path = os.path.join(BASE_DIR, file_name)
     with open(file_path, "wb") as f:
@@ -58,16 +63,19 @@ def create_index():
                         data = json.loads(line.strip())
                         block_number = data["block_number"]
                         if block_number in index:
-                            print(f"Warning: Duplicate block number {block_number}")
-                        index[block_number] = chunk_path
+                            print(f"Error: Duplicate block number {block_number}")
+                            sys.exit(1)                            
+                        index[block_number] = os.path.relpath(chunk_path, BASE_DIR)
                     except json.JSONDecodeError as e:
                         print(
                             f"Error decoding JSON in file {chunk_path}, line {line_num}: {e}"
                         )
-                        print(f"Problematic line: {line.strip()}")
+                        print(f"Problematic line: {line.strip()[:50]}")
+                        sys.exit(1)
                     except KeyError as e:
                         print(f"KeyError in file {chunk_path}, line {line_num}: {e}")
                         print(f"Data: {data}")
+                        sys.exit(1)
 
     with open(INDEX_FILE, "w") as f:
         json.dump(index, f)
@@ -111,7 +119,7 @@ def process_file_range(start_file: str, end_file: str):
 
     for file_num in tqdm(range(start_num, end_num + 1), desc="Processing files"):
         file_name = f"{file_num:012d}.json"
-        print(f"\nProcessing file: {file_name}")
+        # print(f"\nProcessing file: {file_name}")
         download_and_split(file_name)
 
     print("\nCreating index...")
