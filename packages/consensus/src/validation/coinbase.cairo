@@ -172,13 +172,23 @@ fn validate_coinbase_outputs(
     Result::Ok(())
 }
 
+
+/// Determines if the transaction outputs of a block at a given height are unspendable due to
+/// BIP-30.
+///
+/// This function checks if the block height corresponds to one of the two exceptional blocks
+/// where transactions with duplicate TXIDs were allowed.
+pub fn is_bip30_unspendable(block_height: u32) -> bool {
+    block_height == 91722 || block_height == 91812
+}
+
 #[cfg(test)]
 mod tests {
     use crate::types::transaction::{TxIn, TxOut, Transaction, OutPoint};
     use super::{
         compute_block_reward, validate_coinbase, validate_coinbase_input,
         validate_coinbase_sig_script, validate_coinbase_witness, validate_coinbase_outputs,
-        calculate_wtxid_commitment
+        calculate_wtxid_commitment, is_bip30_unspendable
     };
     use utils::{hex::{from_hex, hex_to_hash_rev}, hash::Digest};
 
@@ -661,6 +671,24 @@ mod tests {
         );
 
         validate_coinbase(@tx, total_fees, block_height, wtxid_root_hash).unwrap();
+    }
+
+    #[test]
+    fn test_is_bip30_unspendable() {
+        let block_height = 91722;
+        let result = is_bip30_unspendable(block_height);
+
+        assert_eq!(result, true);
+
+        let block_height = 91812;
+        let result = is_bip30_unspendable(block_height);
+
+        assert_eq!(result, true);
+
+        let block_height = 9;
+        let result = is_bip30_unspendable(block_height);
+
+        assert_eq!(result, false);
     }
 }
 

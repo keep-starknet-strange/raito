@@ -7,6 +7,9 @@ use crate::validation::locktime::{
 };
 use utils::hash::Digest;
 
+const OP_RETURN: u8 = 0x6a;
+const MAX_SCRIPT_SIZE: u32 = 10000;
+
 /// Validate transaction and return transaction fee.
 ///
 /// This does not include script checks and outpoint inclusion verification.
@@ -122,6 +125,15 @@ fn validate_coinbase_maturity(output_height: u32, block_height: u32) -> Result<(
     }
 }
 
+/// Checks if a public key script (pubscript) is provably unspendable.
+///
+/// A pubscript is considered unspendable if:
+/// - It starts with `OP_RETURN`.
+/// - Its size exceeds the maximum allowed script size.
+fn is_pubscript_unspendable(pubscript: @ByteArray) -> bool {
+    pubscript[0].into() == OP_RETURN || pubscript.len() > MAX_SCRIPT_SIZE
+}
+
 #[cfg(test)]
 mod tests {
     use core::dict::Felt252Dict;
@@ -131,9 +143,7 @@ mod tests {
     use utils::{
         hash::Digest, hex::{from_hex, hex_to_hash_rev}, double_sha256::double_sha256_byte_array
     };
-    use super::validate_transaction;
-
-    // TODO: tests for coinbase maturity
+    use super::{validate_transaction, is_pubscript_unspendable, MAX_SCRIPT_SIZE};
 
     #[test]
     fn test_tx_fee() {
@@ -890,5 +900,26 @@ mod tests {
         );
         assert!(result.is_err());
         assert_eq!(result.unwrap_err(), "The output has already been spent");
+    }
+
+    #[test]
+    fn test_pubscript_starts_with_op_return() {
+        let op_return_script = from_hex("6a146f6e65207069656365206f6620646174612068657265");
+        assert!(is_pubscript_unspendable(@op_return_script));
+    }
+
+    #[test]
+    fn test_pubscript_within_size_limit() {
+        let normal_script = from_hex("76a91489abcdefabbaabbaabbaabbaabbaabbaabbaabba88ac");
+        assert!(!is_pubscript_unspendable(@normal_script));
+    }
+
+    #[test]
+    fn test_pubscript_exceeds_max_size() {
+        let mut large_script: ByteArray = Default::default();
+        for _ in 0..(MAX_SCRIPT_SIZE + 1) {
+            large_script.append_byte(0x00);
+        };
+        assert!(is_pubscript_unspendable(@large_script));
     }
 }

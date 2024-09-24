@@ -8,7 +8,8 @@ use core::fmt::{Display, Formatter, Error};
 use crate::validation::{
     difficulty::{validate_bits, adjust_difficulty}, coinbase::validate_coinbase,
     timestamp::{validate_timestamp, next_prev_timestamps},
-    work::{validate_proof_of_work, compute_total_work}, block::{compute_and_validate_tx_data},
+    work::{validate_proof_of_work, compute_total_work},
+    block::{compute_and_validate_tx_data, validate_bip30_block_hash},
 };
 use super::block::{BlockHash, Block, TransactionData};
 use super::utxo_set::UtxoSet;
@@ -90,6 +91,7 @@ pub impl BlockValidatorImpl of BlockValidator {
 
         validate_proof_of_work(current_target, best_block_hash)?;
         validate_bits(current_target, block.header.bits)?;
+        validate_bip30_block_hash(block_height, @best_block_hash)?;
 
         Result::Ok(
             ChainState {
