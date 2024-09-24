@@ -6,7 +6,7 @@ import requests
 from google.cloud import storage
 from tqdm import tqdm
 from collections import defaultdict
-from functools import cache
+from functools import lru_cache
 
 INDEX_SIZE = 50000
 
@@ -68,7 +68,7 @@ def partition_and_dump(index, partition):
         with open(f"{BASE_DIR}/timestamp_index_{key}.json", "w") as f:
             json.dump(partition, f)
 
-@cache
+@lru_cache(maxsize=None)
 def load_index(file_name):
     if not os.path.exists(file_name):
         raise Exception(f"Index file {file_name} not found")        
