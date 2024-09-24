@@ -70,12 +70,14 @@ pub impl BlockValidatorImpl of BlockValidator {
             TransactionData::MerkleRoot(root) => root,
             TransactionData::Transactions(txs) => {
                 let (total_fees, txid_root, wtxid_root) = compute_and_validate_tx_data(
-                    txs, block_height, block.header.time, ref utxo_set
+                    txs, block.header.hash, block_height, block.header.time, ref utxo_set
                 )?;
                 validate_coinbase(txs[0], total_fees, block_height, wtxid_root)?;
                 txid_root
             }
         };
+
+        block.header.validate_hash(self.best_block_hash, txid_root)?;
 
         let (current_target, epoch_start_time) = adjust_difficulty(
             self.current_target,
@@ -85,7 +87,7 @@ pub impl BlockValidatorImpl of BlockValidator {
             block.header.time
         );
         let total_work = compute_total_work(self.total_work, current_target);
-        let best_block_hash = block.header.hash(self.best_block_hash, txid_root);
+        let best_block_hash = block.header.hash;
 
         validate_proof_of_work(current_target, best_block_hash)?;
         validate_bits(current_target, block.header.bits)?;

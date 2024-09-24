@@ -1,0 +1,8 @@
+[files]
+extend-exclude = [
+    "docs/img/*.svg",      
+    "docs/img/*.excalidraw"
+]
+
+[default.extend-words]
+Pn = "Pn"
