@@ -145,9 +145,7 @@ pub impl UtreexoAccumulatorImpl of UtreexoAccumulator {
                 } else {
                     roots.append(Option::None);
                 }
-            } else if h < num_roots && self.roots[h].is_none() {
-                roots.append(Option::Some(*p));
-            } else if h < num_roots {
+            } else if h < num_roots && self.roots[h].is_some() {
                 n = Option::Some(parent_hash(*p, (*self.roots[h]).unwrap()));
                 roots.append(Option::None);
             } else {
