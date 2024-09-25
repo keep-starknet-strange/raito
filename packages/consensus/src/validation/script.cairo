@@ -1,9 +1,11 @@
 use shinigami_engine::engine::EngineImpl;
+use shinigami_engine::scriptflags::ScriptFlags;
 use shinigami_engine::transaction::{
     EngineTransactionInputTrait, EngineTransactionOutputTrait, EngineTransactionTrait
 };
 use script::dummy::{HashCacheDummy, HashCacheDummyImpl};
 use crate::types::transaction::{Transaction, TxIn, TxOut};
+use crate::types::block::Header;
 
 impl EngineTransactionInputImpl of EngineTransactionInputTrait<TxIn> {
     fn get_prevout_txid(self: @TxIn) -> u256 {
@@ -55,7 +57,28 @@ impl EngineTransactionDummyImpl of EngineTransactionTrait<Transaction, TxIn, TxO
     }
 }
 
-pub fn validate_authorization(tx: @Transaction) -> Result<(), ByteArray> {
+fn script_flags(header: @Header, tx: @Transaction) -> u32 {
+    let mut script_flags = 0_u32;
+
+    if true { // TODO: https://github.com/btcsuite/btcd/blob/2b53ed198955ac40fe5b3ce4a854e9f5bfa68258/blockchain/validate.go#L1208
+        script_flags += ScriptFlags::ScriptBip16.into();
+    }
+
+    // TODO: https://github.com/btcsuite/btcd/blob/2b53ed198955ac40fe5b3ce4a854e9f5bfa68258/blockchain/validate.go#L1215
+    
+    // TODO: https://github.com/btcsuite/btcd/blob/2b53ed198955ac40fe5b3ce4a854e9f5bfa68258/blockchain/validate.go#L1221
+
+    // TODO: https://github.com/btcsuite/btcd/blob/2b53ed198955ac40fe5b3ce4a854e9f5bfa68258/blockchain/validate.go#L1234
+
+    // TODO: https://github.com/btcsuite/btcd/blob/2b53ed198955ac40fe5b3ce4a854e9f5bfa68258/blockchain/validate.go#L1266
+    // TODO: https://github.com/btcsuite/btcd/blob/2b53ed198955ac40fe5b3ce4a854e9f5bfa68258/blockchain/validate.go#L1267
+
+    // TODO: https://github.com/btcsuite/btcd/blob/2b53ed198955ac40fe5b3ce4a854e9f5bfa68258/blockchain/validate.go#L1279
+
+    script_flags
+}
+
+pub fn validate_authorization(header: @Header, tx: @Transaction) -> Result<(), ByteArray> {
     let cache: HashCacheDummy = HashCacheDummyImpl::new(tx);
 
     let mut result: Option<ByteArray> = Option::None;
@@ -69,7 +92,7 @@ pub fn validate_authorization(tx: @Transaction) -> Result<(), ByteArray> {
                     previous_output.data.pk_script,
                     tx,
                     i,
-                    0, //TODO: flags
+                    script_flags(header, tx),
                     Into::<u64, i128>::into(previous_output.data.value).try_into().unwrap(),
                     @cache
                 )
