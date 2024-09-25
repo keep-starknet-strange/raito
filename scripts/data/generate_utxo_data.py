@@ -17,6 +17,7 @@ BASE_DIR = "utxo_data"
 CHUNK_SIZE = 10
 INDEX_SIZE = 50000
 
+
 def download_and_split(file_name: str):
     """Download a file from GCS and split it into chunks."""
     os.makedirs(BASE_DIR, exist_ok=True)
@@ -28,7 +29,7 @@ def download_and_split(file_name: str):
     if response.status_code != 200:
         raise Exception(f"Failed to download {file_name}")
 
-    if response.headers.get('Content-Encoding') == 'gzip':
+    if response.headers.get("Content-Encoding") == "gzip":
         print("Content is GZIP encoded")
 
     file_path = os.path.join(BASE_DIR, file_name)
@@ -46,9 +47,10 @@ def download_and_split(file_name: str):
 def index_file_name(key):
     return f"{BASE_DIR}/utxo_index_{key}.json"
 
+
 def partition_and_dump(index, partition_size):
     """Partition the index and dump each partition to a separate file."""
-    
+
     partitions = defaultdict(dict)
     for key, value in tqdm(index.items(), "Partitioning index"):
         group = int(key) // partition_size
@@ -58,10 +60,11 @@ def partition_and_dump(index, partition_size):
         with open(index_file_name(key), "w") as f:
             json.dump(partition, f)
 
+
 def create_index():
     """Create or update an index mapping block numbers to chunk files."""
     index: Dict[int, str] = {}
-    
+
     for dir_name in tqdm(os.listdir(BASE_DIR), "Creating index"):
         dir_path = os.path.join(BASE_DIR, dir_name)
         if not os.path.isdir(dir_path):
@@ -76,7 +79,7 @@ def create_index():
                         block_number = data["block_number"]
                         if block_number in index:
                             print(f"Error: Duplicate block number {block_number}")
-                            sys.exit(1)                            
+                            sys.exit(1)
                         index[block_number] = os.path.relpath(chunk_path, BASE_DIR)
                     except json.JSONDecodeError as e:
                         print(
@@ -97,10 +100,11 @@ def create_index():
 @lru_cache(maxsize=None)
 def load_index(file_name):
     if not os.path.exists(file_name):
-        raise Exception(f"Index file {file_name} not found")        
+        raise Exception(f"Index file {file_name} not found")
 
     with open(file_name, "r") as f:
         return json.load(f)
+
 
 def get_utxo_set(block_number: int) -> Dict[str, Any]:
     index = load_index(index_file_name(int(block_number) // INDEX_SIZE))
@@ -132,7 +136,7 @@ def process_file_range(start_file: str, end_file: str):
         file_name = f"{file_num:012d}.json"
         # print(f"\nProcessing file: {file_name}")
         download_and_split(file_name)
-    
+
     create_index()
 
 

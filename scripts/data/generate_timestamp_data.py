@@ -16,6 +16,7 @@ GCS_BUCKET_NAME = "shinigami-consensus"
 GCS_FOLDER_NAME = "previous_outputs"
 GCS_BASE_URL = f"https://storage.googleapis.com/shinigami-consensus/{GCS_FOLDER_NAME}/"
 
+
 def download_timestamp(file_name: str):
     """Download a file from GCS and save it locally."""
     os.makedirs(BASE_DIR, exist_ok=True)
@@ -44,7 +45,7 @@ def create_index(folder_path):
                     block_number = entry["block_number"]
                     index[block_number] = [
                         entry["median_timestamp"],
-                        entry["previous_timestamps"]
+                        entry["previous_timestamps"],
                     ]
     return index
 
@@ -54,14 +55,18 @@ def list_files_in_gcs(bucket_name: str, prefix: str):
     client = storage.Client()
     bucket = client.get_bucket(bucket_name)
     blobs = bucket.list_blobs(prefix=prefix)
-    return [os.path.basename(blob.name) for blob in blobs if blob.name.endswith(".json")]
+    return [
+        os.path.basename(blob.name) for blob in blobs if blob.name.endswith(".json")
+    ]
+
 
 def index_file_name(key):
     return f"{BASE_DIR}/timestamp_index_{key}.json"
 
+
 def partition_and_dump(index, partition):
     """Partition the index and dump each partition to a separate file."""
-    
+
     partitions = defaultdict(dict)
     for key, value in tqdm(index.items(), "Partitioning index"):
         group = int(key) // partition
@@ -71,13 +76,15 @@ def partition_and_dump(index, partition):
         with open(index_file_name(key), "w") as f:
             json.dump(partition, f)
 
+
 @lru_cache(maxsize=None)
 def load_index(file_name):
     if not os.path.exists(file_name):
-        raise Exception(f"Index file {file_name} not found")        
+        raise Exception(f"Index file {file_name} not found")
 
     with open(file_name, "r") as f:
         return json.load(f)
+
 
 def get_timestamp_data(block_number):
     """Get the timestamp data for a given block number."""
@@ -85,6 +92,7 @@ def get_timestamp_data(block_number):
     index = load_index(file_name)
     median, previous_timestamps = index[block_number]
     return median, previous_timestamps
+
 
 if __name__ == "__main__":
     file_names = list_files_in_gcs(GCS_BUCKET_NAME, GCS_FOLDER_NAME)
