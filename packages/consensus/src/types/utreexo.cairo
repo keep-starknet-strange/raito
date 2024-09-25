@@ -108,7 +108,7 @@ pub impl UtreexoAccumulatorImpl of UtreexoAccumulator {
                         first_none_found = true;
                         new_roots.append(Option::Some(n));
                     } else {
-                        n = PoseidonTrait::new().update_with(((*root).unwrap(), n)).finalize();
+                        n = parent_hash((*root).unwrap(), n);
                         new_roots.append(Option::None);
                     }
                 } else {
@@ -257,6 +257,127 @@ impl UtreexoBatchProofDisplay of Display<UtreexoBatchProof> {
 #[cfg(test)]
 mod tests {
     use super::{UtreexoState, UtreexoAccumulator, UtreexoProof};
+    use consensus::types::transaction::{OutPoint, TxOut, Transaction, TxIn};
+    use utils::{
+        hash::{DigestImpl, DigestIntoU256}, bytearray::{ByteArraySnapHash, ByteArraySnapSerde},
+        hex::{from_hex, hex_to_hash_rev}
+    };
+
+    // use core::poseidon::PoseidonTrait;
+    // use core::hash::{HashStateTrait, HashStateExTrait};
+
+    /// block 170 tx coinbase
+    fn get_outpoint_coinbase() -> OutPoint {
+        OutPoint {
+            txid: hex_to_hash_rev(
+                "0000000000000000000000000000000000000000000000000000000000000000"
+            ),
+            vout: 4294967295,
+            data: TxOut { value: 0, pk_script: @from_hex(""), cached: false },
+            block_height: 0,
+            block_time: 0,
+            block_hash: hex_to_hash_rev("0"),
+            is_coinbase: false
+        }
+    }
+
+    /// block 170 tx1 v0 -> block9 tx coinbase v0
+    fn get_outpoint() -> OutPoint {
+        OutPoint {
+            txid: hex_to_hash_rev(
+                "0437cd7f8525ceed2324359c2d0ba26006d92d856a9c20fa0241106ee5a597c9"
+            ),
+            vout: 0,
+            data: TxOut {
+                value: 5000000000,
+                pk_script: @from_hex(
+                    "410411db93e1dcdb8a016b49840f8c53bc1eb68a382e97b1482ecad7b148a6909a5cb2e0eaddfb84ccf9744464f82e160bfa9b8b64f9d4c03f999b8643f656b412a3ac"
+                ),
+                cached: false
+            },
+            block_height: 9,
+            block_time: 1231473279,
+            block_hash: hex_to_hash_rev(
+                "000000008d9dc510f23c2657fc4f67bea30078cc05a90eb89e84cc475c080805"
+            ),
+            is_coinbase: true
+        }
+    }
+
+    fn get_txs() -> Array<Transaction> {
+        array![
+            Transaction {
+                version: 1,
+                is_segwit: false,
+                inputs: array![
+                    TxIn {
+                        script: @from_hex("04ffff001d0102"),
+                        sequence: 4294967295,
+                        previous_output: get_outpoint_coinbase(),
+                        witness: [
+                            from_hex(
+                                "0000000000000000000000000000000000000000000000000000000000000000"
+                            ),
+                        ].span(),
+                    }
+                ]
+                    .span(),
+                outputs: array![
+                    TxOut {
+                        value: 5000000000_u64,
+                        pk_script: @from_hex(
+                            "4104d46c4968bde02899d2aa0963367c7a6ce34eec332b32e42e5f3407e052d64ac625da6f0718e7b302140434bd725706957c092db53805b821a85b23a7ac61725bac"
+                        ),
+                        cached: false
+                    }
+                ]
+                    .span(),
+                lock_time: 0
+            },
+            Transaction {
+                version: 1,
+                is_segwit: false,
+                inputs: array![
+                    TxIn {
+                        script: @from_hex(
+                            "47304402204e45e16932b8af514961a1d3a1a25fdf3f4f7732e9d624c6c61548ab5fb8cd410220181522ec8eca07de4860a4acdd12909d831cc56cbbac4622082221a8768d1d0901"
+                        ),
+                        sequence: 4294967295,
+                        previous_output: get_outpoint(),
+                        witness: array![].span(),
+                    }
+                ]
+                    .span(),
+                outputs: array![
+                    TxOut {
+                        value: 1000000000_u64,
+                        pk_script: @from_hex(
+                            "4104ae1a62fe09c5f51b13905f07f06b99a2f7159b2225f374cd378d71302fa28414e7aab37397f554a7df5f142c21c1b7303b8a0626f1baded5c72a704f7e6cd84cac"
+                        ),
+                        cached: false
+                    },
+                    TxOut {
+                        value: 4000000000_u64,
+                        pk_script: @from_hex(
+                            "410411db93e1dcdb8a016b49840f8c53bc1eb68a382e97b1482ecad7b148a6909a5cb2e0eaddfb84ccf9744464f82e160bfa9b8b64f9d4c03f999b8643f656b412a3ac"
+                        ),
+                        cached: false
+                    }
+                ]
+                    .span(),
+                lock_time: 0
+            }
+        ]
+    }
+
+    // uncomment to get outpoint hash of first outpoint spent block 170
+    // packages/consensus$ scarb cairo-test -f test_poseidon1
+    // #[test]
+    // fn test_poseidon1() {
+    //     let outpoint: OutPoint = get_outpoint();
+    //     let test = PoseidonTrait::new().update_with(outpoint).finalize();
+    //     println!("ref oupoint hash: {}", test);
+    // }
 
     /// Test the basic functionality of the Utreexo accumulator
     ///

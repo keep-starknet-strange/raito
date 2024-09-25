@@ -13,4 +13,6 @@ cairo_test.workspace = true
 test = "scarb build && ../../scripts/data/integration_tests.sh"
 regenerate_tests= "../../scripts/data/regenerate_tests.sh"
 client = "scarb build && ../../scripts/data/client.sh"
-lint = "flake8 scripts/ && black --check scripts/ && scarb fmt"
+utreexo = "scarb build && ../../scripts/data/utreexo.sh"
+lint = "flake8 scripts/ --count --exit-zero --max-complexity=10 --max-line-length=88 --statistics ../../scripts/ --max-line-length=88 && black ../../scripts && scarb fmt"
+
