@@ -133,19 +133,21 @@ pub impl UtreexoAccumulatorImpl of UtreexoAccumulator {
         let mut n: Option<felt252> = Option::None;
         let mut h: usize = 0;
 
+        let num_roots: u32 = self.roots.len();
+
         while h != (*proof.proof).len() {
             let p = proof.proof[h];
 
             if n != Option::None {
                 n = Option::Some(parent_hash(*p, n.unwrap()));
-                if h < self.roots.len() {
+                if h < num_roots {
                     roots.append(*self.roots[h]);
                 } else {
                     roots.append(Option::None);
                 }
-            } else if h < self.roots.len() && self.roots[h].is_none() {
+            } else if h < num_roots && self.roots[h].is_none() {
                 roots.append(Option::Some(*p));
-            } else if h < self.roots.len() {
+            } else if h < num_roots {
                 n = Option::Some(parent_hash(*p, (*self.roots[h]).unwrap()));
                 roots.append(Option::None);
             } else {
@@ -157,7 +159,7 @@ pub impl UtreexoAccumulatorImpl of UtreexoAccumulator {
 
         roots.append(n);
         h += 1;
-        while h != self.roots.len() {
+        while h != num_roots {
             roots.append(*self.roots[h]);
             h += 1;
         };
