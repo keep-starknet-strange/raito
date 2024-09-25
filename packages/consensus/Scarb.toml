@@ -3,9 +3,16 @@ name = "consensus"
 version = "0.1.0"
 edition = "2024_07"
 
+[features]
+default = ["log_level_none"]
+log_level_none = []
+log_level_trace = []
+log_level_debug = []
+
 [dependencies]
 utils = { path = "../utils" }
-raito_logging = { path = "../logging" }
+logging = { path = "../logging" }
+logging_macros = { path = "../logging_macros" }
 
 [dev-dependencies]
 cairo_test.workspace = true
@@ -13,9 +20,3 @@ cairo_test.workspace = true
 [scripts]
 # TODO: cairo lint
 lint = "scarb fmt"
-
-[features]
-default = ["log_level_none"]
-log_level_none = []
-log_level_trace = []
-log_level_debug = []

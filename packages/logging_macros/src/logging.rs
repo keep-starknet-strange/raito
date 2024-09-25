@@ -46,7 +46,6 @@ pub fn log(token_stream: TokenStream) -> ProcMacroResult {
     // Generate the log statement
     let log_statement = generate_log_statement(&level, &format_string, &log_args);
 
-    println!("Log statement: {}", log_statement);
     ProcMacroResult::new(TokenStream::new(log_statement))
 }
 

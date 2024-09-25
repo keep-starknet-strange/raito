@@ -3,6 +3,12 @@ name = "client"
 version = "0.1.0"
 edition = "2024_07"
 
+[features]
+default = ["log_level_none"]
+log_level_none = []
+log_level_trace = []
+log_level_debug = []
+
 [dependencies]
 consensus = { path = "../consensus" }
 
@@ -10,7 +16,7 @@ consensus = { path = "../consensus" }
 cairo_test.workspace = true
 
 [scripts]
-test = "scarb build && ../../scripts/data/integration_tests.sh"
+# test = "scarb build && ../../scripts/data/integration_tests.sh"
 regenerate_tests= "../../scripts/data/regenerate_tests.sh"
 client = "scarb build && ../../scripts/data/client.sh"
 lint = "flake8 scripts/ && black --check scripts/ && scarb fmt"

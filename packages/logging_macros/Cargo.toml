@@ -1,6 +1,6 @@
 # Cargo.toml
 [package]
-name = "raito_logging"
+name = "logging_macros"
 version = "0.1.0"
 edition = "2021"
 
