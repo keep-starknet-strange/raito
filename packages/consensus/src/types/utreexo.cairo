@@ -541,12 +541,13 @@ mod tests {
 
     #[test]
     fn test_utreexo_delete() {
-        let mut utxo_set: UtxoSet = UtxoSetTrait::new(Default::default());
+        let mut utreexo_state: UtreexoState = Default::default();
         let outpoint: felt252 = 0x291F8F5FC449D42C715B529E542F24A80136D18F4A85DE28829CD3DCAAC1B9C;
 
         // adds 2 leaves to empty utreexo
-        utxo_set.leaves_to_add = array![outpoint, outpoint];
-        utxo_set.utreexo_add();
+        for _ in 1..3_u8 {
+            utreexo_state.add(outpoint);
+        };
 
         let expected: Span<Option<felt252>> = array![
             Option::None,
@@ -554,15 +555,15 @@ mod tests {
             Option::None
         ]
             .span();
-        assert_eq!(utxo_set.utreexo_state.roots, expected, "cannot add second leave");
-        assert_eq!(utxo_set.utreexo_state.num_leaves, 2);
+        assert_eq!(utreexo_state.roots, expected, "cannot add second leave");
+        assert_eq!(utreexo_state.num_leaves, 2);
 
         let proof: UtreexoProof = UtreexoProof {
             leaf_index: 0,
             proof: array![0x291F8F5FC449D42C715B529E542F24A80136D18F4A85DE28829CD3DCAAC1B9C].span()
         };
 
-        utxo_set.utreexo_state.delete(@proof);
+        utreexo_state.delete(@proof);
 
         let expected: Span<Option<felt252>> = array![
             Option::Some(0x291F8F5FC449D42C715B529E542F24A80136D18F4A85DE28829CD3DCAAC1B9C),
@@ -570,7 +571,7 @@ mod tests {
             Option::None,
         ]
             .span();
-        assert_eq!(utxo_set.utreexo_state.roots, expected, "cannot remove leave");
-        assert_eq!(utxo_set.utreexo_state.num_leaves, 1);
+        assert_eq!(utreexo_state.roots, expected, "cannot remove leave");
+        assert_eq!(utreexo_state.num_leaves, 1);
     }
 }
