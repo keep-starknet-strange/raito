@@ -123,8 +123,8 @@ class OutPoint:
 
 
 def handle_txin(inputs: list, utreexo_proofs: list, utreexo: Utreexo):
-    for j in range(len(inputs)):
-        outpoint = inputs[j].get("previous_output", {})
+    for i in range(len(inputs)):
+        outpoint = inputs[i].get("previous_output", {})
         outpoint = OutPoint(
             outpoint.get("txid"),
             outpoint.get("vout", 0),
@@ -143,11 +143,40 @@ def handle_txin(inputs: list, utreexo_proofs: list, utreexo: Utreexo):
 
         # Must match hash of utreexo::test_poseidon1
         # first output spent block 170
+        # print(f"Outpoint: {outpoint}")
         # print(f"Outpoint hash: {outpoint_hash}")
 
         # Remove OutPoint from accumulator
         [proof, leaf_index] = utreexo.delete(outpoint_hash)
         utreexo_proofs.append({"proof": proof, "leaf_index": leaf_index})
+
+
+def handle_txout(
+    outputs: list,
+    utreexo: Utreexo,
+    block: dict,
+    block_height: int,
+    txid: str,
+    tx_index: int,
+):
+    for i in range(len(outputs)):
+        new_outpoint = OutPoint(
+            txid,
+            i,
+            TxOut(
+                value=outputs[i].get("value"),
+                pk_script=outputs[i].get("pk_script"),
+                # cached=outputs[i].get("cached")
+                cached=False,
+            ),
+            block_height,
+            block.get("header").get("time", 0),
+            block.get("header").get("hash", 0),
+            True if tx_index == 0 else False,
+        )
+
+        # Add OutPoint to accumulator
+        utreexo.add(new_outpoint.hash())
 
 
 def main():
@@ -173,36 +202,16 @@ def main():
 
     for block in data.get("blocks", []):
         utreexo_proofs = []
-        block_time = block.get("header").get("time", 0)
-        block_hash = block.get("header").get("hash", 0)
         transactions = block.get("data", {}).get("transactions", [])
-
         for i in range(len(transactions)):
-            inputs = transactions[i].get("inputs", [])
-            outputs = transactions[i].get("outputs", [])
-
             # Skip coinbase?
             if i != 0:
+                inputs = transactions[i].get("inputs", [])
                 handle_txin(inputs, utreexo_proofs, utreexo)
 
-            for j in range(len(outputs)):
-                new_outpoint = OutPoint(
-                    transactions[i].get("txid"),
-                    j,
-                    TxOut(
-                        outputs[j].get("value"),
-                        outputs[j].get("pk_script"),
-                        # outputs[j].get("cached")
-                        False,
-                    ),
-                    block_height,
-                    block_time,
-                    block_hash,
-                    True if i == 0 else False,
-                )
-
-                # Ajouter le nouvel OutPoint à l'accumulateur
-                utreexo.add(new_outpoint.hash())
+            outputs = transactions[i].get("outputs", [])
+            txid = transactions[i].get("txid", "")
+            handle_txout(outputs, utreexo, block, block_height, txid, i)
 
         # Update output_data
         output_data["updates"].append(

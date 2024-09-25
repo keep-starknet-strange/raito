@@ -272,16 +272,22 @@ def generate_data(
     next_block_hash = chain_state["nextblockhash"]
     blocks = []
 
+    # Includes genesis block if satoshi returns?
     # if include_utreexo_data:
     #     blocks.append(fetch_block("000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f"))
 
     # UTXO set to track unspent outputs
     utxo_set = {}
 
-    for _ in range(num_blocks):
+    for i in range(num_blocks):
         if mode == "light":
             block = fetch_block_header(next_block_hash)
         elif mode == "full":
+            print(
+                f"\rFetching block {initial_height + i}/{initial_height + num_blocks}",
+                end="",
+                flush=True,
+            )
             block = fetch_block(next_block_hash, include_utreexo_data)
             # Build UTXO set and mark outputs spent within the same block (span).
             # Also set "cached" flag for the inputs that spend those UTXOs.

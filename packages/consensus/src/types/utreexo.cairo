@@ -263,8 +263,17 @@ mod tests {
         hex::{from_hex, hex_to_hash_rev}
     };
 
+
+    // uncomment to get outpoint hash of first outpoint spent block 170
+    // packages/consensus$ scarb cairo-test -f test_poseidon1
     // use core::poseidon::PoseidonTrait;
     // use core::hash::{HashStateTrait, HashStateExTrait};
+    // #[test]
+    // fn test_poseidon1() {
+    //     let outpoint: OutPoint = get_outpoint();
+    //     let test = PoseidonTrait::new().update_with(outpoint).finalize();
+    //     println!("ref oupoint hash: {}", test);
+    // }
 
     /// block 170 tx coinbase
     fn get_outpoint_coinbase() -> OutPoint {
@@ -369,15 +378,6 @@ mod tests {
             }
         ]
     }
-
-    // uncomment to get outpoint hash of first outpoint spent block 170
-    // packages/consensus$ scarb cairo-test -f test_poseidon1
-    // #[test]
-    // fn test_poseidon1() {
-    //     let outpoint: OutPoint = get_outpoint();
-    //     let test = PoseidonTrait::new().update_with(outpoint).finalize();
-    //     println!("ref oupoint hash: {}", test);
-    // }
 
     /// Test the basic functionality of the Utreexo accumulator
     ///

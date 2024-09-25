@@ -20,7 +20,7 @@ def serialize(obj):
         return 1 if obj else 0
     elif isinstance(obj, int):
         # This covers u8, u16, u32, u64, u128, felt252
-        assert obj >= 0 and obj < 2 ** 252
+        assert obj >= 0 and obj < 2**252
         return obj
     elif isinstance(obj, str):
         if obj == "0" * 64:
@@ -30,9 +30,9 @@ def serialize(obj):
             # TODO: there might still be collisions with hashes
             # Try to cast to int and then to low/high parts
             num = int(obj)
-            assert num >= 0 and num < 2 ** 256
-            lo = num % 2 ** 128
-            hi = num // 2 ** 128
+            assert num >= 0 and num < 2**256
+            lo = num % 2**128
+            hi = num // 2**128
             return (lo, hi)
         elif obj.startswith("0x"):
             # Split into 31-byte chunks and save the remainder
