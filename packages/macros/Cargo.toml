@@ -1,6 +1,6 @@
 # Cargo.toml
 [package]
-name = "raito_logging"
+name = "raito_macros"
 version = "0.1.0"
 edition = "2021"
 
@@ -10,5 +10,5 @@ crate-type = ["cdylib"]
 [dependencies]
 bigdecimal = "0.4.5"
 cairo-lang-macro = "0.1"
-cairo-lang-parser = "2.7.0"
-cairo-lang-syntax = "2.7.0"
+cairo-lang-parser = "2.8.0"
+cairo-lang-syntax = "2.8.0"

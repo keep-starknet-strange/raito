@@ -76,7 +76,7 @@ fn generate_log_statement(level: &str, format_string: &str, log_args: &[String])
         )
     };
 
-    format!("if crate::logging::{} {{ {} }}", condition, print_statement)
+    format!("if logging::{} {{ {} }}", condition, print_statement)
 }
 mod tests {
     use super::*;
@@ -98,7 +98,7 @@ mod tests {
         );
         assert_eq!(
             expanded,
-            r#"if crate::logging::LOG_LEVEL_DEBUG { println!("{}: {}", format!("DEBUG"), format!("test message: {}", '123')) }"#
+            r#"if logging::LOG_LEVEL_DEBUG { println!("{}: {}", format!("DEBUG"), format!("test message: {}", '123')) }"#
         );
     }
 
@@ -107,7 +107,7 @@ mod tests {
         let expanded = expand_macro(log_02lvnd9pht92k, r#"log!("TRACE", "entering function")"#);
         assert_eq!(
             expanded,
-            r#"if crate::logging::LOG_LEVEL_TRACE { println!("{}: {}", format!("TRACE"), format!("entering function")) }"#
+            r#"if logging::LOG_LEVEL_TRACE { println!("{}: {}", format!("TRACE"), format!("entering function")) }"#
         );
     }
 
@@ -122,7 +122,7 @@ mod tests {
         let expanded = expand_macro(log_02lvnd9pht92k, r#"log!("DEBUG", '')"#);
         assert_eq!(
             expanded,
-            r#"if crate::logging::LOG_LEVEL_DEBUG { println!("{}: {}", format!("DEBUG"), format!('')) }"#
+            r#"if logging::LOG_LEVEL_DEBUG { println!("{}: {}", format!("DEBUG"), format!('')) }"#
         );
     }
 
@@ -134,7 +134,7 @@ mod tests {
         );
         assert_eq!(
             expanded,
-            r#"if crate::logging::LOG_LEVEL_DEBUG { println!("{}: {}", format!("DEBUG"), format!("Values: {}, {}, {}", '1', '2', '3')) }"#
+            r#"if logging::LOG_LEVEL_DEBUG { println!("{}: {}", format!("DEBUG"), format!("Values: {}, {}, {}", '1', '2', '3')) }"#
         );
     }
 
@@ -146,7 +146,7 @@ mod tests {
         );
         assert_eq!(
             expanded,
-            r#"if crate::logging::LOG_LEVEL_DEBUG { println!("{}: {}", format!("DEBUG"), format!("Exact {} string", 'test')) }"#
+            r#"if logging::LOG_LEVEL_DEBUG { println!("{}: {}", format!("DEBUG"), format!("Exact {} string", 'test')) }"#
         );
     }
 }

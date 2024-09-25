@@ -2,7 +2,6 @@
 
 use super::types::transaction::{Transaction, TxIn, TxOut, OutPoint};
 use utils::hash::Digest;
-
 pub trait Encode<T> {
     /// Encode using Bitcoin codec and append to the buffer.
     fn encode_to(self: @T, ref dest: ByteArray);
@@ -12,6 +11,7 @@ pub trait Encode<T> {
         self: @T
     ) -> ByteArray {
         let mut dest: ByteArray = Default::default();
+        if logging::log::LOG_LEVEL_DEBUG { println!("{}: {}", format!("DEBUG"), format!("tx_encoded: {}", dest)) }
         Self::encode_to(self, ref dest);
         dest
     }
@@ -767,7 +767,6 @@ mod tests {
             "020000000001013ce63f3c9d1375b3d7fc59516dbe57120fe3c912a31ebc29241897b16215cc390000000000fdffffff020f900100000000001976a914998db5e1126bc3a5e04109fbf253a7900462410e88acd9bd150000000000160014579bf4f06510c8683f2451262b6685b00012e46f024730440220537f470c1a18dc1a9d233c0b6af1d2ce18a07f3b244e4d9d54e0e60c34c55e67022058169cd11ac42374cda217d6e28143abd0e79549f7b84acc6542817466dc9b3001210301c1768b48843933bd7f0e8782716e8439fc44723d3745feefde2d57b761f5033f600a00"
         );
         let total_weight = 3 * tx_encoded.len() + wtx_encoded.len();
-
         assert_eq!(tx_encoded, tx_encoded_expect);
         assert_eq!(wtx_encoded, wtx_encoded_expect);
         assert_eq!(total_weight, 3 * 116 + 225); //573

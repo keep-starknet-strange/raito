@@ -5,17 +5,11 @@ edition = "2024_07"
 
 [dependencies]
 utils = { path = "../utils" }
-raito_logging = { path = "../logging" }
-
+raito_macros = { path = "../macros" }
+logging = { path = "../logging" }
 [dev-dependencies]
 cairo_test.workspace = true
 
 [scripts]
 # TODO: cairo lint
 lint = "scarb fmt"
-
-[features]
-default = ["log_level_none"]
-log_level_none = []
-log_level_trace = []
-log_level_debug = []

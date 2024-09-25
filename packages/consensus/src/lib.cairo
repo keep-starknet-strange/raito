@@ -16,6 +16,3 @@ pub mod types {
     pub mod utxo_set;
     pub mod state;
 }
-
-pub mod logging;
-

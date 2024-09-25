@@ -15,3 +15,4 @@ pub const LOG_LEVEL_TRACE: bool = false;
 
 #[cfg(feature: 'log_level_none')]
 pub const LOG_LEVEL_DEBUG: bool = false;
+
