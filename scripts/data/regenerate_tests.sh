@@ -21,10 +21,14 @@ light_test_cases=(
     24834   # Block containing first off ramp tx from Martti Malmi (24835)
     32255   # First target adjustment (32256)
     57042   # Block containing pizza tx (57043)
+    72575   # Difficulty adjustment
+    116927  # Difficulty adjustment
     150012  # Small Block (150013)
     209999  # First halving block (210000)
+    403199  # Difficulty adjustment
     478557  # Bitcoin Cash hard fork block (478558)
     481823  # Segwit soft fork block (481824)
+    489888  # Special target bits case https://learnmeabitcoin.com/explorer/489888#blockchain
     491406  # Bitcoin Gold hard fork block (491407)
     629999  # Third halving block (630000)
     709631  # Taproot soft fort block (709632)

@@ -198,6 +198,33 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "JoE11-y",
+      "name": "BlockyJ",
+      "avatar_url": "https://avatars.githubusercontent.com/u/55321462?v=4",
+      "profile": "https://github.com/JoE11-y",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "Groxan",
+      "name": "Maksim Strebkov",
+      "avatar_url": "https://avatars.githubusercontent.com/u/7966898?v=4",
+      "profile": "https://github.com/Groxan",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "hwildwood",
+      "name": "Herbie Wildwood",
+      "avatar_url": "https://avatars.githubusercontent.com/u/9042313?v=4",
+      "profile": "https://github.com/hwildwood",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,
