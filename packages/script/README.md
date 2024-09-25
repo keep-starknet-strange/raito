@@ -1,3 +1,3 @@
-# Bitcoin Scritp in Cairo
+# Bitcoin Script in Cairo
 
-Placeholer package, until Shinigami is ready to be integrated.
+Placeholder package, until Shinigami is ready to be integrated.
