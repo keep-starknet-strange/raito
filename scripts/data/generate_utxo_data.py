@@ -62,7 +62,7 @@ def create_index():
     """Create or update an index mapping block numbers to chunk files."""
     index: Dict[int, str] = {}
     
-    for dir_name in os.listdir(BASE_DIR):
+    for dir_name in tqdm(os.listdir(BASE_DIR), "Creating index"):
         dir_path = os.path.join(BASE_DIR, dir_name)
         if not os.path.isdir(dir_path):
             continue
@@ -133,9 +133,7 @@ def process_file_range(start_file: str, end_file: str):
         # print(f"\nProcessing file: {file_name}")
         download_and_split(file_name)
     
-    print("\nCreating index...")
     create_index()
-    print("Index creation completed.")
 
 
 # usage
