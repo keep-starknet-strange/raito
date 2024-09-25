@@ -28,6 +28,7 @@
 //! Read more about utreexo: https://eprint.iacr.org/2019/611.pdf
 
 use super::transaction::OutPoint;
+use super::utxo_set::UtxoSet;
 use utils::hash::{DigestImpl, DigestIntoU256};
 use core::poseidon::PoseidonTrait;
 use core::hash::{HashStateTrait, HashStateExTrait};
@@ -46,6 +47,19 @@ pub struct UtreexoState {
     pub num_leaves: u64,
 }
 
+#[generate_trait]
+pub impl UtreexoStateImpl of UtreexoStateTrait {
+    fn validate_and_apply(ref self: UtreexoState, ref utxo_set: UtxoSet) -> Result<(), ByteArray> {
+        while let Option::Some(leave) = utxo_set.leaves_to_add.pop_front() {
+            self.add(leave);
+        };
+        // TODO: delete leaves from utreexo
+        // while let Option::Some(leave) = utxo_set.leaves_to_delete.pop_front() {
+        // };
+        Result::Ok(())
+    }
+}
+
 /// Accumulator interface
 pub trait UtreexoAccumulator {
     /// Adds single output to the accumulator.
@@ -55,7 +69,7 @@ pub trait UtreexoAccumulator {
     /// This mechanism ensures that short-lived outputs have small inclusion proofs.
     fn add(ref self: UtreexoState, outpoint_hash: felt252);
 
-    /// Removes single output from the accumlator (order is important).
+    /// Removes single output from the accumulator (order is important).
     ///
     /// Note that once verified, the output itself is not required for deletion,
     /// the leaf index plus inclusion proof is enough.
@@ -284,7 +298,6 @@ impl UtreexoBatchProofDisplay of Display<UtreexoBatchProof> {
 #[cfg(test)]
 mod tests {
     use super::{UtreexoState, UtreexoAccumulator, UtreexoProof};
-    use consensus::types::utxo_set::{UtxoSet, UtxoSetTrait};
 
     /// Test the basic functionality of the Utreexo accumulator
     ///
@@ -429,24 +442,22 @@ mod tests {
     fn test_utreexo_add() {
         // Test data is generated using scripts/data/utreexo.py
 
-        let mut utxo_set: UtxoSet = UtxoSetTrait::new(Default::default());
+        let mut utreexo_state: UtreexoState = Default::default();
         let outpoint: felt252 = 0x291F8F5FC449D42C715B529E542F24A80136D18F4A85DE28829CD3DCAAC1B9C;
 
         // add first leave to empty utreexo
-        utxo_set.leaves_to_add = array![outpoint];
-        utxo_set.utreexo_add();
+        utreexo_state.add(outpoint);
 
         let expected: Span<Option<felt252>> = array![
             Option::Some(0x291F8F5FC449D42C715B529E542F24A80136D18F4A85DE28829CD3DCAAC1B9C),
             Option::None
         ]
             .span();
-        assert_eq!(utxo_set.utreexo_state.roots, expected, "cannot add first leave");
-        assert_eq!(utxo_set.utreexo_state.num_leaves, 1);
+        assert_eq!(utreexo_state.roots, expected, "cannot add first leave");
+        assert_eq!(utreexo_state.num_leaves, 1);
 
         // add second leave
-        utxo_set.leaves_to_add = array![outpoint];
-        utxo_set.utreexo_add();
+        utreexo_state.add(outpoint);
 
         let expected: Span<Option<felt252>> = array![
             Option::None,
@@ -454,12 +465,11 @@ mod tests {
             Option::None
         ]
             .span();
-        assert_eq!(utxo_set.utreexo_state.roots, expected, "cannot add second leave");
-        assert_eq!(utxo_set.utreexo_state.num_leaves, 2);
+        assert_eq!(utreexo_state.roots, expected, "cannot add second leave");
+        assert_eq!(utreexo_state.num_leaves, 2);
 
         // add thirdth leave
-        utxo_set.leaves_to_add = array![outpoint];
-        utxo_set.utreexo_add();
+        utreexo_state.add(outpoint);
 
         let expected: Span<Option<felt252>> = array![
             Option::Some(0x291F8F5FC449D42C715B529E542F24A80136D18F4A85DE28829CD3DCAAC1B9C),
@@ -467,12 +477,11 @@ mod tests {
             Option::None
         ]
             .span();
-        assert_eq!(utxo_set.utreexo_state.roots, expected, "cannot add thirdth leave");
-        assert_eq!(utxo_set.utreexo_state.num_leaves, 3);
+        assert_eq!(utreexo_state.roots, expected, "cannot add thirdth leave");
+        assert_eq!(utreexo_state.num_leaves, 3);
 
         // add fourth leave
-        utxo_set.leaves_to_add = array![outpoint];
-        utxo_set.utreexo_add();
+        utreexo_state.add(outpoint);
 
         let expected: Span<Option<felt252>> = array![
             Option::None,
@@ -481,12 +490,11 @@ mod tests {
             Option::None
         ]
             .span();
-        assert_eq!(utxo_set.utreexo_state.roots, expected, "cannot add fourth leave");
-        assert_eq!(utxo_set.utreexo_state.num_leaves, 4);
+        assert_eq!(utreexo_state.roots, expected, "cannot add fourth leave");
+        assert_eq!(utreexo_state.num_leaves, 4);
 
         // add fifth leave
-        utxo_set.leaves_to_add = array![outpoint];
-        utxo_set.utreexo_add();
+        utreexo_state.add(outpoint);
 
         let expected: Span<Option<felt252>> = array![
             Option::Some(0x291F8F5FC449D42C715B529E542F24A80136D18F4A85DE28829CD3DCAAC1B9C),
@@ -495,12 +503,13 @@ mod tests {
             Option::None
         ]
             .span();
-        assert_eq!(utxo_set.utreexo_state.roots, expected, "cannot add fifth leave");
-        assert_eq!(utxo_set.utreexo_state.num_leaves, 5);
+        assert_eq!(utreexo_state.roots, expected, "cannot add fifth leave");
+        assert_eq!(utreexo_state.num_leaves, 5);
 
         // add 3 leaves
-        utxo_set.leaves_to_add = array![outpoint, outpoint, outpoint];
-        utxo_set.utreexo_add();
+        for _ in 1..4_u8 {
+            utreexo_state.add(outpoint);
+        };
 
         let expected: Span<Option<felt252>> = array![
             Option::None,
@@ -510,37 +519,13 @@ mod tests {
             Option::None
         ]
             .span();
-        assert_eq!(utxo_set.utreexo_state.roots, expected, "cannot add 3 leaves");
-        assert_eq!(utxo_set.utreexo_state.num_leaves, 8);
+        assert_eq!(utreexo_state.roots, expected, "cannot add 3 leaves");
+        assert_eq!(utreexo_state.num_leaves, 8);
 
         // add 22 leaves
-        utxo_set
-            .leaves_to_add =
-                array![
-                    outpoint,
-                    outpoint,
-                    outpoint,
-                    outpoint,
-                    outpoint,
-                    outpoint,
-                    outpoint,
-                    outpoint,
-                    outpoint,
-                    outpoint,
-                    outpoint,
-                    outpoint,
-                    outpoint,
-                    outpoint,
-                    outpoint,
-                    outpoint,
-                    outpoint,
-                    outpoint,
-                    outpoint,
-                    outpoint,
-                    outpoint,
-                    outpoint
-                ];
-        utxo_set.utreexo_add();
+        for _ in 1..23_u8 {
+            utreexo_state.add(outpoint);
+        };
 
         let expected: Span<Option<felt252>> = [
             Option::None(()),
@@ -550,8 +535,8 @@ mod tests {
             Option::Some(0x58D6BEF6CFC28638FB4C8271355961F50922BCC1577DD2B6D04E11B7A911702),
             Option::None(())
         ].span();
-        assert_eq!(utxo_set.utreexo_state.roots, expected, "cannot add 22 leaves");
-        assert_eq!(utxo_set.utreexo_state.num_leaves, 30);
+        assert_eq!(utreexo_state.roots, expected, "cannot add 22 leaves");
+        assert_eq!(utreexo_state.num_leaves, 30);
     }
 
     #[test]

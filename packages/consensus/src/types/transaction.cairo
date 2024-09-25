@@ -5,6 +5,9 @@
 
 use utils::{hash::Digest, bytearray::{ByteArraySnapHash, ByteArraySnapSerde}};
 use core::fmt::{Display, Formatter, Error};
+use core::hash::HashStateTrait;
+use core::hash::HashStateExTrait;
+use core::poseidon::PoseidonTrait;
 
 /// Represents a transaction.
 /// https://learnmeabitcoin.com/technical/transaction/
@@ -86,6 +89,9 @@ pub struct OutPoint {
     /// Referenced output data (meta field).
     /// Must be set to default for coinbase inputs.
     pub data: TxOut,
+    /// The hash of the block that contains this output (meta field).
+    /// Used for hardening against collision attacks (https://eprint.iacr.org/2019/611.pdf).
+    pub block_hash: Digest,
     /// The height of the block that contains this output (meta field).
     /// Used to validate coinbase tx spending (not sooner than 100 blocks) and relative timelocks
     /// (it has been more than X block since the transaction containing this output was mined).
@@ -121,6 +127,13 @@ pub struct TxOut {
     /// This output won't be added to the utreexo accumulator.
     /// Note that coinbase outputs cannot be spent sooner than 100 blocks after inclusion.
     pub cached: bool,
+}
+
+#[generate_trait]
+pub impl OutPointImpl of OutPointTrait {
+    fn hash(self: @OutPoint) -> felt252 {
+        PoseidonTrait::new().update_with(*self).finalize()
+    }
 }
 
 impl TxOutDefault of Default<TxOut> {
@@ -165,6 +178,7 @@ impl OutPointDisplay of Display<OutPoint> {
 		txid: {},
 		vout: {},
 		data: {},
+		block_hash: {},
 		block_height: {},
 		block_time: {},
 		is_coinbase: {},
@@ -172,6 +186,7 @@ impl OutPointDisplay of Display<OutPoint> {
             *self.txid,
             *self.vout,
             *self.data,
+            *self.block_hash,
             *self.block_height,
             *self.block_time,
             *self.is_coinbase
@@ -196,15 +211,12 @@ impl TxOutDisplay of Display<TxOut> {
 
 #[cfg(test)]
 mod tests {
-    use core::hash::HashStateTrait;
-    use core::hash::HashStateExTrait;
-    use core::poseidon::PoseidonTrait;
-    use super::{OutPoint, TxOut};
+    use super::{OutPoint, OutPointTrait, TxOut};
     use utils::hash::{DigestTrait};
 
     #[test]
     pub fn test_outpoint_poseidon_hash() {
-        let test_outpoint = OutPoint {
+        let mut test_outpoint = OutPoint {
             txid: DigestTrait::new([1, 2, 3, 4, 5, 6, 7, 8]),
             vout: 2,
             // https://learnmeabitcoin.com/explorer/tx/0437cd7f8525ceed2324359c2d0ba26006d92d856a9c20fa0241106ee5a597c9#output-0
@@ -213,13 +225,24 @@ mod tests {
                 pk_script: @"410411db93e1dcdb8a016b49840f8c53bc1eb68a382e97b1482ecad7b148a6909a5cb2e0eaddfb84ccf9744464f82e160bfa9b8b64f9d4c03f999b8643f656b412a3ac",
                 cached: false,
             },
+            block_hash: 0x00000000d1145790a8694403d4063f323d499e655c83426834d4ce2f8dd4a2ee_u256
+                .into(),
             block_height: 9,
             block_time: 1650000000,
             is_coinbase: false,
         };
-        let hash = PoseidonTrait::new().update_with(test_outpoint).finalize();
         assert_eq!(
-            hash, 2066345132208626685244560166700396327660679738257525753112003865133004328681
+            test_outpoint.hash(),
+            1078799518591159253686478630433512427930158685501072491129204005222453242688
+        );
+
+        // Changing block_hash must lead to different outpoint hash
+        test_outpoint
+            .block_hash = 0x00000000d1145790a8694403d4063f323d499e655c83426834d4ce2f8dd4a2ef_u256
+            .into();
+        assert_ne!(
+            test_outpoint.hash(),
+            1078799518591159253686478630433512427930158685501072491129204005222453242688
         );
     }
 }
