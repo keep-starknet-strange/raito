@@ -8,7 +8,7 @@ from tqdm import tqdm
 from collections import defaultdict
 from functools import lru_cache
 
-INDEX_SIZE = 50000
+INDEX_SIZE = 30000
 
 BASE_DIR = "timestamps_data"
 
@@ -38,15 +38,12 @@ def download_timestamp(file_name: str):
 def create_index(folder_path):
     index = {}
     for filename in tqdm(os.listdir(folder_path), "Creating index"):
-        if filename.endswith(".json"):
+        if filename.endswith(".json") and not "index" in filename:
             with open(os.path.join(folder_path, filename), "r") as file:
                 data = [json.loads(line.rstrip()) for line in file]
                 for entry in data:
                     block_number = entry["block_number"]
-                    index[block_number] = [
-                        entry["median_timestamp"],
-                        entry["previous_timestamps"],
-                    ]
+                    index[block_number] = entry
     return index
 
 
@@ -88,10 +85,11 @@ def load_index(file_name):
 
 def get_timestamp_data(block_number):
     """Get the timestamp data for a given block number."""
+    print(int(block_number) // INDEX_SIZE)
     file_name = index_file_name(int(block_number) // INDEX_SIZE)
+    print(file_name)
     index = load_index(file_name)
-    median, previous_timestamps = index[block_number]
-    return median, previous_timestamps
+    return index[block_number]
 
 
 if __name__ == "__main__":
