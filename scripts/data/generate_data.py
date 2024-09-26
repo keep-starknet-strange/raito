@@ -6,6 +6,8 @@ import json
 import requests
 from pathlib import Path
 from decimal import Decimal, getcontext
+from generate_timestamp_data import get_timestamp_data
+from generate_utxo_data import get_utxo_set
 
 getcontext().prec = 16
 
@@ -47,6 +49,17 @@ def fetch_chain_state(block_height: int):
     block_hash = request_rpc("getblockhash", [block_height])
     head = request_rpc("getblockheader", [block_hash])
 
+    # If block is downloaded take it localy
+    data = get_timestamp_data(block_height)
+    if str(block_height) in data:
+        data = data[str(block_height)]
+        head["prev_timestamps"] = data["previous_timestamps"]
+        if block_height < 2016:
+            head["epoch_start_time"] = 1231006505
+        else:
+            head["epoch_start_time"] = data["epoch_start_time"]
+        return head
+
     # In order to init prev_timestamps we need to query 10 previous headers
     prev_header = head
     prev_timestamps = [head["time"]]
@@ -65,7 +78,6 @@ def fetch_chain_state(block_height: int):
         head["epoch_start_time"] = 1231006505
     else:
         head["epoch_start_time"] = get_epoch_start_time(block_height)
-
     return head
 
 
@@ -127,6 +139,7 @@ def bits_to_target(bits: str) -> int:
 
 def fetch_block(block_hash: str):
     """Downloads block with transactions (and referred UTXOs) from RPC given the block hash."""
+    block = request_rpc("getblockheader", [block_hash])
     block = request_rpc("getblock", [block_hash, 2])
     block["data"] = {tx["txid"]: resolve_transaction(tx) for tx in block["tx"]}
     return block
@@ -167,7 +180,7 @@ def resolve_outpoint(input: dict):
         "txid": input["txid"],
         "vout": input["vout"],
         "data": format_output(tx["vout"][input["vout"]]),
-        "block_hash": block["hash"],
+        "block_hash": tx["blockhash"],
         "block_height": block["height"],
         "block_time": block["time"],
         "is_coinbase": tx["vin"][0].get("coinbase") is not None,

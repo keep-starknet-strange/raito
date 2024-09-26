@@ -49,12 +49,18 @@ def create_index(folder_path):
 
 def list_files_in_gcs(bucket_name: str, prefix: str):
     """List all files in a GCS bucket under a specific folder (prefix)."""
-    client = storage.Client()
+    client = storage.Client.create_anonymous_client()
     bucket = client.get_bucket(bucket_name)
-    blobs = bucket.list_blobs(prefix=prefix)
-    return [
-        os.path.basename(blob.name) for blob in blobs if blob.name.endswith(".json")
-    ]
+    blobs = bucket.list_blobs()
+    if not os.path.exists(prefix):
+        os.makedirs(prefix)
+    files = []
+    for blob in blobs:
+        if blob.name.endswith(".json") and blob.name.startswith(prefix):
+            files.append(blob.name)
+            if not os.path.exists(blob.name):
+                blob.download_to_filename(blob.name)
+    return files
 
 
 def index_file_name(key):
@@ -89,7 +95,7 @@ def get_timestamp_data(block_number):
     file_name = index_file_name(int(block_number) // INDEX_SIZE)
     print(file_name)
     index = load_index(file_name)
-    return index[block_number]
+    return index
 
 
 if __name__ == "__main__":
