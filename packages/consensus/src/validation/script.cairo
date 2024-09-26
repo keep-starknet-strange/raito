@@ -7,6 +7,10 @@ use script::dummy::{HashCacheDummy, HashCacheDummyImpl};
 use crate::types::transaction::{Transaction, TxIn, TxOut};
 use crate::types::block::Header;
 
+const BIP0016_TIMESTAMP: u32 = 1333238400;
+const BIP0066_HEIGHT: u32 = 363725;
+const BIP0065_HEIGHT: u32 = 388381;
+
 impl EngineTransactionInputImpl of EngineTransactionInputTrait<TxIn> {
     fn get_prevout_txid(self: @TxIn) -> u256 {
         0
@@ -60,20 +64,34 @@ impl EngineTransactionDummyImpl of EngineTransactionTrait<Transaction, TxIn, TxO
 fn script_flags(header: @Header, tx: @Transaction) -> u32 {
     let mut script_flags = 0_u32;
 
-    if true { // TODO: https://github.com/btcsuite/btcd/blob/2b53ed198955ac40fe5b3ce4a854e9f5bfa68258/blockchain/validate.go#L1208
+    // Blocks created after the BIP0016 activation time need to have the
+    // pay-to-script-hash checks enabled.
+    if header.time >= BIP0016_TIMESTAMP {
         script_flags += ScriptFlags::ScriptBip16.into();
     }
 
-    // TODO: https://github.com/btcsuite/btcd/blob/2b53ed198955ac40fe5b3ce4a854e9f5bfa68258/blockchain/validate.go#L1215
-    
-    // TODO: https://github.com/btcsuite/btcd/blob/2b53ed198955ac40fe5b3ce4a854e9f5bfa68258/blockchain/validate.go#L1221
+    // Enforce DER signatures for block versions 3+ once the historical
+    // activation threshold has been reached.  This is part of BIP0066.
+    if header.version >= 3 && tx.inputs[0].previous_output.block_height >= BIP0066_HEIGHT {
+        script_flags += ScriptFlags::ScriptVerifyDERSignatures.into();
+    }
 
-    // TODO: https://github.com/btcsuite/btcd/blob/2b53ed198955ac40fe5b3ce4a854e9f5bfa68258/blockchain/validate.go#L1234
+    // Enforce CHECKLOCKTIMEVERIFY for block versions 4+ once the historical
+    // activation threshold has been reached.  This is part of BIP0065.
+    if header.version >= 4 && tx.inputs[0].previous_output.block_height >= BIP0065_HEIGHT {
+        script_flags += ScriptFlags::ScriptVerifyDERSignatures.into();
+    }
 
-    // TODO: https://github.com/btcsuite/btcd/blob/2b53ed198955ac40fe5b3ce4a854e9f5bfa68258/blockchain/validate.go#L1266
-    // TODO: https://github.com/btcsuite/btcd/blob/2b53ed198955ac40fe5b3ce4a854e9f5bfa68258/blockchain/validate.go#L1267
+    // TODO:
+    // https://github.com/btcsuite/btcd/blob/2b53ed198955ac40fe5b3ce4a854e9f5bfa68258/blockchain/validate.go#L1234
 
-    // TODO: https://github.com/btcsuite/btcd/blob/2b53ed198955ac40fe5b3ce4a854e9f5bfa68258/blockchain/validate.go#L1279
+    // TODO:
+    // https://github.com/btcsuite/btcd/blob/2b53ed198955ac40fe5b3ce4a854e9f5bfa68258/blockchain/validate.go#L1266
+    // TODO:
+    // https://github.com/btcsuite/btcd/blob/2b53ed198955ac40fe5b3ce4a854e9f5bfa68258/blockchain/validate.go#L1267
+
+    // TODO:
+    // https://github.com/btcsuite/btcd/blob/2b53ed198955ac40fe5b3ce4a854e9f5bfa68258/blockchain/validate.go#L1279
 
     script_flags
 }
