@@ -89,7 +89,7 @@ def get_timestamp_data(block_number):
     file_name = index_file_name(int(block_number) // INDEX_SIZE)
     print(file_name)
     index = load_index(file_name)
-    return  index[block_number]
+    return index[block_number]
 
 
 if __name__ == "__main__":
