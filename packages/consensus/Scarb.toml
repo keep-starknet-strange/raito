@@ -11,7 +11,7 @@ log_level_debug = []
 
 [dependencies]
 utils = { path = "../utils" }
-logging = { path = "../logging" }
+# logging = { path = "../logging" }
 logging_macros = { path = "../logging_macros" }
 
 [dev-dependencies]

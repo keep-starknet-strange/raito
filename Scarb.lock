@@ -12,7 +12,6 @@ dependencies = [
 name = "consensus"
 version = "0.1.0"
 dependencies = [
- "logging",
  "logging_macros",
  "utils",
 ]
