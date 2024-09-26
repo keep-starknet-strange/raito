@@ -8900,20 +8900,7 @@
           ]
         }
       },
-      "utreexo_proofs": [
-        {
-          "proof": [
-            "0x0552e03c067bedc9871356a5b5c73b7f2260cff5bf10031dfacfd042935a6310",
-            "0x033d48a07adc7f5a86f98d5898531f5f912234129e6be5c95252c2b8bbf7b830",
-            "0x02c780ebe9679ada27a2296022a675ae7a3370baf21eab0db36a9718ae3ab4c7",
-            "0x0302d0e7ed5b2713dc0758e1d60657f416de1593ea041f1d7a1926183a879063",
-            "0x03a9b200edc753eea765e0e44d21b691509fd7bf6048ff51da40653bbf7eecee",
-            "0x043962c4e38544c9a48a7ea2e06c3ff39582a7012c998d10838899d4bc3fe53b",
-            "0x01aadc479d40caa31d0547e61276c1d7948af0588d31e5610bc2d409c79925cf"
-          ],
-          "leaf_index": 8
-        }
-      ]
+      "utreexo_proofs": []
     },
     {
       "block": {
@@ -9524,17 +9511,7 @@
           ]
         }
       },
-      "utreexo_proofs": [
-        {
-          "proof": [
-            "0x00b8001b118e2da2a9ceeb9efb15f183ccaf4d6e2af81e136dd29d52eff98a09",
-            "0x03ccc7b532b009e6261e18afb09fc861b0cf150f4137cf563130be32136c7262",
-            "0x01289800908283f729274c40ababf0d62dab14559f44709fe34b98247dfe7c81",
-            "0x049a7492e9f6e82c7fbf428bfd737f4479f3713d7c284cca7b2259d6c91cc334"
-          ],
-          "leaf_index": 10
-        }
-      ]
+      "utreexo_proofs": []
     },
     {
       "block": {
@@ -9625,16 +9602,7 @@
           ]
         }
       },
-      "utreexo_proofs": [
-        {
-          "proof": [
-            "0x047f2b5808de76967425a302445769c38a722827b9214e82e25fafbf2294a05f",
-            "0x026bfa3f422205eaac8c8d1cebcb3cd89dedc11e75a5ff226f3ed3887c074b8d",
-            "0x0405537b7888c3c2ee02d237d1ab3203f57aaf70b77063fa192d7060beec51c6"
-          ],
-          "leaf_index": 6
-        }
-      ]
+      "utreexo_proofs": []
     },
     {
       "block": {
@@ -9725,14 +9693,7 @@
           ]
         }
       },
-      "utreexo_proofs": [
-        {
-          "proof": [
-            "0x01f3ea1f93ffa85facbdd6b7b64ff570271391558f377292661b61ce1040083e"
-          ],
-          "leaf_index": 0
-        }
-      ]
+      "utreexo_proofs": []
     },
     {
       "block": {
@@ -9974,15 +9935,7 @@
           ]
         }
       },
-      "utreexo_proofs": [
-        {
-          "proof": [
-            "0x01f3ea1f93ffa85facbdd6b7b64ff570271391558f377292661b61ce1040083e",
-            "0x0563f6be8e23f13a2407e0fa05a182131f91a8da8fd6bc05fd9a61fd4e25bcb8"
-          ],
-          "leaf_index": 1
-        }
-      ]
+      "utreexo_proofs": []
     },
     {
       "block": {
@@ -10690,8 +10643,8 @@
         "0x07d3e352d767e363d418aaccdf300e9beb8f7c97bf85fe60427ddaedbfe0edeb",
         null,
         null,
-        "0x07de3359dc07fa64e3f0acd7148adf67db0daa2109a0daaf0861c91c4d0106ae",
-        "0x07e8be43ae07c6951d509541a39b16e05dc99fe42a32389fb437c7b082fe6b2b",
+        "0x0255ac119da891e87539c33e84f4989a276a89a2c79c290909b0628325856f23",
+        "0x0605841cf503a1d91bc0199c5e82d451a9b9a1742ac1d62e541d8ed3d5c3d3aa",
         null
       ],
       "leaf_nodes": {
