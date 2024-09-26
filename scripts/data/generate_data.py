@@ -274,7 +274,12 @@ def generate_data(
 
     # Includes genesis block if satoshi returns?
     if include_utreexo_data:
-        blocks.append(fetch_block("000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f", include_utreexo_data))
+        blocks.append(
+            fetch_block(
+                "000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f",
+                include_utreexo_data,
+            )
+        )
 
     for i in range(num_blocks):
         # UTXO defined to track unspent output in the same block to define cached output.

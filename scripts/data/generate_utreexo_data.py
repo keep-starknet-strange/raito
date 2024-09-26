@@ -135,7 +135,9 @@ def handle_txin(inputs: list, utreexo_proofs: list, utreexo: Utreexo):
             data=TxOut(
                 value=outpoint.get("data").get("value"),
                 pk_script=outpoint.get("data").get("pk_script"),
-                cached = outpoint.get("data").get("cached") # != outpoint.get("cached", False)
+                cached=outpoint.get("data").get(
+                    "cached"
+                ),  # != outpoint.get("cached", False)
             ),
             block_height=outpoint.get("block_height"),
             block_time=outpoint.get("block_time"),
