@@ -10,10 +10,10 @@ from functools import lru_cache
 
 INDEX_SIZE = 50000
 
-BASE_DIR = "previous_outputs_data"
+BASE_DIR = "timestamps_data"
 
 GCS_BUCKET_NAME = "shinigami-consensus"
-GCS_FOLDER_NAME = "previous_outputs"
+GCS_FOLDER_NAME = "timestamps"
 GCS_BASE_URL = f"https://storage.googleapis.com/shinigami-consensus/{GCS_FOLDER_NAME}/"
 
 
