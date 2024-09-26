@@ -220,7 +220,7 @@ def format_block_with_transactions(block: dict):
 
 
 def fetch_block_header(block_hash: str):
-    """Downloads block header (without trasnasction) from RPC given the block hash."""
+    """Downloads block header (without transaction) from RPC given the block hash."""
     return request_rpc("getblockheader", [block_hash])
 
 
