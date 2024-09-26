@@ -131,25 +131,24 @@ pub impl UtreexoAccumulatorImpl of UtreexoAccumulator {
     fn delete(ref self: UtreexoState, proof: @UtreexoProof) {
         let mut roots: Array<Option<felt252>> = array![];
         let mut n: Option<felt252> = Option::None;
-        let mut h: usize = 0;
 
         let num_roots: u32 = self.roots.len();
+        let proof = *proof.proof;
+        let mut h: usize = 0;
 
-        while h != (*proof.proof).len() {
-            let p = proof.proof[h];
-
+        for sibling in proof {
             if n != Option::None {
-                n = Option::Some(parent_hash(*p, n.unwrap()));
+                n = Option::Some(parent_hash(*sibling, n.unwrap()));
                 if h < num_roots {
                     roots.append(*self.roots[h]);
                 } else {
                     roots.append(Option::None);
                 }
             } else if h < num_roots && self.roots[h].is_some() {
-                n = Option::Some(parent_hash(*p, (*self.roots[h]).unwrap()));
+                n = Option::Some(parent_hash(*sibling, (*self.roots[h]).unwrap()));
                 roots.append(Option::None);
             } else {
-                roots.append(Option::Some(*p));
+                roots.append(Option::Some(*sibling));
             }
 
             h += 1;
