@@ -25,12 +25,11 @@ pub fn to_hex(data: @ByteArray) -> ByteArray {
     let mut result: ByteArray = Default::default();
 
     let mut i = 0;
-    let len = data.len();
-    while i != len {
-        let value = data[i];
+    while i != data.len() {
+        let value: u32 = data[i].into();
         let (l, r) = core::traits::DivRem::div_rem(value, 16);
-        result.append_byte(alphabet.at(l.into()).unwrap());
-        result.append_byte(alphabet.at(r.into()).unwrap());
+        result.append_byte(alphabet.at(l).unwrap());
+        result.append_byte(alphabet.at(r).unwrap());
         i += 1;
     };
     result

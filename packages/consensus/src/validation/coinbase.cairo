@@ -236,6 +236,7 @@ mod tests {
         assert_eq!(last_reward, 0);
     }
 
+
     #[test]
     fn test_validate_coinbase_with_multiple_input() {
         let tx = Transaction {

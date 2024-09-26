@@ -49,8 +49,8 @@ pub fn compute_and_validate_tx_data(
         let txid = double_sha256_byte_array(tx_bytes_legacy);
 
         if block_height >= SEGWIT_BLOCK {
-            let tx_bytes_segwit = @tx
-                .encode_with_witness(tx_bytes_legacy); // SegWit transaction encoding
+            // SegWit transaction encoding
+            let tx_bytes_segwit = @tx.encode_with_witness(tx_bytes_legacy);
 
             /// The wTXID for the coinbase transaction must be set to all zeros. This is because
             /// it's eventually going to contain the commitment inside it
@@ -61,24 +61,16 @@ pub fn compute_and_validate_tx_data(
                 double_sha256_byte_array(tx_bytes_segwit)
             };
 
-            total_weight += 3 * tx_bytes_legacy.len()
-                + tx_bytes_segwit.len(); // Calculate block weight with SegWit
+            // Calculate block weight with SegWit
+            total_weight += 3 * tx_bytes_legacy.len() + tx_bytes_segwit.len();
 
-            let [i0, i1, i2, i3, i4, i5, i6, i7] = wtxid.value;
-            wtxids.append(BoxTrait::new([i0, i1, i2, i3, i4, i5, i6, i7]));
-            // wtxids.append(wtxid); // Append wtxid to array
+            wtxids.append(BoxTrait::new(wtxid.value));
         } else {
             // For blocks before SegWit, only legacy tx weight is considered
             total_weight += 4 * tx_bytes_legacy.len(); // Calculate block weight without SegWit
         }
 
-        // txids.append(txid);
-        let [i0, i1, i2, i3, i4, i5, i6, i7] = txid.value;
-        txids.append(BoxTrait::new([i0, i1, i2, i3, i4, i5, i6, i7]));
-
-        // // TODO: only do that for blocks after Segwit upgrade
-        // let [i0, i1, i2, i3, i4, i5, i6, i7] = wtxid.value;
-        // wtxids.append(BoxTrait::new([i0, i1, i2, i3, i4, i5, i6, i7]));
+        txids.append(BoxTrait::new(txid.value));
 
         if (is_coinbase) {
             let mut vout = 0;
@@ -118,6 +110,7 @@ pub fn compute_and_validate_tx_data(
     inner_result?;
     validate_block_weight(total_weight)?;
 
+    let mut txid_root = DigestTrait::new(merkle_root(txids.span()).unbox());
     let wtxid_root = if block_height >= SEGWIT_BLOCK {
         let mut wtxid_root = merkle_root(wtxids.span());
         DigestTrait::new(wtxid_root.unbox())
@@ -125,7 +118,6 @@ pub fn compute_and_validate_tx_data(
         Zero::zero()
     };
 
-    let mut txid_root = DigestTrait::new(merkle_root(txids.span()).unbox());
     Result::Ok((total_fee, txid_root, wtxid_root))
 }
 

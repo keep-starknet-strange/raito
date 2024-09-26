@@ -33,7 +33,7 @@ const input_padding: [
 ];
 
 /// Calculates double sha256 digest perf
-pub fn double_sha256_opti(inputs: Box<[u32; 16]>) -> Box<[u32; 8]> {
+pub fn digest_double_sha256(inputs: Box<[u32; 16]>) -> Box<[u32; 8]> {
     //stage 1
     let mut state1 = sha256_state_handle_init(BoxTrait::new(SHA256_INITIAL_STATE));
     state1 = sha256_process_block_syscall(state1, inputs).unwrap_syscall();

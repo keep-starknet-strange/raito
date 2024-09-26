@@ -1,9 +1,10 @@
 //! Merkle tree helpers.
 
-use utils::double_sha256::{double_sha256_opti};
+use utils::double_sha256::{digest_double_sha256};
 
+/// Calculate Merkle tree root given the array of leaves.
 pub fn merkle_root(hashes: Span<Box<[u32; 8]>>) -> Box<[u32; 8]> {
-    let mut len: u32 = hashes.len();
+    let len: u32 = hashes.len();
 
     if len == 1 {
         return *hashes[0];
@@ -18,19 +19,19 @@ pub fn merkle_root(hashes: Span<Box<[u32; 8]>>) -> Box<[u32; 8]> {
         let [i0, i1, i2, i3, i4, i5, i6, i7] = a.unbox();
         let [i8, i9, i10, i11, i12, i13, i14, i15] = b.unbox();
 
-        let test: Box::<[u32; 8]> = double_sha256_opti(
+        let hash: Box::<[u32; 8]> = digest_double_sha256(
             BoxTrait::new([i0, i1, i2, i3, i4, i5, i6, i7, i8, i9, i10, i11, i12, i13, i14, i15])
         );
-        next_hashes.append(test);
+        next_hashes.append(hash);
     };
 
     if (is_odd == 1) {
         let last = *arr.pop_front().unwrap();
         let [i0, i1, i2, i3, i4, i5, i6, i7] = last.unbox();
-        let test = double_sha256_opti(
+        let hash = digest_double_sha256(
             BoxTrait::new([i0, i1, i2, i3, i4, i5, i6, i7, i0, i1, i2, i3, i4, i5, i6, i7])
         );
-        next_hashes.append(test);
+        next_hashes.append(hash);
     } else if ((*hashes[len - 1]).unbox() == (*hashes[len - 2]).unbox()) {
         // CVE-2012-2459 bug fix
         panic!("unexpected node duplication in merkle tree");
