@@ -139,7 +139,6 @@ def bits_to_target(bits: str) -> int:
 
 def fetch_block(block_hash: str):
     """Downloads block with transactions (and referred UTXOs) from RPC given the block hash."""
-    block = request_rpc("getblockheader", [block_hash])
     block = request_rpc("getblock", [block_hash, 2])
     block["data"] = {tx["txid"]: resolve_transaction(tx) for tx in block["tx"]}
     return block
