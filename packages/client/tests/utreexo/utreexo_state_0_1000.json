@@ -26,6 +26,58 @@
     {
       "block": {
         "header": {
+          "hash": "000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f",
+          "version": 1,
+          "time": 1231006505,
+          "bits": 486604799,
+          "nonce": 2083236893
+        },
+        "data": {
+          "variant_id": 1,
+          "transactions": [
+            {
+              "version": 1,
+              "txid": "4a5e1e4baab89f3a32518a88c31bc87f618f76673e2cc77ab2127b7afdeda33b",
+              "is_segwit": false,
+              "inputs": [
+                {
+                  "script": "0x04ffff001d0104455468652054696d65732030332f4a616e2f32303039204368616e63656c6c6f72206f6e206272696e6b206f66207365636f6e64206261696c6f757420666f722062616e6b73",
+                  "sequence": 4294967295,
+                  "previous_output": {
+                    "txid": "0000000000000000000000000000000000000000000000000000000000000000",
+                    "vout": 4294967295,
+                    "data": {
+                      "value": 0,
+                      "pk_script": "0x",
+                      "cached": false
+                    },
+                    "block_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+                    "block_height": 0,
+                    "block_time": 0,
+                    "is_coinbase": false
+                  },
+                  "witness": [
+                    "0x0000000000000000000000000000000000000000000000000000000000000000"
+                  ]
+                }
+              ],
+              "outputs": [
+                {
+                  "value": 5000000000,
+                  "pk_script": "0x4104678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5fac",
+                  "cached": false
+                }
+              ],
+              "lock_time": 0
+            }
+          ]
+        }
+      },
+      "utreexo_proofs": []
+    },
+    {
+      "block": {
+        "header": {
           "hash": "00000000839a8e6886ab5951d76f411475428afc90947ee320161bbf18eb6048",
           "version": 1,
           "time": 1231469665,
@@ -481,7 +533,7 @@
                 {
                   "value": 5000000000,
                   "pk_script": "0x410411db93e1dcdb8a016b49840f8c53bc1eb68a382e97b1482ecad7b148a6909a5cb2e0eaddfb84ccf9744464f82e160bfa9b8b64f9d4c03f999b8643f656b412a3ac",
-                  "cached": true
+                  "cached": false
                 }
               ],
               "lock_time": 0
@@ -8877,8 +8929,7 @@
                     "block_hash": "000000008d9dc510f23c2657fc4f67bea30078cc05a90eb89e84cc475c080805",
                     "block_height": 9,
                     "block_time": 1231473279,
-                    "is_coinbase": true,
-                    "cached": true
+                    "is_coinbase": true
                   },
                   "witness": []
                 }
@@ -8892,7 +8943,7 @@
                 {
                   "value": 4000000000,
                   "pk_script": "0x410411db93e1dcdb8a016b49840f8c53bc1eb68a382e97b1482ecad7b148a6909a5cb2e0eaddfb84ccf9744464f82e160bfa9b8b64f9d4c03f999b8643f656b412a3ac",
-                  "cached": true
+                  "cached": false
                 }
               ],
               "lock_time": 0
@@ -8900,7 +8951,20 @@
           ]
         }
       },
-      "utreexo_proofs": []
+      "utreexo_proofs": [
+        {
+          "proof": [
+            "0x06cc6cda7e62138e092f71a17fc4a2657a118f5ab9f5d77dc5f0480a92f7a1b8",
+            "0x0396a3a1e4a84a687993103aafb51189c6ac6d1d4cb34056bcd020d34d4bdb3d",
+            "0x048935edcb06079d09c3b4aae71a1a891ece57d8dea68d63abe9ac54e50faa6f",
+            "0x05b538f568f09b11715754e1a38e1f89af39b7bca46e24a86d99a8f86663664a",
+            "0x00de8e55a723c310c820e6ce85c5c75c2feb5eaf7bf70edaba1feeecdd4f6867",
+            "0x06def63aff2a687b1eea98a2ce5eda5bac7bdee1916759675dfd82d105552435",
+            "0x068f83c71ef306e3b91da8ca3684c648f5338984b4dd7b061b10f16c73f3a5b6"
+          ],
+          "leaf_index": 9
+        }
+      ]
     },
     {
       "block": {
@@ -9488,8 +9552,7 @@
                     "block_hash": "00000000d1145790a8694403d4063f323d499e655c83426834d4ce2f8dd4a2ee",
                     "block_height": 170,
                     "block_time": 1231731025,
-                    "is_coinbase": false,
-                    "cached": true
+                    "is_coinbase": false
                   },
                   "witness": []
                 }
@@ -9503,7 +9566,7 @@
                 {
                   "value": 3000000000,
                   "pk_script": "0x410411db93e1dcdb8a016b49840f8c53bc1eb68a382e97b1482ecad7b148a6909a5cb2e0eaddfb84ccf9744464f82e160bfa9b8b64f9d4c03f999b8643f656b412a3ac",
-                  "cached": true
+                  "cached": false
                 }
               ],
               "lock_time": 0
@@ -9511,7 +9574,17 @@
           ]
         }
       },
-      "utreexo_proofs": []
+      "utreexo_proofs": [
+        {
+          "proof": [
+            "0x00671cc415a6fd277aeb66482e6d3035d83c34884dbca20cde0a038911af453c",
+            "0x027708f8d18f6fe33156c60619cbd548a53c975d8eebcda7139021f2eaeb02a9",
+            "0x01eb1d9cde78625ae2e6ae08913f9026b8848399a4a27f2f68e991af58768f40",
+            "0x07f9548f45c4244a9864c8217717e9a73bca53e323611f92f69ef844fc618a48"
+          ],
+          "leaf_index": 11
+        }
+      ]
     },
     {
       "block": {
@@ -9579,8 +9652,7 @@
                     "block_hash": "00000000dc55860c8a29c58d45209318fa9e9dc2c1833a7226d86bc465afc6e5",
                     "block_height": 181,
                     "block_time": 1231740133,
-                    "is_coinbase": false,
-                    "cached": true
+                    "is_coinbase": false
                   },
                   "witness": []
                 }
@@ -9589,12 +9661,12 @@
                 {
                   "value": 100000000,
                   "pk_script": "0x410401518fa1d1e1e3e162852d68d9be1c0abad5e3d6297ec95f1f91b909dc1afe616d6876f92918451ca387c4387609ae1a895007096195a824baf9c38ea98c09c3ac",
-                  "cached": true
+                  "cached": false
                 },
                 {
                   "value": 2900000000,
                   "pk_script": "0x410411db93e1dcdb8a016b49840f8c53bc1eb68a382e97b1482ecad7b148a6909a5cb2e0eaddfb84ccf9744464f82e160bfa9b8b64f9d4c03f999b8643f656b412a3ac",
-                  "cached": true
+                  "cached": false
                 }
               ],
               "lock_time": 0
@@ -9602,7 +9674,16 @@
           ]
         }
       },
-      "utreexo_proofs": []
+      "utreexo_proofs": [
+        {
+          "proof": [
+            "0x04a377df4055a23b998f7baf93a3b3824ac81f0a7e59dd987c0a7da6e533e301",
+            "0x01b40dc2fb7853d5a840807a886e80642c2f048cb4f2123f73ffee131154dff9",
+            "0x04c0e8e97cf2637db48092a8a636d7108319b86de43c7ac346fb5039f90f9486"
+          ],
+          "leaf_index": 7
+        }
+      ]
     },
     {
       "block": {
@@ -9670,8 +9751,7 @@
                     "block_hash": "0000000054487811fc4ff7a95be738aa5ad9320c394c482b27c0da28b227ad5d",
                     "block_height": 182,
                     "block_time": 1231740736,
-                    "is_coinbase": false,
-                    "cached": true
+                    "is_coinbase": false
                   },
                   "witness": []
                 }
@@ -9680,12 +9760,12 @@
                 {
                   "value": 100000000,
                   "pk_script": "0x4104baa9d36653155627c740b3409a734d4eaf5dcca9fb4f736622ee18efcf0aec2b758b2ec40db18fbae708f691edb2d4a2a3775eb413d16e2e3c0f8d4c69119fd1ac",
-                  "cached": true
+                  "cached": false
                 },
                 {
                   "value": 2800000000,
                   "pk_script": "0x410411db93e1dcdb8a016b49840f8c53bc1eb68a382e97b1482ecad7b148a6909a5cb2e0eaddfb84ccf9744464f82e160bfa9b8b64f9d4c03f999b8643f656b412a3ac",
-                  "cached": true
+                  "cached": false
                 }
               ],
               "lock_time": 0
@@ -9693,7 +9773,14 @@
           ]
         }
       },
-      "utreexo_proofs": []
+      "utreexo_proofs": [
+        {
+          "proof": [
+            "0x02dfac269ae3c212b5b4a6d1d03b9866addb10447eea5b1bf3edc46d61410f89"
+          ],
+          "leaf_index": 1
+        }
+      ]
     },
     {
       "block": {
@@ -9917,8 +10004,7 @@
                     "block_hash": "00000000f46e513f038baf6f2d9a95b2a28d8a6c985bcf24b9e07f0f63a29888",
                     "block_height": 183,
                     "block_time": 1231742062,
-                    "is_coinbase": false,
-                    "cached": true
+                    "is_coinbase": false
                   },
                   "witness": []
                 }
@@ -9927,7 +10013,7 @@
                 {
                   "value": 100000000,
                   "pk_script": "0x4104fe1b9ccf732e1f6b760c5ed3152388eeeadd4a073e621f741eb157e6a62e3547c8e939abbd6a513bf3a1fbe28f9ea85a4e64c526702435d726f7ff14da40bae4ac",
-                  "cached": true
+                  "cached": false
                 }
               ],
               "lock_time": 0
@@ -9935,7 +10021,19 @@
           ]
         }
       },
-      "utreexo_proofs": []
+      "utreexo_proofs": [
+        {
+          "proof": [
+            "0x0522f3d0f1a9f18e59294159f7acdeb8838fab32e22f22a12f358759fb17112e",
+            "0x028d164bfc1feaf6d6fec25a23ae592b6f4b53f7e7f614385ed5ea84731003c6",
+            "0x01c08fe06cf8cbe744a18ee1150e534061d8c3ebb7ff134a983c435d77e49d2f",
+            "0x043b0f2b1d5fbe696a87688f6945b31e7ab68b014c07016af28b9a17842f4380",
+            "0x007d3351b110760023488700a872f751f7e9eac63e5312522fa31339d62fea2d",
+            "0x061169328e034a659b1cd492729a803670ab8be93345f03dc100d51f483c0099"
+          ],
+          "leaf_index": 58
+        }
+      ]
     },
     {
       "block": {
@@ -11719,8 +11817,7 @@
                     "block_hash": "0000000054487811fc4ff7a95be738aa5ad9320c394c482b27c0da28b227ad5d",
                     "block_height": 182,
                     "block_time": 1231740736,
-                    "is_coinbase": false,
-                    "cached": true
+                    "is_coinbase": false
                   },
                   "witness": []
                 }
@@ -11737,7 +11834,19 @@
           ]
         }
       },
-      "utreexo_proofs": []
+      "utreexo_proofs": [
+        {
+          "proof": [
+            "0x01f3ea1f93ffa85facbdd6b7b64ff570271391558f377292661b61ce1040083e",
+            "0x0582c644fff85f3f28db5f4415209c1b7681f7cf6337f93c08af1f0ce43d78f7",
+            "0x01c08fe06cf8cbe744a18ee1150e534061d8c3ebb7ff134a983c435d77e49d2f",
+            "0x043b0f2b1d5fbe696a87688f6945b31e7ab68b014c07016af28b9a17842f4380",
+            "0x007d3351b110760023488700a872f751f7e9eac63e5312522fa31339d62fea2d",
+            "0x061169328e034a659b1cd492729a803670ab8be93345f03dc100d51f483c0099"
+          ],
+          "leaf_index": 60
+        }
+      ]
     },
     {
       "block": {
@@ -13157,8 +13266,7 @@
                     "block_hash": "00000000f46e513f038baf6f2d9a95b2a28d8a6c985bcf24b9e07f0f63a29888",
                     "block_height": 183,
                     "block_time": 1231742062,
-                    "is_coinbase": false,
-                    "cached": true
+                    "is_coinbase": false
                   },
                   "witness": []
                 }
@@ -13167,7 +13275,7 @@
                 {
                   "value": 1000000000,
                   "pk_script": "0x4104bed827d37474beffb37efe533701ac1f7c600957a4487be8b371346f016826ee6f57ba30d88a472a0e4ecd2f07599a795f1f01de78d791b382e65ee1c58b4508ac",
-                  "cached": true
+                  "cached": false
                 },
                 {
                   "value": 1800000000,
@@ -13180,7 +13288,19 @@
           ]
         }
       },
-      "utreexo_proofs": []
+      "utreexo_proofs": [
+        {
+          "proof": [
+            "0x038e0f45b4215ebd819b5a7c49cf4d8a887c09a0c5253082d8697e351da1c7a3",
+            "0x05237cd19f0eb7cc334ae71196866cd80cb91a70e129dc3be1f130cfb056795e",
+            "0x01c08fe06cf8cbe744a18ee1150e534061d8c3ebb7ff134a983c435d77e49d2f",
+            "0x043b0f2b1d5fbe696a87688f6945b31e7ab68b014c07016af28b9a17842f4380",
+            "0x007d3351b110760023488700a872f751f7e9eac63e5312522fa31339d62fea2d",
+            "0x061169328e034a659b1cd492729a803670ab8be93345f03dc100d51f483c0099"
+          ],
+          "leaf_index": 60
+        }
+      ]
     },
     {
       "block": {
@@ -14212,7 +14332,7 @@
                 {
                   "value": 5000000000,
                   "pk_script": "0x4104f623076844c4828d1af72e37f0142f8c00aabf070d95225493b081daec8a482f6c79b94ca0978f9457ddd9ea70bec76c98bced76be55f3af225febc9b9791ae9ac",
-                  "cached": true
+                  "cached": false
                 }
               ],
               "lock_time": 0
@@ -15148,7 +15268,7 @@
                 {
                   "value": 5000000000,
                   "pk_script": "0x41048b48e109f432a490522f8d0e9e833443809f65b8aa2558b94c1c15eb0fd3e24f32d58a088a2b0e5e694d05e7b981e5c9750827646eb81debc816c3c667eea5fdac",
-                  "cached": true
+                  "cached": false
                 }
               ],
               "lock_time": 0
@@ -16760,7 +16880,7 @@
                 {
                   "value": 5000000000,
                   "pk_script": "0x410445aa26ca9ec2c37b81699317a0ee8c160aacdf7f717b67f1ab98432de1e5a954ffff5af7107ebc20ca11639367318d9f7529945c7efe171280993af7da9798c4ac",
-                  "cached": true
+                  "cached": false
                 }
               ],
               "lock_time": 0
@@ -17384,7 +17504,7 @@
                 {
                   "value": 5000000000,
                   "pk_script": "0x410406fbce9111c572added1d16b36132b04bb5c577a1e4194815a20608d2be99b98fbfd045c48c95c1e37d415d1b1c46a172653fb563ed1aa18a45864edd2322c64ac",
-                  "cached": true
+                  "cached": false
                 }
               ],
               "lock_time": 0
@@ -18840,7 +18960,7 @@
                 {
                   "value": 5000000000,
                   "pk_script": "0x41043987a76015929873f06823f4e8d93abaaf7bcf55c6a564bed5b7f6e728e6c4cb4e2c420fe14d976f7e641d8b791c652dfeee9da584305ae544eafa4f7be6f777ac",
-                  "cached": true
+                  "cached": false
                 }
               ],
               "lock_time": 0
@@ -18996,7 +19116,7 @@
                 {
                   "value": 5000000000,
                   "pk_script": "0x41044ca7baf6d8b658abd04223909d82f1764740bdc9317255f54e4910f888bd82950e33236798517591e4c2181f69b5eaa2fa1f21866780a0cc5d8396a04fd36310ac",
-                  "cached": true
+                  "cached": false
                 }
               ],
               "lock_time": 0
@@ -21960,7 +22080,7 @@
                 {
                   "value": 5000000000,
                   "pk_script": "0x4104bdd1fc7fd5a9d3850a1c149f3fb1cd69b98c1496375abe2ac000e5ee76e8f209f7205950b014541a3fbafbe92158df4dd36df917ec93f79c64ed3485b0c8b57aac",
-                  "cached": true
+                  "cached": false
                 }
               ],
               "lock_time": 0
@@ -22688,7 +22808,7 @@
                 {
                   "value": 5000000000,
                   "pk_script": "0x4104c6bde3eeded1fec8fad5d40da09ddaa16dca5d02089a97f90b8f02deb92f482d229a8f66e8a91c7cf0ecc7b3d10762ec2784100719aeff0296dc987142d39e57ac",
-                  "cached": true
+                  "cached": false
                 }
               ],
               "lock_time": 0
@@ -23260,7 +23380,7 @@
                 {
                   "value": 5000000000,
                   "pk_script": "0x4104c8a9c87a12bada5a94b903bc780e13e49600000c2b4a3f4d11f5a52c6fc3cee2949d1ebc5bba32a9ca456e23c9ac43f2307a0aea3cddb0d32ad5e97b3bcfd369ac",
-                  "cached": true
+                  "cached": false
                 }
               ],
               "lock_time": 0
@@ -23676,7 +23796,7 @@
                 {
                   "value": 5000000000,
                   "pk_script": "0x4104081f4dee652ef11e8b315b00f8705a4e02db04702ba13a1fc51808a478a3b2247ba888cc62ad30e4152ec30bae065fb3bab994c8dc8e776f268aed570ea33617ac",
-                  "cached": true
+                  "cached": false
                 }
               ],
               "lock_time": 0
@@ -26092,8 +26212,7 @@
                     "block_hash": "00000000b3de4f2a07df16131eab4f13aa38f9db2d4468ba25a083f8c0cb2cd6",
                     "block_height": 360,
                     "block_time": 1231872582,
-                    "is_coinbase": true,
-                    "cached": true
+                    "is_coinbase": true
                   },
                   "witness": []
                 },
@@ -26111,8 +26230,7 @@
                     "block_hash": "00000000b2cde2159116889837ecf300bd77d229d49b138c55366b54626e495d",
                     "block_height": 187,
                     "block_time": 1231744600,
-                    "is_coinbase": false,
-                    "cached": true
+                    "is_coinbase": false
                   },
                   "witness": []
                 },
@@ -26130,8 +26248,7 @@
                     "block_hash": "00000000fb5b44edc7a1aa105075564a179d65506e2bd25f55f1629251d0f6b0",
                     "block_height": 248,
                     "block_time": 1231790660,
-                    "is_coinbase": false,
-                    "cached": true
+                    "is_coinbase": false
                   },
                   "witness": []
                 }
@@ -26148,7 +26265,46 @@
           ]
         }
       },
-      "utreexo_proofs": []
+      "utreexo_proofs": [
+        {
+          "proof": [
+            "0x07b6a4929cbf083ece7ecd69b4dc1c99d26ba4a10b3678e314eba25e9565a063",
+            "0x024b41ebd8f0c573167699c74f5dde882bb44b60f0115eb9def3e6cd9ccb56cc",
+            "0x025ac30b5b3a60eb8a1aab963b49bd2c1cfff84bc0e6e544f934c89d53391de0",
+            "0x06e732d47cdbac74f98ec2b3a415413bd41973b25dfb034ca1a83b70ad6f7f76",
+            "0x068dd48bc4e425d91e77f6a7382036ffcae71dcd401aa03a817dd09198658209",
+            "0x07e28cea00bd088d24b52bf528919aa115855a45946c6b50d682010e233f1461",
+            "0x06fa92e8447a7c421b4192a10aa509e9559fbbbe3774f683e6230d62ed1cd195"
+          ],
+          "leaf_index": 109
+        },
+        {
+          "proof": [
+            "0x0527e084433a54982448ee880529fd58a0be427abaa9b3c7d44021f60821e758",
+            "0x05237cd19f0eb7cc334ae71196866cd80cb91a70e129dc3be1f130cfb056795e",
+            "0x01c08fe06cf8cbe744a18ee1150e534061d8c3ebb7ff134a983c435d77e49d2f",
+            "0x043b0f2b1d5fbe696a87688f6945b31e7ab68b014c07016af28b9a17842f4380",
+            "0x007d3351b110760023488700a872f751f7e9eac63e5312522fa31339d62fea2d",
+            "0x061169328e034a659b1cd492729a803670ab8be93345f03dc100d51f483c0099",
+            "0x070351eebe68b22dd1b82d006e1fd55fafc3e3681e6b5bcfbf040e897ee84bcb",
+            "0x058d3ae5e73cb95e592597738f0b132c7c50fda8e8c2d45f1242cfdd4f78ec0c"
+          ],
+          "leaf_index": 190
+        },
+        {
+          "proof": [
+            "0x0257de4ba7c38788c4b8f9bd8f952d7b86f5c9b0bd2004f0e1be4d15e7c14800",
+            "0x060d83051b79b6ff394ff047fa05ec58c9fa4234ec86a0799111f7a584c3f9a6",
+            "0x004c5f9eb6629a73bea9c06eda8aef1d9838390f53237e3d89d272df441d0976",
+            "0x02cf07653fffddcb0b62903d58f54e6ce8aa90aa353d2ca1ae6f896df24613f4",
+            "0x026bba5e5d19ade4041aab4cf665ad4f2865d81b87456f9d61a34c115d211c9a",
+            "0x034d2d1728b89a2494b1fa7ececad0f63902f7dcb8240b8565705df400318a94",
+            "0x0124a2e398c712f6d38b8b5950369212b7b68250ee37623ed3f9105fcc48078f",
+            "0x058d3ae5e73cb95e592597738f0b132c7c50fda8e8c2d45f1242cfdd4f78ec0c"
+          ],
+          "leaf_index": 188
+        }
+      ]
     },
     {
       "block": {
@@ -26400,7 +26556,7 @@
                 {
                   "value": 5000000000,
                   "pk_script": "0x4104ceee1b864e673eb4492b9b0c8c938fea6343dba5556cff41beee4ad994a6d2365b80751ba263d160e1fdc4523ac46cee651ad21c2f5c629ec0ed060ac1f51b39ac",
-                  "cached": true
+                  "cached": false
                 }
               ],
               "lock_time": 0
@@ -26660,7 +26816,7 @@
                 {
                   "value": 5000000000,
                   "pk_script": "0x410480b412face904ee2993e5846328fa538411accaf20961ae0ca2880077802158b9df38f7c11bf78b0bca275035165c2b2889315ffefa05ea7b4b405c4e6d22244ac",
-                  "cached": true
+                  "cached": false
                 }
               ],
               "lock_time": 0
@@ -26816,7 +26972,7 @@
                 {
                   "value": 5000000000,
                   "pk_script": "0x4104c9560dc538db21476083a5c65a34c7cc219960b1e6f27a87571cd91edfd00dac16dca4b4a7c4ab536f85bc263b3035b762c5576dc6772492b8fb54af23abff6dac",
-                  "cached": true
+                  "cached": false
                 }
               ],
               "lock_time": 0
@@ -27620,8 +27776,7 @@
                     "block_hash": "00000000bad3f4791d4984e041ec55acf6f7b38a63b220b33f703ec2f6af049a",
                     "block_height": 286,
                     "block_time": 1231822498,
-                    "is_coinbase": true,
-                    "cached": true
+                    "is_coinbase": true
                   },
                   "witness": []
                 }
@@ -27630,7 +27785,7 @@
                 {
                   "value": 2500000000,
                   "pk_script": "0x4104f36c67039006ec4ed2c885d7ab0763feb5deb9633cf63841474712e4cf0459356750185fc9d962d0f4a1e08e1a84f0c9a9f826ad067675403c19d752530492dcac",
-                  "cached": true
+                  "cached": false
                 },
                 {
                   "value": 2500000000,
@@ -27643,7 +27798,22 @@
           ]
         }
       },
-      "utreexo_proofs": []
+      "utreexo_proofs": [
+        {
+          "proof": [
+            "0x00a8bfc55352e96b88b2a77a01857c32a3279029f0615f68850ad1cf613018f7",
+            "0x06fdb1c424237d6e6b556e284069a1b973f6e0346f887dbbc942d4157991f689",
+            "0x04c780ba3598b7d1bce7fdf4f0eed464bd33b0de6695e76ca81e46dc927b2181",
+            "0x002e1c59c9f16bf9baf7be51e2e5b2e91ae563e6612bf4cf876d268df926e587",
+            "0x04e6d15be66728f69d17ee09db0c910532a05b1eb116ab01fc0054442e4b5f2a",
+            "0x00e6859dc25a02fe1e20dc1b5e770b2b2b1555271a28e3e3511f6d9ff98675d3",
+            "0x066cc39d0d16b3bbc61099b5656273e316867b621d55b4889ba1c4b34feecb73",
+            "0x0395ee30f15b9db424033e67f233dccdb9a521fe7413a7792bb8d34f68cc6fba",
+            "0x002f383c186240ec01f9ffe16f4dca2bb139fd59644a73ea5b78b88bb3eac3e3"
+          ],
+          "leaf_index": 291
+        }
+      ]
     },
     {
       "block": {
@@ -28751,8 +28921,7 @@
                     "block_hash": "00000000309014d78fc7440362c8ae0599e79557fe7bd0c94172dbc8c050ba5e",
                     "block_height": 524,
                     "block_time": 1231983986,
-                    "is_coinbase": false,
-                    "cached": true
+                    "is_coinbase": false
                   },
                   "witness": []
                 }
@@ -28761,12 +28930,12 @@
                 {
                   "value": 100000000,
                   "pk_script": "0x41044a656f065871a353f216ca26cef8dde2f03e8c16202d2e8ad769f02032cb86a5eb5e56842e92e19141d60a01928f8dd2c875a390f67c1f6c94cfc617c0ea45afac",
-                  "cached": true
+                  "cached": false
                 },
                 {
                   "value": 2400000000,
                   "pk_script": "0x4104f36c67039006ec4ed2c885d7ab0763feb5deb9633cf63841474712e4cf0459356750185fc9d962d0f4a1e08e1a84f0c9a9f826ad067675403c19d752530492dcac",
-                  "cached": true
+                  "cached": false
                 }
               ],
               "lock_time": 0
@@ -28774,7 +28943,18 @@
           ]
         }
       },
-      "utreexo_proofs": []
+      "utreexo_proofs": [
+        {
+          "proof": [
+            "0x00a8bfc55352e96b88b2a77a01857c32a3279029f0615f68850ad1cf613018f7",
+            "0x06fdb1c424237d6e6b556e284069a1b973f6e0346f887dbbc942d4157991f689",
+            "0x04c780ba3598b7d1bce7fdf4f0eed464bd33b0de6695e76ca81e46dc927b2181",
+            "0x002e1c59c9f16bf9baf7be51e2e5b2e91ae563e6612bf4cf876d268df926e587",
+            "0x0676618bd1d1c66894e41e16910345278faa6cca7de963a34731dc0133eb4425"
+          ],
+          "leaf_index": 15
+        }
+      ]
     },
     {
       "block": {
@@ -28842,8 +29022,7 @@
                     "block_hash": "00000000689051c09ff2cd091cc4c22c10b965eb8db3ad5f032621cc36626175",
                     "block_height": 545,
                     "block_time": 1231998512,
-                    "is_coinbase": false,
-                    "cached": true
+                    "is_coinbase": false
                   },
                   "witness": []
                 },
@@ -28861,8 +29040,7 @@
                     "block_hash": "00000000689051c09ff2cd091cc4c22c10b965eb8db3ad5f032621cc36626175",
                     "block_height": 545,
                     "block_time": 1231998512,
-                    "is_coinbase": false,
-                    "cached": true
+                    "is_coinbase": false
                   },
                   "witness": []
                 }
@@ -29000,7 +29178,22 @@
           ]
         }
       },
-      "utreexo_proofs": []
+      "utreexo_proofs": [
+        {
+          "proof": [
+            "0x00a8bfc55352e96b88b2a77a01857c32a3279029f0615f68850ad1cf613018f7",
+            "0x04706d4fe1f9ff85d8c7c91600794e56d7b683f75c4c63e384a1987b0057b846",
+            "0x055cb71a337fcfbb668307825a4bcef6eeca77937e8d3791c4cf79757985ce06"
+          ],
+          "leaf_index": 5
+        },
+        {
+          "proof": [
+            "0x0777b8d0f1a4549b60bd665a60b31329732d56fe624b2bb97a388f8df88a8ea7"
+          ],
+          "leaf_index": 0
+        }
+      ]
     },
     {
       "block": {
@@ -31096,8 +31289,7 @@
                     "block_hash": "00000000f4226696e8eec65149a5d7bedc22200e0b9526b1bf6ba7ee5e66d126",
                     "block_height": 268,
                     "block_time": 1231807132,
-                    "is_coinbase": true,
-                    "cached": true
+                    "is_coinbase": true
                   },
                   "witness": []
                 },
@@ -31115,8 +31307,7 @@
                     "block_hash": "00000000f334596d5afdb4b5ee5fb6974718f1d94160e57a10c4db598144b808",
                     "block_height": 417,
                     "block_time": 1231913658,
-                    "is_coinbase": true,
-                    "cached": true
+                    "is_coinbase": true
                   },
                   "witness": []
                 },
@@ -31134,8 +31325,7 @@
                     "block_hash": "000000001e9722b33a88ee9a0d17b921361aa499cfa545c60ba629ee82bba42a",
                     "block_height": 431,
                     "block_time": 1231923141,
-                    "is_coinbase": true,
-                    "cached": true
+                    "is_coinbase": true
                   },
                   "witness": []
                 },
@@ -31153,8 +31343,7 @@
                     "block_hash": "00000000c55c595b18eff1e1d3f52b5759b9f56dac235af896e9c478cc77cbeb",
                     "block_height": 442,
                     "block_time": 1231930435,
-                    "is_coinbase": true,
-                    "cached": true
+                    "is_coinbase": true
                   },
                   "witness": []
                 },
@@ -31172,8 +31361,7 @@
                     "block_hash": "00000000e474895c09bcdaf9261845960b35ea54ed3ecaf60d8a392940f1f3f9",
                     "block_height": 450,
                     "block_time": 1231936030,
-                    "is_coinbase": true,
-                    "cached": true
+                    "is_coinbase": true
                   },
                   "witness": []
                 }
@@ -31206,8 +31394,7 @@
                     "block_hash": "000000004929d251b3802ccff6876d044ac68e0bedd37edb2ac735f771ffb04a",
                     "block_height": 317,
                     "block_time": 1231844715,
-                    "is_coinbase": true,
-                    "cached": true
+                    "is_coinbase": true
                   },
                   "witness": []
                 }
@@ -31224,7 +31411,92 @@
           ]
         }
       },
-      "utreexo_proofs": []
+      "utreexo_proofs": [
+        {
+          "proof": [
+            "0x010efff5107c42e6b7ca03820d10d0d55077dbdaa206520a1438f7a6b6cb1351",
+            "0x0581db67903123c8591e4b377795893c6e745914af4c72f4d3b3cd7932877974",
+            "0x063f0a37f2260a306dc51a1f4ef0c1937d6cd10e2c703b8e9020c60a475d6f44",
+            "0x00ca748019cc565d3a26a98d059f5ff87237734c3fd4ad518b40345c18a4480e",
+            "0x0659f67030b656d4c9cc4ecb939b3fc473dcfba2ecf23b45c7c254eeab9a3e12",
+            "0x02a09dda1b4fb3136b4f0a46790c9f020c03739e22805526f7ae24ed310dde1a",
+            "0x066cc39d0d16b3bbc61099b5656273e316867b621d55b4889ba1c4b34feecb73",
+            "0x0395ee30f15b9db424033e67f233dccdb9a521fe7413a7792bb8d34f68cc6fba",
+            "0x002f383c186240ec01f9ffe16f4dca2bb139fd59644a73ea5b78b88bb3eac3e3"
+          ],
+          "leaf_index": 465
+        },
+        {
+          "proof": [
+            "0x040178188b0af59e12d7c2f33bd589f562a52a210f7a92bfb51265cf59496380",
+            "0x06e4908a156dc1c2dec4457390c610d091ad304ea9c56b5188162067b1013e16",
+            "0x02e8b995263e4bf33d075334c0179358aac5a7af34a443c87ea8c456734347c4",
+            "0x0172cf34cd8fdd52d58e130da586bdfd61f9bc8fa669ce8ee70452dbc6f25e41",
+            "0x022b5033d36b264bdd8b1946636e248b0f694e1d0a60ca768dc25c8caed15bd7",
+            "0x0588d4cb76910e059b7c2ff5d609f22aeac89f508300cd7679c3114cd72b4574",
+            "0x05b245ad630b31233eda82eecfeeebdc37375685873250e362a9cfbd0a7a09bb",
+            "0x0287710807e5efb212aa6db6f5bb20e4b60f8a402e3d0a4ab132d16ba4764bb0",
+            "0x002f383c186240ec01f9ffe16f4dca2bb139fd59644a73ea5b78b88bb3eac3e3"
+          ],
+          "leaf_index": 294
+        },
+        {
+          "proof": [
+            "0x052a17b4d287ef5dbee481a9881d3cb52c836ba93498b40adda3b63e75c9d299",
+            "0x05a868b54677375730cd76d5b454411f18d7cfe8924b632dd3212b3a934529df",
+            "0x007ce35d10b80270d816aaf97df8650f79d09e15935f0d4c92adf5b1da5a681c",
+            "0x03bfe9ab7802a91c17474a0daccb7553de3773acd25083cf677fe4ca45f45781",
+            "0x02749a3f495e02c7a2c7b03917fba736cc19b3fec62070788966ddcb84db3e70",
+            "0x0588d4cb76910e059b7c2ff5d609f22aeac89f508300cd7679c3114cd72b4574",
+            "0x05b245ad630b31233eda82eecfeeebdc37375685873250e362a9cfbd0a7a09bb",
+            "0x0287710807e5efb212aa6db6f5bb20e4b60f8a402e3d0a4ab132d16ba4764bb0",
+            "0x002f383c186240ec01f9ffe16f4dca2bb139fd59644a73ea5b78b88bb3eac3e3"
+          ],
+          "leaf_index": 484
+        },
+        {
+          "proof": [
+            "0x0561b0bebe7732a9fb5b1ad0713c756e3e42483c2176e47c0ef5a17dd6372713",
+            "0x0350895001abb8ea2a5d506f5fd5e6bd4a5b24413e98420f0b457a7e6526603e",
+            "0x05930abca4673c9d48bc979f376b1acda7b35ef65153d7df800f5ee4f52f3d16",
+            "0x05b828e11ecf6b56a252a7c1d5f91015021ca776898d163af9cbe1327f80726c",
+            "0x02749a3f495e02c7a2c7b03917fba736cc19b3fec62070788966ddcb84db3e70",
+            "0x0588d4cb76910e059b7c2ff5d609f22aeac89f508300cd7679c3114cd72b4574",
+            "0x05b245ad630b31233eda82eecfeeebdc37375685873250e362a9cfbd0a7a09bb",
+            "0x0287710807e5efb212aa6db6f5bb20e4b60f8a402e3d0a4ab132d16ba4764bb0",
+            "0x002f383c186240ec01f9ffe16f4dca2bb139fd59644a73ea5b78b88bb3eac3e3"
+          ],
+          "leaf_index": 503
+        },
+        {
+          "proof": [
+            "0x07cce07222736e4baa611b6cbb6aa4047a4a1711ab69f5f943372fd2379c11db",
+            "0x0688669a42ad7b62ce9f402f18bf395f3dad4c5c1cf77cb14c6400328f57219d",
+            "0x029fef6361252e5de17b049711fba6a7fcb1624ec584e0eb5de5c383872548e0",
+            "0x02e72928ccb877be867f8b39e2db52fd56aaec6e6ab09640dc713715e2b756c3",
+            "0x037cd37df9b41604c188a4000808c6f75d06905ec8b1bf8970c8a0c3a964f820",
+            "0x01ee3e2dd6700dbb6af3af1c811b2fe054d300cbd1fb49f8968a14bb1c3a31cd",
+            "0x01acfaa8ecfc21fa7180678e95d00de6a4f9f453a6015143f6b81e8c9b8e863f",
+            "0x0287710807e5efb212aa6db6f5bb20e4b60f8a402e3d0a4ab132d16ba4764bb0",
+            "0x002f383c186240ec01f9ffe16f4dca2bb139fd59644a73ea5b78b88bb3eac3e3"
+          ],
+          "leaf_index": 391
+        },
+        {
+          "proof": [
+            "0x03a4d68fb71090a2d41833944a63ad183c4c90ebb1a2e3bfbf8c237df24215ba",
+            "0x0433866667e299a2576c2b8c79531611590ee8556227c7e0435f5a71e079a373",
+            "0x02ffa18d8d9b9f47176af816334ef276117c725ac8f92395713fa158914032c2",
+            "0x03cae133f33f50237e422382d57811fa1a6e9cabec7b553a705df61453c2c86f",
+            "0x03c374be548adfef1b1ed8365a864ee6cabe52134a1761d2f77986a53d152cf1",
+            "0x0489ca2bad52ea40672bae6697ef64fccff945db28eafe71df6fd87174d591fd",
+            "0x060e0fd97c9e47938197c0e764cd96c6ac1b4009bf88321a50f60dbd9cd50b1e",
+            "0x0481e365ce579e4248afbf7013b8ffb9e831e8cc5fac6dbc79fc004ae473af2f",
+            "0x002f383c186240ec01f9ffe16f4dca2bb139fd59644a73ea5b78b88bb3eac3e3"
+          ],
+          "leaf_index": 258
+        }
+      ]
     },
     {
       "block": {
@@ -31604,8 +31876,7 @@
                     "block_hash": "000000000b9cd32f191a1b3538127a93726f0ed20a21871d962eff0d655a1875",
                     "block_height": 329,
                     "block_time": 1231852306,
-                    "is_coinbase": true,
-                    "cached": true
+                    "is_coinbase": true
                   },
                   "witness": []
                 }
@@ -31627,7 +31898,22 @@
           ]
         }
       },
-      "utreexo_proofs": []
+      "utreexo_proofs": [
+        {
+          "proof": [
+            "0x00b41c1b3c2bf267179f2a534b341bea5c171677ec6075273471739b770399df",
+            "0x01ee193ee51cdeef93fd7059de8609def6cb9042ec603d0393836387e7c47ed2",
+            "0x05001075c4c8e49d838675586289bec6e1e9856c2fc9b31cfa242d943177d1b3",
+            "0x077934c3002d98bf4c21ef23cd703f578c98878763c66b1c94e2668dc8409de6",
+            "0x03c374be548adfef1b1ed8365a864ee6cabe52134a1761d2f77986a53d152cf1",
+            "0x0489ca2bad52ea40672bae6697ef64fccff945db28eafe71df6fd87174d591fd",
+            "0x060e0fd97c9e47938197c0e764cd96c6ac1b4009bf88321a50f60dbd9cd50b1e",
+            "0x0481e365ce579e4248afbf7013b8ffb9e831e8cc5fac6dbc79fc004ae473af2f",
+            "0x002f383c186240ec01f9ffe16f4dca2bb139fd59644a73ea5b78b88bb3eac3e3"
+          ],
+          "leaf_index": 502
+        }
+      ]
     },
     {
       "block": {
@@ -31775,7 +32061,7 @@
                 {
                   "value": 5000000000,
                   "pk_script": "0x4104d0fcb59114786daa15e1cf7c83635621d6302d0d4c303d4330d0bf8420aaa8d0b94cf0dc16644a4ade51c442d0960cc4151000292325aaea776ed899eca1d8e5ac",
-                  "cached": true
+                  "cached": false
                 }
               ],
               "lock_time": 0
@@ -37571,8 +37857,7 @@
                     "block_hash": "0000000046887292a76cd113a5fd6af38b17c9fb77e5936cd9856694030598f9",
                     "block_height": 501,
                     "block_time": 1231969111,
-                    "is_coinbase": true,
-                    "cached": true
+                    "is_coinbase": true
                   },
                   "witness": []
                 },
@@ -37590,8 +37875,7 @@
                     "block_hash": "00000000a99525c043fd7e323414b60add43c254c44860094048f9c01e9a5fdd",
                     "block_height": 506,
                     "block_time": 1231973609,
-                    "is_coinbase": true,
-                    "cached": true
+                    "is_coinbase": true
                   },
                   "witness": []
                 }
@@ -37608,7 +37892,36 @@
           ]
         }
       },
-      "utreexo_proofs": []
+      "utreexo_proofs": [
+        {
+          "proof": [
+            "0x07773459f84f67cf29d6dfadbd5f7c8e955b5e897a7074bcaa22209c5a0ff0d5",
+            "0x05d873bd3e8336de44081add246b8717a64d428118c60fda3622b769b77b659c",
+            "0x05cea03288ab099f70cf690728538ae08362523b02e5058911d8453c8eec6ec0",
+            "0x030abe3e8669679b51b6a07ba25f66d8b41ae1f139fa406a6cd0ca93e609fdae",
+            "0x01b17b6685a18ed005bec6f2e51d6363aa6368170c280a1f366288ee3924da91",
+            "0x003f298fd776b316a0b0193cca835d5f04de04b9a51e6d36bc0058198cbe9def",
+            "0x01acfaa8ecfc21fa7180678e95d00de6a4f9f453a6015143f6b81e8c9b8e863f",
+            "0x064fdad5cac980757ee1a8931a0949aa02667775b435542e7f60e0ab9131a72e",
+            "0x002f383c186240ec01f9ffe16f4dca2bb139fd59644a73ea5b78b88bb3eac3e3"
+          ],
+          "leaf_index": 344
+        },
+        {
+          "proof": [
+            "0x078f8dbf9319b16c2c358beca62797a5fc97ca1ee374c1a6b466a1a4a1646055",
+            "0x037681aa07d4bac1c1ccafc3bfdfe97d805e2afcb95abfe3c2769d44c0435ed8",
+            "0x05146335ad7e537ca76e9be37bb81c730fc5c99410e167ccaaf567370a52e019",
+            "0x030abe3e8669679b51b6a07ba25f66d8b41ae1f139fa406a6cd0ca93e609fdae",
+            "0x01b17b6685a18ed005bec6f2e51d6363aa6368170c280a1f366288ee3924da91",
+            "0x003f298fd776b316a0b0193cca835d5f04de04b9a51e6d36bc0058198cbe9def",
+            "0x01acfaa8ecfc21fa7180678e95d00de6a4f9f453a6015143f6b81e8c9b8e863f",
+            "0x064fdad5cac980757ee1a8931a0949aa02667775b435542e7f60e0ab9131a72e",
+            "0x002f383c186240ec01f9ffe16f4dca2bb139fd59644a73ea5b78b88bb3eac3e3"
+          ],
+          "leaf_index": 505
+        }
+      ]
     },
     {
       "block": {
@@ -38716,8 +39029,7 @@
                     "block_hash": "00000000d9d33aaf1c9dce5bbecaffc917e957e06f336bbace59704a2678e766",
                     "block_height": 509,
                     "block_time": 1231975112,
-                    "is_coinbase": true,
-                    "cached": true
+                    "is_coinbase": true
                   },
                   "witness": []
                 },
@@ -38735,8 +39047,7 @@
                     "block_hash": "0000000018271ff4d19879fbe9f94bccf7323965fe1926fb0458ddee8b63c992",
                     "block_height": 357,
                     "block_time": 1231870808,
-                    "is_coinbase": true,
-                    "cached": true
+                    "is_coinbase": true
                   },
                   "witness": []
                 }
@@ -38753,7 +39064,36 @@
           ]
         }
       },
-      "utreexo_proofs": []
+      "utreexo_proofs": [
+        {
+          "proof": [
+            "0x03fb0964c36b1052641852e517809ecc53f78826f6d283fd4301c59f0fcc1a63",
+            "0x019f5393cb42ad4683ad58a7ab75d1ff24000be36327671c16c28c26414f25d4",
+            "0x07a3522f0c7255974e59268ab004a20ef45e587ca6807c2ac4cd406cd1f65ee0",
+            "0x03a70a17ffadb5e0533c04409df0cf42b9bb9a78ebf6bd911ae22f354144d078",
+            "0x04e6d15be66728f69d17ee09db0c910532a05b1eb116ab01fc0054442e4b5f2a",
+            "0x014bd9eb23ebd45965121f60272b29bc80e0a7ff2aa1e20f0284db1e90f33962",
+            "0x06d39e33c9a439de7542309b06e052ffc0e2a232a11b1f356204af5f333a718f",
+            "0x05cc78cea815358e4315bcaa494ac673aa37c823331d517d37bda26abc5d880c",
+            "0x002f383c186240ec01f9ffe16f4dca2bb139fd59644a73ea5b78b88bb3eac3e3"
+          ],
+          "leaf_index": 272
+        },
+        {
+          "proof": [
+            "0x054a6c65e706018b406a7ad20977c3379719c9ad5be97324763e129a16bef0cc",
+            "0x04553768dbbf30d131796d9433b94713f36585fb2ac3d0e20e0098349b00afc4",
+            "0x02c2fd4eb85ea6d6028cef1d6ae82d1b73cd1564ae509ebda707a109e5c4b555",
+            "0x06e732d47cdbac74f98ec2b3a415413bd41973b25dfb034ca1a83b70ad6f7f76",
+            "0x068dd48bc4e425d91e77f6a7382036ffcae71dcd401aa03a817dd09198658209",
+            "0x07ee9785bc5f05c34a9814a2433b1c35b8f1babc405c4ded09d8eb5032988b43",
+            "0x042d0b5fc10bbaad635342ac8f254acf0ce6d59e6f61b5aeef17d48a3eedb2a8",
+            "0x05cc78cea815358e4315bcaa494ac673aa37c823331d517d37bda26abc5d880c",
+            "0x002f383c186240ec01f9ffe16f4dca2bb139fd59644a73ea5b78b88bb3eac3e3"
+          ],
+          "leaf_index": 410
+        }
+      ]
     },
     {
       "block": {
@@ -39317,7 +39657,7 @@
                 {
                   "value": 5000000000,
                   "pk_script": "0x4104baf1c46bb55fbde9f19ec9748298a4ccab843ae8fe6455ef442ed9293f66477e2b77ea462b38eceae1c21c756f63477b5ca142138929fe5d70c945d38e75fa8cac",
-                  "cached": true
+                  "cached": false
                 }
               ],
               "lock_time": 0
@@ -41033,7 +41373,7 @@
                 {
                   "value": 5000000000,
                   "pk_script": "0x410481bc6ab7cd6cd88fde7e4425185ec4479115b92e23c7a566ed5bc8935db6f7956dfe1a3751e58a46365836ebd5dd03e74e6f17d7615a4440a8a78aa07c3992acac",
-                  "cached": true
+                  "cached": false
                 }
               ],
               "lock_time": 0
@@ -49949,8 +50289,7 @@
                     "block_hash": "00000000bbea178c08435c3f672489992abaf070f0c15cef40002c399f4cece0",
                     "block_height": 596,
                     "block_time": 1232036500,
-                    "is_coinbase": true,
-                    "cached": true
+                    "is_coinbase": true
                   },
                   "witness": []
                 },
@@ -49968,8 +50307,7 @@
                     "block_hash": "00000000f7e47202ba95186d565b3484fe1db2b83183160a285f4da8ae9b76c4",
                     "block_height": 739,
                     "block_time": 1232141054,
-                    "is_coinbase": true,
-                    "cached": true
+                    "is_coinbase": true
                   },
                   "witness": []
                 },
@@ -49987,8 +50325,7 @@
                     "block_hash": "00000000a332b39117fefe672973d5dbb13dcf3e21385478a0ab5c6aa34809ce",
                     "block_height": 772,
                     "block_time": 1232168636,
-                    "is_coinbase": true,
-                    "cached": true
+                    "is_coinbase": true
                   },
                   "witness": []
                 }
@@ -50005,7 +50342,46 @@
           ]
         }
       },
-      "utreexo_proofs": []
+      "utreexo_proofs": [
+        {
+          "proof": [
+            "0x010352de0dd62ea7182fe1b5ba362c89df9006269628adf154494bcf2f158945",
+            "0x055cb128cdb2cac7e0ea2614f8923216da2f309ebfbaca5c7824fd3d0403e5a9",
+            "0x0570f21875637f308928e503713a30a9a5daa925821c1561b8c5c1ee5d79e10d",
+            "0x01855cbe5b330c489465ab1233639b0e48f8c975ef2a60a9870d2fda36dea6bd",
+            "0x01de3b6ea73c1fb4c08c60a44b250bc18b7d43296f0ed3188bbb0e96dc3b094e",
+            "0x03901f753949024e6cbfc6b828a9944a7a4efa204a81d6a03e643bbe3db0fc0e",
+            "0x055a153f7f729ffb55617859bc9a8631e2d25c2afa93de238e9f0e6329b0a43e",
+            "0x05a89586c856fed4b125cc73d9f8df0c24a3290db463cee0dfea2d54b6c67aec"
+          ],
+          "leaf_index": 86
+        },
+        {
+          "proof": [
+            "0x06b6a3e3a4fcfa90cfeb5aeaf9ba66c175db19492f83cc9d7ad0517a8dd4c754",
+            "0x001e8efab4dfea661c05cb89f24fbc80d5f09c130ec3c45dcd2d9ffb0ded15c1",
+            "0x04ec5e75194fed1f8830ebbe936bda1fb571167a17866a91f4b7f7cf134b40f7",
+            "0x00f3a2c44b98ca9d3570e25afacc3b1f455bc972f8ca61fcea3bda0a877275bc",
+            "0x03ec7880316894e660f6eeb06aa1c010532f6c6ffb92261eac54b9bac894cd5a",
+            "0x03b372b53f75f8443c8d3b6e644855640333c8fcb70ee85b758eee255bb21316",
+            "0x0607415a6899d2fed8053f21c4cd96d06c87991089db57ce73f2291da0848642",
+            "0x0730d3e8f9a1ca0ac6e3184dd4aedf65f25cf324176d1794d31b0ce3d26bc967"
+          ],
+          "leaf_index": 99
+        },
+        {
+          "proof": [
+            "0x01c77cae83d7a97bbdf6da48a6808b1cd24ca940daf2f81247b711efdaaacfe6",
+            "0x0204bdfb6333cede4313684957cbb1f4948ef37ddbb84962245d18ee0ebd3e9d",
+            "0x06d6d1d2b13a5b7fd9b1bdc872462965e923d21ed23fe5826e32c8120bb901e5",
+            "0x07a9ed61a43aa7738892e29d7e96647927e78c0d72fe47a85bb5cbbf88339db7",
+            "0x05f7129d04bb2a054d20f134b6cbfe0f490f9ab52355f4026597589d90107884",
+            "0x060016312ab5822c730e931c6acf60dbb9a790f667d20900f572ec79904780a3",
+            "0x0729629db56c8189071c23feebd9bbecf11dd61ee54171a1731d451d2d2b0f8b"
+          ],
+          "leaf_index": 4
+        }
+      ]
     },
     {
       "block": {
@@ -52995,19 +53371,20 @@
     },
     "utreexo_state": {
       "root_nodes": [
+        "0x06968d83190ed049e38c0f0a8a25bca7d317a5039b096da025b9c0ae1654c327",
+        "0x0092e91e3c40553c0a93ad1a4a300b671146b04ee7a1d8ce5243b5c07456875a",
+        "0x025f640e2a4f4fff7ec18338cfde384fa22c127bc4b66cc779d6dcfc06dc963e",
         null,
-        "0x01fae2be13c23fd6e95e098c57cb1712f771240c53eea7a8f069f726df2b164e",
-        "0x011e3f5c7f944346fb1ea363efc4fe475afcdc0ccc11c7932e7561c3be39d7a6",
         null,
-        null,
-        "0x01f6fd8d87e7786fb5158f2e44908fddaf76d7bba202a7a53af292f67ed69b71",
-        "0x051f0be2a25467a2f3d21c6139304c322a7ba52d839e724c2b0957c57cf66539",
-        "0x06c8ff98104d6398ce2f786f33edd60e3b469838d357158c6413e8bc3a692767",
-        "0x03092695f6d07e9fce9327ba168b01df3731ec3db82fa5e9136bba26d3a7581d",
-        "0x06e8a1e50a0d2d1b868eae8ac110ff44276a33c2dfea142b0693df3c6ad3e6e1",
+        "0x00cc2290f254915ecfda3e4fb567eb6cb4d1f7beb7bf106fee191e276b645bb1",
+        "0x049cfb46d5ced3a42ddd2c699000a000f6671cd63237b8aa87bfa1a1942f8903",
+        "0x062cb9c68096f10ae5f16198067f366330ff61a894f4e2101f2ac88d4365c64d",
+        "0x02b9fc481f1dc0faf42546f61775b83f80a67127e442fe4a176e4bb007684526",
+        "0x00b98654f07b7b4fe566795d07cdde38faef78faa3828020aaf9488ab89a515d",
         null
       ],
       "leaf_nodes": {
+        "2642040644600113316221713961342603499887858633965936188903541456191536923086": "0x05d7578e17d9ec69504a468759eb35fa7d44d53fcc84ae9362f24ea3f53a81ce",
         "99277037285831798253423549331138609006186624223150908769297443887556285522": "0x00383055f9255c263c24637e225eb695fd88d9faf2d77be791d50889ab4b5452",
         "2966112174332177969318676817368060298628410269673340315033602264029340274562": "0x068ec28f34e4e35e227e20d57fbd8f515042222063d48e7718b078b418968f82",
         "2778864809025208393328615020895699730605413350670581809498546911196241921107": "0x0624c8206a681f91cd1b0738da97f25d0eb8f0b1f10c2ab164feee8914d70453",

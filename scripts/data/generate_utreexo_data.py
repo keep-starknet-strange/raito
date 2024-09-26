@@ -108,7 +108,6 @@ class OutPoint:
         tab.append(int(self.is_coinbase))
 
         hash = poseidon_hash_many(tab)
-        # print(f"OutPoint hash: {hahs}")
         return hash
 
     def __repr__(self):
@@ -127,21 +126,21 @@ def handle_txin(inputs: list, utreexo_proofs: list, utreexo: Utreexo):
         outpoint = inputs[i].get("previous_output", {})
 
         # Skip if output is cached
-        if outpoint.get("cached") == True:
+        if outpoint.get("cached", False):
             continue
 
         outpoint = OutPoint(
-            txid = outpoint.get("txid"),
-            vout = outpoint.get("vout", 0),
-            data = TxOut(
-                value = outpoint.get("data").get("value"),
-                pk_script = outpoint.get("data").get("pk_script"),
-                cached = outpoint.get("cached")
+            txid=outpoint.get("txid"),
+            vout=outpoint.get("vout", 0),
+            data=TxOut(
+                value=outpoint.get("data").get("value"),
+                pk_script=outpoint.get("data").get("pk_script"),
+                cached = outpoint.get("data").get("cached") # != outpoint.get("cached", False)
             ),
-            block_height = outpoint.get("block_height"),
-            block_time = outpoint.get("block_time"),
-            block_hash = outpoint.get("block_hash"),
-            is_coinbase = outpoint.get("is_coinbase"),
+            block_height=outpoint.get("block_height"),
+            block_time=outpoint.get("block_time"),
+            block_hash=outpoint.get("block_hash"),
+            is_coinbase=outpoint.get("is_coinbase"),
         )
 
         # Remove OutPoint from accumulator and get proof
@@ -158,23 +157,25 @@ def handle_txout(
     tx_index: int,
 ):
     for i in range(len(outputs)):
+        output = outputs[i]
+        is_cached = output.get("cached", False)
 
         # Skip if output is cached
-        if outputs[i].get("cached") == True:
+        if is_cached:
             continue
 
         new_outpoint = OutPoint(
-            txid = txid,
-            vout = i,
-            data = TxOut(
-                value = outputs[i].get("value"),
-                pk_script = outputs[i].get("pk_script"),
-                cached = outputs[i].get("cached")
+            txid=txid,
+            vout=i,
+            data=TxOut(
+                value=output.get("value"),
+                pk_script=output.get("pk_script"),
+                cached=is_cached,
             ),
-            block_height = block_height,
-            block_time = block.get("header").get("time", 0),
-            block_hash = block.get("header").get("hash", 0),
-            is_coinbase = True if tx_index == 0 else False,
+            block_height=block_height,
+            block_time=block.get("header").get("time", 0),
+            block_hash=block.get("header").get("hash", 0),
+            is_coinbase=True if tx_index == 0 else False,
         )
 
         # Add OutPoint to accumulator
@@ -200,7 +201,7 @@ def main():
     }
 
     utreexo = Utreexo()
-    block_height = data.get("chain_state", {}).get("block_height", 0) + 1
+    block_height = data.get("chain_state", {}).get("block_height", 0)
 
     for block in data.get("blocks", []):
         utreexo_proofs = []
