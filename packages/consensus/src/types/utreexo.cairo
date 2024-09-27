@@ -601,4 +601,46 @@ mod tests {
         assert_eq!(utreexo_state.roots, expected, "cannot remove leave");
         assert_eq!(utreexo_state.num_leaves, 15);
     }
+
+    #[test]
+    fn test_utreexo_delete_2() {
+        // Test data is generated using scripts/data/utreexo.py
+
+        let mut utreexo_state: UtreexoState = Default::default();
+
+        // adds 7 leaves to empty utreexo
+        utreexo_state.add(0x111111111111111111111111);
+        utreexo_state.add(0x222222222222222222222222);
+        utreexo_state.add(0x333333333333333333333333);
+        utreexo_state.add(0x444444444444444444444444);
+        utreexo_state.add(0x555555555555555555555555);
+        utreexo_state.add(0x666666666666666666666666);
+        utreexo_state.add(0x777777777777777777777777);
+
+        let expected: Span<Option<felt252>> = array![
+            Option::Some(0x0000000000000000000000000000000000000000777777777777777777777777),
+            Option::Some(0x0358bb901cdc1d0d68afdb06dfeb84f2472c254ea052a942d8640924386935a6),
+            Option::Some(0x018674e0c40577cb5ba4728d6ac7bedfd9548f4020161223261941b2a8ae84b2),
+            Option::None,
+        ]
+            .span();
+        assert_eq!(utreexo_state.roots, expected, "cannot add second leave");
+        assert_eq!(utreexo_state.num_leaves, 7);
+
+        let proof: UtreexoProof = UtreexoProof { leaf_index: 6, proof: array![].span() };
+
+        // deletes the last added leaf which corresponds to the root at h=0
+        utreexo_state.delete(@proof);
+
+        let expected: Span<Option<felt252>> = array![
+            Option::None,
+            Option::Some(0x0358bb901cdc1d0d68afdb06dfeb84f2472c254ea052a942d8640924386935a6),
+            Option::Some(0x018674e0c40577cb5ba4728d6ac7bedfd9548f4020161223261941b2a8ae84b2),
+            Option::None,
+        ]
+            .span();
+
+        assert_eq!(utreexo_state.roots, expected, "cannot remove leave");
+        assert_eq!(utreexo_state.num_leaves, 6);
+    }
 }
