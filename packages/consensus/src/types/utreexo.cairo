@@ -540,37 +540,65 @@ mod tests {
 
     #[test]
     fn test_utreexo_delete() {
-        let mut utreexo_state: UtreexoState = Default::default();
-        let outpoint: felt252 = 0x291F8F5FC449D42C715B529E542F24A80136D18F4A85DE28829CD3DCAAC1B9C;
+        // Test data is generated using scripts/data/utreexo.py
 
-        // adds 2 leaves to empty utreexo
-        for _ in 1..3_u8 {
-            utreexo_state.add(outpoint);
-        };
+        let mut utreexo_state: UtreexoState = Default::default();
+
+        // adds 16 leaves to empty utreexo
+        utreexo_state.add(0x111111111111111111111111);
+        utreexo_state.add(0x222222222222222222222222);
+        utreexo_state.add(0x333333333333333333333333);
+        utreexo_state.add(0x444444444444444444444444);
+        utreexo_state.add(0x555555555555555555555555);
+        utreexo_state.add(0x666666666666666666666666);
+        utreexo_state.add(0x777777777777777777777777);
+        utreexo_state.add(0x888888888888888888888888);
+        utreexo_state.add(0x999999999999999999999999);
+        utreexo_state.add(0xAAAAAAAAAAAAAAAAAAAAAAAA);
+        utreexo_state.add(0xBBBBBBBBBBBBBBBBBBBBBBBB);
+        utreexo_state.add(0xCCCCCCCCCCCCCCCCCCCCCCCC);
+        utreexo_state.add(0xEEEEEEEEEEEEEEEEEEEEEEEE);
+        utreexo_state.add(0xFFFFFFFFFFFFFFFFFFFFFFFF);
+        utreexo_state.add(0xFFFFFFFFFFFFFFFFFFFFFFF0);
+        utreexo_state.add(0xFFFFFFFFFFFFFFFFFFFFFFF1);
 
         let expected: Span<Option<felt252>> = array![
             Option::None,
-            Option::Some(0x738A7C495E564574993BBCB6A62D65C3C570BB81C63801066AF8934649F66F6),
-            Option::None
+            Option::None,
+            Option::None,
+            Option::None,
+            Option::Some(0x03467aa210cc0b108229d9a7fc554f9175af4ee27ee08b128b96862f7beca2ea),
+            Option::None,
         ]
             .span();
         assert_eq!(utreexo_state.roots, expected, "cannot add second leave");
-        assert_eq!(utreexo_state.num_leaves, 2);
+        assert_eq!(utreexo_state.num_leaves, 16);
 
-        let proof: UtreexoProof = UtreexoProof {
-            leaf_index: 0,
-            proof: array![0x291F8F5FC449D42C715B529E542F24A80136D18F4A85DE28829CD3DCAAC1B9C].span()
+        let proof_for_3rd_leaf: UtreexoProof = UtreexoProof {
+            leaf_index: 2,
+            proof: array![
+                0x0000000000000000000000000000000000000000444444444444444444444444,
+                0x05fb342b44641ae6d67310cf9da5566e1a398fd6b0121d40e2c5acd16e1ddb4a,
+                0x01670d29719eae8deaa34a1d75752368d180a2c3e53f08d344ad784f1a034be7,
+                0x04448e395061d8b58524c81978a17837c66c7f3286ea3c1773c7fafd77d29f69
+            ]
+                .span()
         };
 
-        utreexo_state.delete(@proof);
+        // deletes the 3rd leaf
+        utreexo_state.delete(@proof_for_3rd_leaf);
 
         let expected: Span<Option<felt252>> = array![
-            Option::Some(0x291F8F5FC449D42C715B529E542F24A80136D18F4A85DE28829CD3DCAAC1B9C),
+            Option::Some(0x0000000000000000000000000000000000000000444444444444444444444444),
+            Option::Some(0x05fb342b44641ae6d67310cf9da5566e1a398fd6b0121d40e2c5acd16e1ddb4a),
+            Option::Some(0x01670d29719eae8deaa34a1d75752368d180a2c3e53f08d344ad784f1a034be7),
+            Option::Some(0x04448e395061d8b58524c81978a17837c66c7f3286ea3c1773c7fafd77d29f69),
             Option::None,
             Option::None,
         ]
             .span();
+
         assert_eq!(utreexo_state.roots, expected, "cannot remove leave");
-        assert_eq!(utreexo_state.num_leaves, 1);
+        assert_eq!(utreexo_state.num_leaves, 15);
     }
 }
