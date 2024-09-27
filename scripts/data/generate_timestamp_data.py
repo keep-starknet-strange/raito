@@ -47,12 +47,12 @@ def create_index(folder_path):
     return index
 
 
-def list_files_in_gcs(bucket_name: str):
+def list_files_in_gcs():
     """List all files in a GCS bucket under a specific folder (prefix)."""
-    print("Getting file list from GCS...")
+    print(f"Getting file list from GCS...")
     client = storage.Client.create_anonymous_client()
-    bucket = client.get_bucket(bucket_name)
-    blobs = bucket.list_blobs()
+    bucket = client.get_bucket(GCS_BUCKET_NAME)
+    blobs = bucket.list_blobs(prefix=GCS_FOLDER_NAME)
     
     return [
         os.path.basename(blob.name) for blob in blobs if blob.name.endswith(".json")
@@ -92,7 +92,7 @@ def get_timestamp_data(block_number):
 
 
 if __name__ == "__main__":
-    file_names = list_files_in_gcs(GCS_BUCKET_NAME)
+    file_names = list_files_in_gcs()
     for file_name in tqdm(file_names, "Downloading files"):
         download_timestamp(file_name)
 
