@@ -49,7 +49,7 @@ def fetch_chain_state(block_height: int):
     block_hash = request_rpc("getblockhash", [block_height])
     head = request_rpc("getblockheader", [block_hash])
 
-    # If block is downloaded take it localy
+    # If block is downloaded take it locally
     data = get_timestamp_data(block_height)
     if str(block_height) in data:
         data = data[str(block_height)]
