@@ -29,7 +29,7 @@ def download_timestamp(file_name: str):
 
     response = requests.get(url)
     if response.status_code != 200:
-        raise Exception(f"Failed to download {file_name}")
+        raise Exception(f"Failed to download {file_name}", response)
 
     with open(file_path, "wb") as f:
         f.write(response.content)
@@ -47,21 +47,16 @@ def create_index(folder_path):
     return index
 
 
-def list_files_in_gcs(bucket_name: str, prefix: str):
+def list_files_in_gcs(bucket_name: str):
     """List all files in a GCS bucket under a specific folder (prefix)."""
+    print("Getting file list from GCS...")
     client = storage.Client.create_anonymous_client()
     bucket = client.get_bucket(bucket_name)
     blobs = bucket.list_blobs()
-    if not os.path.exists(prefix):
-        os.makedirs(prefix)
-    files = []
-    for blob in blobs:
-        if blob.name.endswith(".json") and blob.name.startswith(prefix):
-            files.append(blob.name)
-            if not os.path.exists(blob.name):
-                blob.download_to_filename(blob.name)
-    return files
-
+    
+    return [
+        os.path.basename(blob.name) for blob in blobs if blob.name.endswith(".json")
+    ]
 
 def index_file_name(key):
     return f"{BASE_DIR}/timestamp_index_{key}.json"
@@ -97,7 +92,7 @@ def get_timestamp_data(block_number):
 
 
 if __name__ == "__main__":
-    file_names = list_files_in_gcs(GCS_BUCKET_NAME, GCS_FOLDER_NAME)
+    file_names = list_files_in_gcs(GCS_BUCKET_NAME)
     for file_name in tqdm(file_names, "Downloading files"):
         download_timestamp(file_name)
 
