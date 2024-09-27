@@ -51,7 +51,7 @@ generate_test() {
   local height=$2
   test_file="${data_dir}/${mode}_${test_case}.json"
   if [[ ! -f "$test_file" || $force -eq 1 ]]; then
-    python ../../scripts/data/generate_data.py $mode $height 1 true $test_file
+    python ../../scripts/data/generate_data.py $mode $height 1 true false $test_file
   fi
 }
 

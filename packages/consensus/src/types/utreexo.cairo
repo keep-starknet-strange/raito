@@ -109,7 +109,7 @@ pub impl UtreexoAccumulatorImpl of UtreexoAccumulator {
                         first_none_found = true;
                         new_roots.append(Option::Some(n));
                     } else {
-                        n = PoseidonTrait::new().update_with(((*root).unwrap(), n)).finalize();
+                        n = parent_hash((*root).unwrap(), n);
                         new_roots.append(Option::None);
                     }
                 } else {
@@ -297,6 +297,46 @@ impl UtreexoBatchProofDisplay of Display<UtreexoBatchProof> {
 #[cfg(test)]
 mod tests {
     use super::{UtreexoState, UtreexoAccumulator, UtreexoProof};
+    use consensus::types::transaction::{OutPoint, TxOut};
+    use utils::{
+        hash::{DigestImpl, DigestIntoU256}, bytearray::{ByteArraySnapHash, ByteArraySnapSerde},
+        hex::{from_hex, hex_to_hash_rev}
+    };
+    use core::poseidon::PoseidonTrait;
+    use core::hash::{HashStateTrait, HashStateExTrait};
+
+    /// block 170 tx1 v0 -> block9 tx coinbase v0
+    fn get_outpoint() -> OutPoint {
+        OutPoint {
+            txid: hex_to_hash_rev(
+                "0437cd7f8525ceed2324359c2d0ba26006d92d856a9c20fa0241106ee5a597c9"
+            ),
+            vout: 0,
+            data: TxOut {
+                value: 5000000000,
+                pk_script: @from_hex(
+                    "410411db93e1dcdb8a016b49840f8c53bc1eb68a382e97b1482ecad7b148a6909a5cb2e0eaddfb84ccf9744464f82e160bfa9b8b64f9d4c03f999b8643f656b412a3ac"
+                ),
+                cached: false
+            },
+            block_height: 9,
+            block_time: 1231473279,
+            block_hash: hex_to_hash_rev(
+                "000000008d9dc510f23c2657fc4f67bea30078cc05a90eb89e84cc475c080805"
+            ),
+            is_coinbase: true
+        }
+    }
+
+    /// outpoint hash of first output spent block 170
+    #[test]
+    fn test_poseidon1() {
+        let outpoint: OutPoint = get_outpoint();
+        let outpoint_hash = PoseidonTrait::new().update_with(outpoint).finalize();
+
+        let expected: felt252 = 0x1E8BBC31DA001E7EBACAEBC83DF1FD241040B9525ADEECEADBBC7045C6D1876;
+        assert_eq!(outpoint_hash, expected);
+    }
 
     /// Test the basic functionality of the Utreexo accumulator
     ///
