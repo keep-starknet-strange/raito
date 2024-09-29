@@ -83,7 +83,7 @@ fn script_flags(header: @Header, tx: @Transaction) -> u32 {
     // Enforce CHECKLOCKTIMEVERIFY for block versions 4+
     // This is part of BIP0065.
     if header.version >= @4_u32 && block_height >= @BIP_65_BLOCK_HEIGHT {
-        script_flags += ScriptFlags::ScriptVerifyDERSignatures.into();
+        script_flags += ScriptFlags::ScriptVerifyCheckLockTimeVerify.into();
     }
 
     // Enforce CHECKSEQUENCEVERIFY if the CSV soft-fork is now active
