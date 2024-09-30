@@ -130,7 +130,8 @@ def get_utxo_set(block_number: int) -> Dict[str, Any]:
     # Find chunk file
     chunk_file = index.get(str(block_number))
     if not chunk_file:
-        raise Exception(f"Block number {block_number} not found in index file: {index_file}")
+        return {"block_number":str(block_number), "outputs": []}
+        # raise Exception(f"Block number {block_number} not found in index file: {index_file}")
 
     # Find and return data for the block
     with open(BASE_DIR + "/" + chunk_file, "r") as f:
