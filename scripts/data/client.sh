@@ -6,12 +6,13 @@
 base_dir=".client_cache"
 
 start=${1:-0}
-end=${2:-100}
+no_of_blocks=${2:-100}
+end=$(($start+$no_of_blocks))
 step=${3:-1}
 mode=${4:-"light"}
 strategy=${5:-"sequential"}
 
-mkdir $base_dir || true
+mkdir -p $base_dir
 
 run_client() {
   local initial_height=$1
