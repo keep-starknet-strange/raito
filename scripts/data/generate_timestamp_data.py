@@ -53,10 +53,11 @@ def list_files_in_gcs():
     client = storage.Client.create_anonymous_client()
     bucket = client.get_bucket(GCS_BUCKET_NAME)
     blobs = bucket.list_blobs(prefix=GCS_FOLDER_NAME)
-    
+
     return [
         os.path.basename(blob.name) for blob in blobs if blob.name.endswith(".json")
     ]
+
 
 def index_file_name(key):
     return f"{BASE_DIR}/timestamp_index_{key}.json"

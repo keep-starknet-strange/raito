@@ -19,6 +19,7 @@ DEFAULT_URL = "https://bitcoin-mainnet.public.blastapi.io"
 
 FAST = False
 
+
 def request_rpc(method: str, params: list):
     """Makes a JSON-RPC call to a Bitcoin API endpoint.
     Uses environment variables BITCOIN_RPC and USERPWD
@@ -47,7 +48,7 @@ def fetch_chain_state_fast(block_height: int):
     block_hash = request_rpc("getblockhash", [block_height])
     head = request_rpc("getblockheader", [block_hash])
 
-    # If block is downloaded take it localy
+    # If block is downloaded take it locally
     data = get_timestamp_data(block_height)[str(block_height)]
     head["prev_timestamps"] = [int(t) for t in data["previous_timestamps"]]
     if block_height < 2016:
@@ -89,6 +90,7 @@ def fetch_chain_state(block_height: int):
         head["epoch_start_time"] = get_epoch_start_time(block_height)
 
     return head
+
 
 def next_chain_state(head: dict, blocks: list):
     """Computes resulting chain state given the initial chain state
@@ -150,7 +152,10 @@ def fetch_block(block_height: int, block_hash: str, include_utreexo_data: bool, 
     """Downloads block with transactions (and referred UTXOs) from RPC given the block hash."""
     block = request_rpc("getblock", [block_hash, 2])
     previous_outputs = get_utxo_set(block_height + 1) if fast else None
-    block["data"] = {tx["txid"]: resolve_transaction(tx, include_utreexo_data, previous_outputs) for tx in tqdm(block["tx"], "Resolving transactions")}
+    block["data"] = {
+        tx["txid"]: resolve_transaction(tx, include_utreexo_data, previous_outputs)
+        for tx in tqdm(block["tx"], "Resolving transactions")
+    }
     return block
 
 
@@ -162,16 +167,20 @@ def resolve_transaction(transaction: dict, include_utreexo_data, previous_output
             "txid": transaction["txid"],
             # Skip the first 4 bytes (version) and take the next 4 bytes (marker + flag)
             "is_segwit": transaction["hex"][8:12] == "0001",
-            "inputs": [resolve_input(input, previous_outputs) for input in transaction["vin"]],
+            "inputs": [
+                resolve_input(input, previous_outputs) for input in transaction["vin"]
+            ],
             "outputs": [format_output(output) for output in transaction["vout"]],
             "lock_time": transaction["locktime"],
         }
-    else:    
+    else:
         return {
             "version": transaction["version"],
             # Skip the first 4 bytes (version) and take the next 4 bytes (marker + flag)
             "is_segwit": transaction["hex"][8:12] == "0001",
-            "inputs": [resolve_input(input, previous_outputs) for input in transaction["vin"]],
+            "inputs": [
+                resolve_input(input, previous_outputs) for input in transaction["vin"]
+            ],
             "outputs": [format_output(output) for output in transaction["vout"]],
             "lock_time": transaction["locktime"],
         }
@@ -184,8 +193,10 @@ def resolve_input(input: dict, previous_outputs):
     else:
         if previous_outputs:
             previous_output = [
-                output for output in previous_outputs 
-                if output["txid"] == input["txid"] and int(output["vout"]) == input["vout"]
+                output
+                for output in previous_outputs
+                if output["txid"] == input["txid"]
+                and int(output["vout"]) == input["vout"]
             ][0]
             return {
                 "script": f'0x{input["scriptSig"]["hex"]}',
@@ -201,22 +212,24 @@ def resolve_input(input: dict, previous_outputs):
                 "witness": [f"0x{item}" for item in input.get("txinwitness", [])],
             }
 
+
 def format_outpoint(previous_output):
     """Formats output according to the Cairo type."""
-    
+
     return {
         "txid": previous_output["txid"],
         "vout": int(previous_output["vout"]),
         "data": {
             "value": int(previous_output["value"]),
             "pk_script": f'0x{previous_output["pk_script"]}',
-            "cached": False,     
+            "cached": False,
         },
         "block_hash": previous_output["block_hash"],
         "block_height": int(previous_output["block_height"]),
         "block_time": int(previous_output["block_time"]),
         "is_coinbase": previous_output["is_coinbase"],
     }
+
 
 def resolve_outpoint(input: dict):
     """Fetches transaction and block header for the referenced output,
@@ -311,7 +324,7 @@ def generate_data(
     num_blocks: int,
     include_expected: bool,
     include_utreexo_data: bool,
-    fast: bool
+    fast: bool,
 ):
     """Generates arguments for Raito program in a human readable form and the expected result.
 
@@ -322,16 +335,20 @@ def generate_data(
     :param num_blocks: The number of blocks to apply on top of it (has to be at least 1)
     :return: tuple (arguments, expected output)
     """
-    
+
     if fast:
         print("Fetching chain state (fast)...")
     else:
         print("Fetching chain state...")
 
     print(f"blocks: {initial_height} - {initial_height + num_blocks - 1}")
-    
-    chain_state = fetch_chain_state_fast(initial_height) if fast else fetch_chain_state(initial_height)
-    
+
+    chain_state = (
+        fetch_chain_state_fast(initial_height)
+        if fast
+        else fetch_chain_state(initial_height)
+    )
+
     next_block_hash = chain_state["nextblockhash"]
     blocks = []
 
@@ -342,7 +359,7 @@ def generate_data(
                 0,
                 "000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f",
                 include_utreexo_data,
-                fast
+                fast,
             )
         )
 
@@ -355,7 +372,9 @@ def generate_data(
         if mode == "light":
             block = fetch_block_header(next_block_hash)
         elif mode == "full":
-            block = fetch_block(initial_height + i, next_block_hash, include_utreexo_data, fast)
+            block = fetch_block(
+                initial_height + i, next_block_hash, include_utreexo_data, fast
+            )
             # Build UTXO set and mark outputs spent within the same block (span).
             # Also set "cached" flag for the inputs that spend those UTXOs.
             for txid, tx in block["data"].items():
@@ -402,24 +421,25 @@ def generate_data(
 def str2bool(value):
     if isinstance(value, bool):
         return value
-    if value.lower() in ('yes', 'true', 't', 'y', '1'):
+    if value.lower() in ("yes", "true", "t", "y", "1"):
         return True
-    elif value.lower() in ('no', 'false', 'f', 'n', '0'):
+    elif value.lower() in ("no", "false", "f", "n", "0"):
         return False
     else:
-        raise argparse.ArgumentTypeError('Boolean value expected.')
+        raise argparse.ArgumentTypeError("Boolean value expected.")
+
 
 # Usage: generate_data.py MODE INITIAL_HEIGHT NUM_BLOCKS INCLUDE_EXPECTED OUTPUT_FILE
 # Example: generate_data.py 'light' 0 10 false light_0_10.json
 if __name__ == "__main__":
-    
+
     parser = argparse.ArgumentParser(description="Process UTXO files.")
     parser.add_argument(
         "mode",
-        choices=['light', 'full'],
+        choices=["light", "full"],
         help="Mode",
     )
-    
+
     parser.add_argument(
         "initial_height",
         type=int,
@@ -431,7 +451,7 @@ if __name__ == "__main__":
         type=int,
         help="The number of blocks",
     )
-    
+
     parser.add_argument(
         "include_expected",
         type=str2bool,
@@ -443,7 +463,6 @@ if __name__ == "__main__":
         type=str2bool,
         help="Include utreexo data",
     )
-
 
     parser.add_argument(
         "output_file",
@@ -457,7 +476,7 @@ if __name__ == "__main__":
         help="Fast mode",
     )
 
-    args = parser.parse_args()    
+    args = parser.parse_args()
 
     data = generate_data(
         mode=args.mode,
@@ -465,7 +484,7 @@ if __name__ == "__main__":
         num_blocks=args.num_blocks,
         include_expected=args.include_expected,
         include_utreexo_data=args.include_utreexo_data,
-        fast=args.fast
+        fast=args.fast,
     )
 
     Path(args.output_file).write_text(json.dumps(data, indent=2))

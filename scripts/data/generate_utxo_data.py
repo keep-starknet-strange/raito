@@ -28,11 +28,10 @@ def list_files_in_gcs():
     client = storage.Client.create_anonymous_client()
     bucket = client.get_bucket(GCS_BUCKET_NAME)
     blobs = bucket.list_blobs(prefix=GCS_FOLDER_NAME)
-    
+
     return [
         os.path.basename(blob.name) for blob in blobs if blob.name.endswith(".json")
     ]
-
 
 
 def download_and_split(file_name: str):
@@ -124,13 +123,13 @@ def load_index(file_name):
 
 
 def get_utxo_set(block_number: int) -> Dict[str, Any]:
-    index_file = index_file_name(int(block_number) // INDEX_SIZE) 
+    index_file = index_file_name(int(block_number) // INDEX_SIZE)
     index = load_index(index_file)
 
     # Find chunk file
     chunk_file = index.get(str(block_number))
     if not chunk_file:
-        return {"block_number":str(block_number), "outputs": []}
+        return {"block_number": str(block_number), "outputs": []}
         # raise Exception(f"Block number {block_number} not found in index file: {index_file}")
 
     # Find and return data for the block
@@ -141,7 +140,7 @@ def get_utxo_set(block_number: int) -> Dict[str, Any]:
             if line.startswith(f'{{"block_number":"{block_number}"'):
                 data = json.loads(line.strip())
                 return data["outputs"]
-            
+
     print()
     raise Exception(f"Block {block_number} not found in chunk file {chunk_file}")
 
