@@ -117,8 +117,10 @@ def get_utxo_set(block_number: int) -> Dict[str, Any]:
     # Find and return data for the block
     with open(BASE_DIR + "/" + chunk_file, "r") as f:
         for line in f:
-            data = json.loads(line.strip())
-            if data["block_number"] == str(block_number):
+            # data = json.loads(line.strip())
+            # if data["block_number"] == str(block_number):
+            if line.startswith(f'{{"block_number":{block_number}'):
+                data = json.loads(line.strip())
                 return data["outputs"]
     raise Exception(f"Block {block_number} not found in chunk file {chunk_file}")
 
