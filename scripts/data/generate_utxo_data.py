@@ -131,7 +131,7 @@ def process_file_range(start_file: str, end_file: str):
     start_num = int(start_file.split(".")[0])
     end_num = int(end_file.split(".")[0])
 
-    for file_num in tqdm(range(start_num, end_num + 1), desc="Processing files"):
+    for file_num in tqdm(range(start_num, end_num + 1), desc="Downloading files"):
         file_name = f"{file_num:012d}.json"
         # print(f"\nProcessing file: {file_name}")
         download_and_split(file_name)

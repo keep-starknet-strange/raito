@@ -62,5 +62,5 @@ done
 
 for test_case in "${full_test_cases[@]}"; do
     echo "Generating test data: full mode, chain state @ $test_case, single block"
-    generate_test "full" $test_case
+    generate_test "full_fast" $test_case
 done

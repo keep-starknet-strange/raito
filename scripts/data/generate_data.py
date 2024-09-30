@@ -4,10 +4,12 @@ import sys
 import os
 import json
 import requests
+import argparse
 from pathlib import Path
 from decimal import Decimal, getcontext
 from generate_timestamp_data import get_timestamp_data
 from generate_utxo_data import get_utxo_set
+from tqdm import tqdm
 
 getcontext().prec = 16
 
@@ -15,6 +17,7 @@ BITCOIN_RPC = os.getenv("BITCOIN_RPC")
 USERPWD = os.getenv("USERPWD")
 DEFAULT_URL = "https://bitcoin-mainnet.public.blastapi.io"
 
+FAST = False
 
 def request_rpc(method: str, params: list):
     """Makes a JSON-RPC call to a Bitcoin API endpoint.
@@ -38,6 +41,25 @@ def request_rpc(method: str, params: list):
     except Exception:
         raise ConnectionError(f"Unexpected RPC response:\n{res.text}")
 
+
+def fetch_chain_state_fast(block_height: int):
+    """Fetches chain state at the end of a specific block with given height.
+    Chain state is a just a block header extended with extra fields:
+        - prev_timestamps
+        - epoch_start_time
+    """
+    # Chain state at height H is the state after applying block H
+    block_hash = request_rpc("getblockhash", [block_height])
+    head = request_rpc("getblockheader", [block_hash])
+
+    # If block is downloaded take it localy
+    data = get_timestamp_data(block_height)[str(block_height)]
+    head["prev_timestamps"] = data["previous_timestamps"]
+    if block_height < 2016:
+        head["epoch_start_time"] = 1231006505
+    else:
+        head["epoch_start_time"] = data["epoch_start_time"]
+    return head
 
 def fetch_chain_state(block_height: int):
     """Fetches chain state at the end of a specific block with given height.
@@ -137,37 +159,66 @@ def bits_to_target(bits: str) -> int:
         return mantissa << (8 * (exponent - 3))
 
 
-def fetch_block(block_hash: str):
+def fetch_block(block_height: int, block_hash: str, fast):
     """Downloads block with transactions (and referred UTXOs) from RPC given the block hash."""
     block = request_rpc("getblock", [block_hash, 2])
-    block["data"] = {tx["txid"]: resolve_transaction(tx) for tx in block["tx"]}
+    previous_outputs = get_utxo_set(block_height + 1) if fast else None
+    block["data"] = {tx["txid"]: resolve_transaction(tx, previous_outputs) for tx in tqdm(block["tx"], "Resolving transactions")}
     return block
 
 
-def resolve_transaction(transaction: dict):
+def resolve_transaction(transaction: dict, previous_outputs):
     """Resolves transaction inputs and formats the content according to the Cairo type."""
     return {
         "version": transaction["version"],
         # Skip the first 4 bytes (version) and take the next 4 bytes (marker + flag)
         "is_segwit": transaction["hex"][8:12] == "0001",
-        "inputs": [resolve_input(input) for input in transaction["vin"]],
+        "inputs": [resolve_input(input, previous_outputs) for input in transaction["vin"]],
         "outputs": [format_output(output) for output in transaction["vout"]],
         "lock_time": transaction["locktime"],
     }
 
 
-def resolve_input(input: dict):
+def resolve_input(input: dict, previous_outputs):
     """Resolves referenced UTXO and formats the transaction inputs according to the Cairo type."""
     if input.get("coinbase"):
         return format_coinbase_input(input)
     else:
-        return {
-            "script": f'0x{input["scriptSig"]["hex"]}',
-            "sequence": input["sequence"],
-            "previous_output": resolve_outpoint(input),
-            "witness": [f"0x{item}" for item in input.get("txinwitness", [])],
-        }
+        if previous_outputs:
+            previous_output = [
+                output for output in previous_outputs 
+                if output["txid"] == input["txid"] and int(output["vout"]) == input["vout"]
+            ][0]
+            return {
+                "script": f'0x{input["scriptSig"]["hex"]}',
+                "sequence": input["sequence"],
+                "previous_output": format_outpoint(previous_output),
+                "witness": [f"0x{item}" for item in input.get("txinwitness", [])],
+            }
+        else:
+            return {
+                "script": f'0x{input["scriptSig"]["hex"]}',
+                "sequence": input["sequence"],
+                "previous_output": resolve_outpoint(input),
+                "witness": [f"0x{item}" for item in input.get("txinwitness", [])],
+            }
 
+def format_outpoint(previous_output):
+    """Formats output according to the Cairo type."""
+    
+    return {
+        "txid": previous_output["txid"],
+        "vout": int(previous_output["vout"]),
+        "data": {
+            "value": int(previous_output["value"]),
+            "pk_script": f'0x{previous_output["pk_script"]}',
+            "cached": False,     
+        },
+        "block_hash": previous_output["block_hash"],
+        "block_height": int(previous_output["block_height"]),
+        "block_time": int(previous_output["block_time"]),
+        "is_coinbase": previous_output["is_coinbase"],
+    }
 
 def resolve_outpoint(input: dict):
     """Fetches transaction and block header for the referenced output,
@@ -270,11 +321,13 @@ def generate_data(
 
     :param mode: Validation mode:
         "light" — generate block headers with Merkle root only
-        "full" — generate full blocks with transactions (and referenced UTXOs)
+        "full, full_fast" — generate full blocks with transactions (and referenced UTXOs)
     :param initial_height: The block height of the initial chain state (0 means the state after genesis)
     :param num_blocks: The number of blocks to apply on top of it (has to be at least 1)
     :return: tuple (arguments, expected output)
     """
+    
+    print("Fetching chain state...")
     chain_state = fetch_chain_state(initial_height)
     next_block_hash = chain_state["nextblockhash"]
     blocks = []
@@ -282,11 +335,12 @@ def generate_data(
     # UTXO set to track unspent outputs
     utxo_set = {}
 
-    for _ in range(num_blocks):
+    for i in range(num_blocks):
+        print(f"Fetching block {initial_height + i}...")
         if mode == "light":
             block = fetch_block_header(next_block_hash)
-        elif mode == "full":
-            block = fetch_block(next_block_hash)
+        elif mode == "full" or mode == "full_fast":
+            block = fetch_block(initial_height + i, next_block_hash, mode == "full_fast")
             # Build UTXO set and mark outputs spent within the same block (span).
             # Also set "cached" flag for the inputs that spend those UTXOs.
             for txid, tx in block["data"].items():
@@ -307,7 +361,7 @@ def generate_data(
         next_block_hash = block["nextblockhash"]
         blocks.append(block)
 
-    if mode == "full":
+    if mode == "full" or mode == "full_fast":
         # Do another pass to mark UTXOs spent within the same block (span) with "cached" flag.
         for block in blocks:
             for txid, tx in block["data"].items():
@@ -333,14 +387,45 @@ def generate_data(
 # Usage: generate_data.py MODE INITIAL_HEIGHT NUM_BLOCKS INCLUDE_EXPECTED OUTPUT_FILE
 # Example: generate_data.py 'light' 0 10 false light_0_10.json
 if __name__ == "__main__":
-    if len(sys.argv) != 6:
-        raise TypeError("Expected five arguments")
-
-    data = generate_data(
-        mode=sys.argv[1],
-        initial_height=int(sys.argv[2]),
-        num_blocks=int(sys.argv[3]),
-        include_expected=sys.argv[4].lower() == "true",
+    
+    parser = argparse.ArgumentParser(description="Process UTXO files.")
+    parser.add_argument(
+        "mode",
+        choices=['light', 'full', 'full_fast'],
+        help="Mode",
+    )
+    
+    parser.add_argument(
+        "initial_height",
+        type=int,
+        help="The block height of the initial chain state",
     )
 
-    Path(sys.argv[5]).write_text(json.dumps(data, indent=2))
+    parser.add_argument(
+        "num_blocks",
+        type=int,
+        help="The number of blocks",
+    )
+    
+    parser.add_argument(
+        "include_expected",
+        type=bool,
+        help="Include expected output",
+    )
+
+    parser.add_argument(
+        "output_file",
+        help="Output file",
+    )
+
+
+    args = parser.parse_args()    
+
+    data = generate_data(
+        mode=args.mode,
+        initial_height=args.initial_height,
+        num_blocks=args.num_blocks,
+        include_expected=args.include_expected,
+    )
+
+    Path(args.output_file).write_text(json.dumps(data, indent=2))
