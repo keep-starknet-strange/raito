@@ -26,3 +26,6 @@ Cargo.lock
 __pycache__
 
 .client_cache/
+.utxo_data/
+.timestamps_data/
+

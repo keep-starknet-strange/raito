@@ -315,7 +315,7 @@ def format_header(header: dict):
 
 
 def generate_data(
-    mode: str, initial_height: int, num_blocks: int, include_expected: bool
+    mode: str, initial_height: int, num_blocks: int, include_expected: bool, fast: bool
 ):
     """Generates arguments for Raito program in a human readable form and the expected result.
 
@@ -327,7 +327,10 @@ def generate_data(
     :return: tuple (arguments, expected output)
     """
     
-    print("Fetching chain state...")
+    if fast:
+        print("Fetching chain state (fast)...")
+    else:
+        print("Fetching chain state...")
     chain_state = fetch_chain_state(initial_height)
     next_block_hash = chain_state["nextblockhash"]
     blocks = []
@@ -339,8 +342,8 @@ def generate_data(
         print(f"Fetching block {initial_height + i}...")
         if mode == "light":
             block = fetch_block_header(next_block_hash)
-        elif mode == "full" or mode == "full_fast":
-            block = fetch_block(initial_height + i, next_block_hash, mode == "full_fast")
+        elif mode == "full":
+            block = fetch_block(initial_height + i, next_block_hash, fast)
             # Build UTXO set and mark outputs spent within the same block (span).
             # Also set "cached" flag for the inputs that spend those UTXOs.
             for txid, tx in block["data"].items():
@@ -391,7 +394,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Process UTXO files.")
     parser.add_argument(
         "mode",
-        choices=['light', 'full', 'full_fast'],
+        choices=['light', 'full'],
         help="Mode",
     )
     
@@ -418,6 +421,12 @@ if __name__ == "__main__":
         help="Output file",
     )
 
+    parser.add_argument(
+        "--fast",
+        dest="fast",
+        action="store_true",
+        help="Ending file number (e.g., 000000000050)",
+    )
 
     args = parser.parse_args()    
 
@@ -426,6 +435,7 @@ if __name__ == "__main__":
         initial_height=args.initial_height,
         num_blocks=args.num_blocks,
         include_expected=args.include_expected,
+        fast=args.fast
     )
 
     Path(args.output_file).write_text(json.dumps(data, indent=2))

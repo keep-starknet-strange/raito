@@ -7,15 +7,32 @@ import requests
 import subprocess
 from typing import Dict, Any
 import argparse
+from google.cloud import storage
 from tqdm import tqdm
 from functools import lru_cache
 from collections import defaultdict
 
 # Constants
-GCS_BASE_URL = "https://storage.googleapis.com/shinigami-consensus/utxos/"
-BASE_DIR = "utxo_data"
+BASE_DIR = ".utxo_data"
 CHUNK_SIZE = 10
 INDEX_SIZE = 50000
+
+GCS_BUCKET_NAME = "shinigami-consensus"
+GCS_FOLDER_NAME = "utxos"
+GCS_BASE_URL = f"https://storage.googleapis.com/{GCS_BUCKET_NAME}/{GCS_FOLDER_NAME}/"
+
+
+def list_files_in_gcs():
+    """List all files in a GCS bucket under a specific folder (prefix)."""
+    print(f"Getting file list from GCS...")
+    client = storage.Client.create_anonymous_client()
+    bucket = client.get_bucket(GCS_BUCKET_NAME)
+    blobs = bucket.list_blobs(prefix=GCS_FOLDER_NAME)
+    
+    return [
+        os.path.basename(blob.name) for blob in blobs if blob.name.endswith(".json")
+    ]
+
 
 
 def download_and_split(file_name: str):
@@ -107,34 +124,38 @@ def load_index(file_name):
 
 
 def get_utxo_set(block_number: int) -> Dict[str, Any]:
-    index = load_index(index_file_name(int(block_number) // INDEX_SIZE))
+    index_file = index_file_name(int(block_number) // INDEX_SIZE) 
+    index = load_index(index_file)
 
     # Find chunk file
     chunk_file = index.get(str(block_number))
     if not chunk_file:
-        raise Exception(f"Block number {block_number} not found in index")
+        raise Exception(f"Block number {block_number} not found in index file: {index_file}")
 
     # Find and return data for the block
     with open(BASE_DIR + "/" + chunk_file, "r") as f:
         for line in f:
             # data = json.loads(line.strip())
             # if data["block_number"] == str(block_number):
-            if line.startswith(f'{{"block_number":{block_number}'):
+            if line.startswith(f'{{"block_number":"{block_number}"'):
                 data = json.loads(line.strip())
                 return data["outputs"]
+            
+    print()
     raise Exception(f"Block {block_number} not found in chunk file {chunk_file}")
 
 
-def process_file_range(start_file: str, end_file: str):
+def process_files(num_files: int):
     """Process a range of files from start_file to end_file."""
 
     os.makedirs(BASE_DIR, exist_ok=True)
 
-    start_num = int(start_file.split(".")[0])
-    end_num = int(end_file.split(".")[0])
+    files = list_files_in_gcs()
 
-    for file_num in tqdm(range(start_num, end_num + 1), desc="Downloading files"):
-        file_name = f"{file_num:012d}.json"
+    if num_files:
+        files = files[:num_files]
+
+    for file_name in tqdm(files, desc="Downloading files"):
         # print(f"\nProcessing file: {file_name}")
         download_and_split(file_name)
 
@@ -145,20 +166,14 @@ def process_file_range(start_file: str, end_file: str):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Process UTXO files.")
     parser.add_argument(
-        "--from",
-        dest="start_file",
-        required=True,
-        help="Starting file number (e.g., 000000000001)",
-    )
-    parser.add_argument(
-        "--to",
-        dest="end_file",
-        required=True,
-        help="Ending file number (e.g., 000000000050)",
+        "--num_files",
+        dest="num_files",
+        type=int,
+        help="Number of files to process, all if not specified",
     )
 
     args = parser.parse_args()
 
-    process_file_range(args.start_file, args.end_file)
+    process_files(args.num_files)
 
     print("All files processed successfully.")
