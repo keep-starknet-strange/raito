@@ -463,8 +463,6 @@ if __name__ == "__main__":
 
     args = parser.parse_args()    
 
-    print(f'Parsing arguments...')
-
     data = generate_data(
         mode=args.mode,
         initial_height=args.initial_height,

@@ -24,7 +24,7 @@ run_client() {
   batch_file=${base_dir}/${mode}_${initial_height}_${num_blocks}.json
   arguments_file=${base_dir}/arguments-${mode}_${initial_height}_${num_blocks}.json
   if [ ! -f "$batch_file" ]; then
-    python ../../scripts/data/generate_data.py --fast $mode $initial_height $num_blocks true $batch_file
+    python ../../scripts/data/generate_data.py --fast $mode $initial_height $num_blocks true false $batch_file
   fi
   
   python ../../scripts/data/format_args.py $batch_file > $arguments_file
