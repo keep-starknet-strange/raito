@@ -49,12 +49,13 @@ def fetch_chain_state_fast(block_height: int):
 
     # If block is downloaded take it localy
     data = get_timestamp_data(block_height)[str(block_height)]
-    head["prev_timestamps"] = data["previous_timestamps"]
+    head["prev_timestamps"] = [int(t) for t in data["previous_timestamps"]]
     if block_height < 2016:
         head["epoch_start_time"] = 1231006505
     else:
-        head["epoch_start_time"] = data["epoch_start_time"]
+        head["epoch_start_time"] = int(data["epoch_start_time"])
     return head
+
 
 def fetch_chain_state(block_height: int):
     """Fetches chain state at the end of a specific block with given height.
@@ -66,20 +67,9 @@ def fetch_chain_state(block_height: int):
     block_hash = request_rpc("getblockhash", [block_height])
     head = request_rpc("getblockheader", [block_hash])
 
-    # If block is downloaded take it locally
-    data = get_timestamp_data(block_height)
-    if str(block_height) in data:
-        data = data[str(block_height)]
-        head["prev_timestamps"] = data["previous_timestamps"]
-        if block_height < 2016:
-            head["epoch_start_time"] = 1231006505
-        else:
-            head["epoch_start_time"] = data["epoch_start_time"]
-        return head
-
     # In order to init prev_timestamps we need to query 10 previous headers
     prev_header = head
-    prev_timestamps = [head["time"]]
+    prev_timestamps = [int(head["time"])]
     for _ in range(10):
         if prev_header["height"] == 0:
             prev_timestamps.insert(0, 0)
@@ -87,16 +77,18 @@ def fetch_chain_state(block_height: int):
             prev_header = request_rpc(
                 "getblockheader", [prev_header["previousblockhash"]]
             )
-            prev_timestamps.insert(0, prev_header["time"])
+            prev_timestamps.insert(0, int(prev_header["time"]))
     head["prev_timestamps"] = prev_timestamps
+
+    print("timestamps", prev_timestamps)
 
     # In order to init epoch start we need to query block header at epoch start
     if block_height < 2016:
         head["epoch_start_time"] = 1231006505
     else:
         head["epoch_start_time"] = get_epoch_start_time(block_height)
-    return head
 
+    return head
 
 def next_chain_state(head: dict, blocks: list):
     """Computes resulting chain state given the initial chain state
@@ -335,7 +327,9 @@ def generate_data(
         print("Fetching chain state (fast)...")
     else:
         print("Fetching chain state...")
-    chain_state = fetch_chain_state(initial_height)
+    
+    chain_state = fetch_chain_state_fast(initial_height) if fast else fetch_chain_state(initial_height)
+    
     next_block_hash = chain_state["nextblockhash"]
     blocks = []
 
