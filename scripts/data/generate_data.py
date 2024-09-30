@@ -162,7 +162,7 @@ def fetch_block(block_height: int, block_hash: str, include_utreexo_data: bool, 
     return block
 
 
-def resolve_transaction(transaction: dict, previous_outputs):
+def resolve_transaction(transaction: dict, include_utreexo_data, previous_outputs):
     """Resolves transaction inputs and formats the content according to the Cairo type."""
     if include_utreexo_data:
         return {
@@ -343,8 +343,10 @@ def generate_data(
     if include_utreexo_data:
         blocks.append(
             fetch_block(
+                0,
                 "000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f",
                 include_utreexo_data,
+                fast
             )
         )
 
@@ -353,7 +355,7 @@ def generate_data(
         utxo_set = {}
 
     for i in range(num_blocks):
-        print(f"Fetching block {initial_height + i}/{initial_height + num_blocks}")
+        print(f"Fetching block {initial_height}| {i+1}/{num_blocks}")
         if mode == "light":
             block = fetch_block_header(next_block_hash)
         elif mode == "full":
@@ -401,6 +403,16 @@ def generate_data(
     return result
 
 
+def str2bool(value):
+    if isinstance(value, bool):
+        return value
+    if value.lower() in ('yes', 'true', 't', 'y', '1'):
+        return True
+    elif value.lower() in ('no', 'false', 'f', 'n', '0'):
+        return False
+    else:
+        raise argparse.ArgumentTypeError('Boolean value expected.')
+
 # Usage: generate_data.py MODE INITIAL_HEIGHT NUM_BLOCKS INCLUDE_EXPECTED OUTPUT_FILE
 # Example: generate_data.py 'light' 0 10 false light_0_10.json
 if __name__ == "__main__":
@@ -426,13 +438,13 @@ if __name__ == "__main__":
     
     parser.add_argument(
         "include_expected",
-        type=bool,
+        type=str2bool,
         help="Include expected output",
     )
 
     parser.add_argument(
         "include_utreexo_data",
-        type=bool,
+        type=str2bool,
         help="Include utreexo data",
     )
 
@@ -446,10 +458,12 @@ if __name__ == "__main__":
         "--fast",
         dest="fast",
         action="store_true",
-        help="Ending file number (e.g., 000000000050)",
+        help="Fast mode",
     )
 
     args = parser.parse_args()    
+
+    print(f'Parsing arguments...')
 
     data = generate_data(
         mode=args.mode,
