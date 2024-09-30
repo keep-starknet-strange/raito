@@ -9,7 +9,7 @@ use crate::validation::{
     difficulty::{validate_bits, adjust_difficulty}, coinbase::validate_coinbase,
     timestamp::{validate_timestamp, next_prev_timestamps},
     work::{validate_proof_of_work, compute_total_work},
-    block::{compute_and_validate_tx_data, validate_bip30_block_hash},
+    block::{compute_and_validate_tx_data, validate_bip30_block_hash, validate_block_hash},
 };
 use super::block::{BlockHash, Block, TransactionData};
 use super::utxo_set::UtxoSet;
@@ -77,7 +77,7 @@ pub impl BlockValidatorImpl of BlockValidator {
             }
         };
 
-        block.header.validate_hash(self.best_block_hash, txid_root)?;
+        validate_block_hash(@block.header, self.best_block_hash, txid_root)?;
 
         let (current_target, epoch_start_time) = adjust_difficulty(
             self.current_target,

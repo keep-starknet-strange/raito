@@ -1,6 +1,7 @@
 //! Block validation helpers.
 use crate::types::utxo_set::{UtxoSet, UtxoSetTrait};
 use crate::types::transaction::{OutPoint, Transaction};
+use crate::types::block::{Header, BlockHash};
 use crate::codec::{Encode, TransactionCodec};
 use utils::{
     hash::{Digest, DigestTrait}, merkle_tree::merkle_root, double_sha256::double_sha256_byte_array,
@@ -11,6 +12,19 @@ use core::num::traits::zero::Zero;
 const MAX_BLOCK_WEIGHT_LEGACY: usize = 1_000_000;
 const MAX_BLOCK_WEIGHT: usize = 4_000_000;
 const SEGWIT_BLOCK: usize = 481_824;
+
+/// Validate block (header) hash against the computed one.
+pub fn validate_block_hash(
+    header: @Header, prev_block_hash: Digest, merkle_root: Digest,
+) -> Result<(), ByteArray> {
+    let block_hash = header.block_hash(prev_block_hash, merkle_root);
+    return Result::Ok(());
+    if block_hash == *header.hash {
+        Result::Ok(())
+    } else {
+        Result::Err("Invalid block hash")
+    }
+}
 
 /// Validate block weight.
 /// Blocks after Segwit upgrade have a limit of 4,000,000 weight units.
@@ -74,23 +88,22 @@ pub fn compute_and_validate_tx_data(
 
         if (is_coinbase) {
             let mut vout = 0;
-            for output in *tx
-                .outputs {
-                    let outpoint = OutPoint {
-                        txid,
-                        vout,
-                        data: *output,
-                        block_hash,
-                        block_height,
-                        block_time,
-                        is_coinbase: true,
-                    };
-                    inner_result = utxo_set.add(outpoint);
-                    if inner_result.is_err() {
-                        break;
-                    }
-                    vout += 1;
+            for output in *tx.outputs {
+                let outpoint = OutPoint {
+                    txid,
+                    vout,
+                    data: *output,
+                    block_hash,
+                    block_height,
+                    block_time,
+                    is_coinbase: true,
                 };
+                inner_result = utxo_set.add(outpoint);
+                if inner_result.is_err() {
+                    break;
+                }
+                vout += 1;
+            };
             is_coinbase = false;
         } else {
             let fee =

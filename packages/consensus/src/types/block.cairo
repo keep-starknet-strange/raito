@@ -56,10 +56,8 @@ pub struct Header {
 
 #[generate_trait]
 pub impl BlockHashImpl of BlockHash {
-    /// Checks if the block hash is valid by re-computing it given the missing fields.
-    fn validate_hash(
-        self: @Header, prev_block_hash: Digest, merkle_root: Digest
-    ) -> Result<(), ByteArray> {
+    /// Computes block hash given the missing fields.
+    fn block_hash(self: @Header, prev_block_hash: Digest, merkle_root: Digest) -> Digest {
         let mut header_data_u32: Array<u32> = array![];
 
         header_data_u32.append(u32_byte_reverse(*self.version));
@@ -70,13 +68,7 @@ pub impl BlockHashImpl of BlockHash {
         header_data_u32.append(u32_byte_reverse(*self.bits));
         header_data_u32.append(u32_byte_reverse(*self.nonce));
 
-        let hash = double_sha256_u32_array(header_data_u32);
-
-        if *self.hash == hash {
-            Result::Ok(())
-        } else {
-            Result::Err("Invalid block hash")
-        }
+        double_sha256_u32_array(header_data_u32)
     }
 }
 

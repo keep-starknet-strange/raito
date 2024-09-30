@@ -37,32 +37,31 @@ pub fn validate_transaction(
 
     // TODO: BIP68 enabled for tx with version >= 2 (is it critical?)
 
-    for input in *tx
-        .inputs {
-            // Ensures that the output is not yet spent and spends it
-            inner_result = utxo_set.spend(input.previous_output);
+    for input in *tx.inputs {
+        // Ensures that the output is not yet spent and spends it
+        inner_result = utxo_set.spend(input.previous_output);
+        if inner_result.is_err() {
+            break;
+        }
+
+        if *input.previous_output.is_coinbase {
+            inner_result =
+                validate_coinbase_maturity(*input.previous_output.block_height, block_height);
             if inner_result.is_err() {
                 break;
             }
+        }
 
-            if *input.previous_output.is_coinbase {
-                inner_result =
-                    validate_coinbase_maturity(*input.previous_output.block_height, block_height);
-                if inner_result.is_err() {
-                    break;
-                }
+        if !is_input_final(*input.sequence) {
+            inner_result = validate_relative_locktime(input, block_height, block_time);
+            if inner_result.is_err() {
+                break;
             }
+            is_tx_final = false;
+        }
 
-            if !is_input_final(*input.sequence) {
-                inner_result = validate_relative_locktime(input, block_height, block_time);
-                if inner_result.is_err() {
-                    break;
-                }
-                is_tx_final = false;
-            }
-
-            total_input_amount += *input.previous_output.data.value;
-        };
+        total_input_amount += *input.previous_output.data.value;
+    };
 
     if inner_result.is_err() {
         return Result::Err(inner_result.unwrap_err());
@@ -77,22 +76,21 @@ pub fn validate_transaction(
     let mut total_output_amount = 0;
 
     let mut vout = 0;
-    for output in *tx
-        .outputs {
-            // Adds outpoint to the cache if the corresponding transaction output will be used
-            // as a transaction input in the same block(s), or adds it to the utreexo otherwise.
-            let outpoint = OutPoint {
-                txid, vout, data: *output, block_hash, block_height, block_time, is_coinbase: false,
-            };
-
-            inner_result = utxo_set.add(outpoint);
-            if inner_result.is_err() {
-                break;
-            }
-
-            total_output_amount += *output.value;
-            vout += 1;
+    for output in *tx.outputs {
+        // Adds outpoint to the cache if the corresponding transaction output will be used
+        // as a transaction input in the same block(s), or adds it to the utreexo otherwise.
+        let outpoint = OutPoint {
+            txid, vout, data: *output, block_hash, block_height, block_time, is_coinbase: false,
         };
+
+        inner_result = utxo_set.add(outpoint);
+        if inner_result.is_err() {
+            break;
+        }
+
+        total_output_amount += *output.value;
+        vout += 1;
+    };
 
     inner_result?;
     return compute_transaction_fee(total_input_amount, total_output_amount);

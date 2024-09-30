@@ -15,7 +15,6 @@ pub struct Digest {
 
 #[generate_trait]
 pub impl DigestImpl of DigestTrait {
-    #[inline(always)]
     fn new(array: [u32; 8]) -> Digest {
         Digest { value: array }
     }
@@ -100,7 +99,6 @@ pub impl U256IntoDigest of Into<u256, Digest> {
     }
 }
 
-
 /// Converts a `Digest` value into a `u256` type and reverse bytes order.
 /// Digest is little-endian order, while u256 is big-endian like in explorer.
 pub impl DigestIntoU256 of Into<Digest, u256> {
@@ -113,7 +111,6 @@ pub impl DigestIntoU256 of Into<Digest, u256> {
         u256 { low: u128_byte_reverse(high), high: u128_byte_reverse(low) }
     }
 }
-
 
 pub impl DigestHash<S, +HashStateTrait<S>, +Drop<S>> of Hash<Digest, S> {
     fn update_state(state: S, value: Digest) -> S {

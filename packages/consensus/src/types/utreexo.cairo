@@ -113,9 +113,13 @@ pub impl UtreexoAccumulatorImpl of UtreexoAccumulator {
                         new_roots.append(Option::None);
                     }
                 } else {
-                    new_roots.append(*root);
+                    n = PoseidonTrait::new().update_with(((*root).unwrap(), n)).finalize();
+                    new_roots.append(Option::None);
                 }
-            };
+            } else {
+                new_roots.append(*root);
+            }
+        };
 
         // Checks if end with Option::None
         if (new_roots[new_roots.len() - 1].is_some()) {

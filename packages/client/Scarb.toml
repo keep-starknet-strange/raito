@@ -5,6 +5,7 @@ edition = "2024_07"
 
 [dependencies]
 consensus = { path = "../consensus" }
+utils = { path = "../utils" }
 
 [dev-dependencies]
 cairo_test.workspace = true
