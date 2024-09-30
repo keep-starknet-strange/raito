@@ -29,12 +29,7 @@ def request_rpc(method: str, params: list):
     url = BITCOIN_RPC or DEFAULT_URL
     auth = tuple(USERPWD.split(":")) if USERPWD else None
     headers = {"content-type": "application/json"}
-    payload = {
-        "jsonrpc": "2.0",
-        "method": method,
-        "params": params,
-        "id": 0,
-    }
+    payload = {"jsonrpc": "2.0", "method": method, "params": params, "id": 0}
     res = requests.post(url, auth=auth, headers=headers, json=payload)
     try:
         return res.json()["result"]
@@ -159,24 +154,35 @@ def bits_to_target(bits: str) -> int:
         return mantissa << (8 * (exponent - 3))
 
 
-def fetch_block(block_height: int, block_hash: str, fast):
+def fetch_block(block_height: int, block_hash: str, include_utreexo_data: bool, fast):
     """Downloads block with transactions (and referred UTXOs) from RPC given the block hash."""
     block = request_rpc("getblock", [block_hash, 2])
     previous_outputs = get_utxo_set(block_height + 1) if fast else None
-    block["data"] = {tx["txid"]: resolve_transaction(tx, previous_outputs) for tx in tqdm(block["tx"], "Resolving transactions")}
+    block["data"] = {tx["txid"]: resolve_transaction(tx, include_utreexo_data, previous_outputs) for tx in tqdm(block["tx"], "Resolving transactions")}
     return block
 
 
 def resolve_transaction(transaction: dict, previous_outputs):
     """Resolves transaction inputs and formats the content according to the Cairo type."""
-    return {
-        "version": transaction["version"],
-        # Skip the first 4 bytes (version) and take the next 4 bytes (marker + flag)
-        "is_segwit": transaction["hex"][8:12] == "0001",
-        "inputs": [resolve_input(input, previous_outputs) for input in transaction["vin"]],
-        "outputs": [format_output(output) for output in transaction["vout"]],
-        "lock_time": transaction["locktime"],
-    }
+    if include_utreexo_data:
+        return {
+            "version": transaction["version"],
+            "txid": transaction["txid"],
+            # Skip the first 4 bytes (version) and take the next 4 bytes (marker + flag)
+            "is_segwit": transaction["hex"][8:12] == "0001",
+            "inputs": [resolve_input(input, previous_outputs) for input in transaction["vin"]],
+            "outputs": [format_output(output) for output in transaction["vout"]],
+            "lock_time": transaction["locktime"],
+        }
+    else:    
+        return {
+            "version": transaction["version"],
+            # Skip the first 4 bytes (version) and take the next 4 bytes (marker + flag)
+            "is_segwit": transaction["hex"][8:12] == "0001",
+            "inputs": [resolve_input(input, previous_outputs) for input in transaction["vin"]],
+            "outputs": [format_output(output) for output in transaction["vout"]],
+            "lock_time": transaction["locktime"],
+        }
 
 
 def resolve_input(input: dict, previous_outputs):
@@ -245,11 +251,7 @@ def format_coinbase_input(input: dict):
         "previous_output": {
             "txid": "0" * 64,
             "vout": 0xFFFFFFFF,
-            "data": {
-                "value": 0,
-                "pk_script": "0x",
-                "cached": False,
-            },
+            "data": {"value": 0, "pk_script": "0x", "cached": False},
             "block_hash": "0" * 64,
             "block_height": 0,
             "block_time": 0,
@@ -275,10 +277,7 @@ def format_block_with_transactions(block: dict):
     """Formats block with transactions according to the respective Cairo type."""
     return {
         "header": format_header(block),
-        "data": {
-            "variant_id": 1,
-            "transactions": list(block["data"].values()),
-        },
+        "data": {"variant_id": 1, "transactions": list(block["data"].values())},
     }
 
 
@@ -315,7 +314,12 @@ def format_header(header: dict):
 
 
 def generate_data(
-    mode: str, initial_height: int, num_blocks: int, include_expected: bool, fast: bool
+    mode: str,
+    initial_height: int,
+    num_blocks: int,
+    include_expected: bool,
+    include_utreexo_data: bool,
+    fast: bool
 ):
     """Generates arguments for Raito program in a human readable form and the expected result.
 
@@ -335,15 +339,25 @@ def generate_data(
     next_block_hash = chain_state["nextblockhash"]
     blocks = []
 
-    # UTXO set to track unspent outputs
-    utxo_set = {}
+    # Includes genesis block if satoshi returns?
+    if include_utreexo_data:
+        blocks.append(
+            fetch_block(
+                "000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f",
+                include_utreexo_data,
+            )
+        )
 
     for i in range(num_blocks):
-        print(f"Fetching block {initial_height + i}...")
+        # UTXO defined to track unspent output in the same block to define cached output.
+        utxo_set = {}
+
+    for i in range(num_blocks):
+        print(f"Fetching block {initial_height + i}/{initial_height + num_blocks}")
         if mode == "light":
             block = fetch_block_header(next_block_hash)
         elif mode == "full":
-            block = fetch_block(initial_height + i, next_block_hash, fast)
+            block = fetch_block(initial_height + i, next_block_hash, include_utreexo_data, fast)
             # Build UTXO set and mark outputs spent within the same block (span).
             # Also set "cached" flag for the inputs that spend those UTXOs.
             for txid, tx in block["data"].items():
@@ -417,6 +431,13 @@ if __name__ == "__main__":
     )
 
     parser.add_argument(
+        "include_utreexo_data",
+        type=bool,
+        help="Include utreexo data",
+    )
+
+
+    parser.add_argument(
         "output_file",
         help="Output file",
     )
@@ -435,6 +456,7 @@ if __name__ == "__main__":
         initial_height=args.initial_height,
         num_blocks=args.num_blocks,
         include_expected=args.include_expected,
+        include_utreexo_data=args.include_utreexo_data,
         fast=args.fast
     )
 

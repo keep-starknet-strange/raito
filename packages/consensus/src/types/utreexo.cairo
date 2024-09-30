@@ -69,33 +69,34 @@ pub trait UtreexoAccumulator {
     /// This mechanism ensures that short-lived outputs have small inclusion proofs.
     fn add(ref self: UtreexoState, outpoint_hash: felt252);
 
-    /// Verifies inclusion proof for a single output.
-    fn verify(
-        self: @UtreexoState, outpoint_hash: felt252, proof: @UtreexoProof
-    ) -> Result<(), UtreexoError>;
-
     /// Removes single output from the accumulator (order is important).
     ///
     /// Note that once verified, the output itself is not required for deletion,
     /// the leaf index plus inclusion proof is enough.
     fn delete(ref self: UtreexoState, proof: @UtreexoProof);
 
+    /// Removes multiple outputs from the accumulator.
+    fn delete_batch(ref self: UtreexoState, proof: @UtreexoBatchProof);
+
+    /// Verifies inclusion proof for a single output.
+    fn verify(
+        self: @UtreexoState, outpoint_hash: felt252, proof: @UtreexoProof
+    ) -> Result<(), UtreexoError>;
+
     /// Verifies batch proof for multiple outputs (e.g. all outputs in a block).
     fn verify_batch(
         self: @UtreexoState, outputs: Span<OutPoint>, proof: @UtreexoBatchProof
     ) -> Result<(), UtreexoError>;
-
-    /// Removes multiple outputs from the accumulator.
-    fn delete_batch(ref self: UtreexoState, proof: @UtreexoBatchProof);
 }
 
-// https://eprint.iacr.org/2019/611.pdf page6, Adding and removing elements
+/// https://eprint.iacr.org/2019/611.pdf page 6 - Adding and removing elements.
 fn parent_hash(left: felt252, right: felt252) -> felt252 {
     return PoseidonTrait::new().update_with(left).update_with(right).finalize();
 }
 
 pub impl UtreexoAccumulatorImpl of UtreexoAccumulator {
-    // https://eprint.iacr.org/2019/611.pdf Algorithm 1 AddOne
+    /// Adds an output from the accumulator.
+    /// https://eprint.iacr.org/2019/611.pdf Algorithm 1 AddOne
     fn add(ref self: UtreexoState, outpoint_hash: felt252) {
         let mut new_roots: Array<Option<felt252>> = Default::default();
         let mut n: felt252 = outpoint_hash;
@@ -108,7 +109,7 @@ pub impl UtreexoAccumulatorImpl of UtreexoAccumulator {
                         first_none_found = true;
                         new_roots.append(Option::Some(n));
                     } else {
-                        n = PoseidonTrait::new().update_with(((*root).unwrap(), n)).finalize();
+                        n = parent_hash((*root).unwrap(), n);
                         new_roots.append(Option::None);
                     }
                 } else {
@@ -116,7 +117,7 @@ pub impl UtreexoAccumulatorImpl of UtreexoAccumulator {
                 }
             };
 
-        //check if end with Option::None
+        // Checks if end with Option::None
         if (new_roots[new_roots.len() - 1].is_some()) {
             new_roots.append(Option::None);
         }
@@ -124,6 +125,48 @@ pub impl UtreexoAccumulatorImpl of UtreexoAccumulator {
         self.roots = new_roots.span();
         self.num_leaves += 1_u64;
     }
+
+    /// Removes an output from the accumulator.
+    /// https://eprint.iacr.org/2019/611.pdf Algorithm 2 DeleteOne
+    fn delete(ref self: UtreexoState, proof: @UtreexoProof) {
+        let mut roots: Array<Option<felt252>> = array![];
+        let mut n: Option<felt252> = Option::None;
+
+        let num_roots: u32 = self.roots.len();
+        let proof = *proof.proof;
+        let mut h: usize = 0;
+
+        for sibling in proof {
+            if n != Option::None {
+                n = Option::Some(parent_hash(*sibling, n.unwrap()));
+                if h < num_roots {
+                    roots.append(*self.roots[h]);
+                } else {
+                    roots.append(Option::None);
+                }
+            } else if h < num_roots && self.roots[h].is_some() {
+                n = Option::Some(parent_hash(*sibling, (*self.roots[h]).unwrap()));
+                roots.append(Option::None);
+            } else {
+                roots.append(Option::Some(*sibling));
+            }
+
+            h += 1;
+        };
+
+        roots.append(n);
+        h += 1;
+        while h != num_roots {
+            roots.append(*self.roots[h]);
+            h += 1;
+        };
+
+        self.roots = roots.span();
+        self.num_leaves -= 1;
+    }
+
+    /// Removes multiple outputs from the accumulator.
+    fn delete_batch(ref self: UtreexoState, proof: @UtreexoBatchProof) {}
 
     /// Verifies inclusion proof for a single output.
     fn verify(
@@ -149,15 +192,12 @@ pub impl UtreexoAccumulatorImpl of UtreexoAccumulator {
         }
     }
 
-    fn delete(ref self: UtreexoState, proof: @UtreexoProof) {}
-
+    /// Verifies inclusion proof for multiple outputs.
     fn verify_batch(
         self: @UtreexoState, outputs: Span<OutPoint>, proof: @UtreexoBatchProof
     ) -> Result<(), UtreexoError> {
         Result::Ok(())
     }
-    /// Removes multiple outputs from the accumulator.
-    fn delete_batch(ref self: UtreexoState, proof: @UtreexoBatchProof) {}
 }
 
 /// Computes the root given a leaf, its index, and a proof.
@@ -176,7 +216,7 @@ fn compute_root(proof: Span<felt252>, mut leaf_index: u64, mut curr_node: felt25
         curr_node = parent_hash(left, right);
         leaf_index = next_left_index;
     };
-    // Return the computed root (or the node itself if the proof is empty)
+    // Returns the computed root (or the node itself if the proof is empty).
     curr_node
 }
 
@@ -257,6 +297,46 @@ impl UtreexoBatchProofDisplay of Display<UtreexoBatchProof> {
 #[cfg(test)]
 mod tests {
     use super::{UtreexoState, UtreexoAccumulator, UtreexoProof};
+    use consensus::types::transaction::{OutPoint, TxOut};
+    use utils::{
+        hash::{DigestImpl, DigestIntoU256}, bytearray::{ByteArraySnapHash, ByteArraySnapSerde},
+        hex::{from_hex, hex_to_hash_rev}
+    };
+    use core::poseidon::PoseidonTrait;
+    use core::hash::{HashStateTrait, HashStateExTrait};
+
+    /// block 170 tx1 v0 -> block9 tx coinbase v0
+    fn get_outpoint() -> OutPoint {
+        OutPoint {
+            txid: hex_to_hash_rev(
+                "0437cd7f8525ceed2324359c2d0ba26006d92d856a9c20fa0241106ee5a597c9"
+            ),
+            vout: 0,
+            data: TxOut {
+                value: 5000000000,
+                pk_script: @from_hex(
+                    "410411db93e1dcdb8a016b49840f8c53bc1eb68a382e97b1482ecad7b148a6909a5cb2e0eaddfb84ccf9744464f82e160bfa9b8b64f9d4c03f999b8643f656b412a3ac"
+                ),
+                cached: false
+            },
+            block_height: 9,
+            block_time: 1231473279,
+            block_hash: hex_to_hash_rev(
+                "000000008d9dc510f23c2657fc4f67bea30078cc05a90eb89e84cc475c080805"
+            ),
+            is_coinbase: true
+        }
+    }
+
+    /// outpoint hash of first output spent block 170
+    #[test]
+    fn test_poseidon1() {
+        let outpoint: OutPoint = get_outpoint();
+        let outpoint_hash = PoseidonTrait::new().update_with(outpoint).finalize();
+
+        let expected: felt252 = 0x1E8BBC31DA001E7EBACAEBC83DF1FD241040B9525ADEECEADBBC7045C6D1876;
+        assert_eq!(outpoint_hash, expected);
+    }
 
     /// Test the basic functionality of the Utreexo accumulator
     ///
@@ -496,5 +576,111 @@ mod tests {
         ].span();
         assert_eq!(utreexo_state.roots, expected, "cannot add 22 leaves");
         assert_eq!(utreexo_state.num_leaves, 30);
+    }
+
+    #[test]
+    fn test_utreexo_delete() {
+        // Test data is generated using scripts/data/utreexo.py
+
+        let mut utreexo_state: UtreexoState = Default::default();
+
+        // adds 16 leaves to empty utreexo
+        utreexo_state.add(0x111111111111111111111111);
+        utreexo_state.add(0x222222222222222222222222);
+        utreexo_state.add(0x333333333333333333333333);
+        utreexo_state.add(0x444444444444444444444444);
+        utreexo_state.add(0x555555555555555555555555);
+        utreexo_state.add(0x666666666666666666666666);
+        utreexo_state.add(0x777777777777777777777777);
+        utreexo_state.add(0x888888888888888888888888);
+        utreexo_state.add(0x999999999999999999999999);
+        utreexo_state.add(0xAAAAAAAAAAAAAAAAAAAAAAAA);
+        utreexo_state.add(0xBBBBBBBBBBBBBBBBBBBBBBBB);
+        utreexo_state.add(0xCCCCCCCCCCCCCCCCCCCCCCCC);
+        utreexo_state.add(0xEEEEEEEEEEEEEEEEEEEEEEEE);
+        utreexo_state.add(0xFFFFFFFFFFFFFFFFFFFFFFFF);
+        utreexo_state.add(0xFFFFFFFFFFFFFFFFFFFFFFF0);
+        utreexo_state.add(0xFFFFFFFFFFFFFFFFFFFFFFF1);
+
+        let expected: Span<Option<felt252>> = array![
+            Option::None,
+            Option::None,
+            Option::None,
+            Option::None,
+            Option::Some(0x03467aa210cc0b108229d9a7fc554f9175af4ee27ee08b128b96862f7beca2ea),
+            Option::None,
+        ]
+            .span();
+        assert_eq!(utreexo_state.roots, expected, "cannot add second leave");
+        assert_eq!(utreexo_state.num_leaves, 16);
+
+        let proof_for_3rd_leaf: UtreexoProof = UtreexoProof {
+            leaf_index: 2,
+            proof: array![
+                0x0000000000000000000000000000000000000000444444444444444444444444,
+                0x05fb342b44641ae6d67310cf9da5566e1a398fd6b0121d40e2c5acd16e1ddb4a,
+                0x01670d29719eae8deaa34a1d75752368d180a2c3e53f08d344ad784f1a034be7,
+                0x04448e395061d8b58524c81978a17837c66c7f3286ea3c1773c7fafd77d29f69
+            ]
+                .span()
+        };
+
+        // deletes the 3rd leaf
+        utreexo_state.delete(@proof_for_3rd_leaf);
+
+        let expected: Span<Option<felt252>> = array![
+            Option::Some(0x0000000000000000000000000000000000000000444444444444444444444444),
+            Option::Some(0x05fb342b44641ae6d67310cf9da5566e1a398fd6b0121d40e2c5acd16e1ddb4a),
+            Option::Some(0x01670d29719eae8deaa34a1d75752368d180a2c3e53f08d344ad784f1a034be7),
+            Option::Some(0x04448e395061d8b58524c81978a17837c66c7f3286ea3c1773c7fafd77d29f69),
+            Option::None,
+            Option::None,
+        ]
+            .span();
+
+        assert_eq!(utreexo_state.roots, expected, "cannot remove leave");
+        assert_eq!(utreexo_state.num_leaves, 15);
+    }
+
+    #[test]
+    fn test_utreexo_delete_2() {
+        // Test data is generated using scripts/data/utreexo.py
+
+        let mut utreexo_state: UtreexoState = Default::default();
+
+        // adds 7 leaves to empty utreexo
+        utreexo_state.add(0x111111111111111111111111);
+        utreexo_state.add(0x222222222222222222222222);
+        utreexo_state.add(0x333333333333333333333333);
+        utreexo_state.add(0x444444444444444444444444);
+        utreexo_state.add(0x555555555555555555555555);
+        utreexo_state.add(0x666666666666666666666666);
+        utreexo_state.add(0x777777777777777777777777);
+
+        let expected: Span<Option<felt252>> = array![
+            Option::Some(0x0000000000000000000000000000000000000000777777777777777777777777),
+            Option::Some(0x0358bb901cdc1d0d68afdb06dfeb84f2472c254ea052a942d8640924386935a6),
+            Option::Some(0x018674e0c40577cb5ba4728d6ac7bedfd9548f4020161223261941b2a8ae84b2),
+            Option::None,
+        ]
+            .span();
+        assert_eq!(utreexo_state.roots, expected, "cannot add second leave");
+        assert_eq!(utreexo_state.num_leaves, 7);
+
+        let proof: UtreexoProof = UtreexoProof { leaf_index: 6, proof: array![].span() };
+
+        // deletes the last added leaf which corresponds to the root at h=0
+        utreexo_state.delete(@proof);
+
+        let expected: Span<Option<felt252>> = array![
+            Option::None,
+            Option::Some(0x0358bb901cdc1d0d68afdb06dfeb84f2472c254ea052a942d8640924386935a6),
+            Option::Some(0x018674e0c40577cb5ba4728d6ac7bedfd9548f4020161223261941b2a8ae84b2),
+            Option::None,
+        ]
+            .span();
+
+        assert_eq!(utreexo_state.roots, expected, "cannot remove leave");
+        assert_eq!(utreexo_state.num_leaves, 6);
     }
 }
