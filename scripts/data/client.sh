@@ -29,7 +29,7 @@ run_client() {
   
   python ../../scripts/data/format_args.py $batch_file > $arguments_file
   output=$(scarb cairo-run --no-build --package client --function test --arguments-file $arguments_file)
-  if [[ $? -eq 0 || "$output" == *"FAIL"* || "$output" == *error* ]]; then
+  if [[ $? -ne 0 || "$output" == *"FAIL"* || "$output" == *error* ]]; then
     echo "fail"
     echo $output
     exit 1
