@@ -19,17 +19,17 @@ run_client() {
   
   first=$((initial_height+1))
   second=$((initial_height+num_blocks))
-  echo "Running $mode client on blocks $first — $second ..."
 
   batch_file=${base_dir}/${mode}_${initial_height}_${num_blocks}.json
   arguments_file=${base_dir}/arguments-${mode}_${initial_height}_${num_blocks}.json
   if [ ! -f "$batch_file" ]; then
     python ../../scripts/data/generate_data.py --fast $mode $initial_height $num_blocks true false $batch_file
   fi
-  
+
+  echo -n "Running $mode client on blocks $first — $second "
   python ../../scripts/data/format_args.py $batch_file > $arguments_file
   output=$(scarb cairo-run --no-build --package client --function test --arguments-file $arguments_file)
-  if [[ $? -ne 0 || "$output" == *"FAIL"* || "$output" == *error* ]]; then
+  if [[ $? -ne 0 || "$output" == *"FAIL"* || "$output" == *error* || "$output" == *panicked* ]]; then
     echo "fail"
     echo $output
     exit 1

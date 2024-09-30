@@ -327,6 +327,8 @@ def generate_data(
         print("Fetching chain state (fast)...")
     else:
         print("Fetching chain state...")
+
+    print(f"blocks: {initial_height} - {initial_height + num_blocks - 1}")
     
     chain_state = fetch_chain_state_fast(initial_height) if fast else fetch_chain_state(initial_height)
     
