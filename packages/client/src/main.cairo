@@ -19,8 +19,8 @@ struct Args {
 /// then validates and applies them one by one.
 /// Returns new state in case of success, otherwise raises an error.
 fn main(mut arguments: Span<felt252>) -> State {
-    let Args { mut state, blocks, } = Serde::deserialize(ref arguments).unwrap();
-        // .expect('Failed to deserialize');
+    let Args { mut state, blocks, } = Serde::deserialize(ref arguments)
+        .expect('Failed to deserialize');
 
     let mut utxo_set: UtxoSet = Default::default();
 
