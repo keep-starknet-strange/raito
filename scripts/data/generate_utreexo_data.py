@@ -1,5 +1,3 @@
-import json
-import sys
 from utreexo import Utreexo
 from poseidon_py.poseidon_hash import poseidon_hash_many
 
@@ -10,7 +8,7 @@ class TxOut:
         self.pk_script = pk_script
         self.cached = cached
 
-    def serealize(self):
+    def serialize(self):
         res = []
         res.append(self.value)
 
@@ -94,7 +92,7 @@ class OutPoint:
         tab.append(self.vout)
 
         # prev output
-        for e in self.data.serealize():
+        for e in self.data.serialize():
             tab.append(e)
 
         # block hash
@@ -121,118 +119,113 @@ class OutPoint:
                 is_coinbase={self.is_coinbase})"
 
 
-def handle_txin(inputs: list, utreexo_proofs: list, utreexo: Utreexo):
-    for i in range(len(inputs)):
-        outpoint = inputs[i].get("previous_output", {})
+class UtreexoData:
+    def __init__(self) -> None:
+        self.utreexo = Utreexo()
 
-        # Skip if output is cached
-        if outpoint.get("cached", False):
-            continue
+    def snapshot_state(self) -> dict:
+        return {
+            "roots": list(map(format_root_node, self.utreexo.root_nodes)),
+            "num_leaves": len(self.utreexo.leaf_nodes),
+        }
 
-        outpoint = OutPoint(
-            txid=outpoint.get("txid"),
-            vout=outpoint.get("vout", 0),
-            data=TxOut(
-                value=outpoint.get("data").get("value"),
-                pk_script=outpoint.get("data").get("pk_script"),
-                cached=outpoint.get("data").get(
-                    "cached"
-                ),  # != outpoint.get("cached", False)
-            ),
-            block_height=outpoint.get("block_height"),
-            block_time=outpoint.get("block_time"),
-            block_hash=outpoint.get("block_hash"),
-            is_coinbase=outpoint.get("is_coinbase"),
-        )
+    def apply_blocks(self, blocks: list) -> dict:
+        state = {}
+        proofs = []
+        for block_idx, block in enumerate(blocks):
+            if block_idx == len(blocks) - 1:
+                state = self.snapshot_state()
 
-        # Remove OutPoint from accumulator and get proof
-        [proof, leaf_index] = utreexo.delete(outpoint.hash())
-        utreexo_proofs.append({"proof": proof, "leaf_index": leaf_index})
+            # First we remove all STXOs
+            for i, (txid, tx) in enumerate(block["data"].items()):
+                # Skip coinbase tx input
+                if i != 0:
+                    inc_proofs = self.handle_txin(tx["inputs"])
+                    # Storing proofs for last block only
+                    if block_idx == len(blocks) - 1:
+                        proofs.extend(inc_proofs)
 
+            # Then we add all new UTXOs
+            for i, (txid, tx) in enumerate(block["data"].items()):
+                self.handle_txout(
+                    tx["outputs"],
+                    block["hash"],
+                    block["height"],
+                    block["time"],
+                    txid,
+                    i == 0,
+                )
+        return {"state": state, "proofs": proofs, "expected": self.snapshot_state()}
 
-def handle_txout(
-    outputs: list,
-    utreexo: Utreexo,
-    block: dict,
-    block_height: int,
-    txid: str,
-    tx_index: int,
-):
-    for i in range(len(outputs)):
-        output = outputs[i]
-        is_cached = output.get("cached", False)
+    def handle_txin(self, inputs: list) -> list:
+        proofs = []
+        for input in inputs:
+            outpoint = input["previous_output"]
 
-        # Skip if output is cached
-        if is_cached:
-            continue
+            # Skip if output is cached
+            if outpoint["data"]["cached"]:
+                continue
 
-        new_outpoint = OutPoint(
-            txid=txid,
-            vout=i,
-            data=TxOut(
-                value=output.get("value"),
-                pk_script=output.get("pk_script"),
-                cached=is_cached,
-            ),
-            block_height=block_height,
-            block_time=block.get("header").get("time", 0),
-            block_hash=block.get("header").get("hash", 0),
-            is_coinbase=True if tx_index == 0 else False,
-        )
+            outpoint = OutPoint(
+                txid=outpoint["txid"],
+                vout=outpoint["vout"],
+                data=TxOut(
+                    value=outpoint["data"]["value"],
+                    pk_script=outpoint["data"]["pk_script"],
+                    cached=outpoint["data"]["cached"],
+                ),
+                block_height=outpoint["block_height"],
+                block_time=outpoint["block_time"],
+                block_hash=outpoint["block_hash"],
+                is_coinbase=outpoint["is_coinbase"],
+            )
 
-        # Add OutPoint to accumulator
-        utreexo.add(new_outpoint.hash())
+            # Remove OutPoint from accumulator and get proof
+            proof, leaf_index = self.utreexo.delete(outpoint.hash())
+            proofs.append(
+                {"proof": list(map(format_node, proof)), "leaf_index": leaf_index}
+            )
 
+        return proofs
 
-def main():
-    if len(sys.argv) != 3:
-        print("Usage: script.py input.json output.json")
-        sys.exit(1)
+    def handle_txout(
+        self,
+        outputs: list,
+        block_hash: str,
+        block_height: int,
+        block_time: int,
+        txid: str,
+        is_coinbase: bool,
+    ):
+        for i, output in enumerate(outputs):
+            # Skip if output is cached
+            if output["cached"]:
+                continue
 
-    input_file = sys.argv[1]
-    output_file = sys.argv[2]
+            new_outpoint = OutPoint(
+                txid=txid,
+                vout=i,
+                data=TxOut(
+                    value=output["value"],
+                    pk_script=output["pk_script"],
+                    cached=output["cached"],
+                ),
+                block_height=block_height,
+                block_time=block_time,
+                block_hash=block_hash,
+                is_coinbase=is_coinbase,
+            )
 
-    with open(input_file, "r") as f:
-        data = json.load(f)
-
-    # Initialize output data
-    output_data = {
-        "state": {"chain_state": data.get("chain_state", {}), "utreexo_state": {}},
-        "updates": [],
-        "expected": {"chain_state": data.get("expected", {}), "utreexo_state": {}},
-    }
-
-    utreexo = Utreexo()
-    block_height = data.get("chain_state", {}).get("block_height", 0)
-
-    for block in data.get("blocks", []):
-        utreexo_proofs = []
-        transactions = block.get("data", {}).get("transactions", [])
-
-        for i in range(len(transactions)):
-            inputs = transactions[i].get("inputs", [])
-            outputs = transactions[i].get("outputs", [])
-            txid = transactions[i].get("txid", "")
-
-            # Skip coinbase tx
-            if i != 0:
-                handle_txin(inputs, utreexo_proofs, utreexo)
-            handle_txout(outputs, utreexo, block, block_height, txid, i)
-
-        # Update output_data
-        output_data["updates"].append(
-            {"block": block, "utreexo_proofs": utreexo_proofs}
-        )
-        block_height += 1
-
-    output_data["expected"]["utreexo_state"] = utreexo.get_state()
-
-    with open(output_file, "w") as f:
-        json.dump(output_data, f, indent=2)
-
-    # utreexo.print_state()
-    # utreexo.print_tree()
+            # Add OutPoint to accumulator
+            self.utreexo.add(new_outpoint.hash())
 
 
-if __name__ == "__main__":
-    main()
+def format_root_node(node) -> str:
+    if node:
+        return {"variant_id": 0, "value": format_node(node)}
+    else:
+        return None
+
+
+def format_node(node) -> int:
+    return int.from_bytes(bytes.fromhex(node.val[2:]), "big")

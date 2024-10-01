@@ -11,26 +11,14 @@ class Node:
         self.right = right
         self.parent = None
 
+    def __repr__(self) -> str:
+        return str(self.val)
+
 
 class Utreexo:
     def __init__(self):
         self.root_nodes = []
         self.leaf_nodes = {}
-
-    def get_state(self):
-        roots_state = []
-        for node in self.root_nodes:
-            if node is not None:
-                roots_state.append(node.val)
-            else:
-                roots_state.append(None)
-
-        leaves_state = {}
-        for leaf_val, node in self.leaf_nodes.items():
-            leaves_state[str(leaf_val)] = node.val
-
-        state = {"root_nodes": roots_state, "leaf_nodes": leaves_state}
-        return state
 
     def print_state(self):
         print("--- Utreexo State ---")
@@ -123,7 +111,6 @@ class Utreexo:
 
         self.root_nodes[h] = n
 
-        proof = [node.val for node in proof]
         return proof, leaf_index
 
     def inclusion_proof(self, node):

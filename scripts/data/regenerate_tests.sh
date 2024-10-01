@@ -43,15 +43,20 @@ full_test_cases=(
     757738  # Block with witness (757739)
 )
 
+utreexo_test_cases=(
+    169      # Block containing first P2P tx to Hal Finney (170)
+)
+
 mkdir $data_dir || true
 
 # Generate test file if it does not exist yet or if "force" flag is set
 generate_test() {
   local mode=$1
   local height=$2
+  local num_blocks=${3:-1}
   test_file="${data_dir}/${mode}_${test_case}.json"
   if [[ ! -f "$test_file" || $force -eq 1 ]]; then
-    python ../../scripts/data/generate_data.py $mode $height 1 true false $test_file
+    python ../../scripts/data/generate_data.py $mode $height $num_blocks $test_file
   fi
 }
 
@@ -63,4 +68,9 @@ done
 for test_case in "${full_test_cases[@]}"; do
     echo "Generating test data: full mode, chain state @ $test_case, single block"
     generate_test "full_fast" $test_case
+done
+
+for test_case in "${utreexo_test_cases[@]}"; do
+    echo "Generating test data: utreexo mode, chain state @ $test_case, single block"
+    generate_test "utreexo" 0 $(($test_case+1))
 done

@@ -24,6 +24,8 @@ Cargo.lock
 .venv
 .python-version
 __pycache__
+.ipynb_checkpoints/
+*.ipynb
 
 .client_cache/
 .utxo_data/
