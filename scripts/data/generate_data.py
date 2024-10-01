@@ -383,6 +383,7 @@ def generate_data(
                         tx_input["previous_output"]["vout"],
                     )
                     if outpoint in utxo_set:
+                        # TODO: Check if this is correct
                         tx_input["previous_output"]["cached"] = True
                         utxo_set[outpoint]["cached"] = True
 
