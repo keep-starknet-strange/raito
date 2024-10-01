@@ -129,7 +129,7 @@ def get_utxo_set(block_number: int) -> Dict[str, Any]:
     # Find chunk file
     chunk_file = index.get(str(block_number))
     if not chunk_file:
-        return {"block_number": str(block_number), "outputs": []}
+        return []
         # raise Exception(f"Block number {block_number} not found in index file: {index_file}")
 
     # Find and return data for the block
@@ -141,7 +141,6 @@ def get_utxo_set(block_number: int) -> Dict[str, Any]:
                 data = json.loads(line.strip())
                 return data["outputs"]
 
-    print()
     raise Exception(f"Block {block_number} not found in chunk file {chunk_file}")
 
 
