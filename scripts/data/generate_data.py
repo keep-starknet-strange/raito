@@ -81,8 +81,6 @@ def fetch_chain_state(block_height: int):
             prev_timestamps.insert(0, int(prev_header["time"]))
     head["prev_timestamps"] = prev_timestamps
 
-    print("timestamps", prev_timestamps)
-
     # In order to init epoch start we need to query block header at epoch start
     if block_height < 2016:
         head["epoch_start_time"] = 1231006505
@@ -151,7 +149,13 @@ def bits_to_target(bits: str) -> int:
 def fetch_block(block_height: int, block_hash: str, include_utreexo_data: bool, fast):
     """Downloads block with transactions (and referred UTXOs) from RPC given the block hash."""
     block = request_rpc("getblock", [block_hash, 2])
-    previous_outputs = get_utxo_set(block_height + 1) if fast else None
+
+    previous_outputs = (
+        {(o["txid"], int(o["vout"])): o for o in get_utxo_set(block_height + 1)}
+        if fast
+        else None
+    )
+
     block["data"] = {
         tx["txid"]: resolve_transaction(tx, include_utreexo_data, previous_outputs)
         for tx in tqdm(block["tx"], "Resolving transactions")
@@ -192,12 +196,7 @@ def resolve_input(input: dict, previous_outputs):
         return format_coinbase_input(input)
     else:
         if previous_outputs:
-            previous_output = [
-                output
-                for output in previous_outputs
-                if output["txid"] == input["txid"]
-                and int(output["vout"]) == input["vout"]
-            ][0]
+            previous_output = previous_outputs.get((input["txid"], input["vout"]))
             return {
                 "script": f'0x{input["scriptSig"]["hex"]}',
                 "sequence": input["sequence"],
@@ -435,37 +434,48 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description="Process UTXO files.")
     parser.add_argument(
-        "mode",
+        "--mode",
+        dest="mode",
+        default="full",
         choices=["light", "full"],
         help="Mode",
     )
 
     parser.add_argument(
-        "initial_height",
+        "--height",
+        dest="height",
+        required=True,
         type=int,
         help="The block height of the initial chain state",
     )
 
     parser.add_argument(
-        "num_blocks",
+        "--num_blocks",
+        dest="num_blocks",
+        required=True,
         type=int,
         help="The number of blocks",
     )
 
     parser.add_argument(
-        "include_expected",
-        type=str2bool,
+        "--include_expected",
+        dest="include_expected",
+        action="store_true",
         help="Include expected output",
     )
 
     parser.add_argument(
-        "include_utreexo_data",
-        type=str2bool,
+        "--include_utreexo_data",
+        dest="include_utreexo_data",
+        action="store_true",
         help="Include utreexo data",
     )
 
     parser.add_argument(
-        "output_file",
+        "--output_file",
+        dest="output_file",
+        required=True,
+        type=str,
         help="Output file",
     )
 
@@ -480,7 +490,7 @@ if __name__ == "__main__":
 
     data = generate_data(
         mode=args.mode,
-        initial_height=args.initial_height,
+        initial_height=args.height,
         num_blocks=args.num_blocks,
         include_expected=args.include_expected,
         include_utreexo_data=args.include_utreexo_data,
