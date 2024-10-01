@@ -10,7 +10,7 @@ from functools import lru_cache
 
 INDEX_SIZE = 30000
 
-BASE_DIR = "timestamps_data"
+BASE_DIR = ".timestamps_data"
 
 GCS_BUCKET_NAME = "shinigami-consensus"
 GCS_FOLDER_NAME = "timestamps"
@@ -29,7 +29,7 @@ def download_timestamp(file_name: str):
 
     response = requests.get(url)
     if response.status_code != 200:
-        raise Exception(f"Failed to download {file_name}")
+        raise Exception(f"Failed to download {file_name}", response)
 
     with open(file_path, "wb") as f:
         f.write(response.content)
@@ -47,11 +47,13 @@ def create_index(folder_path):
     return index
 
 
-def list_files_in_gcs(bucket_name: str, prefix: str):
+def list_files_in_gcs():
     """List all files in a GCS bucket under a specific folder (prefix)."""
-    client = storage.Client()
-    bucket = client.get_bucket(bucket_name)
-    blobs = bucket.list_blobs(prefix=prefix)
+    print(f"Getting file list from GCS...")
+    client = storage.Client.create_anonymous_client()
+    bucket = client.get_bucket(GCS_BUCKET_NAME)
+    blobs = bucket.list_blobs(prefix=GCS_FOLDER_NAME)
+
     return [
         os.path.basename(blob.name) for blob in blobs if blob.name.endswith(".json")
     ]
@@ -85,15 +87,13 @@ def load_index(file_name):
 
 def get_timestamp_data(block_number):
     """Get the timestamp data for a given block number."""
-    print(int(block_number) // INDEX_SIZE)
     file_name = index_file_name(int(block_number) // INDEX_SIZE)
-    print(file_name)
     index = load_index(file_name)
-    return index[block_number]
+    return index
 
 
 if __name__ == "__main__":
-    file_names = list_files_in_gcs(GCS_BUCKET_NAME, GCS_FOLDER_NAME)
+    file_names = list_files_in_gcs()
     for file_name in tqdm(file_names, "Downloading files"):
         download_timestamp(file_name)
 

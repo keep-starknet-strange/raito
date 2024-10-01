@@ -6,12 +6,13 @@
 base_dir=".client_cache"
 
 start=${1:-0}
-end=${2:-100}
+no_of_blocks=${2:-100}
+end=$(($start+$no_of_blocks))
 step=${3:-1}
 mode=${4:-"light"}
 strategy=${5:-"sequential"}
 
-mkdir $base_dir || true
+mkdir -p $base_dir
 
 run_client() {
   local initial_height=$1
@@ -19,21 +20,23 @@ run_client() {
   
   first=$((initial_height+1))
   second=$((initial_height+num_blocks))
-  echo -n "Running $mode client on blocks $first — $second ..."
 
   batch_file=${base_dir}/${mode}_${initial_height}_${num_blocks}.json
+  arguments_file=${base_dir}/arguments-${mode}_${initial_height}_${num_blocks}.json
   if [ ! -f "$batch_file" ]; then
-    python ../../scripts/data/generate_data.py $mode $initial_height $num_blocks true $batch_file
+    python ../../scripts/data/generate_data.py --fast --mode $mode --height $initial_height --num_blocks $num_blocks --include_expected --output_file $batch_file
   fi
-  
-  arguments=$(python ../../scripts/data/format_args.py $batch_file)
-  output=$(scarb cairo-run --no-build --package client --function test "$arguments")
-  if [[ "$output" == *"FAIL"* ]]; then
-    echo " fail"
+
+  echo -n "Running $mode client on blocks $first - $second "
+  python ../../scripts/data/format_args.py $batch_file > $arguments_file
+  output=$(scarb cairo-run --no-build --package client --function test --arguments-file $arguments_file)
+  if [[ $? -ne 0 || "$output" == *"FAIL"* || "$output" == *error* || "$output" == *panicked* ]]; then
+    echo "fail"
     echo $output
     exit 1
   else
-    echo " ok"
+    echo "ok"
+    echo $output
   fi
 }
 

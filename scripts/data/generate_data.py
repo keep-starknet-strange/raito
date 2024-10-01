@@ -4,14 +4,20 @@ import sys
 import os
 import json
 import requests
+import argparse
 from pathlib import Path
 from decimal import Decimal, getcontext
+from generate_timestamp_data import get_timestamp_data
+from generate_utxo_data import get_utxo_set
+from tqdm import tqdm
 
 getcontext().prec = 16
 
 BITCOIN_RPC = os.getenv("BITCOIN_RPC")
 USERPWD = os.getenv("USERPWD")
 DEFAULT_URL = "https://bitcoin-mainnet.public.blastapi.io"
+
+FAST = False
 
 
 def request_rpc(method: str, params: list):
@@ -32,6 +38,26 @@ def request_rpc(method: str, params: list):
         raise ConnectionError(f"Unexpected RPC response:\n{res.text}")
 
 
+def fetch_chain_state_fast(block_height: int):
+    """Fetches chain state at the end of a specific block with given height.
+    Chain state is a just a block header extended with extra fields:
+        - prev_timestamps
+        - epoch_start_time
+    """
+    # Chain state at height H is the state after applying block H
+    block_hash = request_rpc("getblockhash", [block_height])
+    head = request_rpc("getblockheader", [block_hash])
+
+    # If block is downloaded take it locally
+    data = get_timestamp_data(block_height)[str(block_height)]
+    head["prev_timestamps"] = [int(t) for t in data["previous_timestamps"]]
+    if block_height < 2016:
+        head["epoch_start_time"] = 1231006505
+    else:
+        head["epoch_start_time"] = int(data["epoch_start_time"])
+    return head
+
+
 def fetch_chain_state(block_height: int):
     """Fetches chain state at the end of a specific block with given height.
     Chain state is a just a block header extended with extra fields:
@@ -44,7 +70,7 @@ def fetch_chain_state(block_height: int):
 
     # In order to init prev_timestamps we need to query 10 previous headers
     prev_header = head
-    prev_timestamps = [head["time"]]
+    prev_timestamps = [int(head["time"])]
     for _ in range(10):
         if prev_header["height"] == 0:
             prev_timestamps.insert(0, 0)
@@ -52,7 +78,7 @@ def fetch_chain_state(block_height: int):
             prev_header = request_rpc(
                 "getblockheader", [prev_header["previousblockhash"]]
             )
-            prev_timestamps.insert(0, prev_header["time"])
+            prev_timestamps.insert(0, int(prev_header["time"]))
     head["prev_timestamps"] = prev_timestamps
 
     # In order to init epoch start we need to query block header at epoch start
@@ -120,16 +146,24 @@ def bits_to_target(bits: str) -> int:
         return mantissa << (8 * (exponent - 3))
 
 
-def fetch_block(block_hash: str, include_utreexo_data: bool):
+def fetch_block(block_height: int, block_hash: str, include_utreexo_data: bool, fast):
     """Downloads block with transactions (and referred UTXOs) from RPC given the block hash."""
     block = request_rpc("getblock", [block_hash, 2])
+
+    previous_outputs = (
+        {(o["txid"], int(o["vout"])): o for o in get_utxo_set(block_height + 1)}
+        if fast
+        else None
+    )
+
     block["data"] = {
-        tx["txid"]: resolve_transaction(tx, include_utreexo_data) for tx in block["tx"]
+        tx["txid"]: resolve_transaction(tx, include_utreexo_data, previous_outputs)
+        for tx in tqdm(block["tx"], "Resolving transactions")
     }
     return block
 
 
-def resolve_transaction(transaction: dict, include_utreexo_data: bool):
+def resolve_transaction(transaction: dict, include_utreexo_data, previous_outputs):
     """Resolves transaction inputs and formats the content according to the Cairo type."""
     if include_utreexo_data:
         return {
@@ -137,7 +171,9 @@ def resolve_transaction(transaction: dict, include_utreexo_data: bool):
             "txid": transaction["txid"],
             # Skip the first 4 bytes (version) and take the next 4 bytes (marker + flag)
             "is_segwit": transaction["hex"][8:12] == "0001",
-            "inputs": [resolve_input(input) for input in transaction["vin"]],
+            "inputs": [
+                resolve_input(input, previous_outputs) for input in transaction["vin"]
+            ],
             "outputs": [format_output(output) for output in transaction["vout"]],
             "lock_time": transaction["locktime"],
         }
@@ -146,23 +182,52 @@ def resolve_transaction(transaction: dict, include_utreexo_data: bool):
             "version": transaction["version"],
             # Skip the first 4 bytes (version) and take the next 4 bytes (marker + flag)
             "is_segwit": transaction["hex"][8:12] == "0001",
-            "inputs": [resolve_input(input) for input in transaction["vin"]],
+            "inputs": [
+                resolve_input(input, previous_outputs) for input in transaction["vin"]
+            ],
             "outputs": [format_output(output) for output in transaction["vout"]],
             "lock_time": transaction["locktime"],
         }
 
 
-def resolve_input(input: dict):
+def resolve_input(input: dict, previous_outputs):
     """Resolves referenced UTXO and formats the transaction inputs according to the Cairo type."""
     if input.get("coinbase"):
         return format_coinbase_input(input)
     else:
-        return {
-            "script": f'0x{input["scriptSig"]["hex"]}',
-            "sequence": input["sequence"],
-            "previous_output": resolve_outpoint(input),
-            "witness": [f"0x{item}" for item in input.get("txinwitness", [])],
-        }
+        if previous_outputs:
+            previous_output = previous_outputs.get((input["txid"], input["vout"]))
+            return {
+                "script": f'0x{input["scriptSig"]["hex"]}',
+                "sequence": input["sequence"],
+                "previous_output": format_outpoint(previous_output),
+                "witness": [f"0x{item}" for item in input.get("txinwitness", [])],
+            }
+        else:
+            return {
+                "script": f'0x{input["scriptSig"]["hex"]}',
+                "sequence": input["sequence"],
+                "previous_output": resolve_outpoint(input),
+                "witness": [f"0x{item}" for item in input.get("txinwitness", [])],
+            }
+
+
+def format_outpoint(previous_output):
+    """Formats output according to the Cairo type."""
+
+    return {
+        "txid": previous_output["txid"],
+        "vout": int(previous_output["vout"]),
+        "data": {
+            "value": int(previous_output["value"]),
+            "pk_script": f'0x{previous_output["pk_script"]}',
+            "cached": False,
+        },
+        "block_hash": previous_output["block_hash"],
+        "block_height": int(previous_output["block_height"]),
+        "block_time": int(previous_output["block_time"]),
+        "is_coinbase": previous_output["is_coinbase"],
+    }
 
 
 def resolve_outpoint(input: dict):
@@ -175,7 +240,7 @@ def resolve_outpoint(input: dict):
         "txid": input["txid"],
         "vout": input["vout"],
         "data": format_output(tx["vout"][input["vout"]]),
-        "block_hash": block["hash"],
+        "block_hash": tx["blockhash"],
         "block_height": block["height"],
         "block_time": block["time"],
         "is_coinbase": tx["vin"][0].get("coinbase") is not None,
@@ -258,17 +323,31 @@ def generate_data(
     num_blocks: int,
     include_expected: bool,
     include_utreexo_data: bool,
+    fast: bool,
 ):
     """Generates arguments for Raito program in a human readable form and the expected result.
 
     :param mode: Validation mode:
         "light" — generate block headers with Merkle root only
-        "full" — generate full blocks with transactions (and referenced UTXOs)
+        "full, full_fast" — generate full blocks with transactions (and referenced UTXOs)
     :param initial_height: The block height of the initial chain state (0 means the state after genesis)
     :param num_blocks: The number of blocks to apply on top of it (has to be at least 1)
     :return: tuple (arguments, expected output)
     """
-    chain_state = fetch_chain_state(initial_height)
+
+    if fast:
+        print("Fetching chain state (fast)...")
+    else:
+        print("Fetching chain state...")
+
+    print(f"blocks: {initial_height} - {initial_height + num_blocks - 1}")
+
+    chain_state = (
+        fetch_chain_state_fast(initial_height)
+        if fast
+        else fetch_chain_state(initial_height)
+    )
+
     next_block_hash = chain_state["nextblockhash"]
     blocks = []
 
@@ -276,8 +355,10 @@ def generate_data(
     if include_utreexo_data:
         blocks.append(
             fetch_block(
+                0,
                 "000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f",
                 include_utreexo_data,
+                fast,
             )
         )
 
@@ -285,15 +366,14 @@ def generate_data(
         # UTXO defined to track unspent output in the same block to define cached output.
         utxo_set = {}
 
+    for i in range(num_blocks):
+        print(f"Fetching block {initial_height}| {i+1}/{num_blocks}")
         if mode == "light":
             block = fetch_block_header(next_block_hash)
         elif mode == "full":
-            print(
-                f"\rFetching block {initial_height + i}/{initial_height + num_blocks}",
-                end="",
-                flush=True,
+            block = fetch_block(
+                initial_height + i, next_block_hash, include_utreexo_data, fast
             )
-            block = fetch_block(next_block_hash, include_utreexo_data)
             # Build UTXO set and mark outputs spent within the same block (span).
             # Also set "cached" flag for the inputs that spend those UTXOs.
             for txid, tx in block["data"].items():
@@ -303,7 +383,8 @@ def generate_data(
                         tx_input["previous_output"]["vout"],
                     )
                     if outpoint in utxo_set:
-                        tx_input["previous_output"]["cached"] = True
+                        # TODO: Check if this is correct
+                        tx_input["previous_output"]["data"]["cached"] = True
                         utxo_set[outpoint]["cached"] = True
 
                 for idx, output in enumerate(tx["outputs"]):
@@ -314,7 +395,7 @@ def generate_data(
         next_block_hash = block["nextblockhash"]
         blocks.append(block)
 
-    if mode == "full":
+    if mode == "full" or mode == "full_fast":
         # Do another pass to mark UTXOs spent within the same block (span) with "cached" flag.
         for block in blocks:
             for txid, tx in block["data"].items():
@@ -337,18 +418,84 @@ def generate_data(
     return result
 
 
+def str2bool(value):
+    if isinstance(value, bool):
+        return value
+    if value.lower() in ("yes", "true", "t", "y", "1"):
+        return True
+    elif value.lower() in ("no", "false", "f", "n", "0"):
+        return False
+    else:
+        raise argparse.ArgumentTypeError("Boolean value expected.")
+
+
 # Usage: generate_data.py MODE INITIAL_HEIGHT NUM_BLOCKS INCLUDE_EXPECTED OUTPUT_FILE
 # Example: generate_data.py 'light' 0 10 false light_0_10.json
 if __name__ == "__main__":
-    if len(sys.argv) != 7:
-        raise TypeError("Expected six arguments")
 
-    data = generate_data(
-        mode=sys.argv[1],
-        initial_height=int(sys.argv[2]),
-        num_blocks=int(sys.argv[3]),
-        include_expected=sys.argv[4].lower() == "true",
-        include_utreexo_data=sys.argv[5].lower() == "true",
+    parser = argparse.ArgumentParser(description="Process UTXO files.")
+    parser.add_argument(
+        "--mode",
+        dest="mode",
+        default="full",
+        choices=["light", "full"],
+        help="Mode",
     )
 
-    Path(sys.argv[6]).write_text(json.dumps(data, indent=2))
+    parser.add_argument(
+        "--height",
+        dest="height",
+        required=True,
+        type=int,
+        help="The block height of the initial chain state",
+    )
+
+    parser.add_argument(
+        "--num_blocks",
+        dest="num_blocks",
+        required=True,
+        type=int,
+        help="The number of blocks",
+    )
+
+    parser.add_argument(
+        "--include_expected",
+        dest="include_expected",
+        action="store_true",
+        help="Include expected output",
+    )
+
+    parser.add_argument(
+        "--include_utreexo_data",
+        dest="include_utreexo_data",
+        action="store_true",
+        help="Include utreexo data",
+    )
+
+    parser.add_argument(
+        "--output_file",
+        dest="output_file",
+        required=True,
+        type=str,
+        help="Output file",
+    )
+
+    parser.add_argument(
+        "--fast",
+        dest="fast",
+        action="store_true",
+        help="Fast mode",
+    )
+
+    args = parser.parse_args()
+
+    data = generate_data(
+        mode=args.mode,
+        initial_height=args.height,
+        num_blocks=args.num_blocks,
+        include_expected=args.include_expected,
+        include_utreexo_data=args.include_utreexo_data,
+        fast=args.fast,
+    )
+
+    Path(args.output_file).write_text(json.dumps(data, indent=2))
