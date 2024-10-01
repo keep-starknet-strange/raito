@@ -384,7 +384,7 @@ def generate_data(
                     )
                     if outpoint in utxo_set:
                         # TODO: Check if this is correct
-                        # tx_input["previous_output"]["cached"] = True
+                        tx_input["previous_output"]["data"]["cached"] = True
                         utxo_set[outpoint]["cached"] = True
 
                 for idx, output in enumerate(tx["outputs"]):
