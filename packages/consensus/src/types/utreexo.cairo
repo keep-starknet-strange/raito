@@ -52,12 +52,12 @@ pub impl UtreexoStateImpl of UtreexoStateTrait {
     fn validate_and_apply(
         ref self: UtreexoState, utxo_set: UtxoSet, proofs: Span<UtreexoProof>
     ) -> Result<(), ByteArray> {
-        let mut lead_idx = 0;
+        let mut proof_idx = 0;
         let mut inner_result = Result::Ok(());
 
         for leaf_hash in utxo_set
             .leaves_to_delete {
-                let proof = proofs[lead_idx];
+                let proof = proofs[proof_idx];
 
                 let res = self.verify(leaf_hash, proof);
                 if res.is_err() {
@@ -67,7 +67,9 @@ pub impl UtreexoStateImpl of UtreexoStateTrait {
                 }
 
                 self.delete(proof);
+                proof_idx += 1;
             };
+
         inner_result?;
 
         for leaf_hash in utxo_set.leaves_to_add {

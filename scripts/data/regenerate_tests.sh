@@ -56,7 +56,7 @@ generate_test() {
   local num_blocks=${3:-1}
   test_file="${data_dir}/${mode}_${test_case}.json"
   if [[ ! -f "$test_file" || $force -eq 1 ]]; then
-    python ../../scripts/data/generate_data.py $mode $height $num_blocks $test_file
+    python ../../scripts/data/generate_data.py --mode $mode --height $height --num_blocks $num_blocks --output_file $test_file
   fi
 }
 
@@ -67,7 +67,7 @@ done
 
 for test_case in "${full_test_cases[@]}"; do
     echo "Generating test data: full mode, chain state @ $test_case, single block"
-    generate_test "full_fast" $test_case
+    generate_test "full" $test_case
 done
 
 for test_case in "${utreexo_test_cases[@]}"; do

@@ -312,7 +312,7 @@ def generate_data(
 
     :param mode: Validation mode:
         "light" — generate block headers with Merkle root only
-        "full, full_fast" — generate full blocks with transactions (and referenced UTXOs)
+        "full" — generate full blocks with transactions (and referenced UTXOs)
         "utreexo" — only last block from the batch is included, but it is extended with Utreexo state/proofs
     :param initial_height: The block height of the initial chain state (0 means the state after genesis)
     :param num_blocks: The number of blocks to apply on top of it (has to be at least 1)
@@ -419,7 +419,7 @@ if __name__ == "__main__":
         "--mode",
         dest="mode",
         default="full",
-        choices=["light", "full"],
+        choices=["light", "full", "utreexo"],
         help="Mode",
     )
 
