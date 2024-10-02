@@ -11,7 +11,7 @@
 
 ## Overview
 
-Raito is a zero-knowledge Bitcoin client implemented in Cairo. It aims to provide trustless validation of the Bitcoin blockchain through STARK proof verification. It is heavily inspired by [ZeroSync](https://github.com/ZeroSync/ZeroSync) project.
+Shinigami-consensus is a zero-knowledge Bitcoin client implemented in Cairo. It aims to provide trustless validation of the Bitcoin blockchain through STARK proof verification. It is heavily inspired by [ZeroSync](https://github.com/ZeroSync/ZeroSync) project.
 
 > **Disclaimer:** This project is in the early stages of development and should not be used in production. It will evolve rapidly, expect breaking changes.
 
@@ -36,7 +36,7 @@ style Vp fill:gold
 style Vb fill:gold
 ```
 
-Raito, at its core, accepts two inputs: a batch of consecutive blocks <i>n</i> to <i>m</i> and a STARK proof of the state of the chain up to block <i>n−1</i>. It ensures that the historical chain state is valid by verifying the STARK proof. Then, it produces a new chain state by applying the new blocks on top of the historical state. As a result, a proof of the new state is generated.
+At its core, consunsus client accepts two inputs: a batch of consecutive blocks <i>n</i> to <i>m</i> and a STARK proof of the state of the chain up to block <i>n−1</i>. It ensures that the historical chain state is valid by verifying the STARK proof. Then, it produces a new chain state by applying the new blocks on top of the historical state. As a result, a proof of the new state is generated.
 
 ## Applications
 
@@ -92,7 +92,7 @@ Try to run script validation with external Cairo crate.
 
 Tasks:
 
-* [ ] Integrate Shinigami
+* [ ] Integrate Shinigami-script
 
 ### Milestone 4 - UTXO set verification
 
@@ -114,24 +114,21 @@ Tasks:
 
 Validate full block execution, including the Bitcoin scripts checks and Utreexo.
 
-### Milestone 6 - Proving the validation
+### Milestone 6 - Optimizations
 
-Recursively verify STARK proofs of chain state updates.
+* [ ] identify Cairo code botlenecks
+* [ ] consider using garaga msm to batch signature verifications
 
-## Name reference
+### Milestone 7 - Proving the validation
 
-Raito is a reference to Light Yagami (夜神月, Yagami Raito) from the manga/anime Death Note.
+Recursively verify STARK proofs of chain state updates. Still largely tbd.
 
-* Raito in Japanese means "Light", which in turns can refer to Lightning ⚡ (and hence both a reference to speed of verification of the Bitcoin blockchain using a ZKP and a reference to the Lightning Network)
-* Raito can work in tandem with [Shinigami](https://github.com/keep-starknet-strange/shinigami) that enables verification of Bitcoin Script programs. Raito = Consensus and Shinigami = Execution. Since Shinigami was named after Ryuk (Shinigami in Death Note), Raito was named after Light (Raito in Death Note).
-* What Raito writes in the Death Note always happen, so you can see it as a source of truth, similarly to how you use a Zero-Knowledge Proof to verify the integrity of a computation.
-
-![Raito and Raito](./docs/img/memes/raito_shinigami_fusion.jpg)
+* [ ] use garaga to implement signature verifications
 
 # Contact
 
-* [Raito Telegram](https://t.me/ShinigamiStarknet)
-* [Raito OnlyDust](https://app.onlydust.com/p/raito---bitcoin-zk-client)
+* [Telegram](https://t.me/ShinigamiStarknet)
+* [OnlyDust](https://app.onlydust.com/p/raito---bitcoin-zk-client)
 
 ## Usage
 
