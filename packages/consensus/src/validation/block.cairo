@@ -95,8 +95,8 @@ pub fn compute_and_validate_tx_data(
         } else {
             let fee =
                 match validate_transaction(
-                tx, block_hash, block_height, median_time_past, txid, ref utxo_set
-            ) {
+                    tx, block_hash, block_height, median_time_past, txid, ref utxo_set
+                ) {
                 Result::Ok(fee) => fee,
                 Result::Err(err) => {
                     inner_result = Result::Err(err);

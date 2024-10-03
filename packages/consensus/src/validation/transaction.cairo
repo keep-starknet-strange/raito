@@ -19,7 +19,7 @@ pub fn validate_transaction(
     block_height: u32,
     median_time_past: u32,
     txid: Digest,
-    ref utxo_set: UtxoSet   
+    ref utxo_set: UtxoSet
 ) -> Result<u64, ByteArray> {
     if (*tx.inputs).is_empty() {
         return Result::Err("transaction inputs are empty");
@@ -82,7 +82,13 @@ pub fn validate_transaction(
             // Adds outpoint to the cache if the corresponding transaction output will be used
             // as a transaction input in the same block(s), or adds it to the utreexo otherwise.
             let outpoint = OutPoint {
-                txid, vout, data: *output, block_hash, block_height, median_time_past, is_coinbase: false,
+                txid,
+                vout,
+                data: *output,
+                block_hash,
+                block_height,
+                median_time_past,
+                is_coinbase: false,
             };
 
             inner_result = utxo_set.add(outpoint);

@@ -378,7 +378,7 @@ mod tests {
                         median_time_past: Default::default(),
                         is_coinbase: false,
                     },
-                    witness: array![        
+                    witness: array![
                         from_hex("0000000000000000000000000000000000000000000000000000000000000000")
                     ]
                         .span(),
