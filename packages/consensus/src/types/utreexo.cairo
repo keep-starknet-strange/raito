@@ -262,10 +262,10 @@ pub impl UtreexoAccumulatorImpl of UtreexoAccumulator {
                             };
                         };
                 };
-        
+
         let computed_roots_len = computed_roots.len();
-        
-        if (computed_roots_len!= number_matched_roots && computed_roots_len != 0) {
+
+        if (computed_roots_len != number_matched_roots && computed_roots_len != 0) {
             return Result::Err(UtreexoError::ProofVerificationFailed);
         }
 
