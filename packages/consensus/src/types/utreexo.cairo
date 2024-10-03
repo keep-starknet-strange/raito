@@ -49,13 +49,33 @@ pub struct UtreexoState {
 
 #[generate_trait]
 pub impl UtreexoStateImpl of UtreexoStateTrait {
-    fn validate_and_apply(ref self: UtreexoState, ref utxo_set: UtxoSet) -> Result<(), ByteArray> {
-        while let Option::Some(leave) = utxo_set.leaves_to_add.pop_front() {
-            self.add(leave);
+    fn validate_and_apply(
+        ref self: UtreexoState, utxo_set: UtxoSet, proofs: Span<UtreexoProof>
+    ) -> Result<(), ByteArray> {
+        let mut proof_idx = 0;
+        let mut inner_result = Result::Ok(());
+
+        for leaf_hash in utxo_set
+            .leaves_to_delete {
+                let proof = proofs[proof_idx];
+
+                let res = self.verify(leaf_hash, proof);
+                if res.is_err() {
+                    inner_result =
+                        Result::Err(format!("Verification failed for {}: {:?}", leaf_hash, res));
+                    break;
+                }
+
+                self.delete(proof);
+                proof_idx += 1;
+            };
+
+        inner_result?;
+
+        for leaf_hash in utxo_set.leaves_to_add {
+            self.add(leaf_hash);
         };
-        // TODO: delete leaves from utreexo
-        // while let Option::Some(leave) = utxo_set.leaves_to_delete.pop_front() {
-        // };
+
         Result::Ok(())
     }
 }
@@ -227,13 +247,13 @@ pub enum UtreexoError {
 }
 
 /// Utreexo inclusion proof for a single transaction output.
-#[derive(Drop, Copy)]
+#[derive(Drop, Copy, Serde)]
 pub struct UtreexoProof {
+    /// List of sibling nodes required to calculate the root.
+    pub proof: Span<felt252>,
     /// Index of the leaf in the forest, but also an encoded binary path,
     /// specifying which sibling node is left and which is right.
     pub leaf_index: u64,
-    /// List of sibling nodes required to calculate the root.
-    pub proof: Span<felt252>,
 }
 
 /// Utreexo inclusion proof for multiple outputs.

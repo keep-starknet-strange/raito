@@ -33,6 +33,12 @@ Run a specific test file (or several files):
 scarb test tests/data/light_481823.json
 ```
 
+Show output for a specific test:
+
+```sh
+scarb test tests/data/light_481823.json --nocapture
+```
+
 Re-generate integration test data:
 
 ```sh
