@@ -247,6 +247,7 @@ pub impl UtreexoAccumulatorImpl of UtreexoAccumulator {
 
         let mut number_matched_roots: u32 = 0;
 
+        // Should we reverse *self.roots like in rustreexo to reduce the number of iteration?
         for i in 0
             ..computed_roots
                 .len() {
@@ -262,8 +263,10 @@ pub impl UtreexoAccumulatorImpl of UtreexoAccumulator {
                             };
                         };
                 };
-
-        if (computed_roots.len() != number_matched_roots && computed_roots.len() != 0) {
+        
+        let computed_roots_len = computed_roots.len();
+        
+        if (computed_roots_len!= number_matched_roots && computed_roots_len != 0) {
             return Result::Err(UtreexoError::ProofVerificationFailed);
         }
 
