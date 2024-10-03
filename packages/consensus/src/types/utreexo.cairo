@@ -240,10 +240,9 @@ pub impl UtreexoAccumulatorImpl of UtreexoAccumulator {
             return Result::Ok(());
         };
 
-        // TODO: handle error progration for compute_roots
         let computed_roots: Span<felt252> = compute_roots(
             outpoints_hashes, *self.num_leaves, proof
-        );
+        )?;
 
         let mut number_matched_roots: u32 = 0;
 
@@ -302,9 +301,9 @@ fn compute_root(proof: Span<felt252>, mut leaf_index: u64, mut curr_node: felt25
 /// Computes a set of roots from a proof.
 fn compute_roots(
     outpoints_hashes: Span<felt252>, num_leaves: u64, proof: @UtreexoBatchProof,
-) -> Span<felt252> {
+) -> Result<Span<felt252>, UtreexoError> {
     // TODO
-    array![].span()
+    Result::Ok(array![].span())
 }
 
 pub impl UtreexoStateDefault of Default<UtreexoState> {
