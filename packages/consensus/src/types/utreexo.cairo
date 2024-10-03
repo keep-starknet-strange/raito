@@ -49,21 +49,21 @@ pub struct UtreexoState {
 /// Utreexo inclusion proof for a single transaction output.
 #[derive(Drop, Copy, Serde)]
 pub struct UtreexoProof {
+    /// List of sibling nodes required to calculate the root.
+    pub proof: Span<felt252>,
     /// Index of the leaf in the forest, but also an encoded binary path,
     /// specifying which sibling node is left and which is right.
     pub leaf_index: u64,
-    /// List of sibling nodes required to calculate the root.
-    pub proof: Span<felt252>,
 }
 
 /// Utreexo inclusion proof for multiple outputs.
 /// Compatible with https://github.com/utreexo/utreexo
 #[derive(Drop, Copy)]
 pub struct UtreexoBatchProof {
-    /// Indices of leaves to be deleted (ordered starting from 0, left to right).
-    pub targets: Span<u64>,
     /// List of sibling nodes required to calculate the root.
     pub proof: Span<felt252>,
+    /// Indices of leaves to be deleted (ordered starting from 0, left to right).
+    pub targets: Span<u64>,
 }
 
 #[derive(Drop, Copy, PartialEq, Debug)]
@@ -216,14 +216,14 @@ pub impl UtreexoAccumulatorImpl of UtreexoAccumulator {
 
         // Get the expected root
         let root_index = (*proof.proof).len();
-        if root_index >= self.roots.deref().len() {
+        if root_index >= (*self.roots).len() {
             return Result::Err(UtreexoError::RootIndexOutOfBound);
         }
         let expected_root = self.roots[root_index];
 
         match expected_root {
             Option::Some(root) => {
-                if root.deref().into() == proof_root {
+                if *root.into() == proof_root {
                     return Result::Ok(());
                 };
                 Result::Err(UtreexoError::ProofVerificationFailed)
