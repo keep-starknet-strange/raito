@@ -26,6 +26,7 @@ FAST = False
 RETRIES = 3
 DEPLAY = 2
 
+
 def request_rpc(method: str, params: list):
     """Makes a JSON-RPC call to a Bitcoin API endpoint.
     Retries the request a specified number of times before failing.
@@ -47,8 +48,9 @@ def request_rpc(method: str, params: list):
             if attempt < RETRIES - 1:
                 time.sleep(DEPLAY)  # Wait before retrying
             else:
-                raise ConnectionError(f"Unexpected RPC response after {RETRIES} attempts:\n{res.text}")
-
+                raise ConnectionError(
+                    f"Unexpected RPC response after {RETRIES} attempts:\n{res.text}"
+                )
 
 
 def fetch_chain_state_fast(block_height: int):
