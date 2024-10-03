@@ -27,7 +27,6 @@
 //!
 //! Read more about utreexo: https://eprint.iacr.org/2019/611.pdf
 
-use super::transaction::OutPoint;
 use super::utxo_set::UtxoSet;
 use utils::hash::{DigestImpl, DigestIntoU256};
 use core::poseidon::PoseidonTrait;
@@ -45,6 +44,32 @@ pub struct UtreexoState {
     /// Required to calculate the number of nodes in a particular row.
     /// Can be reconstructed from the roots, but cached for convenience.
     pub num_leaves: u64,
+}
+
+/// Utreexo inclusion proof for a single transaction output.
+#[derive(Drop, Copy, Serde)]
+pub struct UtreexoProof {
+    /// Index of the leaf in the forest, but also an encoded binary path,
+    /// specifying which sibling node is left and which is right.
+    pub leaf_index: u64,
+    /// List of sibling nodes required to calculate the root.
+    pub proof: Span<felt252>,
+}
+
+/// Utreexo inclusion proof for multiple outputs.
+/// Compatible with https://github.com/utreexo/utreexo
+#[derive(Drop, Copy)]
+pub struct UtreexoBatchProof {
+    /// Indices of leaves to be deleted (ordered starting from 0, left to right).
+    pub targets: Span<u64>,
+    /// List of sibling nodes required to calculate the root.
+    pub proof: Span<felt252>,
+}
+
+#[derive(Drop, Copy, PartialEq, Debug)]
+pub enum UtreexoError {
+    ProofVerificationFailed,
+    RootIndexOutOfBound
 }
 
 #[generate_trait]
@@ -105,13 +130,8 @@ pub trait UtreexoAccumulator {
 
     /// Verifies batch proof for multiple outputs (e.g. all outputs in a block).
     fn verify_batch(
-        self: @UtreexoState, outputs: Span<OutPoint>, proof: @UtreexoBatchProof
+        self: @UtreexoState, outpoints_hashes: Span<felt252>, proof: @UtreexoBatchProof
     ) -> Result<(), UtreexoError>;
-}
-
-/// https://eprint.iacr.org/2019/611.pdf page 6 - Adding and removing elements.
-fn parent_hash(left: felt252, right: felt252) -> felt252 {
-    return PoseidonTrait::new().update_with(left).update_with(right).finalize();
 }
 
 pub impl UtreexoAccumulatorImpl of UtreexoAccumulator {
@@ -214,10 +234,46 @@ pub impl UtreexoAccumulatorImpl of UtreexoAccumulator {
 
     /// Verifies inclusion proof for multiple outputs.
     fn verify_batch(
-        self: @UtreexoState, outputs: Span<OutPoint>, proof: @UtreexoBatchProof
+        self: @UtreexoState, outpoints_hashes: Span<felt252>, proof: @UtreexoBatchProof
     ) -> Result<(), UtreexoError> {
+        if (*proof.targets).is_empty() {
+            return Result::Ok(());
+        };
+
+        // TODO: handle error progration for compute_roots
+        let computed_roots: Span<felt252> = compute_roots(
+            outpoints_hashes, *self.num_leaves, proof
+        );
+
+        let mut number_matched_roots: u32 = 0;
+
+        for i in 0
+            ..computed_roots
+                .len() {
+                    for root in *self
+                        .roots {
+                            match root {
+                                Option::Some(root) => {
+                                    if (computed_roots[i] == root) {
+                                        number_matched_roots += 1;
+                                    };
+                                },
+                                Option::None => {},
+                            };
+                        };
+                };
+
+        if (computed_roots.len() != number_matched_roots && computed_roots.len() != 0) {
+            return Result::Err(UtreexoError::ProofVerificationFailed);
+        }
+
         Result::Ok(())
     }
+}
+
+/// https://eprint.iacr.org/2019/611.pdf page 6 - Adding and removing elements.
+fn parent_hash(left: felt252, right: felt252) -> felt252 {
+    return PoseidonTrait::new().update_with(left).update_with(right).finalize();
 }
 
 /// Computes the root given a leaf, its index, and a proof.
@@ -240,30 +296,12 @@ fn compute_root(proof: Span<felt252>, mut leaf_index: u64, mut curr_node: felt25
     curr_node
 }
 
-#[derive(Drop, Copy, PartialEq, Debug)]
-pub enum UtreexoError {
-    ProofVerificationFailed,
-    RootIndexOutOfBound
-}
-
-/// Utreexo inclusion proof for a single transaction output.
-#[derive(Drop, Copy, Serde)]
-pub struct UtreexoProof {
-    /// List of sibling nodes required to calculate the root.
-    pub proof: Span<felt252>,
-    /// Index of the leaf in the forest, but also an encoded binary path,
-    /// specifying which sibling node is left and which is right.
-    pub leaf_index: u64,
-}
-
-/// Utreexo inclusion proof for multiple outputs.
-/// Compatible with https://github.com/utreexo/utreexo
-#[derive(Drop, Copy)]
-pub struct UtreexoBatchProof {
-    /// Indices of leaves to be deleted (ordered starting from 0, left to right).
-    pub targets: Span<u64>,
-    /// List of sibling nodes required to calculate the root.
-    pub proof: Span<felt252>,
+/// Computes a set of roots from a proof.
+fn compute_roots(
+    outpoints_hashes: Span<felt252>, num_leaves: u64, proof: @UtreexoBatchProof,
+) -> Span<felt252> {
+    // TODO
+    array![].span()
 }
 
 pub impl UtreexoStateDefault of Default<UtreexoState> {
