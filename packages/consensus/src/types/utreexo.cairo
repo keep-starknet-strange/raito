@@ -340,7 +340,7 @@ mod tests {
                 cached: false
             },
             block_height: 9,
-            block_time: 1231473279,
+            median_time_past: 1231473279,
             block_hash: hex_to_hash_rev(
                 "000000008d9dc510f23c2657fc4f67bea30078cc05a90eb89e84cc475c080805"
             ),

@@ -152,7 +152,7 @@ mod tests {
             },
             block_hash: Default::default(),
             block_height: Default::default(),
-            block_time: Default::default(),
+            median_time_past: Default::default(),
             is_coinbase: false,
         }
     }
