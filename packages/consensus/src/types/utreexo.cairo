@@ -354,7 +354,7 @@ mod tests {
         let outpoint: OutPoint = get_outpoint();
         let outpoint_hash = PoseidonTrait::new().update_with(outpoint).finalize();
 
-        let expected: felt252 = 0x1E8BBC31DA001E7EBACAEBC83DF1FD241040B9525ADEECEADBBC7045C6D1876;
+        let expected: felt252 = 0x5468545AAF4F903DFE7A3AA60578E20837F7ACDB20C7C75F851F917E35B868F;
         assert_eq!(outpoint_hash, expected);
     }
 

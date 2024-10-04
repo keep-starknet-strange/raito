@@ -5,8 +5,7 @@
 
 use utils::{hash::Digest, bytearray::{ByteArraySnapHash, ByteArraySnapSerde}};
 use core::fmt::{Display, Formatter, Error};
-use core::hash::HashStateTrait;
-use core::hash::HashStateExTrait;
+use core::hash::{HashStateTrait, HashStateExTrait};
 use core::poseidon::PoseidonTrait;
 
 /// Represents a transaction.
@@ -233,7 +232,7 @@ mod tests {
         };
         assert_eq!(
             test_outpoint.hash(),
-            1078799518591159253686478630433512427930158685501072491129204005222453242688
+            1532890899529289256000598077962146345043961505796328529585737403969561534449
         );
 
         // Changing block_hash must lead to different outpoint hash
@@ -242,7 +241,7 @@ mod tests {
             .into();
         assert_ne!(
             test_outpoint.hash(),
-            1078799518591159253686478630433512427930158685501072491129204005222453242688
+            1532890899529289256000598077962146345043961505796328529585737403969561534449
         );
     }
 }
