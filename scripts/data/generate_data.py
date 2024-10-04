@@ -24,7 +24,7 @@ DEFAULT_URL = "https://bitcoin-mainnet.public.blastapi.io"
 FAST = False
 
 RETRIES = 3
-DEPLAY = 2
+DELAY = 2
 
 
 def request_rpc(method: str, params: list):
@@ -46,7 +46,8 @@ def request_rpc(method: str, params: list):
             return res.json()["result"]
         except Exception:
             if attempt < RETRIES - 1:
-                time.sleep(DEPLAY)  # Wait before retrying
+                f"Connection error: {res.text}, will retry in {DELAY}s"
+                time.sleep(DELAY)  # Wait before retrying
             else:
                 raise ConnectionError(
                     f"Unexpected RPC response after {RETRIES} attempts:\n{res.text}"
