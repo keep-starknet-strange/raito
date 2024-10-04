@@ -80,7 +80,6 @@ pub fn compute_and_validate_tx_data(
                         txid,
                         vout,
                         data: *output,
-                        block_hash,
                         block_height,
                         median_time_past,
                         is_coinbase: true,
@@ -95,7 +94,7 @@ pub fn compute_and_validate_tx_data(
         } else {
             let fee =
                 match validate_transaction(
-                    tx, block_hash, block_height, median_time_past, txid, ref utxo_set
+                    tx, block_height, median_time_past, txid, ref utxo_set
                 ) {
                 Result::Ok(fee) => fee,
                 Result::Err(err) => {
