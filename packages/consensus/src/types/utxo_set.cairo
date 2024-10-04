@@ -150,7 +150,6 @@ mod tests {
                 pk_script: @from_hex("76a914000000000000000000000000000000000000000088ac"),
                 cached,
             },
-            block_hash: Default::default(),
             block_height: Default::default(),
             block_time: Default::default(),
             is_coinbase: false,
