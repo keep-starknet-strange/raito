@@ -1,16 +1,19 @@
 #!/usr/bin/env python
 
-import sys
-import os
-import json
-import requests
 import argparse
-from pathlib import Path
+import json
+import os
+import sys
+import time
 from decimal import Decimal, getcontext
-from generate_timestamp_data import get_timestamp_data
-from generate_utxo_data import get_utxo_set
+from pathlib import Path
+
+import requests
 from tqdm import tqdm
+
+from generate_timestamp_data import get_timestamp_data
 from generate_utreexo_data import UtreexoData
+from generate_utxo_data import get_utxo_set
 
 getcontext().prec = 16
 
@@ -20,23 +23,35 @@ DEFAULT_URL = "https://bitcoin-mainnet.public.blastapi.io"
 
 FAST = False
 
+RETRIES = 3
+DELAY = 2
+
 
 def request_rpc(method: str, params: list):
     """Makes a JSON-RPC call to a Bitcoin API endpoint.
-    Uses environment variables BITCOIN_RPC and USERPWD
-    or the default public endpoint if those variables are not set.
+    Retries the request a specified number of times before failing.
 
+    :param retries: Number of retry attempts before raising an exception.
+    :param delay: Delay between retries in seconds.
     :return: parsed JSON result as Python object
     """
     url = BITCOIN_RPC or DEFAULT_URL
     auth = tuple(USERPWD.split(":")) if USERPWD else None
     headers = {"content-type": "application/json"}
     payload = {"jsonrpc": "2.0", "method": method, "params": params, "id": 0}
-    res = requests.post(url, auth=auth, headers=headers, json=payload)
-    try:
-        return res.json()["result"]
-    except Exception:
-        raise ConnectionError(f"Unexpected RPC response:\n{res.text}")
+
+    for attempt in range(RETRIES):
+        try:
+            res = requests.post(url, auth=auth, headers=headers, json=payload)
+            return res.json()["result"]
+        except Exception:
+            if attempt < RETRIES - 1:
+                f"Connection error: {res.text}, will retry in {DELAY}s"
+                time.sleep(DELAY)  # Wait before retrying
+            else:
+                raise ConnectionError(
+                    f"Unexpected RPC response after {RETRIES} attempts:\n{res.text}"
+                )
 
 
 def fetch_chain_state_fast(block_height: int):
