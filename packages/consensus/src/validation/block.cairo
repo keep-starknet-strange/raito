@@ -77,13 +77,7 @@ pub fn compute_and_validate_tx_data(
             for output in *tx
                 .outputs {
                     let outpoint = OutPoint {
-                        txid,
-                        vout,
-                        data: *output,
-                        block_hash,
-                        block_height,
-                        block_time,
-                        is_coinbase: true,
+                        txid, vout, data: *output, block_height, block_time, is_coinbase: true,
                     };
                     inner_result = utxo_set.add(outpoint);
                     if inner_result.is_err() {

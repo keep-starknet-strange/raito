@@ -70,14 +70,13 @@ class TxOut:
 
 class OutPoint:
     def __init__(
-        self, txid, vout, data, block_height, block_time, block_hash, is_coinbase
+        self, txid, vout, data, block_height, block_time, is_coinbase
     ):
         self.txid = txid
         self.vout = vout
         self.data = data  # Instance de TxOut
         self.block_height = block_height
         self.block_time = block_time
-        self.block_hash = block_hash
         self.is_coinbase = is_coinbase
 
     def hash(self):
@@ -96,7 +95,6 @@ class OutPoint:
             tab.append(e)
 
         # block hash
-        txid_bytes = bytes.fromhex(self.block_hash)
         tab.append(int.from_bytes(txid_bytes[16:], "big"))
         tab.append(int.from_bytes(txid_bytes[:16], "big"))
 
@@ -115,7 +113,6 @@ class OutPoint:
                 tx_out={self.data}\n\
                 block_height={self.block_height}\n\
                 block_time={self.block_time}\n\
-                block_hash={self.block_hash}\n\
                 is_coinbase={self.is_coinbase})"
 
 
@@ -176,7 +173,6 @@ class UtreexoData:
                 ),
                 block_height=outpoint["block_height"],
                 block_time=outpoint["block_time"],
-                block_hash=outpoint["block_hash"],
                 is_coinbase=outpoint["is_coinbase"],
             )
 
@@ -212,7 +208,6 @@ class UtreexoData:
                 ),
                 block_height=block_height,
                 block_time=block_time,
-                block_hash=block_hash,
                 is_coinbase=is_coinbase,
             )
 
