@@ -61,7 +61,7 @@ pub fn validate_absolute_locktime(
 /// If relative locktime is enabled, ensure the input's locktime is respected.
 /// https://learnmeabitcoin.com/technical/transaction/input/sequence/
 pub fn validate_relative_locktime(
-    input: @TxIn, block_height: u32, block_time: u32
+    input: @TxIn, block_height: u32, median_time_past: u32
 ) -> Result<(), ByteArray> {
     let sequence = *input.sequence;
     if sequence & SEQUENCE_LOCKTIME_DISABLE_FLAG != 0 {
@@ -86,11 +86,11 @@ pub fn validate_relative_locktime(
         // https://github.com/bitcoin/bitcoin/blob/712a2b5453cdf2568fece94b969d6e0923b6ba16/src/consensus/tx_verify.cpp#L74
         let lock_time = value * 512;
         let absolute_lock_time = *input.previous_output.median_time_past + lock_time;
-        if absolute_lock_time >= block_time {
+        if absolute_lock_time >= median_time_past {
             return Result::Err(
                 format!(
-                    "Relative time-based lock time is not respected: current time {}, outpoint time {}, lock time {} seconds",
-                    block_time,
+                    "Relative time-based lock time is not respected: current MTP {}, outpoint MTP {}, lock time {} seconds",
+                    median_time_past,
                     *input.previous_output.median_time_past,
                     lock_time
                 )

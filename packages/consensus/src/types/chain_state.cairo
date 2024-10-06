@@ -7,7 +7,7 @@
 use core::fmt::{Display, Formatter, Error};
 use crate::validation::{
     difficulty::{validate_bits, adjust_difficulty}, coinbase::validate_coinbase,
-    timestamp::{validate_timestamp, next_prev_timestamps},
+    timestamp::{validate_timestamp, next_prev_timestamps, compute_median_time_past},
     work::{validate_proof_of_work, compute_total_work},
     block::{compute_and_validate_tx_data, validate_bip30_block_hash},
 };
@@ -34,6 +34,8 @@ pub struct ChainState {
     /// it's possible that one block could have an earlier timestamp
     /// than a block that came before it in the chain.
     pub prev_timestamps: Span<u32>,
+    /// Median Time Past (MTP) of the current block
+    pub median_time_past: u32,
 }
 
 /// Represents the initial state after genesis block.
@@ -49,7 +51,7 @@ impl ChainStateDefault of Default<ChainState> {
             epoch_start_time: 1231006505,
             prev_timestamps: [
                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1231006505
-            ].span(),
+            ].span(), median_time_past: 1231006505, // Genesis block MTP
         }
     }
 }
@@ -62,9 +64,11 @@ pub impl BlockValidatorImpl of BlockValidator {
     ) -> Result<ChainState, ByteArray> {
         let block_height = self.block_height + 1;
 
-        validate_timestamp(self.prev_timestamps, block.header.time)?;
         let prev_block_time = *self.prev_timestamps[self.prev_timestamps.len() - 1];
         let prev_timestamps = next_prev_timestamps(self.prev_timestamps, block.header.time);
+        let median_time_past = compute_median_time_past(prev_timestamps);
+
+        validate_timestamp(median_time_past, block.header.time)?;
 
         let txid_root = match block.data {
             TransactionData::MerkleRoot(root) => root,
@@ -101,6 +105,7 @@ pub impl BlockValidatorImpl of BlockValidator {
                 current_target,
                 epoch_start_time,
                 prev_timestamps,
+                median_time_past,
             }
         )
     }
