@@ -6,6 +6,7 @@ name = "client"
 version = "0.1.0"
 dependencies = [
  "consensus",
+ "utreexo",
 ]
 
 [[package]]
@@ -17,4 +18,8 @@ dependencies = [
 
 [[package]]
 name = "utils"
+version = "0.1.0"
+
+[[package]]
+name = "utreexo"
 version = "0.1.0"
