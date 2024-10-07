@@ -99,7 +99,8 @@ pub struct OutPoint {
     /// The median time past of the block that contains this output (meta field).
     /// This is the median timestamp of the previous 11 blocks.
     /// Used to validate relative timelocks based on time (BIP 68 and BIP 112).
-    /// It ensures that the transaction containing this output has been mined for more than X seconds.
+    /// It ensures that the transaction containing this output has been mined for more than X
+    /// seconds.
     pub median_time_past: u32,
     // Determine if the outpoint is a coinbase transaction
     // Has 100 or more block confirmation,
