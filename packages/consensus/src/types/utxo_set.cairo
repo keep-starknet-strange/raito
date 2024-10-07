@@ -11,6 +11,7 @@
 
 use core::dict::Felt252Dict;
 use super::transaction::{OutPoint, OutPointTrait};
+use consensus::validation::transaction::is_pubscript_unspendable;
 
 pub const TX_OUTPUT_STATUS_NONE: u8 = 0;
 pub const TX_OUTPUT_STATUS_UNSPENT: u8 = 1;
@@ -34,16 +35,20 @@ pub struct UtxoSet {
 pub impl UtxoSetImpl of UtxoSetTrait {
     fn add(ref self: UtxoSet, outpoint: OutPoint) -> Result<(), ByteArray> {
         let hash = outpoint.hash();
-        if self.cache.get(hash) == TX_OUTPUT_STATUS_NONE {
-            if outpoint.data.cached {
-                self.num_cached += 1;
+        if (!is_pubscript_unspendable(outpoint.data.pk_script)) {
+            if self.cache.get(hash) == TX_OUTPUT_STATUS_NONE {
+                if outpoint.data.cached {
+                    self.num_cached += 1;
+                } else {
+                    self.leaves_to_add.append(hash);
+                }
+                self.cache.insert(hash, TX_OUTPUT_STATUS_UNSPENT);
+                Result::Ok(())
             } else {
-                self.leaves_to_add.append(hash);
+                Result::Err("The output has already been added")
             }
-            self.cache.insert(hash, TX_OUTPUT_STATUS_UNSPENT);
-            Result::Ok(())
         } else {
-            Result::Err("The output has already been added")
+            Result::Err("The output has unspendable script")
         }
     }
 

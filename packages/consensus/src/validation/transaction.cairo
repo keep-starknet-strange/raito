@@ -130,7 +130,7 @@ fn validate_coinbase_maturity(output_height: u32, block_height: u32) -> Result<(
 /// A pubscript is considered unspendable if:
 /// - It starts with `OP_RETURN`.
 /// - Its size exceeds the maximum allowed script size.
-fn is_pubscript_unspendable(pubscript: @ByteArray) -> bool {
+pub fn is_pubscript_unspendable(pubscript: @ByteArray) -> bool {
     pubscript[0].into() == OP_RETURN || pubscript.len() > MAX_SCRIPT_SIZE
 }
 
