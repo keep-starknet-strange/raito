@@ -54,6 +54,12 @@ def request_rpc(method: str, params: list):
                 )
 
 
+def compute_median_time_past(prev_timestamps):
+    """Compute the Median Time Past (MTP) from the previous timestamps."""
+    sorted_timestamps = sorted(prev_timestamps)
+    return sorted_timestamps[len(sorted_timestamps) // 2]
+
+
 def fetch_chain_state_fast(block_height: int):
     """Fetches chain state at the end of a specific block with given height.
     Chain state is a just a block header extended with extra fields:
@@ -71,6 +77,7 @@ def fetch_chain_state_fast(block_height: int):
         head["epoch_start_time"] = 1231006505
     else:
         head["epoch_start_time"] = int(data["epoch_start_time"])
+    head["median_time_past"] = compute_median_time_past(head["prev_timestamps"])
     return head
 
 
@@ -96,6 +103,7 @@ def fetch_chain_state(block_height: int):
             )
             prev_timestamps.insert(0, int(prev_header["time"]))
     head["prev_timestamps"] = prev_timestamps
+    head["median_time_past"] = compute_median_time_past(prev_timestamps)
 
     # In order to init epoch start we need to query block header at epoch start
     if block_height < 2016:
@@ -117,6 +125,7 @@ def next_chain_state(head: dict, blocks: list):
     # and all the blocks we applied to it
     prev_timestamps = head["prev_timestamps"] + list(map(lambda x: x["time"], blocks))
     next_head["prev_timestamps"] = prev_timestamps[-11:]
+    next_head["median_time_past"] = compute_median_time_past(next_head["prev_timestamps"])
 
     # Update epoch start time if necessary
     if head["height"] // 2016 != block_height // 2016:
@@ -143,6 +152,7 @@ def format_chain_state(head: dict):
         "current_target": str(bits_to_target(head["bits"])),
         "epoch_start_time": head["epoch_start_time"],
         "prev_timestamps": head["prev_timestamps"],
+        "median_time_past": head["median_time_past"],
     }
 
 
@@ -173,37 +183,37 @@ def fetch_block(block_hash: str, fast: bool):
     )
 
     block["data"] = {
-        tx["txid"]: resolve_transaction(tx, previous_outputs)
+        tx["txid"]: resolve_transaction(tx, previous_outputs, block["mediantime"])  # Pass mediantime
         for tx in tqdm(block["tx"], "Resolving transactions")
     }
     return block
 
 
-def resolve_transaction(transaction: dict, previous_outputs: dict):
+def resolve_transaction(transaction: dict, previous_outputs: dict, median_time_past: int):
     """Resolves transaction inputs and formats the content according to the Cairo type."""
     return {
         "version": transaction["version"],
-        # Skip the first 4 bytes (version) and take the next 4 bytes (marker + flag)
         "is_segwit": transaction["hex"][8:12] == "0001",
         "inputs": [
-            resolve_input(input, previous_outputs) for input in transaction["vin"]
+            resolve_input(input, previous_outputs, median_time_past) for input in transaction["vin"]
         ],
         "outputs": [format_output(output) for output in transaction["vout"]],
         "lock_time": transaction["locktime"],
     }
 
 
-def resolve_input(input: dict, previous_outputs: dict):
+def resolve_input(input: dict, previous_outputs: dict, median_time_past: int):
     """Resolves referenced UTXO and formats the transaction inputs according to the Cairo type."""
     if input.get("coinbase"):
         return format_coinbase_input(input)
     else:
         if previous_outputs:
             previous_output = format_outpoint(
-                previous_outputs[(input["txid"], input["vout"])]
+                previous_outputs[(input["txid"], input["vout"])],
+                median_time_past
             )
         else:
-            previous_output = resolve_outpoint(input)
+            previous_output = resolve_outpoint(input, median_time_past)
         return {
             "script": f'0x{input["scriptSig"]["hex"]}',
             "sequence": input["sequence"],
@@ -212,9 +222,8 @@ def resolve_input(input: dict, previous_outputs: dict):
         }
 
 
-def format_outpoint(previous_output):
+def format_outpoint(previous_output, median_time_past):
     """Formats output according to the Cairo type."""
-
     return {
         "txid": previous_output["txid"],
         "vout": int(previous_output["vout"]),
@@ -225,12 +234,12 @@ def format_outpoint(previous_output):
         },
         "block_hash": previous_output["block_hash"],
         "block_height": int(previous_output["block_height"]),
-        "median_time_past": int(previous_output["median_time_past"]),
+        "median_time_past": median_time_past,
         "is_coinbase": previous_output["is_coinbase"],
     }
 
 
-def resolve_outpoint(input: dict):
+def resolve_outpoint(input: dict, median_time_past: int):
     """Fetches transaction and block header for the referenced output,
     formats resulting outpoint according to the Cairo type.
     """
@@ -242,7 +251,7 @@ def resolve_outpoint(input: dict):
         "data": format_output(tx["vout"][input["vout"]]),
         "block_hash": tx["blockhash"],
         "block_height": block["height"],
-        "median_time_past": block["time"],
+        "median_time_past": median_time_past,
         "is_coinbase": tx["vin"][0].get("coinbase") is not None,
     }
 

@@ -96,9 +96,10 @@ pub struct OutPoint {
     /// Used to validate coinbase tx spending (not sooner than 100 blocks) and relative timelocks
     /// (it has been more than X block since the transaction containing this output was mined).
     pub block_height: u32,
-    /// The time of the block that contains this output (meta field).
-    /// Used to validate relative timelocks (it has been more than X seconds since the transaction
-    /// containing this output was mined).
+    /// The median time past of the block that contains this output (meta field).
+    /// This is the median timestamp of the previous 11 blocks.
+    /// Used to validate relative timelocks based on time (BIP 68 and BIP 112).
+    /// It ensures that the transaction containing this output has been mined for more than X seconds.
     pub median_time_past: u32,
     // Determine if the outpoint is a coinbase transaction
     // Has 100 or more block confirmation,
