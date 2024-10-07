@@ -118,6 +118,7 @@ class OutPoint:
                 block_hash={self.block_hash}\n\
                 is_coinbase={self.is_coinbase})"
 
+
 class UtreexoData:
     def __init__(self) -> None:
         self.utreexo = Utreexo()
