@@ -35,16 +35,19 @@ pub struct UtxoSet {
 pub impl UtxoSetImpl of UtxoSetTrait {
     fn add(ref self: UtxoSet, outpoint: OutPoint) -> Result<(), ByteArray> {
         let hash = outpoint.hash();
+
         if self.cache.get(hash) == TX_OUTPUT_STATUS_NONE {
-            if outpoint.data.cached {
-                self.num_cached += 1;
-            } else {
-                self.leaves_to_add.append(hash);
-            }
             if (!is_pubscript_unspendable(outpoint.data.pk_script)) {
+                if outpoint.data.cached {
+                    self.num_cached += 1;
+                } else {
+                    self.leaves_to_add.append(hash);
+                }
                 self.cache.insert(hash, TX_OUTPUT_STATUS_UNSPENT);
+                Result::Ok(())
+            } else {
+                Result::Err("The output has Unspendable script")
             }
-            Result::Ok(())
         } else {
             Result::Err("The output has already been added")
         }
@@ -143,6 +146,35 @@ mod tests {
         let result = utxo_set.spend(@dummy_outpoint(3, false));
         assert_eq!(result.unwrap_err(), "The output has already been spent");
     }
+
+    #[test]
+    fn test_not_include_unspendable_utxo() {
+        let mut utxo_set: UtxoSet = Default::default();
+        utxo_set.add(dummy_outpoint(0, false)).unwrap();
+        utxo_set.add(dummy_outpoint(1, false)).unwrap();
+        let result = utxo_set.add(dummy_unspendable_outpoint(1, false));
+        assert_eq!(result.unwrap_err(), "The output has Unspendable script");
+        assert_eq!(utxo_set.leaves_to_add.len(), 2);
+    }
+
+    fn dummy_unspendable_outpoint(vout: u32, cached: bool) -> OutPoint {
+        OutPoint {
+            txid: hex_to_hash_rev(
+                "0000000000000000000000000000000000000000000000000000000000000000"
+            ),
+            vout,
+            data: TxOut {
+                value: 50,
+                pk_script: @from_hex("6a4c54000000000000000000000000000000000000000088ac"),
+                cached,
+            },
+            block_hash: Default::default(),
+            block_height: Default::default(),
+            block_time: Default::default(),
+            is_coinbase: false,
+        }
+    }
+
 
     fn dummy_outpoint(vout: u32, cached: bool) -> OutPoint {
         OutPoint {
