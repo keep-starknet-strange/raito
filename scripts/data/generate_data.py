@@ -125,7 +125,9 @@ def next_chain_state(head: dict, blocks: list):
     # and all the blocks we applied to it
     prev_timestamps = head["prev_timestamps"] + list(map(lambda x: x["time"], blocks))
     next_head["prev_timestamps"] = prev_timestamps[-11:]
-    next_head["median_time_past"] = compute_median_time_past(next_head["prev_timestamps"])
+    next_head["median_time_past"] = compute_median_time_past(
+        next_head["prev_timestamps"]
+    )
 
     # Update epoch start time if necessary
     if head["height"] // 2016 != block_height // 2016:
@@ -183,19 +185,24 @@ def fetch_block(block_hash: str, fast: bool):
     )
 
     block["data"] = {
-        tx["txid"]: resolve_transaction(tx, previous_outputs, block["mediantime"])  # Pass mediantime
+        tx["txid"]: resolve_transaction(
+            tx, previous_outputs, block["mediantime"]
+        )  # Pass mediantime
         for tx in tqdm(block["tx"], "Resolving transactions")
     }
     return block
 
 
-def resolve_transaction(transaction: dict, previous_outputs: dict, median_time_past: int):
+def resolve_transaction(
+    transaction: dict, previous_outputs: dict, median_time_past: int
+):
     """Resolves transaction inputs and formats the content according to the Cairo type."""
     return {
         "version": transaction["version"],
         "is_segwit": transaction["hex"][8:12] == "0001",
         "inputs": [
-            resolve_input(input, previous_outputs, median_time_past) for input in transaction["vin"]
+            resolve_input(input, previous_outputs, median_time_past)
+            for input in transaction["vin"]
         ],
         "outputs": [format_output(output) for output in transaction["vout"]],
         "lock_time": transaction["locktime"],
@@ -209,8 +216,7 @@ def resolve_input(input: dict, previous_outputs: dict, median_time_past: int):
     else:
         if previous_outputs:
             previous_output = format_outpoint(
-                previous_outputs[(input["txid"], input["vout"])],
-                median_time_past
+                previous_outputs[(input["txid"], input["vout"])], median_time_past
             )
         else:
             previous_output = resolve_outpoint(input, median_time_past)
