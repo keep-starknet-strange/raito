@@ -63,7 +63,8 @@ pub impl UtreexoBatchProofImpl of UtreexoBatchProofTrait {
 
         // Sort nodes for sibling computation
         // Cant find a way to sort an array of tuple for now
-        // I would need a custom PartialOrd for tuples, should I do that?
+        // I would need a custom PartialOrd for tuples, should I do that? How such a sorting would
+        // work?
         // nodes = sort(nodes.span());
 
         let mut computed: Array<(u64, felt252)> = array![];
@@ -185,7 +186,7 @@ fn get_proof_positions(targets: Span<u64>, num_leaves: u64, forest_rows: u8) -> 
                             if !is_last_in_row && is_sibling(node, next_node) {
                                 computed_index += 2;
                             } else {
-                                proof_positions.append(node ^ 1); // Add to proof positions
+                                proof_positions.append(node ^ 1);
                                 computed_index += 1;
                             };
 
