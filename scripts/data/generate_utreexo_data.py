@@ -85,8 +85,8 @@ class OutPoint:
 
         # txid (2x u128 in little endian high/low)
         txid_bytes = bytes.fromhex(self.txid)
-        tab.append(int.from_bytes(txid_bytes[:16], "little"))
-        tab.append(int.from_bytes(txid_bytes[16:], "little"))
+        tab.append(int.from_bytes(txid_bytes[:16], "big"))
+        tab.append(int.from_bytes(txid_bytes[16:], "big"))
 
         # vout
         tab.append(self.vout)
@@ -97,8 +97,8 @@ class OutPoint:
 
         # block hash (2x u128 in little endian high/low)
         txid_bytes = bytes.fromhex(self.block_hash)
-        tab.append(int.from_bytes(txid_bytes[:16], "little"))
-        tab.append(int.from_bytes(txid_bytes[16:], "little"))
+        tab.append(int.from_bytes(txid_bytes[:16], "big"))
+        tab.append(int.from_bytes(txid_bytes[16:], "big"))
 
         tab.append(self.block_height)
         tab.append(self.block_time)
@@ -126,7 +126,6 @@ class UtreexoData:
     def snapshot_state(self) -> dict:
         return {
             "roots": list(map(format_root_node, self.utreexo.root_nodes)),
-            "num_leaves": len(self.utreexo.leaf_nodes),
         }
 
     def apply_blocks(self, blocks: list) -> dict:

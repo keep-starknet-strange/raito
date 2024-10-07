@@ -9,7 +9,6 @@ pub mod validation {
 }
 pub mod codec;
 pub mod types {
-    pub mod utreexo;
     pub mod chain_state;
     pub mod block;
     pub mod transaction;

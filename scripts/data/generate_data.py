@@ -317,12 +317,7 @@ def format_header(header: dict):
     }
 
 
-def generate_data(
-    mode: str,
-    initial_height: int,
-    num_blocks: int,
-    fast: bool,
-):
+def generate_data(mode: str, initial_height: int, num_blocks: int, fast: bool):
     """Generates arguments for Raito program in a human readable form and the expected result.
 
     :param mode: Validation mode:
@@ -455,19 +450,10 @@ if __name__ == "__main__":
     )
 
     parser.add_argument(
-        "--output_file",
-        dest="output_file",
-        required=True,
-        type=str,
-        help="Output file",
+        "--output_file", dest="output_file", required=True, type=str, help="Output file"
     )
 
-    parser.add_argument(
-        "--fast",
-        dest="fast",
-        action="store_true",
-        help="Fast mode",
-    )
+    parser.add_argument("--fast", dest="fast", action="store_true", help="Fast mode")
 
     args = parser.parse_args()
 
