@@ -225,7 +225,7 @@ def format_outpoint(previous_output):
         },
         "block_hash": previous_output["block_hash"],
         "block_height": int(previous_output["block_height"]),
-        "block_time": int(previous_output["block_time"]),
+        "median_time_past": int(previous_output["median_time_past"]),
         "is_coinbase": previous_output["is_coinbase"],
     }
 
@@ -242,7 +242,7 @@ def resolve_outpoint(input: dict):
         "data": format_output(tx["vout"][input["vout"]]),
         "block_hash": tx["blockhash"],
         "block_height": block["height"],
-        "block_time": block["time"],
+        "median_time_past": block["time"],
         "is_coinbase": tx["vin"][0].get("coinbase") is not None,
     }
 
@@ -258,7 +258,7 @@ def format_coinbase_input(input: dict):
             "data": {"value": 0, "pk_script": "0x", "cached": False},
             "block_hash": "0" * 64,
             "block_height": 0,
-            "block_time": 0,
+            "median_time_past": 0,
             "is_coinbase": False,
         },
         "witness": [

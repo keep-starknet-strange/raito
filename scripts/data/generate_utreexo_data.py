@@ -114,10 +114,9 @@ class OutPoint:
                 vout={self.vout}\n\
                 tx_out={self.data}\n\
                 block_height={self.block_height}\n\
-                block_time={self.block_time}\n\
+                median_time_past={self.median_time_past}\n\
                 block_hash={self.block_hash}\n\
                 is_coinbase={self.is_coinbase})"
-
 
 class UtreexoData:
     def __init__(self) -> None:
@@ -175,7 +174,7 @@ class UtreexoData:
                     cached=outpoint["data"]["cached"],
                 ),
                 block_height=outpoint["block_height"],
-                block_time=outpoint["block_time"],
+                median_time_past=outpoint["median_time_past"],
                 block_hash=outpoint["block_hash"],
                 is_coinbase=outpoint["is_coinbase"],
             )
@@ -193,7 +192,7 @@ class UtreexoData:
         outputs: list,
         block_hash: str,
         block_height: int,
-        block_time: int,
+        median_time_past: int,
         txid: str,
         is_coinbase: bool,
     ):
@@ -211,7 +210,7 @@ class UtreexoData:
                     cached=output["cached"],
                 ),
                 block_height=block_height,
-                block_time=block_time,
+                median_time_past=median_time_past,
                 block_hash=block_hash,
                 is_coinbase=is_coinbase,
             )
