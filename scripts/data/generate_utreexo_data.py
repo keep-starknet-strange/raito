@@ -126,7 +126,6 @@ class UtreexoData:
     def snapshot_state(self) -> dict:
         return {
             "roots": list(map(format_root_node, self.utreexo.root_nodes)),
-            "num_leaves": len(self.utreexo.leaf_nodes),
         }
 
     def apply_blocks(self, blocks: list) -> dict:

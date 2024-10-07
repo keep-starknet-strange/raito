@@ -1,7 +1,8 @@
 use consensus::types::block::Block;
 use consensus::types::chain_state::{ChainState, BlockValidatorImpl};
 use consensus::types::utxo_set::{UtxoSet, UtxoSetTrait};
-use consensus::types::utreexo::{UtreexoState, UtreexoProof, UtreexoStateTrait};
+use utreexo::vanilla::state::{UtreexoState, UtreexoStateTrait};
+use utreexo::vanilla::proof::UtreexoProof;
 use core::testing::get_available_gas;
 use core::serde::Serde;
 
@@ -78,8 +79,12 @@ fn test(mut arguments: Span<felt252>) {
     }
 
     if let Option::Some(UtreexoArgs { mut state, proofs, expected_state }) = utreexo_args {
-        match state.validate_and_apply(utxo_set, proofs.span()) {
-            Result::Ok(()) => {
+        match state
+            .validate_and_apply(
+                utxo_set.leaves_to_add.span(), utxo_set.leaves_to_delete.span(), proofs.span()
+            ) {
+            Result::Ok(new_state) => {
+                state = new_state;
                 let gas_after = get_available_gas();
                 println!("OK: gas_spent={}", gas_before - gas_after);
             },
