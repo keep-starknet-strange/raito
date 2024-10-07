@@ -121,7 +121,8 @@ pub impl UtreexoBatchProofImpl of UtreexoBatchProofTrait {
         };
 
         // Are we supposed to return only the list of roots? Because rustreexo impl also returns all
-        // the nodes that are not part of the proof
+        // the nodes that are not part of the proof, but its not required in `verify` function
+        // Maybe we can skip some code (filter out above, etc)
 
         if !result.is_err() {
             return Result::Ok((calculated_root_hashes.span()));
