@@ -35,7 +35,6 @@ pub struct ChainState {
     /// than a block that came before it in the chain.
     pub prev_timestamps: Span<u32>,
     /// Median Time Past (MTP) of the current block
-    pub median_time_past: u32,
 }
 
 /// Represents the initial state after genesis block.
@@ -51,7 +50,7 @@ impl ChainStateDefault of Default<ChainState> {
             epoch_start_time: 1231006505,
             prev_timestamps: [
                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1231006505
-            ].span(), median_time_past: 1231006505, // Genesis block MTP
+            ].span(),
         }
     }
 }
@@ -105,7 +104,6 @@ pub impl BlockValidatorImpl of BlockValidator {
                 current_target,
                 epoch_start_time,
                 prev_timestamps,
-                median_time_past,
             }
         )
     }
