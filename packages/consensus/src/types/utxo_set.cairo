@@ -35,20 +35,18 @@ pub struct UtxoSet {
 pub impl UtxoSetImpl of UtxoSetTrait {
     fn add(ref self: UtxoSet, outpoint: OutPoint) -> Result<(), ByteArray> {
         let hash = outpoint.hash();
-        if (!is_pubscript_unspendable(outpoint.data.pk_script)) {
-            if self.cache.get(hash) == TX_OUTPUT_STATUS_NONE {
-                if outpoint.data.cached {
-                    self.num_cached += 1;
-                } else {
-                    self.leaves_to_add.append(hash);
-                }
-                self.cache.insert(hash, TX_OUTPUT_STATUS_UNSPENT);
-                Result::Ok(())
+        if self.cache.get(hash) == TX_OUTPUT_STATUS_NONE {
+            if outpoint.data.cached {
+                self.num_cached += 1;
             } else {
-                Result::Err("The output has already been added")
+                self.leaves_to_add.append(hash);
             }
+            if (!is_pubscript_unspendable(outpoint.data.pk_script)) {
+                self.cache.insert(hash, TX_OUTPUT_STATUS_UNSPENT);
+            }
+            Result::Ok(())
         } else {
-            Result::Err("The output has unspendable script")
+            Result::Err("The output has already been added")
         }
     }
 
