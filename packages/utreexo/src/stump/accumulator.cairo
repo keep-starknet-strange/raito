@@ -18,7 +18,7 @@ pub impl StumpUtreexoAccumulatorImpl of StumpUtreexoAccumulator {
         };
 
         let computed_roots: Span<felt252> = proof.compute_roots(del_hashes, *self.num_leaves)?;
-
+        
         let mut number_matched_roots: u32 = 0;
 
         // Should we reverse *self.roots like in rustreexo to reduce the number of iteration?
