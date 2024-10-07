@@ -61,23 +61,17 @@ def compute_median_time_past(prev_timestamps):
 
 
 def fetch_chain_state_fast(block_height: int):
-    """Fetches chain state at the end of a specific block with given height.
-    Chain state is a just a block header extended with extra fields:
-        - prev_timestamps
-        - epoch_start_time
-    """
-    # Chain state at height H is the state after applying block H
+    """Fetches chain state at the end of a specific block with given height."""
     block_hash = request_rpc("getblockhash", [block_height])
     head = request_rpc("getblockheader", [block_hash])
 
-    # If block is downloaded take it locally
     data = get_timestamp_data(block_height)[str(block_height)]
     head["prev_timestamps"] = [int(t) for t in data["previous_timestamps"]]
     if block_height < 2016:
         head["epoch_start_time"] = 1231006505
     else:
         head["epoch_start_time"] = int(data["epoch_start_time"])
-    head["median_time_past"] = compute_median_time_past(head["prev_timestamps"])
+    head["median_time_past"] = int(data["median_time"])
     return head
 
 
@@ -174,7 +168,7 @@ def bits_to_target(bits: str) -> int:
         return mantissa << (8 * (exponent - 3))
 
 
-def fetch_block(block_hash: str, fast: bool):
+def fetch_block(block_hash: str, fast: bool, current_chain_state: dict):
     """Downloads block with transactions (and referred UTXOs) from RPC given the block hash."""
     block = request_rpc("getblock", [block_hash, 2])
 
@@ -186,8 +180,8 @@ def fetch_block(block_hash: str, fast: bool):
 
     block["data"] = {
         tx["txid"]: resolve_transaction(
-            tx, previous_outputs, block["mediantime"]
-        )  # Pass mediantime
+            tx, previous_outputs, current_chain_state["median_time_past"]
+        )
         for tx in tqdm(block["tx"], "Resolving transactions")
     }
     return block
@@ -332,6 +326,29 @@ def format_header(header: dict):
     }
 
 
+def apply_chain_state(current_state: dict, new_block: dict) -> dict:
+    """Computes the next chain state given the current state and a new block."""
+    next_state = new_block.copy()
+
+    # Update prev_timestamps
+    next_state["prev_timestamps"] = current_state["prev_timestamps"][1:] + [
+        new_block["time"]
+    ]
+
+    # Compute new median time past
+    next_state["median_time_past"] = compute_median_time_past(
+        next_state["prev_timestamps"]
+    )
+
+    # Update epoch start time
+    if current_state["height"] // 2016 != next_state["height"] // 2016:
+        next_state["epoch_start_time"] = get_epoch_start_time(next_state["height"])
+    else:
+        next_state["epoch_start_time"] = current_state["epoch_start_time"]
+
+    return next_state
+
+
 def generate_data(
     mode: str,
     initial_height: int,
@@ -350,9 +367,9 @@ def generate_data(
     """
 
     if fast:
-        print("Fetching chain state (fast)...")
+        print("Fetching initial chain state (fast)...")
     else:
-        print("Fetching chain state...")
+        print("Fetching initial chain state...")
 
     print(f"blocks: {initial_height} - {initial_height + num_blocks - 1}")
 
@@ -367,45 +384,22 @@ def generate_data(
     utreexo_data = {}
 
     for i in range(num_blocks):
-        # Interblock cache
-        tmp_utxo_set = {}
+        print(
+            f"\rFetching block {initial_height + i + 1}/{initial_height + num_blocks}",
+            end="",
+            flush=True,
+        )
+
         if mode == "light":
             block = fetch_block_header(next_block_hash)
         elif mode in ["full", "utreexo"]:
-            print(
-                f"\rFetching block {initial_height + i}/{initial_height + num_blocks}",
-                end="",
-                flush=True,
-            )
-            block = fetch_block(next_block_hash, fast)
-
-            # Build UTXO set and mark outputs spent within the same block (span).
-            # Also set "cached" flag for the inputs that spend those UTXOs.
-            for txid, tx in block["data"].items():
-                for tx_input in tx["inputs"]:
-                    outpoint = (
-                        tx_input["previous_output"]["txid"],
-                        tx_input["previous_output"]["vout"],
-                    )
-                    if outpoint in tmp_utxo_set:
-                        tx_input["previous_output"]["data"]["cached"] = True
-                        tmp_utxo_set[outpoint]["cached"] = True
-
-                for idx, output in enumerate(tx["outputs"]):
-                    outpoint = (txid, idx)
-                    tmp_utxo_set[outpoint] = output
-
-            # Do another pass to mark UTXOs spent within the same block (span) with "cached" flag.
-            for txid, tx in block["data"].items():
-                for idx, output in enumerate(tx["outputs"]):
-                    outpoint = (txid, idx)
-                    if outpoint in tmp_utxo_set and tmp_utxo_set[outpoint]["cached"]:
-                        tx["outputs"][idx]["cached"] = True
+            block = fetch_block(next_block_hash, fast, chain_state)
         else:
             raise NotImplementedError(mode)
 
-        next_block_hash = block["nextblockhash"]
         blocks.append(block)
+        chain_state = apply_chain_state(chain_state, block)
+        next_block_hash = block["nextblockhash"]
 
     block_formatter = (
         format_block if mode == "light" else format_block_with_transactions
