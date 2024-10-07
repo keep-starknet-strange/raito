@@ -167,7 +167,7 @@ def fetch_block(block_hash: str, fast: bool):
     block = request_rpc("getblock", [block_hash, 2])
 
     previous_outputs = (
-        {(o["txid"], int(o["vout"])): o for o in get_utxo_set(block["height"] + 1)}
+        {(o["txid"], int(o["vout"])): o for o in get_utxo_set(block["height"])}
         if fast
         else None
     )
