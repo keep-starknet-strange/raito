@@ -5,7 +5,6 @@ edition = "2024_07"
 
 [dependencies]
 utils = { path = "../utils" }
-script = { path = "../script" }
 shinigami_engine.workspace = true
 
 [dev-dependencies]

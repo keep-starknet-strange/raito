@@ -46,7 +46,7 @@ fn test(mut arguments: Span<felt252>) {
 
     for block in blocks {
         let height = chain_state.block_height + 1;
-        match chain_state.validate_and_apply(block, ref utxo_set) {
+        match chain_state.validate_and_apply(block, ref utxo_set, false) {
             Result::Ok(new_chain_state) => {
                 chain_state = new_chain_state;
                 let gas_after = get_available_gas();
@@ -81,7 +81,7 @@ fn test(mut arguments: Span<felt252>) {
     if let Option::Some(UtreexoArgs { mut state, proofs, expected_state }) = utreexo_args {
         match state
             .validate_and_apply(
-                utxo_set.leaves_to_add.span(), utxo_set.leaves_to_delete.span(), proofs.span()
+                utxo_set.leaves_to_add.span(), utxo_set.leaves_to_delete.span(), proofs.span(),
             ) {
             Result::Ok(new_state) => {
                 state = new_state;
