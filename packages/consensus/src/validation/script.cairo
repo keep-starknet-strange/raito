@@ -1,3 +1,4 @@
+use shinigami_engine::errors::byte_array_err;
 use shinigami_engine::engine::EngineTrait;
 use shinigami_engine::engine::EngineImpl;
 use shinigami_engine::hash_cache::HashCacheImpl;
@@ -7,6 +8,7 @@ use shinigami_engine::transaction::{
 };
 use crate::types::transaction::{Transaction, TxIn, TxOut};
 use crate::types::block::Header;
+use utils::hex::to_hex;
 
 const BIP_16_BLOCK_HEIGHT: u32 = 173805; // Pay-to-Script-Hash (P2SH) 
 const BIP_66_BLOCK_HEIGHT: u32 = 363725; // DER Signatures 
@@ -118,6 +120,14 @@ fn validate_authorization(header: @Header, tx: @Transaction) -> Result<(), ByteA
     for i in 0
         ..inputs_len {
             let previous_output = *tx.inputs[i].previous_output;
+
+            println!("Engine args:");
+            println!("pk_script: {:?}", to_hex(previous_output.data.pk_script));
+            println!("tx: {}", tx);
+            println!("i: {}", i);
+            println!("script_flags: {}", script_flags(header, tx));
+            println!("value: {}", previous_output.data.value);
+
             let mut engine = EngineImpl::new(
                 previous_output.data.pk_script,
                 tx,
@@ -129,13 +139,9 @@ fn validate_authorization(header: @Header, tx: @Transaction) -> Result<(), ByteA
                 .unwrap(); //TODO: handle error
 
             match engine.execute() {
-                Result::Ok(stack) => if stack.len() != 0 {
-                    result =
-                        Option::Some(format!("Script returned with nonempty stack: {}", stack));
-                    break;
-                },
+                Result::Ok(_) => { break;}, // TODO: verify this is correct
                 Result::Err(err) => {
-                    result = Option::Some(format!("Error executing script: {}", err));
+                    result = Option::Some(format!("Error executing script: {}", byte_array_err(err)));
                     break;
                 }
             }

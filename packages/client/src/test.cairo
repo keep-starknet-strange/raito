@@ -35,7 +35,9 @@ struct UtreexoArgs {
 /// Receives arguments in a serialized format (Cairo serde).
 /// Panics in case of a validation error or chain state mismatch.
 /// Prints result to the stdout.
-fn test(mut arguments: Span<felt252>) {
+fn test(mut arguments: Span<felt252>, execute_script: bool) {
+    println!("execute script: {}", execute_script);
+
     let Args { mut chain_state, blocks, expected_chain_state, utreexo_args } = Serde::deserialize(
         ref arguments
     )
@@ -46,7 +48,7 @@ fn test(mut arguments: Span<felt252>) {
 
     for block in blocks {
         let height = chain_state.block_height + 1;
-        match chain_state.validate_and_apply(block, ref utxo_set, false) {
+        match chain_state.validate_and_apply(block, ref utxo_set, execute_script) {
             Result::Ok(new_chain_state) => {
                 chain_state = new_chain_state;
                 let gas_after = get_available_gas();

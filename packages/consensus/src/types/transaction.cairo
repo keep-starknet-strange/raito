@@ -3,7 +3,7 @@
 //! Types are extended with extra information required for validation.
 //! The data is expected to be prepared in advance and passed as program arguments.
 
-use utils::{hash::Digest, bytearray::{ByteArraySnapHash, ByteArraySnapSerde}};
+use utils::{hash::Digest, hex::to_hex, bytearray::{ByteArraySnapHash, ByteArraySnapSerde}};
 use core::fmt::{Display, Formatter, Error};
 use core::hash::HashStateTrait;
 use core::hash::HashStateExTrait;
@@ -144,12 +144,24 @@ impl TxOutDefault of Default<TxOut> {
 
 impl TransactionDisplay of Display<Transaction> {
     fn fmt(self: @Transaction, ref f: Formatter) -> Result<(), Error> {
+        let mut inputs: ByteArray = Default::default();
+        for input in *self.inputs {
+            inputs += format!("{}, ", input);
+        };
+        
+        let mut outputs: ByteArray = Default::default();
+        for output in *self.outputs {
+            outputs += format!("{}, ", output);
+        };
+
         let str: ByteArray = format!(
-            "Transaction {{ version: {}, is_segwit: {}, inputs: {}, outputs: {}, lock_time: {} }}",
+            "Transaction {{ version: {}, is_segwit: {}, inputs: [{}], outputs: [{}], lock_time: {} }}",
             *self.version,
             *self.is_segwit,
-            (*self.inputs).len(),
-            (*self.outputs).len(),
+            // (*self.inputs).len(),
+            // (*self.outputs).len(),
+            inputs,
+            outputs,
             *self.lock_time
         );
         f.buffer.append(@str);
@@ -161,7 +173,7 @@ impl TxInDisplay of Display<TxIn> {
     fn fmt(self: @TxIn, ref f: Formatter) -> Result<(), Error> {
         let str: ByteArray = format!(
             "TxIn {{ script: {}, sequence: {}, previous_output: {}, witness: {} }}",
-            *self.script,
+            to_hex(*self.script),
             *self.sequence,
             *self.previous_output.txid,
             (*self.witness).len()
@@ -201,7 +213,7 @@ impl TxOutDisplay of Display<TxOut> {
         let str: ByteArray = format!(
             "TxOut {{ value: {}, pk_script: {}, cached: {} }}",
             *self.value,
-            *self.pk_script,
+            to_hex(*self.pk_script),
             *self.cached
         );
         f.buffer.append(@str);

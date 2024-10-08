@@ -11,7 +11,7 @@ num_fail=0
 num_ignored=0
 failures=()
 test_files="tests/data"/*
-nocapture=0
+nocapture=1
 
 if [[ "$1" == "--nocapture" ]]; then
   nocapture=1
@@ -27,6 +27,7 @@ if [ $# -gt 0 ]; then
 fi
 
 echo "running integration tests ..."
+echo "test files: ${test_files}"
 
 for test_file in $test_files; do
     if [ -f "$test_file" ]; then
@@ -36,10 +37,11 @@ for test_file in $test_files; do
             echo " ignored"
             num_ignored=$((num_ignored + 1))
         else
-            arguments=$(python ../../scripts/data/format_args.py ${test_file})
+            arguments=$(python ../../scripts/data/format_args.py --input_file ${test_file} --execute_script)
             output=$(scarb cairo-run --no-build --function test "$arguments")
             gas_spent=$(echo $output | grep -o 'gas_spent=[0-9]*' | sed 's/gas_spent=//')
-            
+
+            echo -e "\n$output"            
             if [[ "$nocapture" -eq 1 ]]; then
                 echo -e "\n$output"
             fi
