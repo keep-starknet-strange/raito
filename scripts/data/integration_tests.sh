@@ -11,6 +11,11 @@ num_fail=0
 num_ignored=0
 failures=()
 test_files="tests/data"/*
+nocapture=0
+
+if [[ "$1" == "--nocapture" ]]; then
+  nocapture=1
+fi
 
 ignored_files=(
 )
@@ -34,6 +39,10 @@ for test_file in $test_files; do
             arguments=$(python ../../scripts/data/format_args.py ${test_file})
             output=$(scarb cairo-run --no-build --function test "$arguments")
             gas_spent=$(echo $output | grep -o 'gas_spent=[0-9]*' | sed 's/gas_spent=//')
+            
+            if [[ "$nocapture" -eq 1 ]]; then
+                echo -e "\n$output"
+            fi
 
             if [[ "$output" == *"FAIL"* ]]; then
                 echo -e "${RED} fail ${RESET}(gas usage est.: $gas_spent)"

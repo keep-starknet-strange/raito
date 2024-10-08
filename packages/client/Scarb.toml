@@ -5,6 +5,7 @@ edition = "2024_07"
 
 [dependencies]
 consensus = { path = "../consensus" }
+utreexo = { path = "../utreexo" }
 
 [dev-dependencies]
 cairo_test.workspace = true
@@ -13,4 +14,4 @@ cairo_test.workspace = true
 test = "scarb build && ../../scripts/data/integration_tests.sh"
 regenerate_tests= "../../scripts/data/regenerate_tests.sh"
 client = "scarb build && ../../scripts/data/client.sh"
-lint = "flake8 scripts/ && black --check scripts/ && scarb fmt"
+lint = "black ../../scripts/data && flake8 ../../scripts/data --max-complexity=10 --max-line-length=88 && scarb fmt"

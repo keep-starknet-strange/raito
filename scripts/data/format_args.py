@@ -48,7 +48,7 @@ def serialize(obj):
             return tuple([len(main)] + main + [rem, rem_len])
         else:
             # Reversed hex string into 4-byte words then into BE u32
-            assert len(obj) == 64
+            assert len(obj) == 64, f"expected 32-byte hash: {obj}"
             rev = list(reversed(bytes.fromhex(obj)))
             return tuple(int.from_bytes(rev[i : i + 4], "big") for i in range(0, 32, 4))
     elif isinstance(obj, list):
@@ -58,6 +58,9 @@ def serialize(obj):
         return tuple(map(serialize, obj.values()))
     elif isinstance(obj, tuple):
         return obj
+    elif obj is None:
+        # Option::None
+        return 1
     else:
         raise NotImplementedError(obj)
 

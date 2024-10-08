@@ -11,11 +11,43 @@ class Node:
         self.right = right
         self.parent = None
 
+    def __repr__(self) -> str:
+        return str(self.val)
+
 
 class Utreexo:
     def __init__(self):
-        self.root_nodes = [None] * 27
+        self.root_nodes = []
         self.leaf_nodes = {}
+
+    def print_state(self):
+        print("--- Utreexo State ---")
+        print("Root Nodes:")
+        for idx, node in enumerate(self.root_nodes):
+            if node is not None:
+                print(f"  Height {idx}: {node.val}")
+        print("\nLeaf Nodes:")
+        for leaf_val, node in self.leaf_nodes.items():
+            print(f"  Leaf {leaf_val}: {node.val}")
+        print("---------------------\n")
+
+    def print_tree(self):
+        print("--- Utreexo Tree ---")
+
+        def _print_subtree(node, prefix=""):
+            if node is not None:
+                print(f"{prefix}{node.val}")
+                if node.left is not None or node.right is not None:
+                    # Display branches of the left subtree
+                    _print_subtree(node.left, prefix + "├── ")
+                    # Display branches of the right subtree
+                    _print_subtree(node.right, prefix + "└── ")
+
+        for idx, root in enumerate(self.root_nodes):
+            if root is not None:
+                print(f"Root at height {idx}:")
+                _print_subtree(root)
+        print("---------------------\n")
 
     def parent_node(self, root1, root2):
         val1 = int(root1.val, 16)
@@ -34,17 +66,27 @@ class Utreexo:
         n = Node(f"0x{leaf:064x}")
         self.leaf_nodes[leaf] = n
         h = 0
+
+        while len(self.root_nodes) <= h:
+            self.root_nodes.append(None)
+
         r = self.root_nodes[h]
         while r is not None:
             n = self.parent_node(r, n)
             self.root_nodes[h] = None
             h += 1
             r = self.root_nodes[h]
-
         self.root_nodes[h] = n
+
+        if h == len(self.root_nodes) - 1:
+            self.root_nodes.append(None)
+
         return self.root_nodes
 
     def delete(self, leaf):
+        if leaf not in self.leaf_nodes:
+            raise Exception("Leaf does not exist")
+
         leaf_node = self.leaf_nodes[leaf]
         del self.leaf_nodes[leaf]
 
@@ -69,7 +111,6 @@ class Utreexo:
 
         self.root_nodes[h] = n
 
-        proof = [node.val for node in proof]
         return proof, leaf_index
 
     def inclusion_proof(self, node):
@@ -89,14 +130,12 @@ class Utreexo:
         return path, leaf_index
 
     def reset(self):
-        self.root_nodes = [None] * 27
+        self.root_nodes = []
         self.leaf_nodes = {}
 
     def print_roots(self):
-        print(
-            "Roots:",
-            [node.val if node is not None else "" for node in self.root_nodes],
-        )
+        roots = [node.val if node is not None else "" for node in self.root_nodes]
+        print("Roots:", roots)
 
 
 if __name__ == "__main__":
