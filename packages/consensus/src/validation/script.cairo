@@ -7,6 +7,13 @@ use script::dummy::{HashCacheDummy, HashCacheDummyImpl};
 use crate::types::transaction::{Transaction, TxIn, TxOut};
 use crate::types::block::Header;
 
+const BIP_16_BLOCK_HEIGHT: u32 = 173805; // Pay-to-Script-Hash (P2SH) 
+const BIP_66_BLOCK_HEIGHT: u32 = 363725; // DER Signatures 
+const BIP_65_BLOCK_HEIGHT: u32 = 388381; // CHECKLOCKTIMEVERIFY (CLTV) 
+const BIP_112_BLOCK_HEIGHT: u32 = 419328; // CHECKSEQUENCEVERIFY - CSV
+const BIP_141_BLOCK_HEIGHT: u32 = 481824; // Segregated Witness - SegWit
+const BIP_341_BLOCK_HEIGHT: u32 = 709632; // Taproot
+
 impl EngineTransactionInputImpl of EngineTransactionInputTrait<TxIn> {
     fn get_prevout_txid(self: @TxIn) -> u256 {
         0
@@ -59,21 +66,44 @@ impl EngineTransactionDummyImpl of EngineTransactionTrait<Transaction, TxIn, TxO
 
 fn script_flags(header: @Header, tx: @Transaction) -> u32 {
     let mut script_flags = 0_u32;
+    let block_height = tx.inputs[0].previous_output.block_height;
 
-    if true { // TODO: https://github.com/btcsuite/btcd/blob/2b53ed198955ac40fe5b3ce4a854e9f5bfa68258/blockchain/validate.go#L1208
+    // Blocks created after the BIP0016 activation time need to have the
+    // pay-to-script-hash checks enabled.
+    if block_height >= @BIP_16_BLOCK_HEIGHT {
         script_flags += ScriptFlags::ScriptBip16.into();
     }
 
-    // TODO: https://github.com/btcsuite/btcd/blob/2b53ed198955ac40fe5b3ce4a854e9f5bfa68258/blockchain/validate.go#L1215
-    
-    // TODO: https://github.com/btcsuite/btcd/blob/2b53ed198955ac40fe5b3ce4a854e9f5bfa68258/blockchain/validate.go#L1221
+    // Enforce DER signatures for block versions 3+
+    // This is part of BIP0066.
+    if header.version >= @3_u32 && block_height >= @BIP_66_BLOCK_HEIGHT {
+        script_flags += ScriptFlags::ScriptVerifyDERSignatures.into();
+    }
 
-    // TODO: https://github.com/btcsuite/btcd/blob/2b53ed198955ac40fe5b3ce4a854e9f5bfa68258/blockchain/validate.go#L1234
+    // Enforce CHECKLOCKTIMEVERIFY for block versions 4+
+    // This is part of BIP0065.
+    if header.version >= @4_u32 && block_height >= @BIP_65_BLOCK_HEIGHT {
+        script_flags += ScriptFlags::ScriptVerifyCheckLockTimeVerify.into();
+    }
 
-    // TODO: https://github.com/btcsuite/btcd/blob/2b53ed198955ac40fe5b3ce4a854e9f5bfa68258/blockchain/validate.go#L1266
-    // TODO: https://github.com/btcsuite/btcd/blob/2b53ed198955ac40fe5b3ce4a854e9f5bfa68258/blockchain/validate.go#L1267
+    // Enforce CHECKSEQUENCEVERIFY if the CSV soft-fork is now active
+    //  This is part of BIP0112.
+    if block_height >= @BIP_112_BLOCK_HEIGHT {
+        script_flags += ScriptFlags::ScriptVerifyCheckSequenceVerify.into();
+    }
 
-    // TODO: https://github.com/btcsuite/btcd/blob/2b53ed198955ac40fe5b3ce4a854e9f5bfa68258/blockchain/validate.go#L1279
+    // Enforce the segwit soft-fork
+    // This is part of BIP0141.
+    if block_height >= @BIP_141_BLOCK_HEIGHT {
+        script_flags += ScriptFlags::ScriptVerifyWitness.into();
+        script_flags += ScriptFlags::ScriptStrictMultiSig.into();
+    }
+
+    // Enforce the taproot soft-fork
+    // This is part of BIP0341.
+    if block_height >= @BIP_341_BLOCK_HEIGHT {
+        script_flags += ScriptFlags::ScriptVerifyTaproot.into();
+    }
 
     script_flags
 }
