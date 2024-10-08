@@ -44,10 +44,8 @@ pub impl UtxoSetImpl of UtxoSetTrait {
                     self.leaves_to_add.append(hash);
                 }
                 self.cache.insert(hash, TX_OUTPUT_STATUS_UNSPENT);
-                Result::Ok(())
-            } else {
-                Result::Err("The output has Unspendable script")
             }
+            Result::Ok(())
         } else {
             Result::Err("The output has already been added")
         }
@@ -151,10 +149,15 @@ mod tests {
     fn test_not_include_unspendable_utxo() {
         let mut utxo_set: UtxoSet = Default::default();
         utxo_set.add(dummy_outpoint(0, false)).unwrap();
-        utxo_set.add(dummy_outpoint(1, false)).unwrap();
-        let result = utxo_set.add(dummy_unspendable_outpoint(1, false));
-        assert_eq!(result.unwrap_err(), "The output has Unspendable script");
+        utxo_set.add(dummy_unspendable_outpoint(0, false));
+        utxo_set.add(dummy_outpoint(1, true)).unwrap();
+        utxo_set.add(dummy_unspendable_outpoint(1, true));
+        utxo_set.add(dummy_outpoint(2, false)).unwrap();
+        utxo_set.add(dummy_unspendable_outpoint(2, false));
+
         assert_eq!(utxo_set.leaves_to_add.len(), 2);
+        assert_eq!(utxo_set.leaves_to_delete.len(), 0);
+        assert_eq!(utxo_set.num_cached, 1);
     }
 
     fn dummy_unspendable_outpoint(vout: u32, cached: bool) -> OutPoint {
