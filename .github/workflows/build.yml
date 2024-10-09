@@ -14,5 +14,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: asdf-vm/actions/install@v3
+      - run: scarb --version
       - run: scarb fmt --check
       - run: scarb build
