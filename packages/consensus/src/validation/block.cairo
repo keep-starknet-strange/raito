@@ -31,11 +31,7 @@ pub fn validate_block_weight(weight: usize) -> Result<(), ByteArray> {
 ///  - wTXID commitment (only for blocks after Segwit upgrade, otherwise return zero hash)
 ///  - Block weight
 pub fn compute_and_validate_tx_data(
-    txs: Span<Transaction>,
-    block_hash: Digest,
-    block_height: u32,
-    block_time: u32,
-    ref utxo_set: UtxoSet
+    txs: Span<Transaction>, block_height: u32, block_time: u32, ref utxo_set: UtxoSet
 ) -> Result<(u64, Digest, Digest), ByteArray> {
     let mut txids: Array<Digest> = array![];
     let mut wtxids: Array<Digest> = array![];
@@ -87,10 +83,7 @@ pub fn compute_and_validate_tx_data(
                 };
             is_coinbase = false;
         } else {
-            let fee =
-                match validate_transaction(
-                    tx, block_hash, block_height, block_time, txid, ref utxo_set
-                ) {
+            let fee = match validate_transaction(tx, block_height, block_time, txid, ref utxo_set) {
                 Result::Ok(fee) => fee,
                 Result::Err(err) => {
                     inner_result = Result::Err(err);
