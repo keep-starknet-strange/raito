@@ -12,14 +12,14 @@ test_files=()
 nocapture=0
 execute_scripts=0
 forceall=0
-fullincluded=0
+fullonly=0
 
 # Process arguments
 for arg in "$@"; do
   if [[ "$arg" == "--nocapture" ]]; then
     nocapture=1
-  elif [[ "$arg" == "--fullincluded" ]]; then
-    fullincluded=1
+  elif [[ "$arg" == "--fullonly" ]]; then
+    fullonly=1
   elif [[ "$arg" == "--forceall" ]]; then
     forceall=1
   elif [[ "$arg" == "--execute_scripts" ]]; then
@@ -42,8 +42,8 @@ ignored_files=(
 ignored="${ignored_files[@]}"
 
 # If no test files are explicitly specified, default to tests/data/*
-if [[ $fullincluded -eq 1 && ${#test_files[@]} -eq 0 ]]; then
-  test_files=("tests/data"/*)
+if [[ $fullonly -eq 1 && ${#test_files[@]} -eq 0 ]]; then
+  test_files=("tests/data"/full*)
 elif [[ ${#test_files[@]} -eq 0 ]]; then
   test_files=("tests/data"/light*)
 fi

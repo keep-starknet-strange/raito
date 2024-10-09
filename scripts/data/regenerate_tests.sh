@@ -55,10 +55,10 @@ full_test_cases=(
     491406  # Bitcoin Gold hard fork block (491407)
     629999  # Third halving block (630000)
     709631  # Taproot soft fort block (709632)
-    # 757738  # Block with witness (757739)
-    # 757752  # Block with witnesses, 81txs (757753)
-    # 774627  # Biggest block in Bitcoin history - Taproot Wizards (774628)
-    # 839999  # Fourth halving block (840000)
+    757738  # Block with witness (757739)
+    757752  # Block with witnesses, 81txs (757753)
+    774627  # Biggest block in Bitcoin history - Taproot Wizards (774628)
+    839999  # Fourth halving block (840000)
 )
 
 utreexo_test_cases=(
