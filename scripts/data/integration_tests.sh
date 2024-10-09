@@ -10,33 +10,44 @@ num_ok=0
 num_fail=0
 num_ignored=0
 failures=()
-test_files="tests/data"/*
+test_files=()
 nocapture=0
+execute_scripts=0
 
-if [[ "$1" == "--nocapture" ]]; then
-  nocapture=1
-fi
+# Process arguments
+for arg in "$@"; do
+  if [[ "$arg" == "--nocapture" ]]; then
+    nocapture=1
+  elif [[ "$arg" == "--execute_scripts" ]]; then
+    execute_scripts=1
+  else
+    test_files+=("$arg")  # Add only non-flag arguments as test files
+  fi
+done
 
 ignored_files=(
 )
 ignored="${ignored_files[@]}"
 
-if [ $# -gt 0 ]; then
-    args=("$@")
-    test_files="${args[@]}"
+# If no test files are explicitly specified, default to tests/data/*
+if [[ ${#test_files[@]} -eq 0 ]]; then
+  test_files=("tests/data"/*)
 fi
 
-echo "running integration tests ..."
+if [[ $execute_scripts -eq 1 ]]; then
+    echo "running integration tests (with scripts) ..."
+else
+    echo "running integration tests ..."
+fi
 
-for test_file in $test_files; do
+for test_file in "${test_files[@]}"; do
     if [ -f "$test_file" ]; then
         echo -n "test $test_file ..."
-
         if [[ "$ignored" =~ "$test_file" ]]; then
             echo " ignored"
             num_ignored=$((num_ignored + 1))
         else
-            arguments=$(python ../../scripts/data/format_args.py --input_file ${test_file} --execute_script)
+            arguments=$(python ../../scripts/data/format_args.py --input_file ${test_file} $([[ $execute_scripts -eq 1 ]] && echo "--execute_script"))
             output=$(scarb cairo-run --no-build --function test "$arguments")
             gas_spent=$(echo $output | grep -o 'gas_spent=[0-9]*' | sed 's/gas_spent=//')
             

@@ -45,7 +45,20 @@ full_test_cases=(
     32255   # First target adjustment (32256)
     57042   # Block containing pizza tx (57043)
     72575   # Difficulty adjustment
+    116927  # Difficulty adjustment
+    150012  # Small Block (150013)
+    209999  # First halving block (210000)
+    403199  # Difficulty adjustment
+    478557  # Bitcoin Cash hard fork block (478558)
+    481823  # Segwit soft fork block (481824)
+    489888  # Special target bits case https://learnmeabitcoin.com/explorer/489888#blockchain
+    491406  # Bitcoin Gold hard fork block (491407)
+    629999  # Third halving block (630000)
+    709631  # Taproot soft fort block (709632)
     # 757738  # Block with witness (757739)
+    # 757752  # Block with witnesses, 81txs (757753)
+    # 774627  # Biggest block in Bitcoin history - Taproot Wizards (774628)
+    # 839999  # Fourth halving block (840000)
 )
 
 utreexo_test_cases=(
