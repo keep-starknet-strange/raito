@@ -4,6 +4,7 @@ import argparse
 import json
 from pathlib import Path
 
+
 def serialize(obj):
     """Serializes Cairo data in JSON format to a Python object with reduced types.
     Supports the following conversions:
@@ -136,8 +137,7 @@ if __name__ == "__main__":
         type=str,
         help="Input file with arguments in JSON format",
     )
-    
+
     args = parser.parse_args()
 
-    
     format_args(args.input_file, args.execute_script)
