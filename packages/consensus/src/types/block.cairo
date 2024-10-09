@@ -40,8 +40,6 @@ pub enum TransactionData {
 /// like previous_block_hash (in the previous chain state).
 #[derive(Drop, Copy, Debug, PartialEq, Default, Serde)]
 pub struct Header {
-    /// Hash of the block.
-    pub hash: Digest,
     /// The version of the block.
     pub version: u32,
     /// The timestamp of the block.
@@ -56,10 +54,8 @@ pub struct Header {
 
 #[generate_trait]
 pub impl BlockHashImpl of BlockHash {
-    /// Checks if the block hash is valid by re-computing it given the missing fields.
-    fn validate_hash(
-        self: @Header, prev_block_hash: Digest, merkle_root: Digest
-    ) -> Result<(), ByteArray> {
+    /// Compute hash of the block header given the missing fields.
+    fn hash(self: @Header, prev_block_hash: Digest, merkle_root: Digest) -> Digest {
         let mut header_data_u32: Array<u32> = array![];
 
         header_data_u32.append(u32_byte_reverse(*self.version));
@@ -70,13 +66,7 @@ pub impl BlockHashImpl of BlockHash {
         header_data_u32.append(u32_byte_reverse(*self.bits));
         header_data_u32.append(u32_byte_reverse(*self.nonce));
 
-        let hash = double_sha256_u32_array(header_data_u32);
-
-        if *self.hash == hash {
-            Result::Ok(())
-        } else {
-            Result::Err("Invalid block hash")
-        }
+        double_sha256_u32_array(header_data_u32)
     }
 }
 
@@ -102,8 +92,7 @@ impl BlockDisplay of Display<Block> {
 impl HeaderDisplay of Display<Header> {
     fn fmt(self: @Header, ref f: Formatter) -> Result<(), Error> {
         let str: ByteArray = format!(
-            "Header {{ hash: {}, version: {}, time: {}, bits: {}, nonce: {}}}",
-            *self.hash,
+            "Header {{ version: {}, time: {}, bits: {}, nonce: {}}}",
             *self.version,
             *self.time,
             *self.bits,
@@ -142,13 +131,7 @@ mod tests {
             .into();
         // block 170
         let header = Header {
-            hash: hex_to_hash_rev(
-                "00000000d1145790a8694403d4063f323d499e655c83426834d4ce2f8dd4a2ee"
-            ),
-            version: 1_u32,
-            time: 1231731025_u32,
-            bits: 0x1d00ffff_u32,
-            nonce: 1889418792_u32
+            version: 1_u32, time: 1231731025_u32, bits: 0x1d00ffff_u32, nonce: 1889418792_u32
         };
         let merkle_root: Digest =
             0x7dac2c5666815c17a3b36427de37bb9d2e2c5ccec3f8633eb91a4205cb4c10ff_u256
@@ -167,13 +150,7 @@ mod tests {
             .into();
         // block 170
         let header = Header {
-            hash: hex_to_hash_rev(
-                "00000000d1145790a8694403d4063f323d499e655c83426834d4ce2f8dd4a2ee"
-            ),
-            version: 1_u32,
-            time: 1231731025_u32,
-            bits: 0x1d00ffff_u32,
-            nonce: 1889418792_u32
+            version: 1_u32, time: 1231731025_u32, bits: 0x1d00ffff_u32, nonce: 1889418792_u32
         };
         let merkle_root: Digest =
             0x6dac2c5666815c17a3b36427de37bb9d2e2c5ccec3f8633eb91a4205cb4c10ff_u256
@@ -192,13 +169,7 @@ mod tests {
             .into();
         // block 170
         let header = Header {
-            hash: hex_to_hash_rev(
-                "00000000d1145790a8694403d4063f323d499e655c83426834d4ce2f8dd4a2ee"
-            ),
-            version: 1_u32,
-            time: 1231731025_u32,
-            bits: 0x1d00ffff_u32,
-            nonce: 1889418792_u32
+            version: 1_u32, time: 1231731025_u32, bits: 0x1d00ffff_u32, nonce: 1889418792_u32
         };
         let merkle_root: Digest =
             0x7dac2c5666815c17a3b36427de37bb9d2e2c5ccec3f8633eb91a4205cb4c10ff_u256

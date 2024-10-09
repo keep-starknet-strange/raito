@@ -32,7 +32,6 @@ pub fn validate_block_weight(weight: usize) -> Result<(), ByteArray> {
 ///  - Block weight
 pub fn compute_and_validate_tx_data(
     txs: Span<Transaction>,
-    block_hash: Digest,
     block_height: u32,
     median_time_past: u32,
     ref utxo_set: UtxoSet
