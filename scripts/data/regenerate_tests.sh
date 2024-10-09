@@ -61,7 +61,7 @@ generate_test() {
   local num_blocks=${3:-1}
   test_file="${data_dir}/${mode}_${test_case}.json"
   if [[ ! -f "$test_file" || $force -eq 1 ]]; then
-    python ../../scripts/data/generate_data.py --mode $mode --height $height --num_blocks $num_blocks --output_file $test_file
+    python ../../scripts/data/generate_data.py --fast --mode $mode --height $height --num_blocks $num_blocks --output_file $test_file
   fi
 }
 
