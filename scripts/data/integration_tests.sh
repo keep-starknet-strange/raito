@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 
-set -e;
-
 GREEN='\033[0;32m'
 RED='\033[1;31m'
 RESET='\033[0m' # No Color
@@ -32,14 +30,14 @@ for arg in "$@"; do
 done
 
 ignored_files=(
-    "tests/data/full_209999.json", #cairo-run dies, OOM?
-    "tests/data/full_403199.json", #cairo-run dies, OOM?
-    "tests/data/full_481823.json", #cairo-run dies, OOM?
-    "tests/data/full_489888.json", #cairo-run dies, OOM?
-    "tests/data/full_491406.json", #cairo-run dies, OOM?
-    "tests/data/full_629999.json", #cairo-run dies, OOM?
-    "tests/data/full_709631.json", #cairo-run dies, OOM?
-    "tests/data/full_478557.json", #cairo-run dies, OOM?
+    "tests/data/full_209999.json", #cairo-run dies, to be investigated
+    "tests/data/full_403199.json", #cairo-run dies, to be investigated
+    "tests/data/full_481823.json", #cairo-run dies, to be investigated
+    "tests/data/full_489888.json", #cairo-run dies, to be investigated
+    "tests/data/full_491406.json", #cairo-run dies, to be investigated
+    "tests/data/full_629999.json", #cairo-run dies, to be investigated
+    "tests/data/full_709631.json" #cairo-run dies, to be investigated
+    # "tests/data/full_478557.json", #runs on server
 )
 ignored="${ignored_files[@]}"
 
