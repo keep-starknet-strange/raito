@@ -11,9 +11,11 @@ DEFAULT_STEP = 1
 DEFAULT_MODE = "light"
 DEFAULT_STRATEGY = "sequential"
 
+
 def run_command(command):
     result = subprocess.run(command, shell=True, capture_output=True, text=True)
     return result.returncode, result.stdout
+
 
 Path(BASE_DIR).mkdir(parents=True, exist_ok=True)
 
@@ -23,6 +25,7 @@ end = start + no_of_blocks
 step = int(sys.argv[3]) if len(sys.argv) > 3 else DEFAULT_STEP
 mode = sys.argv[4] if len(sys.argv) > 4 else DEFAULT_MODE
 strategy = sys.argv[5] if len(sys.argv) > 5 else DEFAULT_STRATEGY
+
 
 def run_client(initial_height, num_blocks):
     first = initial_height + 1
@@ -56,6 +59,7 @@ def run_client(initial_height, num_blocks):
     else:
         print("ok")
         print(output)
+
 
 for height in range(start, end, step):
     if strategy == "sequential":
