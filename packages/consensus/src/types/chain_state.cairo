@@ -77,7 +77,7 @@ pub impl BlockValidatorImpl of BlockValidator {
                 if execute_script {
                     validate_authorizations(@block.header, txs)?;
                 }
-                txid_root                
+                txid_root
             }
         };
 

@@ -151,14 +151,17 @@ fn validate_authorization(header: @Header, tx: @Transaction, tx_idx: u32) -> Res
                 .unwrap(); //TODO: handle error
 
             match engine.execute() {
-                Result::Ok(_) => { break;}, // TODO: verify this is correct
+                Result::Ok(_) => { break; }, // TODO: verify this is correct
                 Result::Err(err) => {
-                    result = Option::Some(
-                        format!(
-                            "Script validation failed on tx_idx: {}, input_idx: {}: {}", 
-                            tx_idx, input_idx, parse_short_string(err)
-                        )
-                    );
+                    result =
+                        Option::Some(
+                            format!(
+                                "Script validation failed on tx_idx: {}, input_idx: {}: {}",
+                                tx_idx,
+                                input_idx,
+                                parse_short_string(err)
+                            )
+                        );
                     break;
                 }
             }
