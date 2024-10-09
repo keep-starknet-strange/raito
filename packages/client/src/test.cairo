@@ -36,8 +36,6 @@ struct UtreexoArgs {
 /// Panics in case of a validation error or chain state mismatch.
 /// Prints result to the stdout.
 fn test(mut arguments: Span<felt252>, execute_script: bool) {
-    println!("execute script: {}", execute_script);
-
     let Args { mut chain_state, blocks, expected_chain_state, utreexo_args } = Serde::deserialize(
         ref arguments
     )
