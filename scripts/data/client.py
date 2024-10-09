@@ -32,7 +32,7 @@ def run_client(initial_height, num_blocks):
     arguments_file = f"{BASE_DIR}/arguments-{mode}_{initial_height}_{num_blocks}.json"
 
     if not Path(batch_file).is_file():
-        command = f"python ../../scripts/data/generate_data.py --fast --mode {mode} --height {initial_height} --num_blocks {num_blocks} --output_file {batch_file}"
+        command = f"python scripts/data/generate_data.py --fast --mode {mode} --height {initial_height} --num_blocks {num_blocks} --output_file {batch_file}"
         returncode, _ = run_command(command)
         if returncode != 0:
             print(f"Error generating data for blocks {first}-{second}")
@@ -40,7 +40,7 @@ def run_client(initial_height, num_blocks):
 
     print(f"Running {mode} client on blocks {first} - {second} ", end="")
 
-    command = f"python ../../scripts/data/format_args.py {batch_file} > {arguments_file}"
+    command = f"python scripts/data/format_args.py {batch_file} > {arguments_file}"
     returncode, _ = run_command(command)
     if returncode != 0:
         print(f"Error formatting arguments for blocks {first}-{second}")
