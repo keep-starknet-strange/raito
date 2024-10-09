@@ -83,10 +83,10 @@ class OutPoint:
     def hash(self):
         tab = []
 
-        # txid
+        # txid (2x u128 in little endian high/low)
         txid_bytes = bytes.fromhex(self.txid)
-        tab.append(int.from_bytes(txid_bytes[16:], "big"))
         tab.append(int.from_bytes(txid_bytes[:16], "big"))
+        tab.append(int.from_bytes(txid_bytes[16:], "big"))
 
         # vout
         tab.append(self.vout)
@@ -95,10 +95,10 @@ class OutPoint:
         for e in self.data.serialize():
             tab.append(e)
 
-        # block hash
+        # block hash (2x u128 in little endian high/low)
         txid_bytes = bytes.fromhex(self.block_hash)
-        tab.append(int.from_bytes(txid_bytes[16:], "big"))
         tab.append(int.from_bytes(txid_bytes[:16], "big"))
+        tab.append(int.from_bytes(txid_bytes[16:], "big"))
 
         tab.append(self.block_height)
         tab.append(self.block_time)
