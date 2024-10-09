@@ -23,5 +23,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: software-mansion/setup-scarb@v1
+        with:
+          scarb-version: "2.8.4"
       - run: scarb --version
       - run: scarb test
