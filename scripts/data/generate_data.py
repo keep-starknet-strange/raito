@@ -173,7 +173,7 @@ def fetch_block(block_hash: str, fast: bool, current_chain_state: dict):
     block = request_rpc("getblock", [block_hash, 2])
 
     previous_outputs = (
-        {(o["txid"], int(o["vout"])): o for o in get_utxo_set(block["height"] + 1)}
+        {(o["txid"], int(o["vout"])): o for o in get_utxo_set(block["height"])}
         if fast
         else None
     )
@@ -491,19 +491,10 @@ if __name__ == "__main__":
     )
 
     parser.add_argument(
-        "--output_file",
-        dest="output_file",
-        required=True,
-        type=str,
-        help="Output file",
+        "--output_file", dest="output_file", required=True, type=str, help="Output file"
     )
 
-    parser.add_argument(
-        "--fast",
-        dest="fast",
-        action="store_true",
-        help="Fast mode",
-    )
+    parser.add_argument("--fast", dest="fast", action="store_true", help="Fast mode")
 
     args = parser.parse_args()
 

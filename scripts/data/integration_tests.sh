@@ -40,7 +40,7 @@ for test_file in $test_files; do
             output=$(scarb cairo-run --no-build --function test "$arguments")
             gas_spent=$(echo $output | grep -o 'gas_spent=[0-9]*' | sed 's/gas_spent=//')
             
-            if [[ nocapture ]]; then
+            if [[ "$nocapture" -eq 1 ]]; then
                 echo -e "\n$output"
             fi
 
