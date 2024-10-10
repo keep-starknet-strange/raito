@@ -71,7 +71,8 @@ def fetch_chain_state_fast(block_height: int):
         head["epoch_start_time"] = 1231006505
     else:
         head["epoch_start_time"] = int(data["epoch_start_time"])
-    head["median_time_past"] = int(data["median_time"])
+    # Compute median_time_past from prev_timestamps
+    head["median_time_past"] = compute_median_time_past(head["prev_timestamps"])
     return head
 
 
