@@ -378,6 +378,8 @@ def generate_data(
         if fast
         else fetch_chain_state(initial_height)
     )
+    prev_chain_state = None
+    initial_chain_state = chain_state
 
     next_block_hash = chain_state["nextblockhash"]
     blocks = []
@@ -425,6 +427,7 @@ def generate_data(
             raise NotImplementedError(mode)
 
         blocks.append(block)
+        prev_chain_state = chain_state
         chain_state = apply_chain_state(chain_state, block)
         next_block_hash = block["nextblockhash"]
 
@@ -432,9 +435,9 @@ def generate_data(
         format_block if mode == "light" else format_block_with_transactions
     )
     result = {
-        "chain_state": format_chain_state(chain_state),
+        "chain_state": format_chain_state(initial_chain_state),
         "blocks": list(map(block_formatter, blocks)),
-        "expected": format_chain_state(next_chain_state(chain_state, blocks)),
+        "expected": format_chain_state(chain_state),
     }
 
     if mode == "utreexo":
@@ -442,9 +445,7 @@ def generate_data(
         result["utreexo"] = utreexo_data.apply_blocks(blocks)
         result["blocks"] = [result["blocks"][-1]]
         if num_blocks > 1:
-            result["chain_state"] = format_chain_state(
-                fetch_chain_state(blocks[-2]["height"])
-            )
+            result["chain_state"] = format_chain_state(prev_chain_state)
 
     return result
 
