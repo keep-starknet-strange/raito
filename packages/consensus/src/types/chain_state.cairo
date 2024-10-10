@@ -9,8 +9,7 @@ use crate::validation::{
     difficulty::{validate_bits, adjust_difficulty}, coinbase::validate_coinbase,
     timestamp::{validate_timestamp, next_prev_timestamps},
     work::{validate_proof_of_work, compute_total_work},
-    block::{compute_and_validate_tx_data, validate_bip30_block_hash},
-    script::validate_authorizations
+    block::{compute_and_validate_tx_data, validate_bip30_block_hash}, script::validate_scripts
 };
 use super::block::{BlockHash, Block, TransactionData};
 use super::utxo_set::UtxoSet;
@@ -75,7 +74,7 @@ pub impl BlockValidatorImpl of BlockValidator {
                 )?;
                 validate_coinbase(txs[0], total_fees, block_height, wtxid_root)?;
                 if execute_script {
-                    validate_authorizations(@block.header, txs)?;
+                    validate_scripts(@block.header, txs)?;
                 }
                 txid_root
             }
