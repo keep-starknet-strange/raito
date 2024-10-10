@@ -27,7 +27,7 @@ impl UtreexoProofDisplay of Display<UtreexoProof> {
 
 #[generate_trait]
 pub impl UtreexoProofImpl of UtreexoProofTrait {
-    /// Computes the root given a a proof and leaf hash.
+    /// Computes the root given a proof and leaf hash.
     ///
     /// Traverses the tree from leaf to root, hashing paired nodes.
     /// Proof order is bottom-up. Returns the computed root.
