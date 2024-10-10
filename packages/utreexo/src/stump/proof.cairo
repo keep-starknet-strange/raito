@@ -221,6 +221,7 @@ fn detect_row(pos: u64, forest_rows: u8) -> u8 {
 
 fn parent(pos: u64, forest_rows: u8) -> u64 {
     let forest_row_u64: u64 = forest_rows.into();
+    
     shr(pos, 1_u64) | shl(1_u64, forest_row_u64)
 }
 
