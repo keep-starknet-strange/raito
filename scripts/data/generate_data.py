@@ -390,10 +390,37 @@ def generate_data(
             flush=True,
         )
 
+        # Interblock cache
+        tmp_utxo_set = {}
+
         if mode == "light":
             block = fetch_block_header(next_block_hash)
         elif mode in ["full", "utreexo"]:
             block = fetch_block(next_block_hash, fast, chain_state)
+
+            # Build UTXO set and mark outputs spent within the same block (span).
+            # Also set "cached" flag for the inputs that spend those UTXOs.
+            for txid, tx in block["data"].items():
+                for tx_input in tx["inputs"]:
+                    outpoint = (
+                        tx_input["previous_output"]["txid"],
+                        tx_input["previous_output"]["vout"],
+                    )
+                    if outpoint in tmp_utxo_set:
+                        tx_input["previous_output"]["data"]["cached"] = True
+                        tmp_utxo_set[outpoint]["cached"] = True
+
+                for idx, output in enumerate(tx["outputs"]):
+                    outpoint = (txid, idx)
+                    tmp_utxo_set[outpoint] = output
+
+            # Do another pass to mark UTXOs spent within the same block (span) with "cached" flag.
+            for txid, tx in block["data"].items():
+                for idx, output in enumerate(tx["outputs"]):
+                    outpoint = (txid, idx)
+                    if outpoint in tmp_utxo_set and tmp_utxo_set[outpoint]["cached"]:
+                        tx["outputs"][idx]["cached"] = True
+
         else:
             raise NotImplementedError(mode)
 
