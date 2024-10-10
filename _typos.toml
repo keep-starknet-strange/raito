@@ -6,3 +6,6 @@ extend-exclude = [
 
 [default.extend-words]
 Pn = "Pn"
+
+[default]
+extend-ignore-re = "(?Rm)^.*(#|//)\\s*spellchecker:disable-line$"
