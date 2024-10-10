@@ -25,7 +25,7 @@ fn main(mut arguments: Span<felt252>) -> ChainState {
     // Validate and apply block, accumulating UTXO updates in utxo_set
     for block in blocks {
         chain_state = chain_state
-            .validate_and_apply(block, ref utxo_set)
+            .validate_and_apply(block, ref utxo_set, false)
             .expect('Block validation failed');
     };
 

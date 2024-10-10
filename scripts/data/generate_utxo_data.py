@@ -13,7 +13,7 @@ from functools import lru_cache
 from collections import defaultdict
 
 # Constants
-BASE_DIR = ".utxo_data"
+BASE_DIR = f"{os.path.dirname(os.path.realpath(__file__))}/.utxo_data"
 CHUNK_SIZE = 10
 INDEX_SIZE = 50000
 

@@ -2,6 +2,7 @@ pub mod validation {
     pub mod difficulty;
     pub mod coinbase;
     pub mod locktime;
+    pub mod script;
     pub mod timestamp;
     pub mod transaction;
     pub mod work;

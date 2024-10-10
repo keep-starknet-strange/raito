@@ -9,7 +9,7 @@ use crate::validation::{
     difficulty::{validate_bits, adjust_difficulty}, coinbase::validate_coinbase,
     timestamp::{validate_timestamp, next_prev_timestamps},
     work::{validate_proof_of_work, compute_total_work},
-    block::{compute_and_validate_tx_data, validate_bip30_block_hash},
+    block::{compute_and_validate_tx_data, validate_bip30_block_hash}, script::validate_scripts
 };
 use super::block::{BlockHash, Block, TransactionData};
 use super::utxo_set::UtxoSet;
@@ -58,7 +58,7 @@ impl ChainStateDefault of Default<ChainState> {
 #[generate_trait]
 pub impl BlockValidatorImpl of BlockValidator {
     fn validate_and_apply(
-        self: ChainState, block: Block, ref utxo_set: UtxoSet
+        self: ChainState, block: Block, ref utxo_set: UtxoSet, execute_script: bool
     ) -> Result<ChainState, ByteArray> {
         let block_height = self.block_height + 1;
 
@@ -73,6 +73,9 @@ pub impl BlockValidatorImpl of BlockValidator {
                     txs, block.header.hash, block_height, block.header.time, ref utxo_set
                 )?;
                 validate_coinbase(txs[0], total_fees, block_height, wtxid_root)?;
+                if execute_script {
+                    validate_scripts(@block.header, txs)?;
+                }
                 txid_root
             }
         };

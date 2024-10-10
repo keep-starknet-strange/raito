@@ -6,5 +6,5 @@ pub mod merkle_tree;
 pub mod numeric;
 pub mod sha256;
 
-#[cfg(target: 'test')]
+// #[cfg(target: 'test')]
 pub mod hex;
