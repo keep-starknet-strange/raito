@@ -82,7 +82,7 @@ for test_file in "${test_files[@]}"; do
             else
                 echo -e "${RED} fail ${RESET}(gas usage est.: 0)"
                 num_fail=$((num_fail + 1))
-                error=$(echo "$output" | sed '1d')
+                error=$(echo "$output" | sed '1d' | sed ':a;N;$!ba;s/\n/ /g' | sed 's/[[:space:]]\+/ /g')
                 failures+="\t$test_file — $error\n"
             fi
         fi
