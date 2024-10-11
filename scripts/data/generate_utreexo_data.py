@@ -225,4 +225,3 @@ def format_root_node(node) -> str:
 
 def format_node(node) -> int:
     return int.from_bytes(bytes.fromhex(node.val[2:]), "big")
-
