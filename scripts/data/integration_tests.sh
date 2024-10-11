@@ -1,5 +1,19 @@
 #!/usr/bin/env bash
 
+# Detect the operating system
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    # macOS
+    if command -v gsed >/dev/null 2>&1; then
+        SED_CMD="gsed"
+    else
+        echo "GNU sed (gsed) not found. Please install it using Homebrew: brew install gnu-sed" >&2
+        exit 1
+    fi
+else
+    # Assume Linux or other Unix-like OS
+    SED_CMD="sed"
+fi
+
 GREEN='\033[0;32m'
 RED='\033[1;31m'
 RESET='\033[0m' # No Color
@@ -64,7 +78,7 @@ for test_file in "${test_files[@]}"; do
             arguments_file=".arguments-$(basename "$test_file")"
             python ../../scripts/data/format_args.py --input_file ${test_file} $([[ $execute_scripts -eq 1 ]] && echo "--execute_script") > $arguments_file
             output=$(scarb cairo-run --no-build --function test --arguments-file $arguments_file)
-            gas_spent=$(echo $output | grep -o 'gas_spent=[0-9]*' | sed 's/gas_spent=//')
+            gas_spent=$(echo $output | grep -o 'gas_spent=[0-9]*' | $SED_CMD 's/gas_spent=//')
             
             if [[ "$nocapture" -eq 1 ]]; then
                 echo -e "\n$output"
@@ -73,7 +87,7 @@ for test_file in "${test_files[@]}"; do
             if [[ "$output" == *"FAIL"* ]]; then
                 echo -e "${RED} fail ${RESET}(gas usage est.: $gas_spent)"
                 num_fail=$((num_fail + 1))
-                error=$(echo $output | grep -o "error='[^']*'" | sed "s/error=//")
+                error=$(echo $output | grep -o "error='[^']*'" | $SED_CMD "s/error=//")
                 failures+="\t$test_file — Panicked with $error\n"
             elif [[ "$output" == *"OK"* ]]; then
                 echo -e "${GREEN} ok ${RESET}(gas usage est.: $gas_spent)"
@@ -82,7 +96,7 @@ for test_file in "${test_files[@]}"; do
             else
                 echo -e "${RED} fail ${RESET}(gas usage est.: 0)"
                 num_fail=$((num_fail + 1))
-                error=$(echo "$output" | sed '1d' | sed ':a;N;$!ba;s/\n/ /g' | sed 's/[[:space:]]\+/ /g') #spellchecker:disable-line
+                error=$(echo "$output" | $SED_CMD '1d' | $SED_CMD ':a;N;$!ba;s/\n/ /g' | $SED_CMD 's/[[:space:]]\+/ /g') #spellchecker:disable-line
                 failures+="\t$test_file — $error\n"
             fi
         fi
