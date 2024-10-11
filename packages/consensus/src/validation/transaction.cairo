@@ -145,9 +145,7 @@ mod tests {
     use crate::codec::Encode;
     use crate::types::transaction::{Transaction, TxIn, TxOut, OutPoint, OutPointTrait};
     use crate::types::utxo_set::{UtxoSet, TX_OUTPUT_STATUS_UNSPENT};
-    use utils::{
-        hex::{from_hex, hex_to_hash_rev}, double_sha256::double_sha256_byte_array
-    };
+    use utils::{hex::{from_hex, hex_to_hash_rev}, double_sha256::double_sha256_byte_array};
     use super::{validate_transaction, is_pubscript_unspendable, MAX_SCRIPT_SIZE};
 
     #[test]
