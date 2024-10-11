@@ -9,7 +9,7 @@ use crate::validation::{
     difficulty::{validate_bits, adjust_difficulty}, coinbase::validate_coinbase,
     timestamp::{validate_timestamp, next_prev_timestamps, compute_median_time_past},
     work::{validate_proof_of_work, compute_total_work},
-    block::{compute_and_validate_tx_data, validate_bip30_block_hash},
+    block::{compute_and_validate_tx_data},
 };
 use super::block::{BlockHash, Block, TransactionData};
 use super::utxo_set::UtxoSet;

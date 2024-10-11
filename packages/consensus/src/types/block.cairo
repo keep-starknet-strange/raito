@@ -120,7 +120,6 @@ mod tests {
     use super::{Header, BlockHash};
     use crate::types::chain_state::ChainState;
     use utils::hash::Digest;
-    use utils::hex::hex_to_hash_rev;
 
     #[test]
     fn test_block_hash() {

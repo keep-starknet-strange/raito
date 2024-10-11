@@ -84,7 +84,6 @@ pub fn validate_transaction(
                 txid,
                 vout,
                 data: *output,
-                block_hash,
                 block_height,
                 median_time_past,
                 is_coinbase: false,
