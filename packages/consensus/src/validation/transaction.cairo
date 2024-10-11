@@ -14,11 +14,7 @@ const MAX_SCRIPT_SIZE: u32 = 10000;
 ///
 /// This does not include script checks and outpoint inclusion verification.
 pub fn validate_transaction(
-    tx: @Transaction,
-    block_height: u32,
-    median_time_past: u32,
-    txid: Digest,
-    ref utxo_set: UtxoSet
+    tx: @Transaction, block_height: u32, median_time_past: u32, txid: Digest, ref utxo_set: UtxoSet
 ) -> Result<u64, ByteArray> {
     if (*tx.inputs).is_empty() {
         return Result::Err("transaction inputs are empty");
@@ -81,12 +77,7 @@ pub fn validate_transaction(
             // Adds outpoint to the cache if the corresponding transaction output will be used
             // as a transaction input in the same block(s), or adds it to the utreexo otherwise.
             let outpoint = OutPoint {
-                txid,
-                vout,
-                data: *output,
-                block_height,
-                median_time_past,
-                is_coinbase: false,
+                txid, vout, data: *output, block_height, median_time_past, is_coinbase: false,
             };
 
             inner_result = utxo_set.add(outpoint);

@@ -69,9 +69,7 @@ class TxOut:
 
 
 class OutPoint:
-    def __init__(
-        self, txid, vout, data, block_height, median_time_past, is_coinbase
-    ):
+    def __init__(self, txid, vout, data, block_height, median_time_past, is_coinbase):
         self.txid = txid
         self.vout = vout
         self.data = data  # Instance de TxOut
