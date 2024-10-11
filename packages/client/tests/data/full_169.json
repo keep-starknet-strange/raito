@@ -48,7 +48,7 @@
                   },
                   "block_hash": "0000000000000000000000000000000000000000000000000000000000000000",
                   "block_height": 0,
-                  "block_time": 0,
+                  "median_time_past": 0,
                   "is_coinbase": false
                 },
                 "witness": [
@@ -82,7 +82,7 @@
                   },
                   "block_hash": "000000008d9dc510f23c2657fc4f67bea30078cc05a90eb89e84cc475c080805",
                   "block_height": 9,
-                  "block_time": 1231473279,
+                  "median_time_past": 1231715347,
                   "is_coinbase": true
                 },
                 "witness": []

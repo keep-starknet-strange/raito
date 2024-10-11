@@ -17,7 +17,7 @@ pub fn validate_transaction(
     tx: @Transaction,
     block_hash: Digest,
     block_height: u32,
-    block_time: u32,
+    median_time_past: u32,
     txid: Digest,
     ref utxo_set: UtxoSet
 ) -> Result<u64, ByteArray> {
@@ -54,7 +54,7 @@ pub fn validate_transaction(
             }
 
             if !is_input_final(*input.sequence) {
-                inner_result = validate_relative_locktime(input, block_height, block_time);
+                inner_result = validate_relative_locktime(input, block_height, median_time_past);
                 if inner_result.is_err() {
                     break;
                 }
@@ -70,7 +70,7 @@ pub fn validate_transaction(
 
     if !is_tx_final {
         // If at least one input is not final
-        validate_absolute_locktime(*tx.lock_time, block_height, block_time)?;
+        validate_absolute_locktime(*tx.lock_time, block_height, median_time_past)?;
     }
 
     // Validate and process transaction outputs
@@ -82,7 +82,13 @@ pub fn validate_transaction(
             // Adds outpoint to the cache if the corresponding transaction output will be used
             // as a transaction input in the same block(s), or adds it to the utreexo otherwise.
             let outpoint = OutPoint {
-                txid, vout, data: *output, block_hash, block_height, block_time, is_coinbase: false,
+                txid,
+                vout,
+                data: *output,
+                block_hash,
+                block_height,
+                median_time_past,
+                is_coinbase: false,
             };
 
             inner_result = utxo_set.add(outpoint);
@@ -164,7 +170,7 @@ mod tests {
                         data: TxOut { value: 100, ..Default::default() },
                         block_hash: Default::default(),
                         block_height: Default::default(),
-                        block_time: Default::default(),
+                        median_time_past: Default::default(),
                         is_coinbase: true,
                     },
                     witness: array![].span(),
@@ -240,7 +246,7 @@ mod tests {
                         data: TxOut { value: 100, ..Default::default() },
                         block_hash: Default::default(),
                         block_height: Default::default(),
-                        block_time: Default::default(),
+                        median_time_past: Default::default(),
                         is_coinbase: false,
                     },
                     witness: array![].span(),
@@ -277,7 +283,7 @@ mod tests {
                         data: TxOut { value: 100, ..Default::default() },
                         block_hash: Default::default(),
                         block_height: Default::default(),
-                        block_time: Default::default(),
+                        median_time_past: Default::default(),
                         is_coinbase: false,
                     },
                     witness: array![].span(),
@@ -332,7 +338,7 @@ mod tests {
                         data: TxOut { value: 100, ..Default::default() },
                         block_hash: Default::default(),
                         block_height: Default::default(),
-                        block_time: Default::default(),
+                        median_time_past: Default::default(),
                         is_coinbase: false,
                     },
                     witness: array![].span(),
@@ -390,7 +396,7 @@ mod tests {
                         data: TxOut { value: 100, ..Default::default() },
                         block_hash: Default::default(),
                         block_height: Default::default(),
-                        block_time: Default::default(),
+                        median_time_past: Default::default(),
                         is_coinbase: false,
                     },
                     witness: array![].span(),
@@ -444,7 +450,7 @@ mod tests {
                         data: TxOut { value: 100, ..Default::default() },
                         block_hash: Default::default(),
                         block_height: Default::default(),
-                        block_time: Default::default(),
+                        median_time_past: Default::default(),
                         is_coinbase: false,
                     },
                     witness: array![].span(),
@@ -496,7 +502,7 @@ mod tests {
                         data: TxOut { value: 100, ..Default::default() },
                         block_hash: Default::default(),
                         block_height: Default::default(),
-                        block_time: Default::default(),
+                        median_time_past: Default::default(),
                         is_coinbase: true,
                     },
                     witness: array![].span(),
@@ -541,7 +547,7 @@ mod tests {
                         data: TxOut { value: 100, ..Default::default() },
                         block_hash: Default::default(),
                         block_height: Default::default(),
-                        block_time: Default::default(),
+                        median_time_past: Default::default(),
                         is_coinbase: true,
                     },
                     witness: array![].span(),
@@ -586,7 +592,7 @@ mod tests {
                         data: TxOut { value: 100, pk_script: @from_hex(""), cached: true },
                         block_hash: Default::default(),
                         block_height: Default::default(),
-                        block_time: Default::default(),
+                        median_time_past: Default::default(),
                         is_coinbase: false,
                     },
                     witness: array![].span(),
@@ -631,7 +637,7 @@ mod tests {
                         data: TxOut { value: 100, pk_script: @from_hex(""), cached: false },
                         block_hash: Default::default(),
                         block_height: Default::default(),
-                        block_time: Default::default(),
+                        median_time_past: Default::default(),
                         is_coinbase: false,
                     },
                     witness: array![].span(),
@@ -679,7 +685,7 @@ mod tests {
                         data: TxOut { value: 100, pk_script: @from_hex(""), cached: true },
                         block_hash: Default::default(),
                         block_height: Default::default(),
-                        block_time: Default::default(),
+                        median_time_past: Default::default(),
                         is_coinbase: false,
                     },
                     witness: array![].span(),
@@ -730,7 +736,7 @@ mod tests {
                         data: TxOut { value: 100, pk_script: @from_hex(""), cached: false },
                         block_hash: Default::default(),
                         block_height: Default::default(),
-                        block_time: Default::default(),
+                        median_time_past: Default::default(),
                         is_coinbase: false,
                     },
                     witness: array![].span(),
@@ -758,7 +764,7 @@ mod tests {
             data: *tx.outputs[0],
             block_hash,
             block_height,
-            block_time: Default::default(),
+            median_time_past: Default::default(),
             is_coinbase: false,
         };
         let outpoint_hash = outpoint.hash();
@@ -789,7 +795,7 @@ mod tests {
                         data: TxOut { value: 100, pk_script: @from_hex(""), cached: true },
                         block_hash: Default::default(),
                         block_height: Default::default(),
-                        block_time: Default::default(),
+                        median_time_past: Default::default(),
                         is_coinbase: false,
                     },
                     witness: array![].span(),
@@ -805,7 +811,7 @@ mod tests {
                         data: TxOut { value: 100, pk_script: @from_hex(""), cached: true },
                         block_hash: Default::default(),
                         block_height: Default::default(),
-                        block_time: Default::default(),
+                        median_time_past: Default::default(),
                         is_coinbase: false,
                     },
                     witness: array![].span(),
@@ -857,7 +863,7 @@ mod tests {
                         data: TxOut { value: 100, pk_script: @from_hex(""), cached: false },
                         block_hash: Default::default(),
                         block_height: Default::default(),
-                        block_time: Default::default(),
+                        median_time_past: Default::default(),
                         is_coinbase: false,
                     },
                     witness: array![].span(),
@@ -873,7 +879,7 @@ mod tests {
                         data: TxOut { value: 100, pk_script: @from_hex(""), cached: false },
                         block_hash: Default::default(),
                         block_height: Default::default(),
-                        block_time: Default::default(),
+                        median_time_past: Default::default(),
                         is_coinbase: false,
                     },
                     witness: array![].span(),

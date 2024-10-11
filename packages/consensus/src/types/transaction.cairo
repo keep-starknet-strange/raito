@@ -95,10 +95,12 @@ pub struct OutPoint {
     /// Used to validate coinbase tx spending (not sooner than 100 blocks) and relative timelocks
     /// (it has been more than X block since the transaction containing this output was mined).
     pub block_height: u32,
-    /// The time of the block that contains this output (meta field).
-    /// Used to validate relative timelocks (it has been more than X seconds since the transaction
-    /// containing this output was mined).
-    pub block_time: u32,
+    /// The median time past of the block that contains this output (meta field).
+    /// This is the median timestamp of the previous 11 blocks.
+    /// Used to validate relative timelocks based on time (BIP 68 and BIP 112).
+    /// It ensures that the transaction containing this output has been mined for more than X
+    /// seconds.
+    pub median_time_past: u32,
     // Determine if the outpoint is a coinbase transaction
     // Has 100 or more block confirmation,
     // is added when block are queried
@@ -179,7 +181,7 @@ impl OutPointDisplay of Display<OutPoint> {
 		data: {},
 		block_hash: {},
 		block_height: {},
-		block_time: {},
+		median_time_past: {},
 		is_coinbase: {},
 	}}",
             *self.txid,
@@ -187,7 +189,7 @@ impl OutPointDisplay of Display<OutPoint> {
             *self.data,
             *self.block_hash,
             *self.block_height,
-            *self.block_time,
+            *self.median_time_past,
             *self.is_coinbase
         );
         f.buffer.append(@str);
@@ -227,7 +229,7 @@ mod tests {
             block_hash: 0x00000000d1145790a8694403d4063f323d499e655c83426834d4ce2f8dd4a2ee_u256
                 .into(),
             block_height: 9,
-            block_time: 1650000000,
+            median_time_past: 1650000000,
             is_coinbase: false,
         };
         assert_eq!(

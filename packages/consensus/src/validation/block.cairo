@@ -34,7 +34,7 @@ pub fn compute_and_validate_tx_data(
     txs: Span<Transaction>,
     block_hash: Digest,
     block_height: u32,
-    block_time: u32,
+    median_time_past: u32,
     ref utxo_set: UtxoSet
 ) -> Result<(u64, Digest, Digest), ByteArray> {
     let mut txids: Array<Digest> = array![];
@@ -82,7 +82,7 @@ pub fn compute_and_validate_tx_data(
                         data: *output,
                         block_hash,
                         block_height,
-                        block_time,
+                        median_time_past,
                         is_coinbase: true,
                     };
                     inner_result = utxo_set.add(outpoint);
@@ -95,7 +95,7 @@ pub fn compute_and_validate_tx_data(
         } else {
             let fee =
                 match validate_transaction(
-                    tx, block_hash, block_height, block_time, txid, ref utxo_set
+                    tx, block_hash, block_height, median_time_past, txid, ref utxo_set
                 ) {
                 Result::Ok(fee) => fee,
                 Result::Err(err) => {
