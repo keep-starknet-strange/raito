@@ -149,7 +149,6 @@ def format_chain_state(head: dict):
         "current_target": str(bits_to_target(head["bits"])),
         "epoch_start_time": head["epoch_start_time"],
         "prev_timestamps": head["prev_timestamps"],
-        "median_time_past": head["median_time_past"],
     }
 
 
