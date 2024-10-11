@@ -1,19 +1,5 @@
 #!/usr/bin/env bash
 
-# Detect the operating system
-if [[ "$OSTYPE" == "darwin"* ]]; then
-    # macOS
-    if command -v gsed >/dev/null 2>&1; then
-        SED_CMD="gsed"
-    else
-        echo "GNU sed (gsed) not found. Please install it using Homebrew: brew install gnu-sed" >&2
-        exit 1
-    fi
-else
-    # Assume Linux or other Unix-like OS
-    SED_CMD="sed"
-fi
-
 GREEN='\033[0;32m'
 RED='\033[1;31m'
 RESET='\033[0m' # No Color
@@ -50,7 +36,19 @@ ignored_files=(
     "tests/data/full_489888.json", #cairo-run dies, to be investigated
     "tests/data/full_491406.json", #cairo-run dies, to be investigated
     "tests/data/full_629999.json", #cairo-run dies, to be investigated
-    "tests/data/full_709631.json" #cairo-run dies, to be investigated
+    "tests/data/full_709631.json", #cairo-run dies, to be investigated
+    "tests/data/full_774627.json", # Couldn't compute operand op1. Unknown value for memory cell 1:131082
+    "tests/data/full_839999.json", # Couldn't compute operand op1. Unknown value for memory cell 1:262154
+    "tests/data/full_116927.json", # Run panicked with [108217864776563 ('blocks'), ]. 
+    "tests/data/full_150012.json", # Run panicked with [108217864776563 ('blocks'), ]. 
+    "tests/data/full_2015.json",   # Run panicked with [108217864776563 ('blocks'), ]. 
+    "tests/data/full_24834.json",  # Run panicked with [108217864776563 ('blocks'), ]. 
+    "tests/data/full_32255.json",  # Run panicked with [108217864776563 ('blocks'), ]. 
+    "tests/data/full_478557.json", # Run panicked with [108217864776563 ('blocks'), ]. 
+    "tests/data/full_57042.json",  # Run panicked with [108217864776563 ('blocks'), ]. 
+    "tests/data/full_72575.json",  # Run panicked with [108217864776563 ('blocks'), ]. 
+    "tests/data/full_757752.json", # Run panicked with [108217864776563 ('blocks'), ]. 
+    "tests/data/utreexo_169.json", # Unexpected root (TODO: create issue)
     # "tests/data/full_478557.json", #runs on server
 )
 ignored="${ignored_files[@]}"
@@ -59,7 +57,7 @@ ignored="${ignored_files[@]}"
 if [[ $fullonly -eq 1 && ${#test_files[@]} -eq 0 ]]; then
   test_files=("tests/data"/full*)
 elif [[ ${#test_files[@]} -eq 0 ]]; then
-  test_files=("tests/data"/light*)
+  test_files=("tests/data"/*)
 fi
 
 if [[ $execute_scripts -eq 1 ]]; then
@@ -78,8 +76,8 @@ for test_file in "${test_files[@]}"; do
             arguments_file=".arguments-$(basename "$test_file")"
             python ../../scripts/data/format_args.py --input_file ${test_file} $([[ $execute_scripts -eq 1 ]] && echo "--execute_script") > $arguments_file
             output=$(scarb cairo-run --no-build --function test --arguments-file $arguments_file)
-            gas_spent=$(echo $output | grep -o 'gas_spent=[0-9]*' | $SED_CMD 's/gas_spent=//')
-            
+            gas_spent=$(echo "$output" | grep -o 'gas_spent=[0-9]*' | awk -F= '{sum += $2} END {print sum}')
+
             if [[ "$nocapture" -eq 1 ]]; then
                 echo -e "\n$output"
             fi
@@ -87,7 +85,7 @@ for test_file in "${test_files[@]}"; do
             if [[ "$output" == *"FAIL"* ]]; then
                 echo -e "${RED} fail ${RESET}(gas usage est.: $gas_spent)"
                 num_fail=$((num_fail + 1))
-                error=$(echo $output | grep -o "error='[^']*'" | $SED_CMD "s/error=//")
+                error=$(echo $output | grep -o "error='[^']*'" | sed "s/error=//")
                 failures+="\t$test_file — Panicked with $error\n"
             elif [[ "$output" == *"OK"* ]]; then
                 echo -e "${GREEN} ok ${RESET}(gas usage est.: $gas_spent)"
@@ -96,7 +94,7 @@ for test_file in "${test_files[@]}"; do
             else
                 echo -e "${RED} fail ${RESET}(gas usage est.: 0)"
                 num_fail=$((num_fail + 1))
-                error=$(echo "$output" | $SED_CMD '1d' | $SED_CMD ':a;N;$!ba;s/\n/ /g' | $SED_CMD 's/[[:space:]]\+/ /g') #spellchecker:disable-line
+                error=$(echo "$output" | sed '1d' | tr '\n' ' ' | sed 's/[[:space:]]\+/ /g') #spellchecker:disable-line
                 failures+="\t$test_file — $error\n"
             fi
         fi

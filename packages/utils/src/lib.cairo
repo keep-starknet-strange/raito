@@ -9,5 +9,5 @@ pub mod numeric;
 // pub mod sha256;
 pub use core::sha256;
 
-// #[cfg(target: 'test')]
+#[cfg(target: 'test')]
 pub mod hex;

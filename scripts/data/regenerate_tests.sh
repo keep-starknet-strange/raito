@@ -79,16 +79,16 @@ generate_test() {
 }
 
 for test_case in "${light_test_cases[@]}"; do
-    echo "Generating test data: light mode, chain state @ $test_case, single block"
+    echo -e "\nGenerating test data: light mode, chain state @ $test_case, single block"
     generate_test "light" $test_case
 done
 
 for test_case in "${full_test_cases[@]}"; do
-    echo "Generating test data: full mode, chain state @ $test_case, single block"
+    echo -e "\nGenerating test data: full mode, chain state @ $test_case, single block"
     generate_test "full" $test_case
 done
 
 for test_case in "${utreexo_test_cases[@]}"; do
-    echo "Generating test data: utreexo mode, chain state @ $test_case, single block"
+    echo -e "\nGenerating test data: utreexo mode, chain state @ $test_case, single block"
     generate_test "utreexo" 0 $(($test_case+1))
 done

@@ -149,11 +149,9 @@ mod tests {
     fn test_not_include_unspendable_utxo() {
         let mut utxo_set: UtxoSet = Default::default();
         utxo_set.add(dummy_outpoint(0, false)).unwrap();
-        let _ = utxo_set.add(dummy_unspendable_outpoint(0, false));
-
+        utxo_set.add(dummy_unspendable_outpoint(0, false)).unwrap();
         utxo_set.add(dummy_outpoint(1, true)).unwrap();
         utxo_set.add(dummy_unspendable_outpoint(1, true)).unwrap();
-
         utxo_set.add(dummy_outpoint(2, false)).unwrap();
         utxo_set.add(dummy_unspendable_outpoint(2, false)).unwrap();
 
