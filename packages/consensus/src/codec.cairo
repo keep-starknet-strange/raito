@@ -208,7 +208,6 @@ mod tests {
             ),
             vout: 4294967295_u32,
             data: Default::default(),
-            block_hash: Default::default(),
             block_height: Default::default(),
             median_time_past: Default::default(),
             is_coinbase: false,
@@ -230,7 +229,6 @@ mod tests {
             ),
             vout: 0_u32,
             data: Default::default(),
-            block_hash: Default::default(),
             block_height: Default::default(),
             median_time_past: Default::default(),
             is_coinbase: false,
@@ -255,7 +253,6 @@ mod tests {
                 ),
                 vout: 4294967295,
                 data: Default::default(),
-                block_hash: Default::default(),
                 block_height: Default::default(),
                 median_time_past: Default::default(),
                 is_coinbase: false,
@@ -285,7 +282,6 @@ mod tests {
                 ),
                 vout: 1_u32,
                 data: Default::default(),
-                block_hash: Default::default(),
                 block_height: Default::default(),
                 median_time_past: Default::default(),
                 is_coinbase: false,
@@ -318,7 +314,6 @@ mod tests {
                         ),
                         vout: 0_u32,
                         data: Default::default(),
-                        block_hash: Default::default(),
                         block_height: Default::default(),
                         median_time_past: Default::default(),
                         is_coinbase: false,
@@ -336,7 +331,6 @@ mod tests {
                         ),
                         vout: 1_u32,
                         data: Default::default(),
-                        block_hash: Default::default(),
                         block_height: Default::default(),
                         median_time_past: Default::default(),
                         is_coinbase: false,
@@ -354,7 +348,6 @@ mod tests {
                         ),
                         vout: 1_u32,
                         data: Default::default(),
-                        block_hash: Default::default(),
                         block_height: Default::default(),
                         median_time_past: Default::default(),
                         is_coinbase: false,
@@ -414,9 +407,6 @@ mod tests {
                             ),
                             cached: false,
                         },
-                        block_hash: hex_to_hash_rev(
-                            "000000000000000931112ca80c5badf6047373b1bb53587fc23344871734bbff"
-                        ),
                         block_height: 149994_u32,
                         median_time_past: 1319114701_u32,
                         is_coinbase: true,
@@ -440,9 +430,6 @@ mod tests {
                             ),
                             cached: false,
                         },
-                        block_hash: hex_to_hash_rev(
-                            "0000000000000779e6cfb6bdd06458b8e8adffea65c719edb3450d8b05f9cc57"
-                        ),
                         block_height: 150006_u32,
                         median_time_past: 1319124571_u32,
                         is_coinbase: true,
@@ -466,9 +453,6 @@ mod tests {
                             ),
                             cached: false,
                         },
-                        block_hash: hex_to_hash_rev(
-                            "0000000000000a43df068d144a5854b92d5a866d1c25f324f80077b86acb74e1"
-                        ),
                         block_height: 150005_u32,
                         median_time_past: 1319122014_u32,
                         is_coinbase: true,
@@ -492,9 +476,6 @@ mod tests {
                             ),
                             cached: false,
                         },
-                        block_hash: hex_to_hash_rev(
-                            "000000000000010d9f3d69f259027feaa1fe8637a01300db0536b33fc552351d"
-                        ),
                         block_height: 149935_u32,
                         median_time_past: 1319066844_u32,
                         is_coinbase: true,
@@ -518,9 +499,6 @@ mod tests {
                             ),
                             cached: false,
                         },
-                        block_hash: hex_to_hash_rev(
-                            "00000000000001283f1ade495834dab6b796ba8d94f8db0e5625b2eaf3bd1490"
-                        ),
                         block_height: 149940_u32,
                         median_time_past: 1319069371_u32,
                         is_coinbase: true,
@@ -544,9 +522,6 @@ mod tests {
                             ),
                             cached: false,
                         },
-                        block_hash: hex_to_hash_rev(
-                            "00000000000009b7da59908141bc7e4716497200cb2d7bdaa5c93d0c9c642eb1"
-                        ),
                         block_height: 149895_u32,
                         median_time_past: 1319035283_u32,
                         is_coinbase: true,
@@ -570,9 +545,6 @@ mod tests {
                             ),
                             cached: false,
                         },
-                        block_hash: hex_to_hash_rev(
-                            "00000000000006c23e77cedfd97ea2d6434371236e0a373d22e77e2a4a8a52b5"
-                        ),
                         block_height: 149814_u32,
                         median_time_past: 1318990721_u32,
                         is_coinbase: true,
@@ -596,9 +568,6 @@ mod tests {
                             ),
                             cached: false,
                         },
-                        block_hash: hex_to_hash_rev(
-                            "0000000000000b4ece814065c9a591382cc90447efdd302ec5d618ffaa04e023"
-                        ),
                         block_height: 149984_u32,
                         median_time_past: 1319104909_u32,
                         is_coinbase: true,
@@ -658,9 +627,6 @@ mod tests {
                             ),
                             cached: false,
                         },
-                        block_hash: hex_to_hash_rev(
-                            "00000000000002db188274c80ae6a97f67a7d5f355815cca6d30a48e0bb01153"
-                        ),
                         block_height: 206120_u32,
                         median_time_past: 1351856022_u32,
                         is_coinbase: true,
@@ -759,7 +725,6 @@ mod tests {
                         ),
                         vout: 0x0,
                         data: Default::default(),
-                        block_hash: Default::default(),
                         block_height: Default::default(),
                         median_time_past: Default::default(),
                         is_coinbase: false,
@@ -825,7 +790,6 @@ mod tests {
                         ),
                         vout: 0_u32,
                         data: Default::default(),
-                        block_hash: Default::default(),
                         block_height: Default::default(),
                         median_time_past: Default::default(),
                         is_coinbase: false,
@@ -849,7 +813,6 @@ mod tests {
                         ),
                         vout: 1_u32,
                         data: Default::default(),
-                        block_hash: Default::default(),
                         block_height: Default::default(),
                         median_time_past: Default::default(),
                         is_coinbase: false,
@@ -913,7 +876,6 @@ mod tests {
                         ),
                         vout: 1,
                         data: Default::default(),
-                        block_hash: Default::default(),
                         block_height: Default::default(),
                         median_time_past: Default::default(),
                         is_coinbase: false,

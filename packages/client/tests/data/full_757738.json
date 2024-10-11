@@ -22,7 +22,6 @@
   "blocks": [
     {
       "header": {
-        "hash": "00000000000000000002601c74946371bd1bf00ad3154f011c20abad1cabd0ea",
         "version": 607625220,
         "time": 1665249955,
         "bits": 386464174,
@@ -46,7 +45,6 @@
                     "pk_script": "0x",
                     "cached": false
                   },
-                  "block_hash": "0000000000000000000000000000000000000000000000000000000000000000",
                   "block_height": 0,
                   "median_time_past": 0,
                   "is_coinbase": false
@@ -95,7 +93,6 @@
                     "pk_script": "0x002044709e063fb66d783831a1237a60471d7b2a3de03a41000f4ed9e1d1afa15904",
                     "cached": false
                   },
-                  "block_hash": "0000000000000000000528fd30501f51da1b8c376f4251f231295bf61c67d8fa",
                   "block_height": 757660,
                   "median_time_past": 1665248564,
                   "is_coinbase": false
@@ -137,7 +134,6 @@
                     "pk_script": "0x0020e8c919a22e5fc0c47c068b1b607dcf6fa4550198e85a2cd87041d050c6eccd39",
                     "cached": false
                   },
-                  "block_hash": "00000000000000000006868fcae3934b5188a5ccb16ae3955e869dbd69c5b4e4",
                   "block_height": 757699,
                   "median_time_past": 1665248564,
                   "is_coinbase": false
@@ -184,7 +180,6 @@
                     "pk_script": "0x76a914a8da15e1b8a2a3fe71ada229143fd5f614656a4e88ac",
                     "cached": false
                   },
-                  "block_hash": "000000000000000000086a69ae02517624f5fafd82f27e815811c95ee959a708",
                   "block_height": 756675,
                   "median_time_past": 1665248564,
                   "is_coinbase": false
@@ -221,7 +216,6 @@
                     "pk_script": "0x76a91439398b5572a34b16e5c1051b930cdedc59cd4b4488ac",
                     "cached": false
                   },
-                  "block_hash": "00000000000000000001a0158522c8e1ca002f1bb8e331c4ebaeed485e4acaa5",
                   "block_height": 757589,
                   "median_time_past": 1665248564,
                   "is_coinbase": false
@@ -258,7 +252,6 @@
                     "pk_script": "0x76a9144fc520fd6541feb49bf8764197015fd104130c4488ac",
                     "cached": false
                   },
-                  "block_hash": "00000000000000000000fa91f6d269f011d83d5d4b26645bd69a70fa7cd6769f",
                   "block_height": 757688,
                   "median_time_past": 1665248564,
                   "is_coinbase": false
@@ -295,7 +288,6 @@
                     "pk_script": "0xa914ad61e432763c7b97befb092143cfefdee732745987",
                     "cached": false
                   },
-                  "block_hash": "0000000000000000000249c6e769fc65af62d18331e5803f2f7f5e1a482d1013",
                   "block_height": 757732,
                   "median_time_past": 1665248564,
                   "is_coinbase": false
@@ -347,7 +339,6 @@
                     "pk_script": "0x001415d1e061eaa8f8d5e11c5f336a16be272bc356c0",
                     "cached": false
                   },
-                  "block_hash": "0000000000000000000060b46729c10e86ec9eea673852c9011e158103ce4294",
                   "block_height": 757735,
                   "median_time_past": 1665248564,
                   "is_coinbase": false
@@ -368,7 +359,6 @@
                     "pk_script": "0x0014ad284c3f64b4c67fb0c92f659a6327d61a43c4a4",
                     "cached": false
                   },
-                  "block_hash": "00000000000000000003f64a7b492c3202c4ec2374388ab3e0d12f755e661db8",
                   "block_height": 757701,
                   "median_time_past": 1665248564,
                   "is_coinbase": false
@@ -408,7 +398,6 @@
                     "pk_script": "0x00144a93ec2dffcca4a6dd45e29184a8c05c9005594d",
                     "cached": false
                   },
-                  "block_hash": "0000000000000000000477ca3103e630a4803ce8629d58efe5a4542de74b09f7",
                   "block_height": 757445,
                   "median_time_past": 1665248564,
                   "is_coinbase": false
@@ -448,7 +437,6 @@
                     "pk_script": "0x0020ff020da2d6e6b8dafc303f8ad16c52cd8a270d35c84be7d15413fbe357489616",
                     "cached": false
                   },
-                  "block_hash": "0000000000000000000406f9e745e597fdf953ef0a0c123b15da34748f80446e",
                   "block_height": 757737,
                   "median_time_past": 1665248564,
                   "is_coinbase": false
@@ -491,7 +479,6 @@
                     "pk_script": "0xa914cf9fd38d1b6835e896ceac457f8bb03779873a5e87",
                     "cached": false
                   },
-                  "block_hash": "0000000000000000000060b46729c10e86ec9eea673852c9011e158103ce4294",
                   "block_height": 757735,
                   "median_time_past": 1665248564,
                   "is_coinbase": false
@@ -531,7 +518,6 @@
                     "pk_script": "0xa91496ac6867c3c27ae9ffcffa480dc473bf15d6b6f787",
                     "cached": false
                   },
-                  "block_hash": "0000000000000000000060b46729c10e86ec9eea673852c9011e158103ce4294",
                   "block_height": 757735,
                   "median_time_past": 1665248564,
                   "is_coinbase": false
@@ -571,7 +557,6 @@
                     "pk_script": "0x00207250d91085a77a4568fa4cfd5bebb59f0b9cb3530f8154cd4fab6d28abd548fe",
                     "cached": false
                   },
-                  "block_hash": "000000000000000000018d52b8e759933181eda56c7e054156b3141f45d92e1c",
                   "block_height": 757395,
                   "median_time_past": 1665248564,
                   "is_coinbase": false
@@ -618,7 +603,6 @@
                     "pk_script": "0x0014b15300c4943ed0cacc8d1ace259c1bd1647c5a7e",
                     "cached": false
                   },
-                  "block_hash": "0000000000000000000060b46729c10e86ec9eea673852c9011e158103ce4294",
                   "block_height": 757735,
                   "median_time_past": 1665248564,
                   "is_coinbase": false
@@ -658,7 +642,6 @@
                     "pk_script": "0x00140c53e64f7c954323052cb313e20a7dc16e51d3a3",
                     "cached": false
                   },
-                  "block_hash": "0000000000000000000249c6e769fc65af62d18331e5803f2f7f5e1a482d1013",
                   "block_height": 757732,
                   "median_time_past": 1665248564,
                   "is_coinbase": false
@@ -758,7 +741,6 @@
                     "pk_script": "0x00141bafc04db6875f0372680088646832c8f8cc4c21",
                     "cached": false
                   },
-                  "block_hash": "0000000000000000000060b46729c10e86ec9eea673852c9011e158103ce4294",
                   "block_height": 757735,
                   "median_time_past": 1665248564,
                   "is_coinbase": false
@@ -793,7 +775,6 @@
                     "pk_script": "0x00204bb6c5b9fd253342cfcba46a1920c71489d21734c8c5ebceaee2c983a3359c64",
                     "cached": false
                   },
-                  "block_hash": "0000000000000000000406f9e745e597fdf953ef0a0c123b15da34748f80446e",
                   "block_height": 757737,
                   "median_time_past": 1665248564,
                   "is_coinbase": false
@@ -845,7 +826,6 @@
                     "pk_script": "0xa9140bdc3cf8a413c4823c3a41995108116f36b9085a87",
                     "cached": false
                   },
-                  "block_hash": "000000000000000000016d82a353995e3e713c53319f71361cd02b53cc0fb49e",
                   "block_height": 757410,
                   "median_time_past": 1665248564,
                   "is_coinbase": false
@@ -868,7 +848,6 @@
                     "pk_script": "0xa9140bdc3cf8a413c4823c3a41995108116f36b9085a87",
                     "cached": false
                   },
-                  "block_hash": "000000000000000000055d74536da85fd858703f61f0f738d335bfdaa7181619",
                   "block_height": 757598,
                   "median_time_past": 1665248564,
                   "is_coinbase": false
@@ -891,7 +870,6 @@
                     "pk_script": "0xa9140bdc3cf8a413c4823c3a41995108116f36b9085a87",
                     "cached": false
                   },
-                  "block_hash": "000000000000000000055d74536da85fd858703f61f0f738d335bfdaa7181619",
                   "block_height": 757598,
                   "median_time_past": 1665248564,
                   "is_coinbase": false
@@ -914,7 +892,6 @@
                     "pk_script": "0xa9140bdc3cf8a413c4823c3a41995108116f36b9085a87",
                     "cached": false
                   },
-                  "block_hash": "000000000000000000055d74536da85fd858703f61f0f738d335bfdaa7181619",
                   "block_height": 757598,
                   "median_time_past": 1665248564,
                   "is_coinbase": false
@@ -956,7 +933,6 @@
                     "pk_script": "0x001447bfd4c95137738c1b9e131b6557b1dcae1a741d",
                     "cached": false
                   },
-                  "block_hash": "0000000000000000000464486d1e0a909ea78f4a6023f202682137c346dda6ad",
                   "block_height": 756818,
                   "median_time_past": 1665248564,
                   "is_coinbase": false
@@ -977,7 +953,6 @@
                     "pk_script": "0x001447bfd4c95137738c1b9e131b6557b1dcae1a741d",
                     "cached": false
                   },
-                  "block_hash": "0000000000000000000342923b4df87bba3ccb34b100dc176d4799707331407f",
                   "block_height": 757690,
                   "median_time_past": 1665248564,
                   "is_coinbase": false
@@ -1017,7 +992,6 @@
                     "pk_script": "0x00140b7389afc5745dccb1ae670e1af85166a58d490e",
                     "cached": false
                   },
-                  "block_hash": "00000000000000000000fa91f6d269f011d83d5d4b26645bd69a70fa7cd6769f",
                   "block_height": 757688,
                   "median_time_past": 1665248564,
                   "is_coinbase": false
@@ -1038,7 +1012,6 @@
                     "pk_script": "0x00140b7389afc5745dccb1ae670e1af85166a58d490e",
                     "cached": false
                   },
-                  "block_hash": "00000000000000000002f0aca4ba708fbadb17781ce3194a2928dd8cb9748222",
                   "block_height": 757736,
                   "median_time_past": 1665248564,
                   "is_coinbase": false
@@ -1073,7 +1046,6 @@
                     "pk_script": "0x001412df6ffbe342f41bdb6304aca93584a0cd411779",
                     "cached": false
                   },
-                  "block_hash": "000000000000000000083cc4888114cd9295e66fc9efb289e579706fa7b40bae",
                   "block_height": 757713,
                   "median_time_past": 1665248564,
                   "is_coinbase": false
@@ -1113,7 +1085,6 @@
                     "pk_script": "0x00140b0fa4545711fe6761bd017a337416d7f793959a",
                     "cached": false
                   },
-                  "block_hash": "000000000000000000079739304ca072bb310e5b3e86a321e5a8d9c6e167813f",
                   "block_height": 757731,
                   "median_time_past": 1665248564,
                   "is_coinbase": false
@@ -1153,7 +1124,6 @@
                     "pk_script": "0x0014c0da5d5d736d0b6a2731db0e2ac8754fd1d2dd0e",
                     "cached": false
                   },
-                  "block_hash": "00000000000000000001c4ffa847267d4f7a6842421cba3f1ec195062ea1057e",
                   "block_height": 757738,
                   "median_time_past": 1665248564,
                   "is_coinbase": false
@@ -1193,7 +1163,6 @@
                     "pk_script": "0x0020c10438f69200f8b41bf1efb719613fdd2cb858cd29bd87acef9413886259c332",
                     "cached": false
                   },
-                  "block_hash": "00000000000000000001c4ffa847267d4f7a6842421cba3f1ec195062ea1057e",
                   "block_height": 757738,
                   "median_time_past": 1665248564,
                   "is_coinbase": false
@@ -1230,7 +1199,6 @@
                     "pk_script": "0x0014a6ad7b283bdfd934b3b22800d761085ea76e5a94",
                     "cached": false
                   },
-                  "block_hash": "00000000000000000007298e56f2681be6533136531341b0bd056df36e2265b0",
                   "block_height": 757730,
                   "median_time_past": 1665248564,
                   "is_coinbase": false
@@ -1270,7 +1238,6 @@
                     "pk_script": "0x0014873b00eafc8bd6ec1b0c5a7c382b5c9887b28807",
                     "cached": false
                   },
-                  "block_hash": "00000000000000000002007c2afd22210158c44986e0e791860a2946b1823703",
                   "block_height": 757714,
                   "median_time_past": 1665248564,
                   "is_coinbase": false
@@ -1305,7 +1272,6 @@
                     "pk_script": "0x76a9141bf21ed0f5ac8282bfc844ccb5f3187884524fb088ac",
                     "cached": false
                   },
-                  "block_hash": "00000000000000000001c4ffa847267d4f7a6842421cba3f1ec195062ea1057e",
                   "block_height": 757738,
                   "median_time_past": 1665248564,
                   "is_coinbase": false
@@ -1323,7 +1289,6 @@
                     "pk_script": "0x76a914a7b8c3f2c55a729832c057750d2f1568063552a088ac",
                     "cached": false
                   },
-                  "block_hash": "00000000000000000008e4d4fc36e83803f9602a067f68bd53cf11b73d0c52ab",
                   "block_height": 757567,
                   "median_time_past": 1665248564,
                   "is_coinbase": false
@@ -1355,7 +1320,6 @@
                     "pk_script": "0x001473540c3bd326dbf6cd66d9fa7bd2f11197382cd8",
                     "cached": false
                   },
-                  "block_hash": "000000000000000000079739304ca072bb310e5b3e86a321e5a8d9c6e167813f",
                   "block_height": 757731,
                   "median_time_past": 1665248564,
                   "is_coinbase": false
@@ -1376,7 +1340,6 @@
                     "pk_script": "0x001473540c3bd326dbf6cd66d9fa7bd2f11197382cd8",
                     "cached": false
                   },
-                  "block_hash": "000000000000000000080f121c246c1261b8067d1714cc0696728561c7bd862f",
                   "block_height": 757734,
                   "median_time_past": 1665248564,
                   "is_coinbase": false
@@ -1416,7 +1379,6 @@
                     "pk_script": "0x00146617c9f222186efdfa2ca6326426b72569c093fb",
                     "cached": false
                   },
-                  "block_hash": "00000000000000000006cc144a3bba64189bbad3b2768c718d7a203447ac0df7",
                   "block_height": 757663,
                   "median_time_past": 1665248564,
                   "is_coinbase": false
@@ -1456,7 +1418,6 @@
                     "pk_script": "0x76a914ce35e804ab2f8db20e42a875bd6f56f83287dbbc88ac",
                     "cached": false
                   },
-                  "block_hash": "000000000000000000080f121c246c1261b8067d1714cc0696728561c7bd862f",
                   "block_height": 757734,
                   "median_time_past": 1665248564,
                   "is_coinbase": false
@@ -1493,7 +1454,6 @@
                     "pk_script": "0x0014dc1691cacb0a7365a1ab492347bd25c939cc9b60",
                     "cached": false
                   },
-                  "block_hash": "0000000000000000000060b46729c10e86ec9eea673852c9011e158103ce4294",
                   "block_height": 757735,
                   "median_time_past": 1665248564,
                   "is_coinbase": false
@@ -1514,7 +1474,6 @@
                     "pk_script": "0x0014dc1691cacb0a7365a1ab492347bd25c939cc9b60",
                     "cached": false
                   },
-                  "block_hash": "0000000000000000000060b46729c10e86ec9eea673852c9011e158103ce4294",
                   "block_height": 757735,
                   "median_time_past": 1665248564,
                   "is_coinbase": false
@@ -1535,7 +1494,6 @@
                     "pk_script": "0x0014dc1691cacb0a7365a1ab492347bd25c939cc9b60",
                     "cached": false
                   },
-                  "block_hash": "0000000000000000000060b46729c10e86ec9eea673852c9011e158103ce4294",
                   "block_height": 757735,
                   "median_time_past": 1665248564,
                   "is_coinbase": false
@@ -1570,7 +1528,6 @@
                     "pk_script": "0x0014ca5ebb6ecf79994b90d4984c8ab273957e844c27",
                     "cached": false
                   },
-                  "block_hash": "0000000000000000000060b46729c10e86ec9eea673852c9011e158103ce4294",
                   "block_height": 757735,
                   "median_time_past": 1665248564,
                   "is_coinbase": false
@@ -1610,7 +1567,6 @@
                     "pk_script": "0x001436fc88349cf8132c739f97e8ed440e035a14ad45",
                     "cached": false
                   },
-                  "block_hash": "00000000000000000005cb5975cb159837471adbe3f3f789e1b632580c40bca3",
                   "block_height": 757407,
                   "median_time_past": 1665248564,
                   "is_coinbase": false
@@ -1631,7 +1587,6 @@
                     "pk_script": "0x001432b24316ee23f7388bdb07297eb50cc9ae37c200",
                     "cached": false
                   },
-                  "block_hash": "0000000000000000000060b46729c10e86ec9eea673852c9011e158103ce4294",
                   "block_height": 757735,
                   "median_time_past": 1665248564,
                   "is_coinbase": false
@@ -1671,7 +1626,6 @@
                     "pk_script": "0x00146a15d006a9ce0b19f506a4f35b7a9d931e454ed0",
                     "cached": false
                   },
-                  "block_hash": "0000000000000000000406f9e745e597fdf953ef0a0c123b15da34748f80446e",
                   "block_height": 757737,
                   "median_time_past": 1665248564,
                   "is_coinbase": false
@@ -1706,7 +1660,6 @@
                     "pk_script": "0x0014c5d2786175a67a428f9f161b9bc66971310598a0",
                     "cached": false
                   },
-                  "block_hash": "0000000000000000000406f9e745e597fdf953ef0a0c123b15da34748f80446e",
                   "block_height": 757737,
                   "median_time_past": 1665248564,
                   "is_coinbase": false
@@ -1746,7 +1699,6 @@
                     "pk_script": "0x0014ec5cc0512b2d7067ae2d314cd192fe2e9815f64f",
                     "cached": false
                   },
-                  "block_hash": "0000000000000000000229123c4910d222a1471e8998cb21ad5e2a64711a1a21",
                   "block_height": 756916,
                   "median_time_past": 1665248564,
                   "is_coinbase": false
@@ -1781,7 +1733,6 @@
                     "pk_script": "0x0014df419d00a2f54e4a49167a30653467002a3c355c",
                     "cached": false
                   },
-                  "block_hash": "00000000000000000004572de32677b2ff0e555ec33fe0cd846c17b8972d7673",
                   "block_height": 748467,
                   "median_time_past": 1665248564,
                   "is_coinbase": false
@@ -1821,7 +1772,6 @@
                     "pk_script": "0xa9147d5507948d35fddeb228e03a10e95e8e2cf0153887",
                     "cached": false
                   },
-                  "block_hash": "000000000000000000039355d62776206defd9fdbdc3771a032952532c35dd8d",
                   "block_height": 755815,
                   "median_time_past": 1665248564,
                   "is_coinbase": false
@@ -1866,7 +1816,6 @@
                     "pk_script": "0x001425c8eb18f8308afc61846578be9276a5cb2df3a6",
                     "cached": false
                   },
-                  "block_hash": "0000000000000000000406f9e745e597fdf953ef0a0c123b15da34748f80446e",
                   "block_height": 757737,
                   "median_time_past": 1665248564,
                   "is_coinbase": false
@@ -1887,7 +1836,6 @@
                     "pk_script": "0x001425c8eb18f8308afc61846578be9276a5cb2df3a6",
                     "cached": false
                   },
-                  "block_hash": "00000000000000000006e3485372476ee3bda1de796b001b56782fa1e17be39c",
                   "block_height": 757717,
                   "median_time_past": 1665248564,
                   "is_coinbase": false
@@ -1922,7 +1870,6 @@
                     "pk_script": "0x001492f38bab1075e5bb6e7d47238b3089861be7709c",
                     "cached": false
                   },
-                  "block_hash": "0000000000000000000406f9e745e597fdf953ef0a0c123b15da34748f80446e",
                   "block_height": 757737,
                   "median_time_past": 1665248564,
                   "is_coinbase": false
@@ -1957,7 +1904,6 @@
                     "pk_script": "0x001472a1a5f786ea4a6d7623e36dcff6109fc2eb87c2",
                     "cached": false
                   },
-                  "block_hash": "000000000000000000056f479da4fcbf0a4dcdeeaa309f4d965ec70b8e742616",
                   "block_height": 757712,
                   "median_time_past": 1665248564,
                   "is_coinbase": false
@@ -1997,7 +1943,6 @@
                     "pk_script": "0x0014ce5709ae4c7aef429a8ca3350f2aa0ce85ba7ff7",
                     "cached": false
                   },
-                  "block_hash": "00000000000000000002f0aca4ba708fbadb17781ce3194a2928dd8cb9748222",
                   "block_height": 757736,
                   "median_time_past": 1665248564,
                   "is_coinbase": false
@@ -2037,7 +1982,6 @@
                     "pk_script": "0x0014b39816a0ff03dbc4bb3614306fb341882e8f5dc4",
                     "cached": false
                   },
-                  "block_hash": "00000000000000000007a77a5e6c91466273b3fd2c2e1d85b0f377cff14f4294",
                   "block_height": 757692,
                   "median_time_past": 1665248564,
                   "is_coinbase": false
@@ -2077,7 +2021,6 @@
                     "pk_script": "0x76a91425ceb7d5f6b1d9d15375037a8f44011b2e62b5dd88ac",
                     "cached": false
                   },
-                  "block_hash": "00000000000000000003b3bdd08b2bc8a4dac190685d4a562b15cf14e3f2fed0",
                   "block_height": 757544,
                   "median_time_past": 1665248564,
                   "is_coinbase": false
@@ -2095,7 +2038,6 @@
                     "pk_script": "0x76a914fdb57509e8e4c78421f117981c74fac5f7a358ee88ac",
                     "cached": false
                   },
-                  "block_hash": "0000000000000000000060b46729c10e86ec9eea673852c9011e158103ce4294",
                   "block_height": 757735,
                   "median_time_past": 1665248564,
                   "is_coinbase": false
@@ -2127,7 +2069,6 @@
                     "pk_script": "0x00147b09664a87ccf2806a9b48f003384081d6aaaba5",
                     "cached": false
                   },
-                  "block_hash": "0000000000000000000249c6e769fc65af62d18331e5803f2f7f5e1a482d1013",
                   "block_height": 757732,
                   "median_time_past": 1665248564,
                   "is_coinbase": false
@@ -2148,7 +2089,6 @@
                     "pk_script": "0x00141636ab581f574bfcce6cd98223be82c17237a644",
                     "cached": false
                   },
-                  "block_hash": "00000000000000000006098f2ffdd34e0b4d1efaab83cff691c8c882cec09dfc",
                   "block_height": 757703,
                   "median_time_past": 1665248564,
                   "is_coinbase": false
@@ -2169,7 +2109,6 @@
                     "pk_script": "0x0014607aa0536a89b6dc823e31d1d7c64b094caccc3a",
                     "cached": false
                   },
-                  "block_hash": "00000000000000000007298e56f2681be6533136531341b0bd056df36e2265b0",
                   "block_height": 757730,
                   "median_time_past": 1665248564,
                   "is_coinbase": false
@@ -2190,7 +2129,6 @@
                     "pk_script": "0x00140b759b59baa8cc56c135614de4127798fdd57dab",
                     "cached": false
                   },
-                  "block_hash": "00000000000000000007298e56f2681be6533136531341b0bd056df36e2265b0",
                   "block_height": 757730,
                   "median_time_past": 1665248564,
                   "is_coinbase": false
@@ -2211,7 +2149,6 @@
                     "pk_script": "0x00141f5604584c1a6243cbc2f1ab7c82697a1dddb72a",
                     "cached": false
                   },
-                  "block_hash": "000000000000000000079739304ca072bb310e5b3e86a321e5a8d9c6e167813f",
                   "block_height": 757731,
                   "median_time_past": 1665248564,
                   "is_coinbase": false
@@ -2232,7 +2169,6 @@
                     "pk_script": "0xa9143b22623fcfac967186714cb50a862f7383de8cf387",
                     "cached": false
                   },
-                  "block_hash": "000000000000000000079739304ca072bb310e5b3e86a321e5a8d9c6e167813f",
                   "block_height": 757731,
                   "median_time_past": 1665248564,
                   "is_coinbase": false
@@ -2307,7 +2243,6 @@
                     "pk_script": "0x001434717e7661168643c31b031462aac7c615741747",
                     "cached": false
                   },
-                  "block_hash": "0000000000000000000249c6e769fc65af62d18331e5803f2f7f5e1a482d1013",
                   "block_height": 757732,
                   "median_time_past": 1665248564,
                   "is_coinbase": false
@@ -2347,7 +2282,6 @@
                     "pk_script": "0x0014742ce48f673c79b7806ac1eec2de2fc92f0b84f8",
                     "cached": false
                   },
-                  "block_hash": "0000000000000000000249c6e769fc65af62d18331e5803f2f7f5e1a482d1013",
                   "block_height": 757732,
                   "median_time_past": 1665248564,
                   "is_coinbase": false
@@ -2387,7 +2321,6 @@
                     "pk_script": "0x0014da586708cd6ea6a31ecf58aaa2d4a3a61df979c3",
                     "cached": false
                   },
-                  "block_hash": "00000000000000000006c11951289d59d2094d8ccb02510c26e2aa441d55b307",
                   "block_height": 757607,
                   "median_time_past": 1665248564,
                   "is_coinbase": false
@@ -2422,7 +2355,6 @@
                     "pk_script": "0xa914bf1b8aa79d105a49d3de886210ac1c80357831df87",
                     "cached": false
                   },
-                  "block_hash": "000000000000000000056aba36b5f6aedf5581c437d99ea32172d1d9e3786afa",
                   "block_height": 757154,
                   "median_time_past": 1665248564,
                   "is_coinbase": false
@@ -2446,7 +2378,6 @@
                     "pk_script": "0xa914dc227094e287f6cec51c31f6cc610934503f28b987",
                     "cached": false
                   },
-                  "block_hash": "000000000000000000015b92ded494a7dd61bbd81bd3dac4f805298671f0a7db",
                   "block_height": 757519,
                   "median_time_past": 1665248564,
                   "is_coinbase": false
@@ -2489,7 +2420,6 @@
                     "pk_script": "0x76a9148b6f101c51e5a5d332985329a70da3071df2899888ac",
                     "cached": false
                   },
-                  "block_hash": "0000000000000000000406f9e745e597fdf953ef0a0c123b15da34748f80446e",
                   "block_height": 757737,
                   "median_time_past": 1665248564,
                   "is_coinbase": false
@@ -2507,7 +2437,6 @@
                     "pk_script": "0x76a914b783ebaf1e53aa8dd6f8bbd3c8622b0e08bcde3288ac",
                     "cached": false
                   },
-                  "block_hash": "00000000000000000008130318bfea137d2e4dabedcdf4d99eeea52a827ca9e5",
                   "block_height": 755835,
                   "median_time_past": 1665248564,
                   "is_coinbase": false
@@ -2544,7 +2473,6 @@
                     "pk_script": "0x00140427b2dd010924a7d3747a79444f656978ec82c2",
                     "cached": false
                   },
-                  "block_hash": "00000000000000000006098f2ffdd34e0b4d1efaab83cff691c8c882cec09dfc",
                   "block_height": 757703,
                   "median_time_past": 1665248564,
                   "is_coinbase": false
@@ -2584,7 +2512,6 @@
                     "pk_script": "0x0014f80fa4ca2ad41d2a338e228789042769797970ef",
                     "cached": false
                   },
-                  "block_hash": "00000000000000000003d75198690a562ec6fc68fe59d43a15d9543c021f00e9",
                   "block_height": 757659,
                   "median_time_past": 1665248564,
                   "is_coinbase": false
@@ -2605,7 +2532,6 @@
                     "pk_script": "0x00145fa5093c5cc6f6d6cd6eb679995f51aead1ed5a0",
                     "cached": false
                   },
-                  "block_hash": "00000000000000000007e076d996e687b4a93dae8b81d3a6d8bd6f249895a95e",
                   "block_height": 757333,
                   "median_time_past": 1665248564,
                   "is_coinbase": false
@@ -2645,7 +2571,6 @@
                     "pk_script": "0x0014317cb16153e35648d38123516c5bf076d2966b0d",
                     "cached": false
                   },
-                  "block_hash": "000000000000000000085fa275c85243f63bc85f380e1cca6b1c122b90587998",
                   "block_height": 756293,
                   "median_time_past": 1665248564,
                   "is_coinbase": false
@@ -2680,7 +2605,6 @@
                     "pk_script": "0x0014fba271901401d16d05e34a5cfdfa81ece6c7bf44",
                     "cached": false
                   },
-                  "block_hash": "000000000000000000079f8f03f9e8f807cd71f6e74a818925c253d664c7cdf3",
                   "block_height": 757548,
                   "median_time_past": 1665248564,
                   "is_coinbase": false
@@ -2701,7 +2625,6 @@
                     "pk_script": "0x00147ce283713da856414dca53a6143ac7239970a41a",
                     "cached": false
                   },
-                  "block_hash": "0000000000000000000322d4b7b0d5d51bb80e5fa80b48db9587460ce294c1a7",
                   "block_height": 757698,
                   "median_time_past": 1665248564,
                   "is_coinbase": false
@@ -2722,7 +2645,6 @@
                     "pk_script": "0x001480514ba9270fbbeac3097cf439075811222b78ce",
                     "cached": false
                   },
-                  "block_hash": "000000000000000000086dc8b8deefe419527d15af8de65f819ec70c7b81fa74",
                   "block_height": 755893,
                   "median_time_past": 1665248564,
                   "is_coinbase": false
@@ -2743,7 +2665,6 @@
                     "pk_script": "0x00143803b290cfbae268f1ae29408d548a92b486c363",
                     "cached": false
                   },
-                  "block_hash": "00000000000000000001c40c09b3f348bce6ea73990ecc15c2d915c0806e24b7",
                   "block_height": 757599,
                   "median_time_past": 1665248564,
                   "is_coinbase": false
@@ -2783,7 +2704,6 @@
                     "pk_script": "0x002037fda9847471fa78ea3d67179ee99d5da51c66c8c69252c0954f2e134ec7340d",
                     "cached": false
                   },
-                  "block_hash": "0000000000000000000484523bb3b96261b85533561290f2d2cc11b7fbfc7bdc",
                   "block_height": 757728,
                   "median_time_past": 1665248564,
                   "is_coinbase": false
@@ -2825,7 +2745,6 @@
                     "pk_script": "0x001489eff04c294fb6d3a46270134ec6013fb889ef16",
                     "cached": false
                   },
-                  "block_hash": "0000000000000000000060b46729c10e86ec9eea673852c9011e158103ce4294",
                   "block_height": 757735,
                   "median_time_past": 1665248564,
                   "is_coinbase": false
@@ -2865,7 +2784,6 @@
                     "pk_script": "0x76a9147b904242a4c2ad57cddd3b9e2b7d2aed67244dad88ac",
                     "cached": false
                   },
-                  "block_hash": "00000000000000000001c4ffa847267d4f7a6842421cba3f1ec195062ea1057e",
                   "block_height": 757738,
                   "median_time_past": 1665248564,
                   "is_coinbase": false
@@ -2902,7 +2820,6 @@
                     "pk_script": "0x76a9147711eab6ffcc99e4376ac39f4022de413e1ea2a988ac",
                     "cached": false
                   },
-                  "block_hash": "0000000000000000000060b46729c10e86ec9eea673852c9011e158103ce4294",
                   "block_height": 757735,
                   "median_time_past": 1665248564,
                   "is_coinbase": false
@@ -2939,7 +2856,6 @@
                     "pk_script": "0x76a9142e70364cfed8761914d5f91a923dc5c2b26dfce988ac",
                     "cached": false
                   },
-                  "block_hash": "0000000000000000000249c6e769fc65af62d18331e5803f2f7f5e1a482d1013",
                   "block_height": 757732,
                   "median_time_past": 1665248564,
                   "is_coinbase": false
@@ -2957,7 +2873,6 @@
                     "pk_script": "0x76a914b4a789ce3b27f32fe0c5f443d01bf81ef5cf743988ac",
                     "cached": false
                   },
-                  "block_hash": "0000000000000000000249c6e769fc65af62d18331e5803f2f7f5e1a482d1013",
                   "block_height": 757732,
                   "median_time_past": 1665248564,
                   "is_coinbase": false
@@ -2994,7 +2909,6 @@
                     "pk_script": "0x0020ddc9efe2471c1ed3a002b02dd093d3da115d7ee48591461ae417dcb9c43d92d4",
                     "cached": false
                   },
-                  "block_hash": "000000000000000000079739304ca072bb310e5b3e86a321e5a8d9c6e167813f",
                   "block_height": 757731,
                   "median_time_past": 1665248564,
                   "is_coinbase": false
@@ -3017,7 +2931,6 @@
                     "pk_script": "0x0020ddc9efe2471c1ed3a002b02dd093d3da115d7ee48591461ae417dcb9c43d92d4",
                     "cached": false
                   },
-                  "block_hash": "0000000000000000000249c6e769fc65af62d18331e5803f2f7f5e1a482d1013",
                   "block_height": 757732,
                   "median_time_past": 1665248564,
                   "is_coinbase": false
@@ -3054,7 +2967,6 @@
                     "pk_script": "0x00208ee5855e25e952df928d06a69aa4846ec2995ffa6632794208e4f8b92f21bd62",
                     "cached": false
                   },
-                  "block_hash": "00000000000000000004752b31b61b3d138669da5ad8e6bbdea4bcad5fe55fa5",
                   "block_height": 725621,
                   "median_time_past": 1665248564,
                   "is_coinbase": false
@@ -3096,7 +3008,6 @@
                     "pk_script": "0xa914f500fe6addcb5f128592b27cc855b8d0614900d687",
                     "cached": false
                   },
-                  "block_hash": "000000000000000000034ce911a0cfd12d7f100085f071611ae62f5438ff6779",
                   "block_height": 756789,
                   "median_time_past": 1665248564,
                   "is_coinbase": false
@@ -3114,7 +3025,6 @@
                     "pk_script": "0xa914f500fe6addcb5f128592b27cc855b8d0614900d687",
                     "cached": false
                   },
-                  "block_hash": "0000000000000000000136d2e367c81f36bd4c1e320231ed5d501b4e654151a1",
                   "block_height": 757435,
                   "median_time_past": 1665248564,
                   "is_coinbase": false
@@ -3132,7 +3042,6 @@
                     "pk_script": "0xa914f500fe6addcb5f128592b27cc855b8d0614900d687",
                     "cached": false
                   },
-                  "block_hash": "000000000000000000022f1b6d09bc57d460d3fa5b02c3e22905c36402b25cc7",
                   "block_height": 756797,
                   "median_time_past": 1665248564,
                   "is_coinbase": false
@@ -3150,7 +3059,6 @@
                     "pk_script": "0xa914f500fe6addcb5f128592b27cc855b8d0614900d687",
                     "cached": false
                   },
-                  "block_hash": "0000000000000000000406f9e745e597fdf953ef0a0c123b15da34748f80446e",
                   "block_height": 757737,
                   "median_time_past": 1665248564,
                   "is_coinbase": false
@@ -3182,7 +3090,6 @@
                     "pk_script": "0xa914418adb947b13edb7e7bdb7f0dbeeabcde60c3e3087",
                     "cached": false
                   },
-                  "block_hash": "0000000000000000000406f9e745e597fdf953ef0a0c123b15da34748f80446e",
                   "block_height": 757737,
                   "median_time_past": 1665248564,
                   "is_coinbase": false

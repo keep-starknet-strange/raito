@@ -232,7 +232,6 @@ def format_outpoint(previous_output, median_time_past):
             "pk_script": f'0x{previous_output["pk_script"]}',
             "cached": False,
         },
-        "block_hash": previous_output["block_hash"],
         "block_height": int(previous_output["block_height"]),
         "median_time_past": median_time_past,
         "is_coinbase": previous_output["is_coinbase"],
@@ -249,7 +248,6 @@ def resolve_outpoint(input: dict, median_time_past: int):
         "txid": input["txid"],
         "vout": input["vout"],
         "data": format_output(tx["vout"][input["vout"]]),
-        "block_hash": tx["blockhash"],
         "block_height": block["height"],
         "median_time_past": median_time_past,
         "is_coinbase": tx["vin"][0].get("coinbase") is not None,
@@ -265,7 +263,6 @@ def format_coinbase_input(input: dict):
             "txid": "0" * 64,
             "vout": 0xFFFFFFFF,
             "data": {"value": 0, "pk_script": "0x", "cached": False},
-            "block_hash": "0" * 64,
             "block_height": 0,
             "median_time_past": 0,
             "is_coinbase": False,
@@ -318,7 +315,6 @@ def format_header(header: dict):
     :param header: block header obtained from RPC
     """
     return {
-        "hash": header["hash"],
         "version": header["version"],
         "time": header["time"],
         "bits": int.from_bytes(bytes.fromhex(header["bits"]), "big"),

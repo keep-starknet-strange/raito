@@ -69,15 +69,12 @@ class TxOut:
 
 
 class OutPoint:
-    def __init__(
-        self, txid, vout, data, block_height, median_time_past, block_hash, is_coinbase
-    ):
+    def __init__(self, txid, vout, data, block_height, median_time_past, is_coinbase):
         self.txid = txid
         self.vout = vout
         self.data = data  # Instance de TxOut
         self.block_height = block_height
         self.median_time_past = median_time_past
-        self.block_hash = block_hash
         self.is_coinbase = is_coinbase
 
     def hash(self):
@@ -95,11 +92,6 @@ class OutPoint:
         for e in self.data.serialize():
             tab.append(e)
 
-        # block hash (2x u128 in little endian high/low)
-        txid_bytes = bytes.fromhex(self.block_hash)
-        tab.append(int.from_bytes(txid_bytes[:16], "big"))
-        tab.append(int.from_bytes(txid_bytes[16:], "big"))
-
         tab.append(self.block_height)
         tab.append(self.median_time_past)
 
@@ -115,7 +107,6 @@ class OutPoint:
                 tx_out={self.data}\n\
                 block_height={self.block_height}\n\
                 median_time_past={self.median_time_past}\n\
-                block_hash={self.block_hash}\n\
                 is_coinbase={self.is_coinbase}\n\
                 hash={self.hash()})"
 
@@ -176,7 +167,6 @@ class UtreexoData:
                 ),
                 block_height=outpoint["block_height"],
                 median_time_past=outpoint["median_time_past"],
-                block_hash=outpoint["block_hash"],
                 is_coinbase=outpoint["is_coinbase"],
             )
 
@@ -217,7 +207,6 @@ class UtreexoData:
                 ),
                 block_height=block_height,
                 median_time_past=median_time_past,
-                block_hash=block_hash,
                 is_coinbase=is_coinbase,
             )
 
