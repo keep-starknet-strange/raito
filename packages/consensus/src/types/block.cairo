@@ -137,8 +137,14 @@ mod tests {
             0x7dac2c5666815c17a3b36427de37bb9d2e2c5ccec3f8633eb91a4205cb4c10ff_u256
             .into();
 
-        let result = header.validate_hash(chain_state.best_block_hash, merkle_root);
-        assert!(result.is_ok());
+        let block_hash_result: Digest = header.hash(chain_state.best_block_hash, merkle_root);
+
+        //0x00000000d1145790a8694403d4063f323d499e655c83426834d4ce2f8dd4a2ee
+        let expected_block_hash: Digest =
+            0x00000000d1145790a8694403d4063f323d499e655c83426834d4ce2f8dd4a2ee_u256
+            .into();
+
+        assert_eq!(expected_block_hash, block_hash_result);
     }
 
     #[test]
@@ -156,8 +162,13 @@ mod tests {
             0x6dac2c5666815c17a3b36427de37bb9d2e2c5ccec3f8633eb91a4205cb4c10ff_u256
             .into();
 
-        let result = header.validate_hash(chain_state.best_block_hash, merkle_root);
-        assert!(result.is_err());
+        let block_hash_result: Digest = header.hash(chain_state.best_block_hash, merkle_root);
+
+        let expected_block_hash: Digest =
+            0x00000000d1145790a8694403d4063f323d499e655c83426834d4ce2f8dd4a2ee_u256
+            .into();
+
+        assert_ne!(expected_block_hash, block_hash_result);
     }
 
     #[test]
@@ -175,7 +186,12 @@ mod tests {
             0x7dac2c5666815c17a3b36427de37bb9d2e2c5ccec3f8633eb91a4205cb4c10ff_u256
             .into();
 
-        let result = header.validate_hash(chain_state.best_block_hash, merkle_root);
-        assert!(result.is_err());
+        let block_hash_result: Digest = header.hash(chain_state.best_block_hash, merkle_root);
+
+        let expected_block_hash: Digest =
+            0x00000000d1145790a8694403d4063f323d499e655c83426834d4ce2f8dd4a2ee_u256
+            .into();
+
+        assert_ne!(expected_block_hash, block_hash_result);
     }
 }

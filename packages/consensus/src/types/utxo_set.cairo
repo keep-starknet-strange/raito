@@ -171,7 +171,6 @@ mod tests {
                 pk_script: @from_hex("6a4c54000000000000000000000000000000000000000088ac"),
                 cached,
             },
-            block_hash: Default::default(),
             block_height: Default::default(),
             median_time_past: Default::default(),
             is_coinbase: false,
@@ -212,9 +211,6 @@ mod tests {
             },
             block_height: 9,
             median_time_past: 1231473279,
-            block_hash: hex_to_hash_rev(
-                "000000008d9dc510f23c2657fc4f67bea30078cc05a90eb89e84cc475c080805"
-            ),
             is_coinbase: true
         }
     }
@@ -224,7 +220,7 @@ mod tests {
     fn test_poseidon1() {
         let outpoint: OutPoint = get_outpoint();
         let outpoint_hash = PoseidonTrait::new().update_with(outpoint).finalize();
-        let expected: felt252 = 0x58AFF693254F7B140285AD614EE509E8336496EE259AC890B9B03B3C2E4B9AE;
+        let expected: felt252 = 0x1E75C4C86C74C8808E45065A0591C850B3B3961C06F78DEFD12A55C2E4987CD;
         assert_eq!(outpoint_hash, expected);
     }
 }
