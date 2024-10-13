@@ -5,7 +5,7 @@
 
 use utils::{hash::Digest, bytearray::{ByteArraySnapHash, ByteArraySnapSerde}};
 use core::fmt::{Display, Formatter, Error};
-use core::hash::{HashStateTrait, HashStateExTrait};
+use core::hash::{HashStateTrait, HashStateExTrait, Hash};
 use core::poseidon::PoseidonTrait;
 
 /// Represents a transaction.
@@ -51,9 +51,6 @@ pub struct TxIn {
 }
 
 /// A reference to an unspent transaction output (UTXO).
-///
-/// NOTE that `data` and `block_height` meta fields are not serialized with the rest of
-/// the transaction and hence are not constrained with the transaction hash.
 ///
 /// There are four possible cases:
 ///   1. Coinbase input that does not spend any outputs (zero txid)
@@ -108,13 +105,16 @@ pub struct OutPoint {
 /// Output of a transaction.
 /// https://learnmeabitcoin.com/technical/transaction/output/
 ///
+/// NOTE that `cached` meta field is not serialized with the rest of the output data, 
+/// so it's not constrained by the transaction hash.
+///
 /// Upon processing (validating) an output one of three actions must be taken:
 ///     - Add output with some extra info (see [OutPoint]) to the Utreexo accumulator
 ///     - Add output to the cache in case it is going to be spent in the same block
 ///     - Do nothing in case of a provably unspendable output
 ///
 /// Read more: https://en.bitcoin.it/wiki/Script#Provably_Unspendable/Prunable_Outputs
-#[derive(Drop, Copy, Debug, PartialEq, Serde, Hash)]
+#[derive(Drop, Copy, Debug, PartialEq, Serde)]
 pub struct TxOut {
     /// The value of the output in satoshis.
     /// Can be in range [0, 21_000_000] BTC (including both ends).
@@ -125,6 +125,18 @@ pub struct TxOut {
     /// This output won't be added to the utreexo accumulator.
     /// Note that coinbase outputs cannot be spent sooner than 100 blocks after inclusion.
     pub cached: bool,
+}
+
+///
+/// Custom implementation of the Hash trait for TxOut removed cached field.
+/// 
+impl TxOutHash<S, impl SHashState: core::hash::HashStateTrait<S>, +Drop<S>> of core::hash::Hash<TxOut, S, SHashState> {
+    #[inline(always)]
+    fn update_state(state: S, value: TxOut) -> S {
+        let state = Hash::update_state(state, value.value);
+        let state = Hash::update_state(state, value.pk_script);
+        state
+    }
 }
 
 #[generate_trait]

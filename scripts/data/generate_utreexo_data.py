@@ -1,3 +1,5 @@
+import typing as t
+from collections import OrderedDict
 from utreexo import Utreexo
 from poseidon_py.poseidon_hash import poseidon_hash_many
 
@@ -8,11 +10,7 @@ class TxOut:
         self.pk_script = pk_script
         self.cached = cached
 
-    def serialize(self):
-        res = []
-        res.append(self.value)
-
-        data = []
+    def _calculate_sub_data(self) -> t.List[int]:
         sub_data = []
         pending_word = 0
         pending_word_len = 0
@@ -46,20 +44,34 @@ class TxOut:
 
             pending_word = 0
             pending_word_len = 0
-
-        data.append(len(sub_data))
-        data.extend(sub_data)
-
+        
         # Check if there's still a word pending
         if pending_word_len > 0:
-            data.append(pending_word)
-        data.append(pending_word_len)
+            sub_data.append(pending_word)
+            
+        sub_data.append(pending_word_len)
 
-        # Add pk_script serialized
-        res.extend(data)
-        res.append(1 if self.cached else 0)
+        return sub_data
+
+    def serialize(self) -> OrderedDict:
+        res = OrderedDict()
+        
+        sub_data = self._calculate_sub_data()
+
+        res["value"] = self.value
+        res["sub_data_len"] = len(sub_data)
+
+        for idx, word in enumerate(sub_data):
+            res["sub_data_{}".format(idx)] = word
+
+        res["cached"] = 1 if self.cached else 0 
 
         return res
+    
+    def serialize_for_hashing(self) -> t.List[t.Any]:
+        data = self.serialize()
+        data.pop("cached") # We don't need this field for hashing
+        return data.values()
 
     def __repr__(self):
         return f"TxOut(\n\
@@ -69,7 +81,7 @@ class TxOut:
 
 
 class OutPoint:
-    def __init__(self, txid, vout, data, block_height, median_time_past, is_coinbase):
+    def __init__(self, txid, vout, data: TxOut, block_height, median_time_past, is_coinbase):
         self.txid = txid
         self.vout = vout
         self.data = data  # Instance de TxOut
@@ -89,7 +101,7 @@ class OutPoint:
         tab.append(self.vout)
 
         # prev output
-        for e in self.data.serialize():
+        for e in self.data.serialize_for_hashing():
             tab.append(e)
 
         tab.append(self.block_height)
