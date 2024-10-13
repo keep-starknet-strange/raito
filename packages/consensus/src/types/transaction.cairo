@@ -236,12 +236,24 @@ mod tests {
             pk_script: @"410411db93e1dcdb8a016b49840f8c53bc1eb68a382e97b1482ecad7b148a6909a5cb2e0eaddfb84ccf9744464f82e160bfa9b8b64f9d4c03f999b8643f656b412a3ac",
             cached: false,
         };
-        let mut tx2 = TxOut {
+        let mut tx_with_cached_changed = TxOut {
             value: 50_u64,
             pk_script: @"410411db93e1dcdb8a016b49840f8c53bc1eb68a382e97b1482ecad7b148a6909a5cb2e0eaddfb84ccf9744464f82e160bfa9b8b64f9d4c03f999b8643f656b412a3ac",
             cached: true,
         };
-        assert_eq!(tx1.hash(), tx2.hash());
+        let mut tx_with_value_changed = TxOut {
+            value: 55_u64,
+            pk_script: @"410411db93e1dcdb8a016b49840f8c53bc1eb68a382e97b1482ecad7b148a6909a5cb2e0eaddfb84ccf9744464f82e160bfa9b8b64f9d4c03f999b8643f656b412a3ac",
+            cached: false,
+        };
+        let mut tx_with_pk_script_changed = TxOut {
+            value: 50_u64,
+            pk_script: @"510411db93e1dcdb8a016b49840f8c53bc1eb68a382e97b1482ecad7b148a6909a5cb2e0eaddfb84ccf9744464f82e160bfa9b8b64f9d4c03f999b8643f656b412a3ac",
+            cached: false,
+        };
+        assert_eq!(tx1.hash(), tx_with_cached_changed.hash());
+        assert_ne!(tx1.hash(), tx_with_pk_script_changed.hash());
+        assert_ne!(tx1.hash(), tx_with_value_changed.hash());
     }
 
     #[test]
