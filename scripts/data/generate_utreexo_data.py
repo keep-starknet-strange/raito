@@ -44,18 +44,18 @@ class TxOut:
 
             pending_word = 0
             pending_word_len = 0
-        
+
         # Check if there's still a word pending
         if pending_word_len > 0:
             sub_data.append(pending_word)
-            
+
         sub_data.append(pending_word_len)
 
         return sub_data
 
     def serialize(self) -> OrderedDict:
         res = OrderedDict()
-        
+
         sub_data = self._calculate_sub_data()
 
         res["value"] = self.value
@@ -64,13 +64,13 @@ class TxOut:
         for idx, word in enumerate(sub_data):
             res["sub_data_{}".format(idx)] = word
 
-        res["cached"] = 1 if self.cached else 0 
+        res["cached"] = 1 if self.cached else 0
 
         return res
-    
+
     def serialize_for_hashing(self) -> t.List[t.Any]:
         data = self.serialize()
-        data.pop("cached") # We don't need this field for hashing
+        data.pop("cached")  # We don't need this field for hashing
         return data.values()
 
     def __repr__(self):
@@ -81,7 +81,9 @@ class TxOut:
 
 
 class OutPoint:
-    def __init__(self, txid, vout, data: TxOut, block_height, median_time_past, is_coinbase):
+    def __init__(
+        self, txid, vout, data: TxOut, block_height, median_time_past, is_coinbase
+    ):
         self.txid = txid
         self.vout = vout
         self.data = data  # Instance de TxOut
