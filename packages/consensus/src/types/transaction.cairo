@@ -105,7 +105,7 @@ pub struct OutPoint {
 /// Output of a transaction.
 /// https://learnmeabitcoin.com/technical/transaction/output/
 ///
-/// NOTE that `cached` meta field is not serialized with the rest of the output data, 
+/// NOTE: that `cached` meta field is not serialized with the rest of the output data,
 /// so it's not constrained by the transaction hash.
 ///
 /// Upon processing (validating) an output one of three actions must be taken:
@@ -129,8 +129,10 @@ pub struct TxOut {
 
 ///
 /// Custom implementation of the Hash trait for TxOut removed cached field.
-/// 
-impl TxOutHash<S, impl SHashState: core::hash::HashStateTrait<S>, +Drop<S>> of core::hash::Hash<TxOut, S, SHashState> {
+///
+impl TxOutHash<
+    S, impl SHashState: core::hash::HashStateTrait<S>, +Drop<S>
+> of core::hash::Hash<TxOut, S, SHashState> {
     #[inline(always)]
     fn update_state(state: S, value: TxOut) -> S {
         let state = Hash::update_state(state, value.value);
