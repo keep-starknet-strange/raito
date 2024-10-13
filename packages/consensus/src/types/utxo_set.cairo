@@ -150,10 +150,10 @@ mod tests {
         let mut utxo_set: UtxoSet = Default::default();
         utxo_set.add(dummy_outpoint(0, false)).unwrap();
         let _ = utxo_set.add(dummy_unspendable_outpoint(0, false));
-    
+
         utxo_set.add(dummy_outpoint(1, true)).unwrap();
         let _ = utxo_set.add(dummy_unspendable_outpoint(1, true));
-        
+
         utxo_set.add(dummy_outpoint(2, false)).unwrap();
         let _ = utxo_set.add(dummy_unspendable_outpoint(2, false));
 
