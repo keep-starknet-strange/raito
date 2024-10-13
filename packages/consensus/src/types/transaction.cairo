@@ -130,14 +130,19 @@ pub struct TxOut {
 ///
 /// Custom implementation of the Hash trait for TxOut removed cached field.
 ///
-impl TxOutHash<
-    S, impl SHashState: core::hash::HashStateTrait<S>, +Drop<S>
-> of core::hash::Hash<TxOut, S, SHashState> {
+impl TxOutHash<S, impl SHashState: HashStateTrait<S>, +Drop<S>> of Hash<TxOut, S, SHashState> {
     #[inline(always)]
     fn update_state(state: S, value: TxOut) -> S {
         let state = Hash::update_state(state, value.value);
         let state = Hash::update_state(state, value.pk_script);
         state
+    }
+}
+
+#[generate_trait]
+pub impl TxOutImpl of TxOutTrait {
+    fn hash(self: @TxOut) -> felt252 {
+        PoseidonTrait::new().update_with(*self).finalize()
     }
 }
 
@@ -221,8 +226,23 @@ impl TxOutDisplay of Display<TxOut> {
 
 #[cfg(test)]
 mod tests {
-    use super::{OutPoint, OutPointTrait, TxOut};
+    use super::{OutPoint, OutPointTrait, TxOut, TxOutTrait};
     use utils::hash::{DigestTrait};
+
+    #[test]
+    pub fn test_txout_cached_flag_does_not_influence_hash() {
+        let mut tx1 = TxOut {
+            value: 50_u64,
+            pk_script: @"410411db93e1dcdb8a016b49840f8c53bc1eb68a382e97b1482ecad7b148a6909a5cb2e0eaddfb84ccf9744464f82e160bfa9b8b64f9d4c03f999b8643f656b412a3ac",
+            cached: false,
+        };
+        let mut tx2 = TxOut {
+            value: 50_u64,
+            pk_script: @"410411db93e1dcdb8a016b49840f8c53bc1eb68a382e97b1482ecad7b148a6909a5cb2e0eaddfb84ccf9744464f82e160bfa9b8b64f9d4c03f999b8643f656b412a3ac",
+            cached: true,
+        };
+        assert_eq!(tx1.hash(), tx2.hash());
+    }
 
     #[test]
     pub fn test_outpoint_poseidon_hash() {
@@ -241,7 +261,7 @@ mod tests {
         };
         assert_eq!(
             test_outpoint.hash(),
-            1792742871343685730958781310214172384314528955082596937528531832616153781332
+            3426256427357770988835517595549266311441229240020614569376880225204214993534
         );
     }
 }

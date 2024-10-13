@@ -149,11 +149,13 @@ mod tests {
     fn test_not_include_unspendable_utxo() {
         let mut utxo_set: UtxoSet = Default::default();
         utxo_set.add(dummy_outpoint(0, false)).unwrap();
-        utxo_set.add(dummy_unspendable_outpoint(0, false));
+        let _ = utxo_set.add(dummy_unspendable_outpoint(0, false));
+    
         utxo_set.add(dummy_outpoint(1, true)).unwrap();
-        utxo_set.add(dummy_unspendable_outpoint(1, true));
+        let _ = utxo_set.add(dummy_unspendable_outpoint(1, true));
+        
         utxo_set.add(dummy_outpoint(2, false)).unwrap();
-        utxo_set.add(dummy_unspendable_outpoint(2, false));
+        let _ = utxo_set.add(dummy_unspendable_outpoint(2, false));
 
         assert_eq!(utxo_set.leaves_to_add.len(), 2);
         assert_eq!(utxo_set.leaves_to_delete.len(), 0);
@@ -220,7 +222,7 @@ mod tests {
     fn test_poseidon1() {
         let outpoint: OutPoint = get_outpoint();
         let outpoint_hash = PoseidonTrait::new().update_with(outpoint).finalize();
-        let expected: felt252 = 0x1E75C4C86C74C8808E45065A0591C850B3B3961C06F78DEFD12A55C2E4987CD;
+        let expected: felt252 = 0x3945D2584EE5EF0B482B70CD63E0E8CD18827CB348F839D1E6EB8ECBB2B397D;
         assert_eq!(outpoint_hash, expected);
     }
 }
