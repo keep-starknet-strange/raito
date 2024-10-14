@@ -10,7 +10,7 @@ from functools import lru_cache
 
 INDEX_SIZE = 30000
 
-BASE_DIR = ".timestamps_data"
+BASE_DIR = f"{os.path.dirname(os.path.realpath(__file__))}/.timestamps_data"
 
 GCS_BUCKET_NAME = "shinigami-consensus"
 GCS_FOLDER_NAME = "timestamps"

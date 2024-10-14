@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import sys
+import argparse
 import json
 from pathlib import Path
 
@@ -110,17 +110,34 @@ def format_cairo1_run(args: list) -> str:
     return format_item(args)
 
 
-def format_args():
+def format_args(input_file, execute_script):
     """Reads arguments from JSON file and prints formatted result.
     Expects a single CLI argument containing file path.
     Output is compatible with the Scarb runner arguments format.
     """
-    if len(sys.argv) != 2:
-        raise TypeError("Expected single argument")
-    args = json.loads(Path(sys.argv[1]).read_text())
+    args = json.loads(Path(input_file).read_text())
     res = flatten_tuples(serialize(args))
-    print([res])
+    print([res, 1 if execute_script else 0])
 
 
 if __name__ == "__main__":
-    format_args()
+    parser = argparse.ArgumentParser(description="Prepare arguments for Scarb runner.")
+
+    parser.add_argument(
+        "--execute_script",
+        dest="execute_script",
+        action="store_true",
+        help="Execute script",
+    )
+
+    parser.add_argument(
+        "--input_file",
+        dest="input_file",
+        required=True,
+        type=str,
+        help="Input file with arguments in JSON format",
+    )
+
+    args = parser.parse_args()
+
+    format_args(args.input_file, args.execute_script)
