@@ -31,20 +31,22 @@ pub impl UtreexoStateImpl of UtreexoStateTrait {
         self: @UtreexoState,
         hashes_to_add: Span<felt252>,
         hashes_to_delete: Span<felt252>,
-        proofs: Span<UtreexoProof>
+        mut proofs: Span<UtreexoProof>
     ) -> Result<UtreexoState, ByteArray> {
-        let mut proof_idx = 0;
         let mut inner_result = Result::Ok(());
         let mut state = *self;
 
         for hash in hashes_to_delete {
-            let proof = proofs[proof_idx];
-            let inner_result = self.verify(*hash, proof);
-            if inner_result.is_err() {
+            if let Option::Some(proof) = proofs.pop_front() {
+                inner_result = self.verify(*hash, proof);
+                if inner_result.is_err() {
+                    break;
+                }
+                state = state.delete(proof);
+            } else {
+                inner_result = Result::Err(format!("Missing proof for leaf {}", hash));
                 break;
             }
-            state = state.delete(proof);
-            proof_idx += 1;
         };
         inner_result?;
 

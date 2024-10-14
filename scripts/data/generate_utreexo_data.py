@@ -147,9 +147,8 @@ class UtreexoData:
             for i, (txid, tx) in enumerate(block["data"].items()):
                 self.handle_txout(
                     tx["outputs"],
-                    block["hash"],
                     block["height"],
-                    block["time"],
+                    block["mediantime"],
                     txid,
                     i == 0,
                 )
@@ -177,23 +176,17 @@ class UtreexoData:
                 is_coinbase=outpoint["is_coinbase"],
             )
 
-            # Try to remove OutPoint from accumulator and get proof
-            try:
-                proof, leaf_index = self.utreexo.delete(outpoint.hash())
-                proofs.append(
-                    {"proof": list(map(format_node, proof)), "leaf_index": leaf_index}
-                )
-            except Exception as e:
-                print(f"Warning: Failed to delete leaf from Utreexo: {e}")
-                # If the leaf doesn't exist, we'll skip it and continue processing
-                continue
+            # Remove OutPoint from accumulator and get proof
+            proof, leaf_index = self.utreexo.delete(outpoint.hash())
+            proofs.append(
+                {"proof": list(map(format_node, proof)), "leaf_index": leaf_index}
+            )
 
         return proofs
 
     def handle_txout(
         self,
         outputs: list,
-        block_hash: str,
         block_height: int,
         median_time_past: int,
         txid: str,

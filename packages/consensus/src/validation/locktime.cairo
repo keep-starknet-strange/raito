@@ -71,13 +71,6 @@ pub fn validate_relative_locktime(
     let value = sequence & SEQUENCE_LOCKTIME_MASK;
 
     if (sequence & SEQUENCE_LOCKTIME_TYPE_FLAG) != 0 {
-        // TODO: use the median from prev_timestamps of the initial chain state
-        // Note that this has to be provided by the script + at the point where
-        // we update local cache or Utreexo roots.
-        //
-        // Why is it not mentioned here
-        // https://learnmeabitcoin.com/technical/transaction/input/sequence/ ?
-        //
         // Time-based relative lock-times are measured from the
         // smallest allowed timestamp of the block containing the
         // txout being spent, which is the median time past of the

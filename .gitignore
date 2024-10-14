@@ -31,3 +31,7 @@ __pycache__
 .utxo_data/
 .timestamps_data/
 .arguments*.json
+
+corelib
+*.svg
+*.txt

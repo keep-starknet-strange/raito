@@ -3,7 +3,6 @@
 import argparse
 import json
 import os
-import sys
 import time
 from decimal import Decimal, getcontext
 from pathlib import Path
@@ -22,7 +21,6 @@ USERPWD = os.getenv("USERPWD")
 DEFAULT_URL = "https://bitcoin-mainnet.public.blastapi.io"
 
 FAST = False
-
 RETRIES = 3
 DELAY = 2
 
@@ -54,12 +52,6 @@ def request_rpc(method: str, params: list):
                 )
 
 
-def compute_median_time_past(prev_timestamps):
-    """Compute the Median Time Past (MTP) from the previous timestamps."""
-    sorted_timestamps = sorted(prev_timestamps)
-    return sorted_timestamps[len(sorted_timestamps) // 2]
-
-
 def fetch_chain_state_fast(block_height: int):
     """Fetches chain state at the end of a specific block with given height."""
     block_hash = request_rpc("getblockhash", [block_height])
@@ -71,8 +63,7 @@ def fetch_chain_state_fast(block_height: int):
         head["epoch_start_time"] = 1231006505
     else:
         head["epoch_start_time"] = int(data["epoch_start_time"])
-    # Compute median_time_past from prev_timestamps
-    head["median_time_past"] = compute_median_time_past(head["prev_timestamps"])
+
     return head
 
 
@@ -98,7 +89,6 @@ def fetch_chain_state(block_height: int):
             )
             prev_timestamps.insert(0, int(prev_header["time"]))
     head["prev_timestamps"] = prev_timestamps
-    head["median_time_past"] = compute_median_time_past(prev_timestamps)
 
     # In order to init epoch start we need to query block header at epoch start
     if block_height < 2016:
@@ -107,29 +97,6 @@ def fetch_chain_state(block_height: int):
         head["epoch_start_time"] = get_epoch_start_time(block_height)
 
     return head
-
-
-def next_chain_state(head: dict, blocks: list):
-    """Computes resulting chain state given the initial chain state
-    and all blocks that were applied to it.
-    """
-    block_height = head["height"] + len(blocks)
-    next_head = blocks[-1]
-
-    # We need to recalculate the prev_timestamps field given the previous chain state
-    # and all the blocks we applied to it
-    prev_timestamps = head["prev_timestamps"] + list(map(lambda x: x["time"], blocks))
-    next_head["prev_timestamps"] = prev_timestamps[-11:]
-    next_head["median_time_past"] = compute_median_time_past(
-        next_head["prev_timestamps"]
-    )
-
-    # Update epoch start time if necessary
-    if head["height"] // 2016 != block_height // 2016:
-        next_head["epoch_start_time"] = get_epoch_start_time(block_height)
-    else:
-        next_head["epoch_start_time"] = head["epoch_start_time"]
-    return next_head
 
 
 def get_epoch_start_time(block_height: int) -> int:
@@ -168,7 +135,7 @@ def bits_to_target(bits: str) -> int:
         return mantissa << (8 * (exponent - 3))
 
 
-def fetch_block(block_hash: str, fast: bool, current_chain_state: dict):
+def fetch_block(block_hash: str, fast: bool):
     """Downloads block with transactions (and referred UTXOs) from RPC given the block hash."""
     block = request_rpc("getblock", [block_hash, 2])
 
@@ -179,41 +146,36 @@ def fetch_block(block_hash: str, fast: bool, current_chain_state: dict):
     )
 
     block["data"] = {
-        tx["txid"]: resolve_transaction(
-            tx, previous_outputs, current_chain_state["median_time_past"]
-        )
+        tx["txid"]: resolve_transaction(tx, previous_outputs)
         for tx in tqdm(block["tx"], "Resolving transactions")
     }
     return block
 
 
-def resolve_transaction(
-    transaction: dict, previous_outputs: dict, median_time_past: int
-):
+def resolve_transaction(transaction: dict, previous_outputs: dict):
     """Resolves transaction inputs and formats the content according to the Cairo type."""
     return {
         "version": transaction["version"],
         "is_segwit": transaction["hex"][8:12] == "0001",
         "inputs": [
-            resolve_input(input, previous_outputs, median_time_past)
-            for input in transaction["vin"]
+            resolve_input(input, previous_outputs) for input in transaction["vin"]
         ],
         "outputs": [format_output(output) for output in transaction["vout"]],
         "lock_time": transaction["locktime"],
     }
 
 
-def resolve_input(input: dict, previous_outputs: dict, median_time_past: int):
+def resolve_input(input: dict, previous_outputs: dict):
     """Resolves referenced UTXO and formats the transaction inputs according to the Cairo type."""
     if input.get("coinbase"):
         return format_coinbase_input(input)
     else:
         if previous_outputs:
             previous_output = format_outpoint(
-                previous_outputs[(input["txid"], input["vout"])], median_time_past
+                previous_outputs[(input["txid"], input["vout"])]
             )
         else:
-            previous_output = resolve_outpoint(input, median_time_past)
+            previous_output = resolve_outpoint(input)
         return {
             "script": f'0x{input["scriptSig"]["hex"]}',
             "sequence": input["sequence"],
@@ -222,7 +184,7 @@ def resolve_input(input: dict, previous_outputs: dict, median_time_past: int):
         }
 
 
-def format_outpoint(previous_output, median_time_past):
+def format_outpoint(previous_output):
     """Formats output according to the Cairo type."""
     return {
         "txid": previous_output["txid"],
@@ -233,12 +195,13 @@ def format_outpoint(previous_output, median_time_past):
             "cached": False,
         },
         "block_height": int(previous_output["block_height"]),
-        "median_time_past": median_time_past,
+        # Note that BigQuery dataset uses "median_timestamp" instead of "median_time_past"
+        "median_time_past": int(previous_output["median_timestamp"]),
         "is_coinbase": previous_output["is_coinbase"],
     }
 
 
-def resolve_outpoint(input: dict, median_time_past: int):
+def resolve_outpoint(input: dict):
     """Fetches transaction and block header for the referenced output,
     formats resulting outpoint according to the Cairo type.
     """
@@ -249,7 +212,7 @@ def resolve_outpoint(input: dict, median_time_past: int):
         "vout": input["vout"],
         "data": format_output(tx["vout"][input["vout"]]),
         "block_height": block["height"],
-        "median_time_past": median_time_past,
+        "median_time_past": block["mediantime"],
         "is_coinbase": tx["vin"][0].get("coinbase") is not None,
     }
 
@@ -322,7 +285,7 @@ def format_header(header: dict):
     }
 
 
-def apply_chain_state(current_state: dict, new_block: dict) -> dict:
+def next_chain_state(current_state: dict, new_block: dict) -> dict:
     """Computes the next chain state given the current state and a new block."""
     next_state = new_block.copy()
 
@@ -331,14 +294,9 @@ def apply_chain_state(current_state: dict, new_block: dict) -> dict:
         new_block["time"]
     ]
 
-    # Compute new median time past
-    next_state["median_time_past"] = compute_median_time_past(
-        next_state["prev_timestamps"]
-    )
-
     # Update epoch start time
-    if current_state["height"] // 2016 != next_state["height"] // 2016:
-        next_state["epoch_start_time"] = get_epoch_start_time(next_state["height"])
+    if new_block["height"] % 2016 == 0:
+        next_state["epoch_start_time"] = new_block["time"]
     else:
         next_state["epoch_start_time"] = current_state["epoch_start_time"]
 
@@ -394,7 +352,7 @@ def generate_data(
         if mode == "light":
             block = fetch_block_header(next_block_hash)
         elif mode in ["full", "utreexo"]:
-            block = fetch_block(next_block_hash, fast, chain_state)
+            block = fetch_block(next_block_hash, fast)
 
             # Build UTXO set and mark outputs spent within the same block (span).
             # Also set "cached" flag for the inputs that spend those UTXOs.
@@ -424,7 +382,7 @@ def generate_data(
 
         blocks.append(block)
         prev_chain_state = chain_state
-        chain_state = apply_chain_state(chain_state, block)
+        chain_state = next_chain_state(chain_state, block)
         next_block_hash = block["nextblockhash"]
 
     block_formatter = (
