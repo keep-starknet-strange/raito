@@ -1,72 +1,111 @@
+#!/usr/bin/env python3
+
 import os
 import subprocess
 import random
-import sys
+import argparse
 from pathlib import Path
 
-BASE_DIR = ".client_cache"
-DEFAULT_START = 0
-DEFAULT_NO_OF_BLOCKS = 100
-DEFAULT_STEP = 1
-DEFAULT_MODE = "light"
-DEFAULT_STRATEGY = "sequential"
+from generate_data import generate_data
+from format_args import format_args
+
+BASE_DIR = Path(".client_cache")
+DEFAULT_NO_OF_BLOCKS = 1
 
 
-def run_command(command):
-    result = subprocess.run(command, shell=True, capture_output=True, text=True)
-    return result.returncode, result.stdout
-
-
-Path(BASE_DIR).mkdir(parents=True, exist_ok=True)
-
-start = int(sys.argv[1]) if len(sys.argv) > 1 else DEFAULT_START
-no_of_blocks = int(sys.argv[2]) if len(sys.argv) > 2 else DEFAULT_NO_OF_BLOCKS
-end = start + no_of_blocks
-step = int(sys.argv[3]) if len(sys.argv) > 3 else DEFAULT_STEP
-mode = sys.argv[4] if len(sys.argv) > 4 else DEFAULT_MODE
-strategy = sys.argv[5] if len(sys.argv) > 5 else DEFAULT_STRATEGY
-
-
-def run_client(initial_height, num_blocks):
+def run_client(initial_height, num_blocks, mode):
     first = initial_height + 1
     second = initial_height + num_blocks
+    batch_file = BASE_DIR / f"{mode}_{initial_height}_{num_blocks}.json"
+    arguments_file = BASE_DIR / f"arguments-{mode}_{initial_height}_{num_blocks}.json"
 
-    batch_file = f"{BASE_DIR}/{mode}_{initial_height}_{num_blocks}.json"
-    arguments_file = f"{BASE_DIR}/arguments-{mode}_{initial_height}_{num_blocks}.json"
+    if not batch_file.exists():
+        generate_data(
+            fast=True,
+            mode=mode,
+            height=initial_height,
+            num_blocks=num_blocks,
+            output_file=str(batch_file),
+        )
 
-    if not Path(batch_file).is_file():
-        command = f"python scripts/data/generate_data.py --fast --mode {mode} --height {initial_height} --num_blocks {num_blocks} --output_file {batch_file}"
-        returncode, _ = run_command(command)
-        if returncode != 0:
-            print(f"Error generating data for blocks {first}-{second}")
-            sys.exit(1)
+    print(f"Running {mode} client on blocks {first} - {second}", end=" ", flush=True)
 
-    print(f"Running {mode} client on blocks {first} - {second} ", end="")
+    with open(batch_file, "r") as bf, open(arguments_file, "w") as af:
+        formatted_args = format_args(bf)
+        af.write(formatted_args)
 
-    command = f"python scripts/data/format_args.py {batch_file} > {arguments_file}"
-    returncode, _ = run_command(command)
-    if returncode != 0:
-        print(f"Error formatting arguments for blocks {first}-{second}")
-        sys.exit(1)
+    result = subprocess.run(
+        [
+            "scarb",
+            "cairo-run",
+            "--no-build",
+            "--package",
+            "client",
+            "--function",
+            "test",
+            "--arguments-file",
+            str(arguments_file),
+        ],
+        capture_output=True,
+        text=True,
+    )
 
-    command = f"scarb cairo-run --no-build --package client --function test --arguments-file {arguments_file}"
-    returncode, output = run_command(command)
-
-    if returncode != 0 or "FAIL" in output or "error" in output or "panicked" in output:
+    if (
+        result.returncode != 0
+        or "FAIL" in result.stdout
+        or "error" in result.stderr
+        or "panicked" in result.stderr
+    ):
         print("fail")
-        print(output)
-        sys.exit(1)
+        print(result.stdout)
+        print(result.stderr)
+        return False
     else:
         print("ok")
-        print(output)
+        print(result.stdout)
+        return True
 
 
-for height in range(start, end, step):
-    if strategy == "sequential":
-        run_client(height, step)
-    elif strategy == "random":
-        random_height = random.randint(0, 24) * 25 + random.randint(0, 24)
-        run_client(random_height, 1)
-    else:
-        print("Unsupported strategy")
-        sys.exit(1)
+def main():
+    parser = argparse.ArgumentParser(description="Run client script")
+    parser.add_argument("--start", type=int, default=1, help="Start block height")
+    parser.add_argument(
+        "--blocks",
+        type=int,
+        default=DEFAULT_NO_OF_BLOCKS,
+        help="Number of blocks to process",
+    )
+    parser.add_argument(
+        "--step", type=int, default=1, help="Step size for block processing"
+    )
+    parser.add_argument(
+        "--mode", default="light", choices=["light", "full"], help="Client mode"
+    )
+    parser.add_argument(
+        "--strategy",
+        default="sequential",
+        choices=["sequential", "random"],
+        help="Processing strategy",
+    )
+
+    args = parser.parse_args()
+
+    BASE_DIR.mkdir(exist_ok=True)
+
+    end = args.start + args.blocks
+
+    for height in range(args.start, end, args.step):
+        if args.strategy == "sequential":
+            if not run_client(height, args.step, args.mode):
+                return
+        elif args.strategy == "random":
+            random_height = random.randint(0, 49)
+            if not run_client(random_height, 1, args.mode):
+                return
+        else:
+            print("Unsupported strategy")
+            return
+
+
+if __name__ == "__main__":
+    main()
