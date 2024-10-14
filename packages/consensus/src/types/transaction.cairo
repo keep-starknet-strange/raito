@@ -51,7 +51,7 @@ pub struct TxIn {
 }
 
 /// A reference to an unspent transaction output (UTXO).
-/// 
+///
 /// NOTE that `data` and `block_height` meta fields are not serialized with the rest of
 /// the transaction and hence are not constrained with the transaction hash.
 ///
@@ -228,11 +228,9 @@ mod tests {
     fn hash(tx: @TxOut) -> felt252 {
         PoseidonTrait::new().update_with(*tx).finalize()
     }
-        
+
     #[test]
     pub fn test_txout_cached_flag_does_not_influence_hash() {
-        
-        
         let mut tx1 = TxOut {
             value: 50_u64,
             pk_script: @"410411db93e1dcdb8a016b49840f8c53bc1eb68a382e97b1482ecad7b148a6909a5cb2e0eaddfb84ccf9744464f82e160bfa9b8b64f9d4c03f999b8643f656b412a3ac",
