@@ -1,7 +1,7 @@
 use core::fmt::{Display, Formatter, Error};
 use core::num::traits::Bounded;
 use crate::parent_hash;
-use utils::{bit_shifts::{shl, shr}, sort::bubble_sort, partial_ord::PartialOrdTupleU64Felt252};
+use utils::{bit_shifts::shr, sort::bubble_sort, partial_ord::PartialOrdTupleU64Felt252};
 
 /// Utreexo inclusion proof for multiple outputs.
 /// Compatible with https://github.com/utreexo/utreexo
