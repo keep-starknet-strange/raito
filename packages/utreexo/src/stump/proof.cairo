@@ -42,16 +42,19 @@ pub impl UtreexoBatchProofImpl of UtreexoBatchProofTrait {
         // Target leaves
         let mut leaf_nodes: Array<(u64, felt252)> = array![];
 
+        let mut inner_result = Result::Ok((array![].span()));
+
         // Append targets with their hashes.
         let mut positions = *self.targets;
         while let Option::Some(rhs) = del_hashes.pop_front() {
             if let Option::Some(lhs) = positions.pop_front() {
                 leaf_nodes.append((*lhs, *rhs));
+            } else {
+                inner_result = Result::Err("Not enough targets in the proof.");
             }
         };
 
         let mut leaf_nodes: Array<(u64, felt252)> = bubble_sort(leaf_nodes.span());
-        let mut inner_result = Result::Ok((array![].span()));
 
         // Proof nodes.
         let mut sibling_nodes: Array<felt252> = (*self.proof).into();
@@ -97,7 +100,7 @@ pub impl UtreexoBatchProofImpl of UtreexoBatchProofTrait {
                 if row_len == 0 {
                     inner_result =
                         Result::Err(
-                            format!("Position {pos} is out of the forest range {row_len_acc}")
+                            format!("Position {pos} is out of the forest range {row_len_acc}.")
                         );
                     break;
                 }
@@ -128,7 +131,7 @@ pub impl UtreexoBatchProofImpl of UtreexoBatchProofTrait {
                     res
                 } else {
                     if sibling_nodes.is_empty() {
-                        inner_result = Result::Err("Proof is empty");
+                        inner_result = Result::Err("Proof is empty.");
                         break;
                     };
                     sibling_nodes.pop_front().unwrap()
@@ -139,7 +142,7 @@ pub impl UtreexoBatchProofImpl of UtreexoBatchProofTrait {
                 if let Option::Some(left_sibling) = sibling_nodes.pop_front() {
                     parent_hash(left_sibling, node)
                 } else {
-                    inner_result = Result::Err("Proof is empty");
+                    inner_result = Result::Err("Proof is empty.");
                     break;
                 }
             };
