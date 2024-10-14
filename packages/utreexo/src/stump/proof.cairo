@@ -172,7 +172,7 @@ pub impl UtreexoBatchProofImpl of UtreexoBatchProofTrait {
         };
 
         if !sibling_nodes.is_empty() {
-            inner_result = Result::Err("Proof should be empty");
+            return Result::Err("Proof should be empty");
         }
 
         if inner_result != Result::Ok((array![].span())) {
