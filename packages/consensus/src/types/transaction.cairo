@@ -136,7 +136,7 @@ pub struct TxOut {
 impl TxOutHash<S, +HashStateTrait<S>, +Drop<S>> of Hash<TxOut, S> {
     fn update_state(state: S, value: TxOut) -> S {
         let state = state.update(value.value.into());
-        let state = Hash::update_state(state, value.pk_script);
+        let state = state.update_with(value.pk_script.into());
         state
     }
 }
