@@ -123,6 +123,4 @@ mod tests {
         let result = u64_next_power_of_two(input);
         assert_eq!(result, expected_output);
     }
-
-
 }
