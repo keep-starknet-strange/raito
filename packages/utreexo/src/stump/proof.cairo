@@ -1,7 +1,7 @@
 use core::fmt::{Display, Formatter, Error};
 use core::num::traits::Bounded;
 use crate::parent_hash;
-use utils::{bit_shifts::shr, sort::bubble_sort};
+use utils::{numeric::u64_next_power_of_two, sort::bubble_sort};
 
 /// Utreexo inclusion proof for multiple outputs.
 /// Compatible with https://github.com/utreexo/utreexo
@@ -63,7 +63,7 @@ pub impl UtreexoBatchProofImpl of UtreexoBatchProofTrait {
         // Actual length of the current row.
         let mut actual_row_len: u64 = num_leaves;
         // Length of the "padded" row which is always power of two.
-        let mut row_len: u64 = next_power_of_two(num_leaves);
+        let mut row_len: u64 = u64_next_power_of_two(num_leaves);
         // Total padded length of processed rows (excluding the current one).
         let mut row_len_acc: u64 = 0;
         // Next position of the target leaf and the leaf itself.
@@ -167,23 +167,6 @@ pub impl UtreexoBatchProofImpl of UtreexoBatchProofTrait {
             Result::Ok((calculated_root_hashes.span()))
         }
     }
-}
-
-/// Computes the next power of two of a u64 variable.
-fn next_power_of_two(mut n: u64) -> u64 {
-    if n == 0 {
-        return 1;
-    }
-
-    n -= 1;
-    n = n | shr(n, 1_u64);
-    n = n | shr(n, 2_u64);
-    n = n | shr(n, 4_u64);
-    n = n | shr(n, 8_u64);
-    n = n | shr(n, 16_u64);
-    n = n | shr(n, 32_u64);
-
-    n + 1
 }
 
 /// PartialOrd implementation for tuple (u32, felt252).
