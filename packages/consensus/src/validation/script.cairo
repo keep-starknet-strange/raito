@@ -1,4 +1,3 @@
-use shinigami_engine::errors::byte_array_err;
 use shinigami_engine::engine::EngineTrait;
 use shinigami_engine::engine::EngineImpl;
 use shinigami_engine::hash_cache::HashCacheImpl;

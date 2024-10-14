@@ -1,3 +1,5 @@
+use crate::bit_shifts::shr;
+
 /// Reverses the byte order of a `u32`.
 ///
 /// This function takes a 32-bit unsigned integer and reverses the order of its bytes.
@@ -10,9 +12,26 @@ pub fn u32_byte_reverse(word: u32) -> u32 {
     return byte0 + byte1 + byte2 + byte3;
 }
 
+/// Computes the next power of two of a u64 variable.
+pub fn u64_next_power_of_two(mut n: u64) -> u64 {
+    if n == 0 {
+        return 1;
+    }
+
+    n -= 1;
+    n = n | shr(n, 1_u64);
+    n = n | shr(n, 2_u64);
+    n = n | shr(n, 4_u64);
+    n = n | shr(n, 8_u64);
+    n = n | shr(n, 16_u64);
+    n = n | shr(n, 32_u64);
+
+    n + 1
+}
+
 #[cfg(test)]
 mod tests {
-    use super::u32_byte_reverse;
+    use super::{u32_byte_reverse, u64_next_power_of_two};
 
     #[test]
     fn test_u32_byte_reverse() {
@@ -39,6 +58,69 @@ mod tests {
         let input: u32 = 0x00000000;
         let expected_output: u32 = 0x00000000;
         let result = u32_byte_reverse(input);
+        assert_eq!(result, expected_output);
+    }
+
+    #[test]
+    fn test_u64_next_power_of_two() {
+        let input: u64 = 3;
+        let expected_output: u64 = 4;
+        let result = u64_next_power_of_two(input);
+        assert_eq!(result, expected_output);
+
+        let input: u64 = 5;
+        let expected_output: u64 = 8;
+        let result = u64_next_power_of_two(input);
+        assert_eq!(result, expected_output);
+
+        let input: u64 = 11;
+        let expected_output: u64 = 16;
+        let result = u64_next_power_of_two(input);
+        assert_eq!(result, expected_output);
+
+        let input: u64 = 20;
+        let expected_output: u64 = 32;
+        let result = u64_next_power_of_two(input);
+        assert_eq!(result, expected_output);
+
+        let input: u64 = 61;
+        let expected_output: u64 = 64;
+        let result = u64_next_power_of_two(input);
+        assert_eq!(result, expected_output);
+
+        let input: u64 = 100;
+        let expected_output: u64 = 128;
+        let result = u64_next_power_of_two(input);
+        assert_eq!(result, expected_output);
+
+        let input: u64 = 189;
+        let expected_output: u64 = 256;
+        let result = u64_next_power_of_two(input);
+        assert_eq!(result, expected_output);
+
+        let input: u64 = 480;
+        let expected_output: u64 = 512;
+        let result = u64_next_power_of_two(input);
+        assert_eq!(result, expected_output);
+
+        let input: u64 = 777;
+        let expected_output: u64 = 1024;
+        let result = u64_next_power_of_two(input);
+        assert_eq!(result, expected_output);
+
+        let input: u64 = 1025;
+        let expected_output: u64 = 2048;
+        let result = u64_next_power_of_two(input);
+        assert_eq!(result, expected_output);
+
+        let input: u64 = 4095;
+        let expected_output: u64 = 4096;
+        let result = u64_next_power_of_two(input);
+        assert_eq!(result, expected_output);
+
+        let input: u64 = 1500000000000000000;
+        let expected_output: u64 = 2305843009213693952;
+        let result = u64_next_power_of_two(input);
         assert_eq!(result, expected_output);
     }
 }
