@@ -59,12 +59,10 @@ mod tests {
     #[test]
     fn test_verification_1() {
         let state = UtreexoStumpState { roots: array![].span(), num_leaves: 0 };
-
         let batch_proof = UtreexoBatchProof { targets: array![].span(), proof: array![].span() };
+        let del_hashes = array![];
 
-        let target_hashes = array![];
-
-        let result = state.verify(@batch_proof, target_hashes.span(), );
+        let result = state.verify(@batch_proof, del_hashes.span(),);
         assert_eq!(result, Result::Ok(()));
     }
 }
