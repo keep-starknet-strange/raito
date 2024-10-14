@@ -136,12 +136,11 @@ pub impl UtreexoBatchProofImpl of UtreexoBatchProofTrait {
                 parent_hash(node, right_sibling)
             } else {
                 // Left sibling always from proof.
-                match sibling_nodes.pop_front() {
-                    Option::Some(left_sibling) => { parent_hash(left_sibling, node) },
-                    Option::None => {
-                        inner_result = Result::Err("Proof is empty");
-                        break;
-                    }
+                if let Option::Some(left_sibling) = sibling_nodes.pop_front() {
+                    parent_hash(left_sibling, node)
+                } else {
+                    inner_result = Result::Err("Proof is empty");
+                    break;
                 }
             };
 
