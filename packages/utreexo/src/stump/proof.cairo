@@ -60,17 +60,17 @@ pub impl UtreexoBatchProofImpl of UtreexoBatchProofTrait {
         let mut sibling_nodes: Array<felt252> = (*self.proof).into();
         // Queue of computed intermediate nodes.
         let mut computed_nodes: Array<(u64, felt252)> = array![];
-        // Actual length of the current row
+        // Actual length of the current row.
         let mut actual_row_len: u64 = num_leaves;
         // Length of the "padded" row which is always power of two.
         let mut row_len: u64 = next_power_of_two(num_leaves);
-        // Total padded length of processed rows (excluding the current one)
+        // Total padded length of processed rows (excluding the current one).
         let mut row_len_acc: u64 = 0;
         // Next position of the target leaf and the leaf itself.
         let (mut next_leaf_pos, mut next_leaf) = leaf_nodes.pop_front().unwrap();
-        // Next computed node
+        // Next computed node.
         let mut next_computed: felt252 = 0;
-        // Position of the next computed node
+        // Position of the next computed node.
         let mut next_computed_pos: u64 = Bounded::<u64>::MAX;
 
         while row_len != 0 {
