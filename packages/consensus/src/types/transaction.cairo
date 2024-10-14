@@ -5,7 +5,7 @@
 
 use utils::{hash::Digest, bytearray::{ByteArraySnapHash, ByteArraySnapSerde}};
 use core::fmt::{Display, Formatter, Error};
-use core::hash::{HashStateTrait, HashStateExTrait};
+use core::hash::{HashStateTrait, HashStateExTrait, Hash};
 use core::poseidon::PoseidonTrait;
 
 /// Represents a transaction.
@@ -108,13 +108,16 @@ pub struct OutPoint {
 /// Output of a transaction.
 /// https://learnmeabitcoin.com/technical/transaction/output/
 ///
+/// NOTE: that `cached` meta field is not serialized with the rest of the output data,
+/// so it's not constrained by the transaction hash when UTXO hash is computed.
+///
 /// Upon processing (validating) an output one of three actions must be taken:
 ///     - Add output with some extra info (see [OutPoint]) to the Utreexo accumulator
 ///     - Add output to the cache in case it is going to be spent in the same block
 ///     - Do nothing in case of a provably unspendable output
 ///
 /// Read more: https://en.bitcoin.it/wiki/Script#Provably_Unspendable/Prunable_Outputs
-#[derive(Drop, Copy, Debug, PartialEq, Serde, Hash)]
+#[derive(Drop, Copy, Debug, PartialEq, Serde)]
 pub struct TxOut {
     /// The value of the output in satoshis.
     /// Can be in range [0, 21_000_000] BTC (including both ends).
@@ -125,6 +128,17 @@ pub struct TxOut {
     /// This output won't be added to the utreexo accumulator.
     /// Note that coinbase outputs cannot be spent sooner than 100 blocks after inclusion.
     pub cached: bool,
+}
+
+///
+/// Custom implementation of the Hash trait for TxOut removed cached field.
+///
+impl TxOutHash<S, +HashStateTrait<S>, +Drop<S>> of Hash<TxOut, S> {
+    fn update_state(state: S, value: TxOut) -> S {
+        let state = state.update(value.value.into());
+        let state = Hash::update_state(state, value.pk_script);
+        state
+    }
 }
 
 #[generate_trait]
@@ -207,8 +221,40 @@ impl TxOutDisplay of Display<TxOut> {
 
 #[cfg(test)]
 mod tests {
-    use super::{OutPoint, OutPointTrait, TxOut};
+    use super::{OutPoint, OutPointTrait, TxOut, HashStateTrait, HashStateExTrait};
     use utils::hash::{DigestTrait};
+    use core::poseidon::PoseidonTrait;
+
+    fn hash(tx: @TxOut) -> felt252 {
+        PoseidonTrait::new().update_with(*tx).finalize()
+    }
+
+    #[test]
+    pub fn test_txout_cached_flag_does_not_influence_hash() {
+        let mut tx1 = TxOut {
+            value: 50_u64,
+            pk_script: @"410411db93e1dcdb8a016b49840f8c53bc1eb68a382e97b1482ecad7b148a6909a5cb2e0eaddfb84ccf9744464f82e160bfa9b8b64f9d4c03f999b8643f656b412a3ac",
+            cached: false,
+        };
+        let mut tx_with_cached_changed = TxOut {
+            value: 50_u64,
+            pk_script: @"410411db93e1dcdb8a016b49840f8c53bc1eb68a382e97b1482ecad7b148a6909a5cb2e0eaddfb84ccf9744464f82e160bfa9b8b64f9d4c03f999b8643f656b412a3ac",
+            cached: true,
+        };
+        let mut tx_with_value_changed = TxOut {
+            value: 55_u64,
+            pk_script: @"410411db93e1dcdb8a016b49840f8c53bc1eb68a382e97b1482ecad7b148a6909a5cb2e0eaddfb84ccf9744464f82e160bfa9b8b64f9d4c03f999b8643f656b412a3ac",
+            cached: false,
+        };
+        let mut tx_with_pk_script_changed = TxOut {
+            value: 50_u64,
+            pk_script: @"510411db93e1dcdb8a016b49840f8c53bc1eb68a382e97b1482ecad7b148a6909a5cb2e0eaddfb84ccf9744464f82e160bfa9b8b64f9d4c03f999b8643f656b412a3ac",
+            cached: false,
+        };
+        assert_eq!(hash(@tx1), hash(@tx_with_cached_changed));
+        assert_ne!(hash(@tx1), hash(@tx_with_pk_script_changed));
+        assert_ne!(hash(@tx1), hash(@tx_with_value_changed));
+    }
 
     #[test]
     pub fn test_outpoint_poseidon_hash() {
@@ -227,7 +273,7 @@ mod tests {
         };
         assert_eq!(
             test_outpoint.hash(),
-            1792742871343685730958781310214172384314528955082596937528531832616153781332
+            3426256427357770988835517595549266311441229240020614569376880225204214993534
         );
     }
 }
