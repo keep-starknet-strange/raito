@@ -21,7 +21,6 @@ pub impl StumpUtreexoAccumulatorImpl of StumpUtreexoAccumulator {
 
         let mut number_matched_roots: u32 = 0;
 
-        // Should we reverse *self.roots like in rustreexo to reduce the number of iteration?
         for i in 0
             ..computed_roots
                 .len() {
@@ -50,5 +49,22 @@ pub impl StumpUtreexoAccumulatorImpl of StumpUtreexoAccumulator {
     fn delete(self: @UtreexoStumpState, proof: @UtreexoBatchProof) -> UtreexoStumpState {
         // TODO
         *self
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{UtreexoStumpState, StumpUtreexoAccumulator, UtreexoBatchProof};
+
+    #[test]
+    fn test_verification_1() {
+        let state = UtreexoStumpState { roots: array![].span(), num_leaves: 0 };
+
+        let batch_proof = UtreexoBatchProof { targets: array![].span(), proof: array![].span() };
+
+        let target_hashes = array![];
+
+        let result = state.verify(@batch_proof, target_hashes.span(), );
+        assert_eq!(result, Result::Ok(()));
     }
 }
