@@ -119,8 +119,8 @@ pub impl DigestHash<S, +HashStateTrait<S>, +Drop<S>> of Hash<Digest, S> {
     fn update_state(state: S, value: Digest) -> S {
         let u256_digest: u256 = value.into();
 
-        let state = state.update(u256_digest.low.into());
         let state = state.update(u256_digest.high.into());
+        let state = state.update(u256_digest.low.into());
         state
     }
 }

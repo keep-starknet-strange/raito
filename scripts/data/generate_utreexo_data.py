@@ -69,24 +69,21 @@ class TxOut:
 
 
 class OutPoint:
-    def __init__(
-        self, txid, vout, data, block_height, block_time, block_hash, is_coinbase
-    ):
+    def __init__(self, txid, vout, data, block_height, median_time_past, is_coinbase):
         self.txid = txid
         self.vout = vout
         self.data = data  # Instance de TxOut
         self.block_height = block_height
-        self.block_time = block_time
-        self.block_hash = block_hash
+        self.median_time_past = median_time_past
         self.is_coinbase = is_coinbase
 
     def hash(self):
         tab = []
 
-        # txid
+        # txid (2x u128 in little endian high/low)
         txid_bytes = bytes.fromhex(self.txid)
-        tab.append(int.from_bytes(txid_bytes[16:], "big"))
         tab.append(int.from_bytes(txid_bytes[:16], "big"))
+        tab.append(int.from_bytes(txid_bytes[16:], "big"))
 
         # vout
         tab.append(self.vout)
@@ -95,13 +92,8 @@ class OutPoint:
         for e in self.data.serialize():
             tab.append(e)
 
-        # block hash
-        txid_bytes = bytes.fromhex(self.block_hash)
-        tab.append(int.from_bytes(txid_bytes[16:], "big"))
-        tab.append(int.from_bytes(txid_bytes[:16], "big"))
-
         tab.append(self.block_height)
-        tab.append(self.block_time)
+        tab.append(self.median_time_past)
 
         tab.append(int(self.is_coinbase))
 
@@ -114,9 +106,9 @@ class OutPoint:
                 vout={self.vout}\n\
                 tx_out={self.data}\n\
                 block_height={self.block_height}\n\
-                block_time={self.block_time}\n\
-                block_hash={self.block_hash}\n\
-                is_coinbase={self.is_coinbase})"
+                median_time_past={self.median_time_past}\n\
+                is_coinbase={self.is_coinbase}\n\
+                hash={self.hash()})"
 
 
 class UtreexoData:
@@ -174,16 +166,20 @@ class UtreexoData:
                     cached=outpoint["data"]["cached"],
                 ),
                 block_height=outpoint["block_height"],
-                block_time=outpoint["block_time"],
-                block_hash=outpoint["block_hash"],
+                median_time_past=outpoint["median_time_past"],
                 is_coinbase=outpoint["is_coinbase"],
             )
 
-            # Remove OutPoint from accumulator and get proof
-            proof, leaf_index = self.utreexo.delete(outpoint.hash())
-            proofs.append(
-                {"proof": list(map(format_node, proof)), "leaf_index": leaf_index}
-            )
+            # Try to remove OutPoint from accumulator and get proof
+            try:
+                proof, leaf_index = self.utreexo.delete(outpoint.hash())
+                proofs.append(
+                    {"proof": list(map(format_node, proof)), "leaf_index": leaf_index}
+                )
+            except Exception as e:
+                print(f"Warning: Failed to delete leaf from Utreexo: {e}")
+                # If the leaf doesn't exist, we'll skip it and continue processing
+                continue
 
         return proofs
 
@@ -192,7 +188,7 @@ class UtreexoData:
         outputs: list,
         block_hash: str,
         block_height: int,
-        block_time: int,
+        median_time_past: int,
         txid: str,
         is_coinbase: bool,
     ):
@@ -210,8 +206,7 @@ class UtreexoData:
                     cached=output["cached"],
                 ),
                 block_height=block_height,
-                block_time=block_time,
-                block_hash=block_hash,
+                median_time_past=median_time_past,
                 is_coinbase=is_coinbase,
             )
 

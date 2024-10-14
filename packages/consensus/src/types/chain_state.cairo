@@ -7,9 +7,10 @@
 use core::fmt::{Display, Formatter, Error};
 use crate::validation::{
     difficulty::{validate_bits, adjust_difficulty}, coinbase::validate_coinbase,
-    timestamp::{validate_timestamp, next_prev_timestamps},
+    timestamp::{validate_timestamp, next_prev_timestamps, compute_median_time_past},
     work::{validate_proof_of_work, compute_total_work},
-    block::{compute_and_validate_tx_data, validate_bip30_block_hash}, script::validate_scripts
+    block::compute_and_validate_tx_data, script::validate_scripts
+
 };
 use super::block::{BlockHash, Block, TransactionData};
 use super::utxo_set::UtxoSet;
@@ -34,6 +35,7 @@ pub struct ChainState {
     /// it's possible that one block could have an earlier timestamp
     /// than a block that came before it in the chain.
     pub prev_timestamps: Span<u32>,
+    /// Median Time Past (MTP) of the current block
 }
 
 /// Represents the initial state after genesis block.
@@ -62,15 +64,17 @@ pub impl BlockValidatorImpl of BlockValidator {
     ) -> Result<ChainState, ByteArray> {
         let block_height = self.block_height + 1;
 
-        validate_timestamp(self.prev_timestamps, block.header.time)?;
         let prev_block_time = *self.prev_timestamps[self.prev_timestamps.len() - 1];
         let prev_timestamps = next_prev_timestamps(self.prev_timestamps, block.header.time);
+        let median_time_past = compute_median_time_past(prev_timestamps);
+
+        validate_timestamp(median_time_past, block.header.time)?;
 
         let txid_root = match block.data {
             TransactionData::MerkleRoot(root) => root,
             TransactionData::Transactions(txs) => {
                 let (total_fees, txid_root, wtxid_root) = compute_and_validate_tx_data(
-                    txs, block.header.hash, block_height, block.header.time, ref utxo_set
+                    txs, block_height, block.header.time, ref utxo_set
                 )?;
                 validate_coinbase(txs[0], total_fees, block_height, wtxid_root)?;
                 if execute_script {
@@ -80,8 +84,6 @@ pub impl BlockValidatorImpl of BlockValidator {
             }
         };
 
-        block.header.validate_hash(self.best_block_hash, txid_root)?;
-
         let (current_target, epoch_start_time) = adjust_difficulty(
             self.current_target,
             self.epoch_start_time,
@@ -90,11 +92,10 @@ pub impl BlockValidatorImpl of BlockValidator {
             block.header.time
         );
         let total_work = compute_total_work(self.total_work, current_target);
-        let best_block_hash = block.header.hash;
+        let best_block_hash = block.header.hash(self.best_block_hash, txid_root);
 
         validate_proof_of_work(current_target, best_block_hash)?;
         validate_bits(current_target, block.header.bits)?;
-        validate_bip30_block_hash(block_height, @best_block_hash)?;
 
         Result::Ok(
             ChainState {

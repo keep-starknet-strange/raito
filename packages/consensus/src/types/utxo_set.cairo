@@ -11,6 +11,7 @@
 
 use core::dict::Felt252Dict;
 use super::transaction::{OutPoint, OutPointTrait};
+use consensus::validation::transaction::is_pubscript_unspendable;
 
 pub const TX_OUTPUT_STATUS_NONE: u8 = 0;
 pub const TX_OUTPUT_STATUS_UNSPENT: u8 = 1;
@@ -34,13 +35,16 @@ pub struct UtxoSet {
 pub impl UtxoSetImpl of UtxoSetTrait {
     fn add(ref self: UtxoSet, outpoint: OutPoint) -> Result<(), ByteArray> {
         let hash = outpoint.hash();
+
         if self.cache.get(hash) == TX_OUTPUT_STATUS_NONE {
-            if outpoint.data.cached {
-                self.num_cached += 1;
-            } else {
-                self.leaves_to_add.append(hash);
+            if (!is_pubscript_unspendable(outpoint.data.pk_script)) {
+                if outpoint.data.cached {
+                    self.num_cached += 1;
+                } else {
+                    self.leaves_to_add.append(hash);
+                }
+                self.cache.insert(hash, TX_OUTPUT_STATUS_UNSPENT);
             }
-            self.cache.insert(hash, TX_OUTPUT_STATUS_UNSPENT);
             Result::Ok(())
         } else {
             Result::Err("The output has already been added")
@@ -141,6 +145,39 @@ mod tests {
         assert_eq!(result.unwrap_err(), "The output has already been spent");
     }
 
+    #[test]
+    fn test_not_include_unspendable_utxo() {
+        let mut utxo_set: UtxoSet = Default::default();
+        utxo_set.add(dummy_outpoint(0, false)).unwrap();
+        utxo_set.add(dummy_unspendable_outpoint(0, false));
+        utxo_set.add(dummy_outpoint(1, true)).unwrap();
+        utxo_set.add(dummy_unspendable_outpoint(1, true));
+        utxo_set.add(dummy_outpoint(2, false)).unwrap();
+        utxo_set.add(dummy_unspendable_outpoint(2, false));
+
+        assert_eq!(utxo_set.leaves_to_add.len(), 2);
+        assert_eq!(utxo_set.leaves_to_delete.len(), 0);
+        assert_eq!(utxo_set.num_cached, 1);
+    }
+
+    fn dummy_unspendable_outpoint(vout: u32, cached: bool) -> OutPoint {
+        OutPoint {
+            txid: hex_to_hash_rev(
+                "0000000000000000000000000000000000000000000000000000000000000000"
+            ),
+            vout,
+            data: TxOut {
+                value: 50,
+                pk_script: @from_hex("6a4c54000000000000000000000000000000000000000088ac"),
+                cached,
+            },
+            block_height: Default::default(),
+            median_time_past: Default::default(),
+            is_coinbase: false,
+        }
+    }
+
+
     fn dummy_outpoint(vout: u32, cached: bool) -> OutPoint {
         OutPoint {
             txid: hex_to_hash_rev(
@@ -152,9 +189,8 @@ mod tests {
                 pk_script: @from_hex("76a914000000000000000000000000000000000000000088ac"),
                 cached,
             },
-            block_hash: Default::default(),
             block_height: Default::default(),
-            block_time: Default::default(),
+            median_time_past: Default::default(),
             is_coinbase: false,
         }
     }
@@ -174,10 +210,7 @@ mod tests {
                 cached: false
             },
             block_height: 9,
-            block_time: 1231473279,
-            block_hash: hex_to_hash_rev(
-                "000000008d9dc510f23c2657fc4f67bea30078cc05a90eb89e84cc475c080805"
-            ),
+            median_time_past: 1231473279,
             is_coinbase: true
         }
     }
@@ -187,8 +220,7 @@ mod tests {
     fn test_poseidon1() {
         let outpoint: OutPoint = get_outpoint();
         let outpoint_hash = PoseidonTrait::new().update_with(outpoint).finalize();
-
-        let expected: felt252 = 0x1E8BBC31DA001E7EBACAEBC83DF1FD241040B9525ADEECEADBBC7045C6D1876;
+        let expected: felt252 = 0x1E75C4C86C74C8808E45065A0591C850B3B3961C06F78DEFD12A55C2E4987CD;
         assert_eq!(outpoint_hash, expected);
     }
 }
