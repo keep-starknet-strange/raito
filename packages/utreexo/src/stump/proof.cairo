@@ -35,7 +35,7 @@ impl UtreexoBatchProofDisplay of Display<UtreexoBatchProof> {
 pub impl UtreexoBatchProofImpl of UtreexoBatchProofTrait {
     /// Computes a set of roots given a proof and leaves hashes.
     fn compute_roots(
-        self: @UtreexoBatchProof, del_hashes: Span<felt252>, num_leaves: u64,
+        self: @UtreexoBatchProof, mut del_hashes: Span<felt252>, num_leaves: u64,
     ) -> Result<Span<felt252>, ByteArray> {
         // Where all the parent hashes we've calculated in a given row will go to.
         let mut calculated_root_hashes: Array<felt252> = array![];
@@ -43,11 +43,11 @@ pub impl UtreexoBatchProofImpl of UtreexoBatchProofTrait {
         let mut leaf_nodes: Array<(u64, felt252)> = array![];
 
         // Append targets with their hashes.
-        let mut i = 0;
-        while i != (*self.targets).len() {
-            let pos = *self.targets[i];
-            leaf_nodes.append((pos, *del_hashes[i]));
-            i += 1;
+        let mut positions = *self.targets;
+        while let Option::Some(rhs) = del_hashes.pop_front() {
+            if let Option::Some(lhs) = positions.pop_front() {
+                leaf_nodes.append((*lhs, *rhs));
+            }
         };
 
         let mut leaf_nodes: Array<(u64, felt252)> = bubble_sort(leaf_nodes.span());
