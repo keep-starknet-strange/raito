@@ -58,9 +58,9 @@ mod tests {
 
     #[test]
     fn test_verification_1() {
-        let state = UtreexoStumpState { roots: array![].span(), num_leaves: 0 };
-        let batch_proof = UtreexoBatchProof { targets: array![].span(), proof: array![].span() };
-        let del_hashes = array![];
+        let state = UtreexoStumpState { roots: array![Option::Some(0x371cb6995ea5e7effcd2e174de264b5b407027a75a231a70c2c8d196107f0e7)].span(), num_leaves: 2 };
+        let batch_proof = UtreexoBatchProof { targets: array![0].span(), proof: array![2].span() };
+        let del_hashes = array![1];
 
         let result = state.verify(@batch_proof, del_hashes.span(),);
         assert_eq!(result, Result::Ok(()));
