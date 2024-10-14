@@ -13,12 +13,7 @@ pub impl StumpUtreexoAccumulatorImpl of StumpUtreexoAccumulator {
     fn verify(
         self: @UtreexoStumpState, proof: @UtreexoBatchProof, del_hashes: Span<felt252>
     ) -> Result<(), ByteArray> {
-        if (*proof.targets).is_empty() {
-            return Result::Ok(());
-        };
-
         let computed_roots: Span<felt252> = proof.compute_roots(del_hashes, *self.num_leaves)?;
-
         let mut number_matched_roots: u32 = 0;
 
         for i in 0
