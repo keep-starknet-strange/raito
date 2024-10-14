@@ -43,16 +43,7 @@ pub fn compute_sha256_u32_array(
 
     let result = sha256_inner(input.span(), 0, k.span(), h.span());
 
-    [
-        *result[0],
-        *result[1],
-        *result[2],
-        *result[3],
-        *result[4],
-        *result[5],
-        *result[6],
-        *result[7]
-    ]
+    [*result[0], *result[1], *result[2], *result[3], *result[4], *result[5], *result[6], *result[7]]
 }
 
 /// Adds padding to the input array for SHA-256. The padding is defined as follows:
@@ -279,14 +270,7 @@ fn ssig1(x: u32) -> u32 {
 const h: [
     u32
     ; 8] = [
-    0x6a09e667,
-    0xbb67ae85,
-    0x3c6ef372,
-    0xa54ff53a,
-    0x510e527f,
-    0x9b05688c,
-    0x1f83d9ab,
-    0x5be0cd19
+    0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, 0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19
 ];
 
 const k: [
