@@ -62,6 +62,7 @@ pub impl DigestIntoByteArray of Into<Digest, ByteArray> {
     }
 }
 
+
 const POW_2_32: u128 = 0x100000000;
 const POW_2_64: u128 = 0x10000000000000000;
 const POW_2_96: u128 = 0x1000000000000000000000000;

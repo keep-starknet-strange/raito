@@ -64,14 +64,7 @@ class TxOut:
         for idx, word in enumerate(sub_data):
             res["sub_data_{}".format(idx)] = word
 
-        res["cached"] = 1 if self.cached else 0
-
         return res
-
-    def serialize_for_hashing(self) -> t.List[t.Any]:
-        data = self.serialize()
-        data.pop("cached")  # We don't need this field for hashing
-        return data.values()
 
     def __repr__(self):
         return f"TxOut(\n\
@@ -103,7 +96,7 @@ class OutPoint:
         tab.append(self.vout)
 
         # prev output
-        for e in self.data.serialize_for_hashing():
+        for e in self.data.serialize():
             tab.append(e)
 
         tab.append(self.block_height)

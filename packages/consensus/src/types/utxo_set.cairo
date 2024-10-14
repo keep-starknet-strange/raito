@@ -152,10 +152,10 @@ mod tests {
         let _ = utxo_set.add(dummy_unspendable_outpoint(0, false));
 
         utxo_set.add(dummy_outpoint(1, true)).unwrap();
-        let _ = utxo_set.add(dummy_unspendable_outpoint(1, true));
+        utxo_set.add(dummy_unspendable_outpoint(1, true)).unwrap();
 
         utxo_set.add(dummy_outpoint(2, false)).unwrap();
-        let _ = utxo_set.add(dummy_unspendable_outpoint(2, false));
+        utxo_set.add(dummy_unspendable_outpoint(2, false)).unwrap();
 
         assert_eq!(utxo_set.leaves_to_add.len(), 2);
         assert_eq!(utxo_set.leaves_to_delete.len(), 0);
