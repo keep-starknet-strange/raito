@@ -1,7 +1,7 @@
 use core::fmt::{Display, Formatter, Error};
 use core::num::traits::Bounded;
 use crate::parent_hash;
-use utils::{bit_shifts::shr, sort::bubble_sort, partial_ord::PartialOrdTupleU64Felt252};
+use utils::{bit_shifts::shr, sort::bubble_sort};
 
 /// Utreexo inclusion proof for multiple outputs.
 /// Compatible with https://github.com/utreexo/utreexo
@@ -51,6 +51,7 @@ pub impl UtreexoBatchProofImpl of UtreexoBatchProofTrait {
         };
 
         let mut leaf_nodes: Array<(u64, felt252)> = bubble_sort(leaf_nodes.span());
+        let mut inner_result = Result::Ok((array![].span()));
 
         // Proof nodes.
         let mut sibling_nodes: Array<felt252> = (*self.proof).into();
@@ -100,6 +101,14 @@ pub impl UtreexoBatchProofImpl of UtreexoBatchProofTrait {
                 row_len_acc += row_len;
                 row_len /= 2;
                 actual_row_len /= 2;
+
+                if row_len == 0 {
+                    inner_result =
+                        Result::Err(
+                            format!("Position {pos} is out of the forest range {row_len_acc}")
+                        );
+                    break;
+                }
             };
 
             // If row length is odd and we are at the edge this is a root.
@@ -134,13 +143,22 @@ pub impl UtreexoBatchProofImpl of UtreexoBatchProofTrait {
                     }
                     res
                 } else {
+                    if sibling_nodes.is_empty() {
+                        inner_result = Result::Err("Proof is empty");
+                        break;
+                    };
                     sibling_nodes.pop_front().unwrap()
                 };
                 parent_hash(node, right_sibling)
             } else {
                 // Left sibling always from proof.
-                let left_sibling = sibling_nodes.pop_front().unwrap();
-                parent_hash(left_sibling, node)
+                match sibling_nodes.pop_front() {
+                    Option::Some(left_sibling) => { parent_hash(left_sibling, node) },
+                    Option::None => {
+                        inner_result = Result::Err("Proof is empty");
+                        break;
+                    }
+                }
             };
 
             let parent_pos = row_len_acc + row_len + (pos - row_len_acc) / 2;
@@ -153,11 +171,15 @@ pub impl UtreexoBatchProofImpl of UtreexoBatchProofTrait {
             }
         };
 
-        assert(sibling_nodes.is_empty(), '');
-        assert(computed_nodes.is_empty(), '');
-        assert(leaf_nodes.is_empty(), '');
+        if !sibling_nodes.is_empty() {
+            inner_result = Result::Err("Proof should be empty");
+        }
 
-        Result::Ok((calculated_root_hashes.span()))
+        if inner_result != Result::Ok((array![].span())) {
+            inner_result
+        } else {
+            Result::Ok((calculated_root_hashes.span()))
+        }
     }
 }
 
@@ -177,3 +199,18 @@ fn next_power_of_two(mut n: u64) -> u64 {
 
     n + 1
 }
+
+/// PartialOrd implementation for tuple (u32, felt252).
+impl PartialOrdTupleU64Felt252 of PartialOrd<(u64, felt252)> {
+    fn lt(lhs: (u64, felt252), rhs: (u64, felt252)) -> bool {
+        let (a, _) = lhs;
+        let (b, _) = rhs;
+
+        if a < b {
+            true
+        } else {
+            false
+        }
+    }
+}
+
