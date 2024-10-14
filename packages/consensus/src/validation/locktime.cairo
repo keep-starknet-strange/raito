@@ -86,7 +86,7 @@ pub fn validate_relative_locktime(
         // https://github.com/bitcoin/bitcoin/blob/712a2b5453cdf2568fece94b969d6e0923b6ba16/src/consensus/tx_verify.cpp#L74
         let lock_time = value * 512;
         let absolute_lock_time = *input.previous_output.median_time_past + lock_time;
-        if absolute_lock_time >= median_time_past {
+        if absolute_lock_time > median_time_past {
             return Result::Err(
                 format!(
                     "Relative time-based lock time is not respected: current MTP {}, outpoint MTP {}, lock time {} seconds",
@@ -98,7 +98,7 @@ pub fn validate_relative_locktime(
         }
     } else {
         let absolute_lock_time = *input.previous_output.block_height + value;
-        if absolute_lock_time >= block_height {
+        if absolute_lock_time > block_height {
             return Result::Err(
                 format!(
                     "Relative block-based lock time is not respected: current height {}, outpoint height {}, lock time {} blocks",
