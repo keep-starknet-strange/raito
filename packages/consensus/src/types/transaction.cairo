@@ -5,8 +5,7 @@
 
 use utils::{hash::Digest, bytearray::{ByteArraySnapHash, ByteArraySnapSerde}};
 use core::fmt::{Display, Formatter, Error};
-use core::hash::HashStateTrait;
-use core::hash::HashStateExTrait;
+use core::hash::{HashStateTrait, HashStateExTrait, Hash};
 use core::poseidon::PoseidonTrait;
 
 /// Represents a transaction.
@@ -89,17 +88,16 @@ pub struct OutPoint {
     /// Referenced output data (meta field).
     /// Must be set to default for coinbase inputs.
     pub data: TxOut,
-    /// The hash of the block that contains this output (meta field).
-    /// Used for hardening against collision attacks (https://eprint.iacr.org/2019/611.pdf).
-    pub block_hash: Digest,
     /// The height of the block that contains this output (meta field).
     /// Used to validate coinbase tx spending (not sooner than 100 blocks) and relative timelocks
     /// (it has been more than X block since the transaction containing this output was mined).
     pub block_height: u32,
-    /// The time of the block that contains this output (meta field).
-    /// Used to validate relative timelocks (it has been more than X seconds since the transaction
-    /// containing this output was mined).
-    pub block_time: u32,
+    /// The median time past of the block that contains this output (meta field).
+    /// This is the median timestamp of the previous 11 blocks.
+    /// Used to validate relative timelocks based on time (BIP 68 and BIP 112).
+    /// It ensures that the transaction containing this output has been mined for more than X
+    /// seconds.
+    pub median_time_past: u32,
     // Determine if the outpoint is a coinbase transaction
     // Has 100 or more block confirmation,
     // is added when block are queried
@@ -110,13 +108,16 @@ pub struct OutPoint {
 /// Output of a transaction.
 /// https://learnmeabitcoin.com/technical/transaction/output/
 ///
+/// NOTE: that `cached` meta field is not serialized with the rest of the output data,
+/// so it's not constrained by the transaction hash when UTXO hash is computed.
+///
 /// Upon processing (validating) an output one of three actions must be taken:
 ///     - Add output with some extra info (see [OutPoint]) to the Utreexo accumulator
 ///     - Add output to the cache in case it is going to be spent in the same block
 ///     - Do nothing in case of a provably unspendable output
 ///
 /// Read more: https://en.bitcoin.it/wiki/Script#Provably_Unspendable/Prunable_Outputs
-#[derive(Drop, Copy, Debug, PartialEq, Serde, Hash)]
+#[derive(Drop, Copy, Debug, PartialEq, Serde)]
 pub struct TxOut {
     /// The value of the output in satoshis.
     /// Can be in range [0, 21_000_000] BTC (including both ends).
@@ -127,6 +128,17 @@ pub struct TxOut {
     /// This output won't be added to the utreexo accumulator.
     /// Note that coinbase outputs cannot be spent sooner than 100 blocks after inclusion.
     pub cached: bool,
+}
+
+///
+/// Custom implementation of the Hash trait for TxOut removed cached field.
+///
+impl TxOutHash<S, +HashStateTrait<S>, +Drop<S>> of Hash<TxOut, S> {
+    fn update_state(state: S, value: TxOut) -> S {
+        let state = state.update(value.value.into());
+        let state = state.update_with(value.pk_script.into());
+        state
+    }
 }
 
 #[generate_trait]
@@ -178,17 +190,15 @@ impl OutPointDisplay of Display<OutPoint> {
 		txid: {},
 		vout: {},
 		data: {},
-		block_hash: {},
 		block_height: {},
-		block_time: {},
+		median_time_past: {},
 		is_coinbase: {},
 	}}",
             *self.txid,
             *self.vout,
             *self.data,
-            *self.block_hash,
             *self.block_height,
-            *self.block_time,
+            *self.median_time_past,
             *self.is_coinbase
         );
         f.buffer.append(@str);
@@ -211,8 +221,40 @@ impl TxOutDisplay of Display<TxOut> {
 
 #[cfg(test)]
 mod tests {
-    use super::{OutPoint, OutPointTrait, TxOut};
+    use super::{OutPoint, OutPointTrait, TxOut, HashStateTrait, HashStateExTrait};
     use utils::hash::{DigestTrait};
+    use core::poseidon::PoseidonTrait;
+
+    fn hash(tx: @TxOut) -> felt252 {
+        PoseidonTrait::new().update_with(*tx).finalize()
+    }
+
+    #[test]
+    pub fn test_txout_cached_flag_does_not_influence_hash() {
+        let mut tx1 = TxOut {
+            value: 50_u64,
+            pk_script: @"410411db93e1dcdb8a016b49840f8c53bc1eb68a382e97b1482ecad7b148a6909a5cb2e0eaddfb84ccf9744464f82e160bfa9b8b64f9d4c03f999b8643f656b412a3ac",
+            cached: false,
+        };
+        let mut tx_with_cached_changed = TxOut {
+            value: 50_u64,
+            pk_script: @"410411db93e1dcdb8a016b49840f8c53bc1eb68a382e97b1482ecad7b148a6909a5cb2e0eaddfb84ccf9744464f82e160bfa9b8b64f9d4c03f999b8643f656b412a3ac",
+            cached: true,
+        };
+        let mut tx_with_value_changed = TxOut {
+            value: 55_u64,
+            pk_script: @"410411db93e1dcdb8a016b49840f8c53bc1eb68a382e97b1482ecad7b148a6909a5cb2e0eaddfb84ccf9744464f82e160bfa9b8b64f9d4c03f999b8643f656b412a3ac",
+            cached: false,
+        };
+        let mut tx_with_pk_script_changed = TxOut {
+            value: 50_u64,
+            pk_script: @"510411db93e1dcdb8a016b49840f8c53bc1eb68a382e97b1482ecad7b148a6909a5cb2e0eaddfb84ccf9744464f82e160bfa9b8b64f9d4c03f999b8643f656b412a3ac",
+            cached: false,
+        };
+        assert_eq!(hash(@tx1), hash(@tx_with_cached_changed));
+        assert_ne!(hash(@tx1), hash(@tx_with_pk_script_changed));
+        assert_ne!(hash(@tx1), hash(@tx_with_value_changed));
+    }
 
     #[test]
     pub fn test_outpoint_poseidon_hash() {
@@ -225,24 +267,13 @@ mod tests {
                 pk_script: @"410411db93e1dcdb8a016b49840f8c53bc1eb68a382e97b1482ecad7b148a6909a5cb2e0eaddfb84ccf9744464f82e160bfa9b8b64f9d4c03f999b8643f656b412a3ac",
                 cached: false,
             },
-            block_hash: 0x00000000d1145790a8694403d4063f323d499e655c83426834d4ce2f8dd4a2ee_u256
-                .into(),
             block_height: 9,
-            block_time: 1650000000,
+            median_time_past: 1650000000,
             is_coinbase: false,
         };
         assert_eq!(
             test_outpoint.hash(),
-            1078799518591159253686478630433512427930158685501072491129204005222453242688
-        );
-
-        // Changing block_hash must lead to different outpoint hash
-        test_outpoint
-            .block_hash = 0x00000000d1145790a8694403d4063f323d499e655c83426834d4ce2f8dd4a2ef_u256
-            .into();
-        assert_ne!(
-            test_outpoint.hash(),
-            1078799518591159253686478630433512427930158685501072491129204005222453242688
+            3426256427357770988835517595549266311441229240020614569376880225204214993534
         );
     }
 }

@@ -11,3 +11,5 @@ license-file = "LICENSE"
 
 [workspace.dependencies]
 cairo_test = "2.8.0"
+
+shinigami_engine = { git = "https://github.com/keep-starknet-strange/shinigami.git", rev = "9e7692d" }

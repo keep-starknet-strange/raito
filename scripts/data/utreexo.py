@@ -85,7 +85,7 @@ class Utreexo:
 
     def delete(self, leaf):
         if leaf not in self.leaf_nodes:
-            raise Exception("Leaf does not exist")
+            raise Exception(f"Leaf {leaf} does not exist in the Utreexo accumulator")
 
         leaf_node = self.leaf_nodes[leaf]
         del self.leaf_nodes[leaf]

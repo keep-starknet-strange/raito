@@ -26,3 +26,4 @@ pub impl ByteArraySnapHash<S, +HashStateTrait<S>, +Drop<S>> of Hash<@ByteArray, 
         state
     }
 }
+
