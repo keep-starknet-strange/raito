@@ -134,7 +134,6 @@ pub struct TxOut {
 /// Custom implementation of the Hash trait for TxOut removed cached field.
 ///
 impl TxOutHash<S, +HashStateTrait<S>, +Drop<S>> of Hash<TxOut, S> {
-    #[inline(always)]
     fn update_state(state: S, value: TxOut) -> S {
         let state = state.update(value.value.into());
         let state = Hash::update_state(state, value.pk_script);
