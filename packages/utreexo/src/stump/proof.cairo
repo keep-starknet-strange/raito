@@ -73,23 +73,15 @@ pub impl UtreexoBatchProofImpl of UtreexoBatchProofTrait {
         while row_len != 0 {
             let (pos, node) = if next_leaf_pos < next_computed_pos {
                 let res = (next_leaf_pos, next_leaf);
-                if leaf_nodes.is_empty() {
-                    next_leaf_pos = Bounded::<u64>::MAX;
-                } else {
-                    let (a, b) = leaf_nodes.pop_front().unwrap();
-                    next_leaf_pos = a;
-                    next_leaf = b;
-                }
+                let (a, b) = leaf_nodes.pop_front().unwrap_or((Bounded::<u64>::MAX, 0));
+                next_leaf_pos = a;
+                next_leaf = b;
                 res
             } else if next_computed_pos != Bounded::<u64>::MAX {
                 let res = (next_computed_pos, next_computed);
-                if computed_nodes.is_empty() {
-                    next_computed_pos = Bounded::<u64>::MAX;
-                } else {
-                    let (a, b) = computed_nodes.pop_front().unwrap();
-                    next_computed_pos = a;
-                    next_computed = b;
-                }
+                let (a, b) = computed_nodes.pop_front().unwrap_or((Bounded::<u64>::MAX, 0));
+                next_computed_pos = a;
+                next_computed = b;
                 res
             } else {
                 // Out of nodes, terminating here.
@@ -124,23 +116,15 @@ pub impl UtreexoBatchProofImpl of UtreexoBatchProofTrait {
                 // Right sibling can be both leaf/computed or proof.
                 let right_sibling = if next_leaf_pos == pos + 1 {
                     let res = next_leaf;
-                    if leaf_nodes.is_empty() {
-                        next_leaf_pos = Bounded::<u64>::MAX;
-                    } else {
-                        let (a, b) = leaf_nodes.pop_front().unwrap();
-                        next_leaf_pos = a;
-                        next_leaf = b;
-                    }
+                    let (a, b) = leaf_nodes.pop_front().unwrap_or((Bounded::<u64>::MAX, 0));
+                    next_leaf_pos = a;
+                    next_leaf = b;
                     res
                 } else if next_computed_pos == pos + 1 {
                     let res = next_computed;
-                    if computed_nodes.is_empty() {
-                        next_computed_pos = Bounded::<u64>::MAX;
-                    } else {
-                        let (a, b) = computed_nodes.pop_front().unwrap();
-                        next_computed_pos = a;
-                        next_computed = b;
-                    }
+                    let (a, b) = computed_nodes.pop_front().unwrap_or((Bounded::<u64>::MAX, 0));
+                    next_computed_pos = a;
+                    next_computed = b;
                     res
                 } else {
                     if sibling_nodes.is_empty() {
