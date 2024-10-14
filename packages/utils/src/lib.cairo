@@ -4,7 +4,9 @@ pub mod double_sha256;
 pub mod hash;
 pub mod merkle_tree;
 pub mod numeric;
+pub mod partial_ord;
 pub mod sha256;
+pub mod sort;
 
 #[cfg(target: 'test')]
 pub mod hex;
