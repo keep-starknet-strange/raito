@@ -22,7 +22,6 @@
   "blocks": [
     {
       "header": {
-        "hash": "00000000a141216a896c54f211301c436e557a8d55900637bbdce14c6c7bddef",
         "version": 1,
         "time": 1233063531,
         "bits": 486604799,
@@ -46,9 +45,8 @@
                     "pk_script": "0x",
                     "cached": false
                   },
-                  "block_hash": "0000000000000000000000000000000000000000000000000000000000000000",
                   "block_height": 0,
-                  "block_time": 0,
+                  "median_time_past": 0,
                   "is_coinbase": false
                 },
                 "witness": [

@@ -110,14 +110,18 @@ def format_cairo1_run(args: list) -> str:
     return format_item(args)
 
 
-def format_args(input_file, execute_script):
+def format_args(input_file, execute_script, cairo1_run):
     """Reads arguments from JSON file and prints formatted result.
     Expects a single CLI argument containing file path.
     Output is compatible with the Scarb runner arguments format.
     """
     args = json.loads(Path(input_file).read_text())
     res = flatten_tuples(serialize(args))
-    print([res, 1 if execute_script else 0])
+    flag = 1 if execute_script else 0
+    if cairo1_run:
+        print(f"{format_cairo1_run(res)} {flag}")
+    else:
+        print([res, flag])
 
 
 if __name__ == "__main__":
@@ -138,6 +142,12 @@ if __name__ == "__main__":
         help="Input file with arguments in JSON format",
     )
 
+    parser.add_argument(
+        "--cairo1_run",
+        action=argparse.BooleanOptionalAction,
+        help="Whether to format args for cairo1-run or not",
+    )
+
     args = parser.parse_args()
 
-    format_args(args.input_file, args.execute_script)
+    format_args(args.input_file, args.execute_script, args.cairo1_run)
