@@ -11,5 +11,10 @@ license-file = "LICENSE"
 
 [workspace.dependencies]
 cairo_test = "2.8.0"
-
 shinigami_engine = { git = "https://github.com/keep-starknet-strange/shinigami.git", rev = "9e7692d" }
+
+[profile.cairo1-run.cairo]
+# https://github.com/lambdaclass/cairo-vm/issues/1745
+enable-gas = false
+# https://github.com/software-mansion/scarb/blob/4d91be7a7dbfeb24327e3ba21c62fbac43a2105a/scarb/src/compiler/compilers/lib.rs#L154
+sierra-replace-ids = true

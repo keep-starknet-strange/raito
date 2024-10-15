@@ -75,8 +75,8 @@ for test_file in "${test_files[@]}"; do
         else
             arguments_file=".arguments-$(basename "$test_file")"
             python ../../scripts/data/format_args.py --input_file ${test_file} $([[ $execute_scripts -eq 1 ]] && echo "--execute_script") > $arguments_file
-            output=$(scarb cairo-run --no-build --function test --arguments-file $arguments_file)
-            gas_spent=$(echo "$output" | grep -o 'gas_spent=[0-9]*' | awk -F= '{sum += $2} END {print sum}')
+            output=$(scarb cairo-run --no-build --function main --arguments-file $arguments_file)
+            gas_spent=$(echo $output | grep -o 'gas_spent=[0-9]*' | sed 's/gas_spent=//')
 
             if [[ "$nocapture" -eq 1 ]]; then
                 echo -e "\n$output"

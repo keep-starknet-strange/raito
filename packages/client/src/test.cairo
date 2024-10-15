@@ -35,29 +35,21 @@ struct UtreexoArgs {
 /// Receives arguments in a serialized format (Cairo serde).
 /// Panics in case of a validation error or chain state mismatch.
 /// Prints result to the stdout.
-fn test(mut arguments: Span<felt252>, execute_script: bool) {
+pub(crate) fn main(mut arguments: Span<felt252>, execute_script: bool) {
+    let mut gas_before = get_available_gas();
+
     let Args { mut chain_state, blocks, expected_chain_state, utreexo_args } = Serde::deserialize(
         ref arguments
     )
         .expect('Failed to deserialize');
 
     let mut utxo_set: UtxoSet = Default::default();
-    let mut gas_before = get_available_gas();
 
     for block in blocks {
-        let height = chain_state.block_height + 1;
         match chain_state.validate_and_apply(block, ref utxo_set, execute_script) {
-            Result::Ok(new_chain_state) => {
-                chain_state = new_chain_state;
-                let gas_after = get_available_gas();
-                println!("OK: block={} gas_spent={}", height, gas_before - gas_after);
-                gas_before = gas_after;
-            },
+            Result::Ok(new_chain_state) => { chain_state = new_chain_state; },
             Result::Err(err) => {
-                let gas_after = get_available_gas();
-                println!(
-                    "FAIL: block={} gas_spent={} error='{}'", height, gas_before - gas_after, err
-                );
+                println!("FAIL: gas_spent={} error='{}'", gas_before - get_available_gas(), err);
                 panic!();
             }
         }
@@ -65,8 +57,8 @@ fn test(mut arguments: Span<felt252>, execute_script: bool) {
 
     if chain_state != expected_chain_state {
         println!(
-            "FAIL: block={} error='expected chain state {:?}, actual {:?}'",
-            chain_state.block_height,
+            "FAIL: gas_spent={} error='expected chain state {:?}, actual {:?}'",
+            gas_before - get_available_gas(),
             expected_chain_state,
             chain_state
         );
@@ -74,7 +66,7 @@ fn test(mut arguments: Span<felt252>, execute_script: bool) {
     }
 
     if let Result::Err(err) = utxo_set.finalize() {
-        println!("FAIL: error='{}'", err);
+        println!("FAIL: gas_spent={} error='{}'", gas_before - get_available_gas(), err);
         panic!();
     }
 
@@ -83,25 +75,25 @@ fn test(mut arguments: Span<felt252>, execute_script: bool) {
             .validate_and_apply(
                 utxo_set.leaves_to_add.span(), utxo_set.leaves_to_delete.span(), proofs.span(),
             ) {
-            Result::Ok(new_state) => {
-                state = new_state;
-                let gas_after = get_available_gas();
-                println!("OK: gas_spent={}", gas_before - gas_after);
-            },
+            Result::Ok(new_state) => { state = new_state; },
             Result::Err(err) => {
-                let gas_after = get_available_gas();
-                println!("FAIL: gas_spent={} error='{:?}'", gas_before - gas_after, err);
+                println!("FAIL: gas_spent={} error='{:?}'", gas_before - get_available_gas(), err);
                 panic!();
             }
         }
 
         if state != expected_state {
             println!(
-                "FAIL: error='expected utreexo state {:?}, actual {:?}'", expected_state, state
+                "FAIL: gas_spent={} error='expected utreexo state {:?}, actual {:?}'",
+                gas_before - get_available_gas(),
+                expected_state,
+                state
             );
             panic!();
         }
     }
+
+    println!("OK: gas_spent={}", gas_before - get_available_gas());
 }
 
 /// Workaround for handling missing `utreexo_args` field.
