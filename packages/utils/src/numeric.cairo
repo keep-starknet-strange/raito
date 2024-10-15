@@ -1,4 +1,4 @@
-use crate::bit_shifts::shr;
+use crate::bit_shifts::{shr_u64, shr};
 
 /// Reverses the byte order of a `u32`.
 ///
@@ -19,12 +19,12 @@ pub fn u64_next_power_of_two(mut n: u64) -> u64 {
     }
 
     n -= 1;
-    n = n | shr(n, 1_u64);
-    n = n | shr(n, 2_u64);
-    n = n | shr(n, 4_u64);
-    n = n | shr(n, 8_u64);
-    n = n | shr(n, 16_u64);
-    n = n | shr(n, 32_u64);
+    n = n | shr_u64(n, 1_u32);
+    n = n | shr_u64(n, 2_u32);
+    n = n | shr_u64(n, 4_u32);
+    n = n | shr_u64(n, 8_u32);
+    n = n | shr_u64(n, 16_u32);
+    n = n | shr_u64(n, 32_u32);
 
     n + 1
 }

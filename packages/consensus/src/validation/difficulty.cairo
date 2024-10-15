@@ -4,7 +4,7 @@
 //!   - https://learnmeabitcoin.com/technical/mining/target/
 //!   - https://learnmeabitcoin.com/technical/block/bits/
 
-use utils::{bit_shifts::{shl, shr, shr_u128, fast_pow}};
+use utils::{bit_shifts::{shl, shr_u64, fast_pow}};
 
 /// Maximum difficulty target allowed
 const MAX_TARGET: u256 = 0x00000000FFFF0000000000000000000000000000000000000000000000000000;
@@ -108,7 +108,7 @@ fn bits_to_target(bits: u32) -> Result<u256, ByteArray> {
         // For exponents 1, 2, and 3, divide by 256^(3 - exponent) i.e right shift
         let shift = 8 * (3 - exponent);
         // MAX_TARGET > 2^128 so we can return early
-        return Result::Ok(shr_u128(mantissa.into(), shift).into());
+        return Result::Ok(shr_u64(mantissa.into(), shift).into());
     } else if exponent <= 32 {
         let shift = 8 * (exponent - 3);
         let target = shl(mantissa.into(), shift);

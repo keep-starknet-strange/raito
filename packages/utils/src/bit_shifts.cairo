@@ -69,20 +69,20 @@ pub fn shr<
 }
 
 
-/// Performs a bitwise right shift on a u128 value by a specified number of bits.
-/// This specialized version offers optimal performance for u128 types.
+/// Performs a bitwise right shift on a u64 value by a specified number of bits.
+/// This specialized version offers optimal performance for u64 types.
 ///
 /// # Arguments
-/// * `self` - The u128 value to be shifted
+/// * `self` - The u64 value to be shifted
 /// * `shift` - The number of bits to shift right
 ///
 /// # Returns
 /// * The result of the right shift operation
 ///
 /// # Panics
-/// * If `shift` is greater than 127 (via pow2's range check on the lookup table)
+/// * If `shift` is greater than 63 (via pow2's range check on the lookup table)
 #[inline(always)]
-pub fn shr_u128(self: u128, shift: u32) -> u128 {
+pub fn shr_u64(self: u64, shift: u32) -> u64 {
     self / pow2(shift)
 }
 
@@ -138,11 +138,11 @@ pub fn fast_pow<
 /// # Arguments
 /// * `exponent` - The exponent to raise 2 to
 /// # Returns
-/// * `u128` - The result of 2^exponent
+/// * `u64` - The result of 2^exponent
 /// # Panics
-/// * If `exponent` is greater than 127 (out of the supported range)
-pub fn pow2(exponent: u32) -> u128 {
-    let hardcoded_results: [u128; 128] = [
+/// * If `exponent` is greater than 63 (out of the supported range)
+pub fn pow2(exponent: u32) -> u64 {
+    let hardcoded_results: [u64; 64] = [
         0x1,
         0x2,
         0x4,
@@ -207,77 +207,13 @@ pub fn pow2(exponent: u32) -> u128 {
         0x2000000000000000,
         0x4000000000000000,
         0x8000000000000000,
-        0x10000000000000000,
-        0x20000000000000000,
-        0x40000000000000000,
-        0x80000000000000000,
-        0x100000000000000000,
-        0x200000000000000000,
-        0x400000000000000000,
-        0x800000000000000000,
-        0x1000000000000000000,
-        0x2000000000000000000,
-        0x4000000000000000000,
-        0x8000000000000000000,
-        0x10000000000000000000,
-        0x20000000000000000000,
-        0x40000000000000000000,
-        0x80000000000000000000,
-        0x100000000000000000000,
-        0x200000000000000000000,
-        0x400000000000000000000,
-        0x800000000000000000000,
-        0x1000000000000000000000,
-        0x2000000000000000000000,
-        0x4000000000000000000000,
-        0x8000000000000000000000,
-        0x10000000000000000000000,
-        0x20000000000000000000000,
-        0x40000000000000000000000,
-        0x80000000000000000000000,
-        0x100000000000000000000000,
-        0x200000000000000000000000,
-        0x400000000000000000000000,
-        0x800000000000000000000000,
-        0x1000000000000000000000000,
-        0x2000000000000000000000000,
-        0x4000000000000000000000000,
-        0x8000000000000000000000000,
-        0x10000000000000000000000000,
-        0x20000000000000000000000000,
-        0x40000000000000000000000000,
-        0x80000000000000000000000000,
-        0x100000000000000000000000000,
-        0x200000000000000000000000000,
-        0x400000000000000000000000000,
-        0x800000000000000000000000000,
-        0x1000000000000000000000000000,
-        0x2000000000000000000000000000,
-        0x4000000000000000000000000000,
-        0x8000000000000000000000000000,
-        0x10000000000000000000000000000,
-        0x20000000000000000000000000000,
-        0x40000000000000000000000000000,
-        0x80000000000000000000000000000,
-        0x100000000000000000000000000000,
-        0x200000000000000000000000000000,
-        0x400000000000000000000000000000,
-        0x800000000000000000000000000000,
-        0x1000000000000000000000000000000,
-        0x2000000000000000000000000000000,
-        0x4000000000000000000000000000000,
-        0x8000000000000000000000000000000,
-        0x10000000000000000000000000000000,
-        0x20000000000000000000000000000000,
-        0x40000000000000000000000000000000,
-        0x80000000000000000000000000000000
     ];
     *hardcoded_results.span()[exponent]
 }
 
 #[cfg(test)]
 mod tests {
-    use super::{fast_pow, pow2, shl, shr, shr_u128};
+    use super::{fast_pow, pow2, shl, shr, shr_u64};
 
     #[test]
     #[available_gas(1000000000)]
@@ -299,11 +235,7 @@ mod tests {
         assert_eq!(pow2(3), 8, "2^3 should be 8");
         assert_eq!(pow2(10), 1024, "2^10 should be 1024");
         assert_eq!(pow2(63), 0x8000000000000000, "2^63 should be 0x8000000000000000");
-        assert_eq!(
-            pow2(127),
-            0x80000000000000000000000000000000,
-            "2^127 should be 0x80000000000000000000000000000000"
-        );
+        assert_eq!(pow2(63), 0x8000000000000000, "2^64 should be 0x8000000000000000");
     }
 
     #[test]
@@ -337,20 +269,20 @@ mod tests {
     }
 
     #[test]
-    fn test_shr_u128() {
+    fn test_shr_u64() {
         // Expect about 15% steps reduction over previous test,
         // should be much higher for bigger shifts
-        let x: u128 = 32;
+        let x: u64 = 32;
         let shift: u32 = 2;
-        let result = shr_u128(x, shift);
+        let result = shr_u64(x, shift);
         assert_eq!(result, 8);
 
         let shift: u32 = 32;
-        let result = shr_u128(x, shift);
+        let result = shr_u64(x, shift);
         assert_eq!(result, 0);
 
         let shift: u32 = 0;
-        let result = shr_u128(x, shift);
+        let result = shr_u64(x, shift);
         assert_eq!(result, 32);
     }
 }
