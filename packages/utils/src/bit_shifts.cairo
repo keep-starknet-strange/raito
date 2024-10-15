@@ -69,6 +69,24 @@ pub fn shr<
 }
 
 
+/// Performs a bitwise right shift on a u128 value by a specified number of bits.
+/// This specialized version offers optimal performance for u128 types.
+///
+/// # Arguments
+/// * `self` - The u128 value to be shifted
+/// * `shift` - The number of bits to shift right
+///
+/// # Returns
+/// * The result of the right shift operation
+///
+/// # Panics
+/// * If `shift` is greater than 127 (via pow2's range check on the lookup table)
+#[inline(always)]
+pub fn shr_u128(self: u128, shift: u32) -> u128 {
+    self / pow2(shift)
+}
+
+
 // Fast exponentiation using the square-and-multiply algorithm
 // Reference:
 // https://github.com/keep-starknet-strange/alexandria/blob/bcdca70afdf59c9976148e95cebad5cf63d75a7f/packages/math/src/fast_power.cairo#L12
