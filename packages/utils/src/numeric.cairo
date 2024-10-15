@@ -1,4 +1,4 @@
-use crate::bit_shifts::{shr_u64, shr};
+use crate::bit_shifts::shr_u64;
 
 /// Reverses the byte order of a `u32`.
 ///
