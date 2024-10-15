@@ -2,10 +2,10 @@
 use crate::types::utxo_set::{UtxoSet, UtxoSetTrait};
 use crate::types::transaction::{OutPoint, Transaction};
 use crate::codec::{Encode, TransactionCodec};
+use crate::validation::coinbase::is_coinbase_txid_duplicated;
 use utils::{hash::Digest, merkle_tree::merkle_root, double_sha256::double_sha256_byte_array,};
 use super::transaction::validate_transaction;
 use core::num::traits::zero::Zero;
-use crate::validation::coinbase::is_coinbase_txid_duplicated;
 
 const MAX_BLOCK_WEIGHT_LEGACY: usize = 1_000_000;
 const MAX_BLOCK_WEIGHT: usize = 4_000_000;

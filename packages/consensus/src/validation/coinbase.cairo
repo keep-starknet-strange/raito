@@ -205,15 +205,15 @@ mod tests {
     #[test]
     fn test_bip30_first_txid_dup() {
         let txid: Digest = FIRST_DUP_TXID.into();
-        assert!(is_coinbase_txid_duplicated(txid, 91722));
-        assert!(!is_coinbase_txid_duplicated(txid, 91880));
+        assert!(!is_coinbase_txid_duplicated(txid, 91722));
+        assert!(is_coinbase_txid_duplicated(txid, 91880));
     }
 
     #[test]
     fn test_bip30_second_txid_dup() {
         let txid: Digest = SECOND_DUP_TXID.into();
-        assert!(is_coinbase_txid_duplicated(txid, 91812));
-        assert!(!is_coinbase_txid_duplicated(txid, 91842));
+        assert!(!is_coinbase_txid_duplicated(txid, 91812));
+        assert!(is_coinbase_txid_duplicated(txid, 91842));
     }
 
     // Ref implementation here:
