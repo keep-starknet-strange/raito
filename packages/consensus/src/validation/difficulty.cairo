@@ -4,7 +4,7 @@
 //!   - https://learnmeabitcoin.com/technical/mining/target/
 //!   - https://learnmeabitcoin.com/technical/block/bits/
 
-use utils::{bit_shifts::{shl, shr, fast_pow}};
+use utils::{bit_shifts::{shl, shr, shr_u128, fast_pow}};
 
 /// Maximum difficulty target allowed
 const MAX_TARGET: u256 = 0x00000000FFFF0000000000000000000000000000000000000000000000000000;
@@ -101,28 +101,25 @@ fn bits_to_target(bits: u32) -> Result<u256, ByteArray> {
     }
 
     // Calculate the full target value
-    let mut target: u256 = mantissa.into();
-
     if exponent == 0 {
         // Special case: exponent 0 means we use the mantissa as-is
-        return Result::Ok(target);
+        return Result::Ok(mantissa.into());
     } else if exponent <= 3 {
         // For exponents 1, 2, and 3, divide by 256^(3 - exponent) i.e right shift
         let shift = 8 * (3 - exponent);
-        target = shr(target, shift);
+        // MAX_TARGET > 2^128 so we can return early
+        return Result::Ok(shr_u128(mantissa.into(), shift).into());
     } else if exponent <= 32 {
         let shift = 8 * (exponent - 3);
-        target = shl(target, shift);
+        let target = shl(mantissa.into(), shift);
+        // Ensure the target doesn't exceed the maximum allowed value
+        if target > MAX_TARGET {
+            return Result::Err("Target exceeds maximum value");
+        }
+        Result::Ok(target)
     } else {
         return Result::Err("Target size cannot exceed 32 bytes");
     }
-
-    // Ensure the target doesn't exceed the maximum allowed value
-    if target > MAX_TARGET {
-        return Result::Err("Target exceeds maximum value");
-    }
-
-    Result::Ok(target)
 }
 
 #[cfg(test)]
