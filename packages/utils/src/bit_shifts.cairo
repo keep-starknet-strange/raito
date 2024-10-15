@@ -277,7 +277,7 @@ pub fn pow2(exponent: u32) -> u128 {
 
 #[cfg(test)]
 mod tests {
-    use super::{fast_pow, pow2, shl, shr};
+    use super::{fast_pow, pow2, shl, shr, shr_u128};
 
     #[test]
     #[available_gas(1000000000)]
@@ -333,6 +333,24 @@ mod tests {
 
         let shift: u32 = 0;
         let result = shr(x, shift);
+        assert_eq!(result, 32);
+    }
+
+    #[test]
+    fn test_shr_u128() {
+        // Expect about 15% steps reduction over previous test,
+        // should be much higher for bigger shifts
+        let x: u128 = 32;
+        let shift: u32 = 2;
+        let result = shr_u128(x, shift);
+        assert_eq!(result, 8);
+
+        let shift: u32 = 32;
+        let result = shr_u128(x, shift);
+        assert_eq!(result, 0);
+
+        let shift: u32 = 0;
+        let result = shr_u128(x, shift);
         assert_eq!(result, 32);
     }
 }
