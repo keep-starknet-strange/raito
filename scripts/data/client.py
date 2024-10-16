@@ -10,6 +10,7 @@ from format_args import format_args
 BASE_DIR = Path(".client_cache")
 DEFAULT_NO_OF_BLOCKS = 1
 
+
 def run_client(initial_height, num_blocks, mode):
     first = initial_height + 1
     second = initial_height + num_blocks
@@ -62,6 +63,7 @@ def run_client(initial_height, num_blocks, mode):
         print(result.stdout)
         return True
 
+
 def process_blocks(args):
     BASE_DIR.mkdir(exist_ok=True)
     end = args.start + args.blocks
@@ -78,11 +80,15 @@ def process_blocks(args):
             print("Unsupported strategy")
             return
 
+
 def main():
     parser = argparse.ArgumentParser(description="Run client script")
     parser.add_argument("--start", type=int, default=1, help="Start block height")
     parser.add_argument(
-        "--blocks", type=int, default=DEFAULT_NO_OF_BLOCKS, help="Number of blocks to process"
+        "--blocks",
+        type=int,
+        default=DEFAULT_NO_OF_BLOCKS,
+        help="Number of blocks to process",
     )
     parser.add_argument(
         "--step", type=int, default=1, help="Step size for block processing"
@@ -99,6 +105,7 @@ def main():
 
     args = parser.parse_args()
     process_blocks(args)
+
 
 if __name__ == "__main__":
     main()
