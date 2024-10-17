@@ -34,41 +34,6 @@ pub fn shl<
     self * fast_pow(two, shift)
 }
 
-/// Performs a bitwise right shift on the given value by a specified number of bits.
-pub fn shr<
-    T,
-    U,
-    +Zero<T>,
-    +Zero<U>,
-    +One<T>,
-    +One<U>,
-    +Add<T>,
-    +Add<U>,
-    +Sub<U>,
-    +Div<T>,
-    +Mul<T>,
-    +Div<U>,
-    +Rem<U>,
-    +Copy<T>,
-    +Copy<U>,
-    +Drop<T>,
-    +Drop<U>,
-    +PartialOrd<U>,
-    +PartialEq<U>,
-    +BitSize<T>,
-    +Into<usize, U>
->(
-    self: T, shift: U
-) -> T {
-    if shift > BitSize::<T>::bits().try_into().unwrap() - One::one() {
-        return Zero::zero();
-    }
-
-    let two = One::one() + One::one();
-    self / fast_pow(two, shift)
-}
-
-
 /// Performs a bitwise right shift on a u64 value by a specified number of bits.
 /// This specialized version offers optimal performance for u64 types.
 ///
@@ -213,7 +178,7 @@ pub fn pow2(exponent: u32) -> u64 {
 
 #[cfg(test)]
 mod tests {
-    use super::{fast_pow, pow2, shl, shr, shr_u64};
+    use super::{fast_pow, pow2, shl, shr_u64};
 
     #[test]
     #[available_gas(1000000000)]
@@ -249,23 +214,6 @@ mod tests {
         let shift2: u32 = 0;
         let result = shl(value2, shift2);
         assert_eq!(result, 5);
-    }
-
-    #[test]
-    fn test_shr() {
-        // Assuming T and U are u32 for simplicity
-        let x: u32 = 32;
-        let shift: u32 = 2;
-        let result = shr(x, shift);
-        assert_eq!(result, 8);
-
-        let shift: u32 = 32;
-        let result = shr(x, shift);
-        assert_eq!(result, 0);
-
-        let shift: u32 = 0;
-        let result = shr(x, shift);
-        assert_eq!(result, 32);
     }
 
     #[test]
