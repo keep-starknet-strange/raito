@@ -119,9 +119,9 @@ def format_args(input_file, execute_script, cairo1_run):
     res = flatten_tuples(serialize(args))
     flag = 1 if execute_script else 0
     if cairo1_run:
-        print(f"{format_cairo1_run(res)} {flag}")
+        return f"{format_cairo1_run(res)} {flag}"
     else:
-        print([res, flag])
+        return [res, flag]
 
 
 if __name__ == "__main__":
@@ -144,10 +144,10 @@ if __name__ == "__main__":
 
     parser.add_argument(
         "--cairo1_run",
-        action=argparse.BooleanOptionalAction,
+        action="store_true",
         help="Whether to format args for cairo1-run or not",
     )
 
     args = parser.parse_args()
 
-    format_args(args.input_file, args.execute_script, args.cairo1_run)
+    print(format_args(args.input_file, args.execute_script, args.cairo1_run))

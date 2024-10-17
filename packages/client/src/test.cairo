@@ -36,6 +36,7 @@ struct UtreexoArgs {
 /// Panics in case of a validation error or chain state mismatch.
 /// Prints result to the stdout.
 pub(crate) fn main(mut arguments: Span<felt252>, execute_script: bool) {
+    println!("Running integration test... ");
     let mut gas_before = get_available_gas();
 
     let Args { mut chain_state, blocks, expected_chain_state, utreexo_args } = Serde::deserialize(

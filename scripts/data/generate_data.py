@@ -4,15 +4,17 @@ import argparse
 import json
 import os
 import time
+import logging
 from decimal import Decimal, getcontext
 from pathlib import Path
 
 import requests
-from tqdm import tqdm
 
 from generate_timestamp_data import get_timestamp_data
 from generate_utreexo_data import UtreexoData
 from generate_utxo_data import get_utxo_set
+
+logger = logging.getLogger(__name__)
 
 getcontext().prec = 16
 
@@ -57,7 +59,7 @@ def fetch_chain_state_fast(block_height: int):
     block_hash = request_rpc("getblockhash", [block_height])
     head = request_rpc("getblockheader", [block_hash])
 
-    data = get_timestamp_data(block_height)[str(block_height)]
+    data = get_timestamp_data(block_height)
     head["prev_timestamps"] = [int(t) for t in data["previous_timestamps"]]
     if block_height < 2016:
         head["epoch_start_time"] = 1231006505
@@ -146,8 +148,7 @@ def fetch_block(block_hash: str, fast: bool):
     )
 
     block["data"] = {
-        tx["txid"]: resolve_transaction(tx, previous_outputs)
-        for tx in tqdm(block["tx"], "Resolving transactions")
+        tx["txid"]: resolve_transaction(tx, previous_outputs) for tx in block["tx"]
     }
     return block
 
@@ -321,11 +322,11 @@ def generate_data(
     """
 
     if fast:
-        print("Fetching initial chain state (fast)...")
+        logger.debug("Fetching initial chain state (fast)...")
     else:
-        print("Fetching initial chain state...")
+        logger.debug("Fetching initial chain state...")
 
-    print(f"blocks: {initial_height} - {initial_height + num_blocks - 1}")
+    logger.debug(f"blocks: {initial_height} - {initial_height + num_blocks - 1}")
 
     chain_state = (
         fetch_chain_state_fast(initial_height)
@@ -340,10 +341,8 @@ def generate_data(
     utreexo_data = {}
 
     for i in range(num_blocks):
-        print(
-            f"\rFetching block {initial_height + i + 1}/{initial_height + num_blocks}",
-            end="",
-            flush=True,
+        logger.debug(
+            f"Fetching block {initial_height + i + 1}/{initial_height + num_blocks}"
         )
 
         # Interblock cache
@@ -419,6 +418,10 @@ def str2bool(value):
 # Example: generate_data.py --mode 'full' --height 0 --num_blocks 10 --output_file full_0_10.json --fast
 # Example: generate_data.py --mode 'utreexo' --height 0 --num_blocks 10 --output_file utreexo_0_10.json --fast
 if __name__ == "__main__":
+
+    logging.basicConfig(
+        format="%(asctime)s - %(levelname)s - %(message)s", level=logging.INFO
+    )
 
     parser = argparse.ArgumentParser(description="Process UTXO files.")
     parser.add_argument(
