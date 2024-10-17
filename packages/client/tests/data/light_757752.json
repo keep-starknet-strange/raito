@@ -22,7 +22,6 @@
   "blocks": [
     {
       "header": {
-        "hash": "000000000000000000032c781dbe11459fba50312acfca3cd96fa2bc4367d5b1",
         "version": 549453828,
         "time": 1665258359,
         "bits": 386464174,

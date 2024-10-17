@@ -2,8 +2,8 @@
 //!
 //! Read more: https://learnmeabitcoin.com/technical/block/time/
 
-/// Check that the block time is greater than the median of the 11 most recent timestamps.
-pub fn validate_timestamp(prev_timestamps: Span<u32>, block_time: u32) -> Result<(), ByteArray> {
+/// Compute the Median Time Past (MTP) from the previous timestamps.
+pub fn compute_median_time_past(prev_timestamps: Span<u32>) -> u32 {
     // Sort the last 11 timestamps
     // adapted from :
     // https://github.com/keep-starknet-strange/alexandria/blob/main/packages/sorting/src/bubble_sort.cairo
@@ -37,10 +37,15 @@ pub fn validate_timestamp(prev_timestamps: Span<u32>, block_time: u32) -> Result
         };
     };
 
-    if block_time > *sorted_prev_timestamps.at(sorted_prev_timestamps.len() - 6) {
+    *sorted_prev_timestamps.at(sorted_prev_timestamps.len() - 6)
+}
+
+/// Check that the block time is greater than the Median Time Past (MTP).
+pub fn validate_timestamp(median_time_past: u32, block_time: u32) -> Result<(), ByteArray> {
+    if block_time > median_time_past {
         Result::Ok(())
     } else {
-        Result::Err("Median time is greater than or equal to block's timestamp")
+        Result::Err("Median time past is greater than or equal to block's timestamp")
     }
 }
 
@@ -54,26 +59,37 @@ pub fn next_prev_timestamps(prev_timestamps: Span<u32>, block_time: u32) -> Span
 
 #[cfg(test)]
 mod tests {
-    use super::{validate_timestamp, next_prev_timestamps};
+    use super::{compute_median_time_past, validate_timestamp, next_prev_timestamps};
+
+    #[test]
+    fn test_compute_median_time_past() {
+        let prev_timestamps = array![1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].span();
+        let mtp = compute_median_time_past(prev_timestamps);
+        assert_eq!(mtp, 6, "Expected MTP to be 6");
+
+        let unsorted_timestamps = array![1, 3, 2, 5, 4, 6, 8, 7, 9, 10, 11].span();
+        let mtp = compute_median_time_past(unsorted_timestamps);
+        assert_eq!(mtp, 6, "Expected MTP to be 6 for unsorted");
+    }
 
     #[test]
     fn test_validate_timestamp() {
-        let prev_timestamps = array![1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].span();
-        let mut block_time = 12_u32;
+        let mtp = 6_u32;
+        let mut block_time = 7_u32;
 
-        // new timestamp is greater than the last timestamp
-        let result = validate_timestamp(prev_timestamps, block_time);
-        assert(result.is_ok(), 'Expected target to be valid');
+        // new timestamp is greater than MTP
+        let result = validate_timestamp(mtp, block_time);
+        assert(result.is_ok(), 'Expected timestamp to be valid');
 
-        // new timestamp is strictly greater than the median of the last 11 timestamps
-        block_time = 7;
-        let result = validate_timestamp(prev_timestamps, block_time);
-        assert(result.is_ok(), 'Expected target to be valid');
-
-        // new timestamp is equal to the median of the last 11 timestamps
+        // new timestamp is equal to MTP
         block_time = 6;
-        let result = validate_timestamp(prev_timestamps, block_time);
-        assert!(result.is_err(), "Median time is greater than block's timestamp");
+        let result = validate_timestamp(mtp, block_time);
+        assert!(result.is_err(), "MTP is greater than or equal to block's timestamp");
+
+        // new timestamp is less than MTP
+        block_time = 5;
+        let result = validate_timestamp(mtp, block_time);
+        assert!(result.is_err(), "MTP is greater than block's timestamp");
     }
 
     #[test]
@@ -87,42 +103,23 @@ mod tests {
     }
 
     #[test]
-    fn test_validate_timestamp_single_unchronological() {
-        let prev_timestamps = array![1, 2, 3, 4, 5, 7, 6, 8, 9, 10, 11].span();
-        let mut block_time = 12_u32;
-
-        // new timestamp is greater than the last timestamp
-        let result = validate_timestamp(prev_timestamps, block_time);
-        assert(result.is_ok(), 'Expected target to be valid');
-
-        // new timestamp is strictly greater than the median of the last 11 timestamps(sorted)
-        block_time = 7;
-        let result = validate_timestamp(prev_timestamps, block_time);
-        assert(result.is_ok(), 'Expected target to be valid');
-
-        // new timestamp is equal to the median of the last 11 timestamps(sorted)
-        block_time = 6;
-        let result = validate_timestamp(prev_timestamps, block_time);
-        assert!(result.is_err(), "Median time is greater than block's timestamp");
-    }
-
-    #[test]
-    fn test_validate_timestamp_unsorted() {
+    fn test_validate_timestamp_with_unsorted_input() {
         let prev_timestamps = array![1, 3, 2, 5, 4, 6, 8, 7, 9, 10, 11].span();
+        let mtp = compute_median_time_past(prev_timestamps);
         let mut block_time = 12_u32;
 
-        // new timestamp is greater than the last timestamp
-        let result = validate_timestamp(prev_timestamps, block_time);
-        assert(result.is_ok(), 'Expected target to be valid');
+        // new timestamp is greater than MTP
+        let result = validate_timestamp(mtp, block_time);
+        assert(result.is_ok(), 'Expected timestamp to be valid');
 
-        // new timestamp is strictly greater than the median of the last 11 timestamps(sorted)
-        block_time = 7;
-        let result = validate_timestamp(prev_timestamps, block_time);
-        assert(result.is_ok(), 'Expected target to be valid');
-
-        // new timestamp is equal to the median of the last 11 timestamps(sorted)
+        // new timestamp is equal to MTP
         block_time = 6;
-        let result = validate_timestamp(prev_timestamps, block_time);
-        assert!(result.is_err(), "Median time is greater than block's timestamp");
+        let result = validate_timestamp(mtp, block_time);
+        assert!(result.is_err(), "MTP is greater than or equal to block's timestamp");
+
+        // new timestamp is less than MTP
+        block_time = 5;
+        let result = validate_timestamp(mtp, block_time);
+        assert!(result.is_err(), "MTP is greater than block's timestamp");
     }
 }

@@ -30,4 +30,8 @@ __pycache__
 .client_cache/
 .utxo_data/
 .timestamps_data/
+.arguments*.json
 
+corelib
+*.svg
+*.txt

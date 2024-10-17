@@ -1,0 +1,570 @@
+{
+  "chain_state": {
+    "block_height": 116927,
+    "total_work": "3272011648648198848",
+    "best_block_hash": "000000000000691d0c2444db713bf6c088844cc95a37cdc55cc269bb0a31d8c8",
+    "current_target": "390843739553851677760235428436025349398613161749553108945469440",
+    "epoch_start_time": 1301020785,
+    "prev_timestamps": [
+      1302030348,
+      1302030365,
+      1302030684,
+      1302031124,
+      1302031602,
+      1302032098,
+      1302032163,
+      1302032258,
+      1302032385,
+      1302033507,
+      1302034036
+    ]
+  },
+  "blocks": [
+    {
+      "header": {
+        "version": 1,
+        "time": 1302034197,
+        "bits": 453036989,
+        "nonce": 1763741052
+      },
+      "data": {
+        "variant_id": 1,
+        "transactions": [
+          {
+            "version": 1,
+            "is_segwit": false,
+            "inputs": [
+              {
+                "script": "0x04bdcb001b013d",
+                "sequence": 4294967295,
+                "previous_output": {
+                  "txid": "0000000000000000000000000000000000000000000000000000000000000000",
+                  "vout": 4294967295,
+                  "data": {
+                    "value": 0,
+                    "pk_script": "0x",
+                    "cached": false
+                  },
+                  "block_height": 0,
+                  "median_time_past": 0,
+                  "is_coinbase": false
+                },
+                "witness": [
+                  "0x0000000000000000000000000000000000000000000000000000000000000000"
+                ]
+              }
+            ],
+            "outputs": [
+              {
+                "value": 5004000000,
+                "pk_script": "0x41046e37e5a28701c8fa5df3f4850932ea48417b8dd5ba2443510eef98f9f5d5ce581e1e4b46af3f5bb557ba3f03a1dd1a85b54e4de667f0626fc9a013408680472cac",
+                "cached": false
+              }
+            ],
+            "lock_time": 0
+          },
+          {
+            "version": 1,
+            "is_segwit": false,
+            "inputs": [
+              {
+                "script": "0x493046022100d017b28d1d6dab307b3fec7198c3c39dadf7d18495205d06ade57005fc999ab3022100f7779c50fbe92e2685022a5cf18bc6865808a3675ae6b7b865815d213c4ee2920141044f6f5379ed324759f53fb36f8b86eac1404ccfe0388f2b4102bea26a7a34854442e59ebdd7c219512a3b21cacdd4328bae43f1242894b5a5c3dfaab80fd85a5e",
+                "sequence": 4294967295,
+                "previous_output": {
+                  "txid": "76c422cd9ddf41d16c57fed805c52a09f95939b681cc663056097fdcd2d6b3ad",
+                  "vout": 34,
+                  "data": {
+                    "value": 2634000000,
+                    "pk_script": "0x76a91427ed1144871d6f1695fd2e8cd106764ae65b1a2088ac",
+                    "cached": false
+                  },
+                  "block_height": 116857,
+                  "median_time_past": 1302006137,
+                  "is_coinbase": false
+                },
+                "witness": []
+              },
+              {
+                "script": "0x473044022070016fbaebc61f363b3d3c774e4377dd40498b0b685ee2bd3f685ccbc2f727500220445541df9117b14c2919e477c6da45a995dcae0a19a6b5bb301dc73f721f52ce0141047743e753a4e1b636396ea639fdca8ca07864b1fd0b84cdd59cfde94a75eed7c799014f1a8d2f466c54e4c122042dc379697dfe8c2ad659932ea2ec4e5d760113",
+                "sequence": 4294967295,
+                "previous_output": {
+                  "txid": "fea1c4ba1767e0648360fdb4feb14b471507f3d36ca60ccaf2448e6e2f54fbbc",
+                  "vout": 21,
+                  "data": {
+                    "value": 679000000,
+                    "pk_script": "0x76a9140a0d0d90b4d63e3fff7fee70430fe8447d4f0fe988ac",
+                    "cached": false
+                  },
+                  "block_height": 116823,
+                  "median_time_past": 1301992054,
+                  "is_coinbase": false
+                },
+                "witness": []
+              }
+            ],
+            "outputs": [
+              {
+                "value": 6000000,
+                "pk_script": "0x76a91442eee18c92f0b915f6f30125683ad08ba4a41fdf88ac",
+                "cached": false
+              },
+              {
+                "value": 101000000,
+                "pk_script": "0x76a914235751c3139e8498c9c496c6c81fef568a86edc488ac",
+                "cached": false
+              },
+              {
+                "value": 1000000,
+                "pk_script": "0x76a914d52e6238efbff2ec76c93c8dc466bb5bcf1bde6388ac",
+                "cached": false
+              },
+              {
+                "value": 1030000000,
+                "pk_script": "0x76a91411f27fc83ba2da6cf30b27240af9d205549ec6f588ac",
+                "cached": false
+              },
+              {
+                "value": 20000000,
+                "pk_script": "0x76a914fbf65f36cc7f227b32e39ce42eef803c5a54304d88ac",
+                "cached": false
+              },
+              {
+                "value": 106000000,
+                "pk_script": "0x76a9147be15fd6adfd166df2e1f97aeb57df7cd2534b1c88ac",
+                "cached": false
+              },
+              {
+                "value": 110000000,
+                "pk_script": "0x76a91470736204e949f94acf5f55cb6348f1729d9df6ae88ac",
+                "cached": false
+              },
+              {
+                "value": 180000000,
+                "pk_script": "0x76a914185f394e6d556dfe8b2ccec766e41a289fc240ad88ac",
+                "cached": false
+              },
+              {
+                "value": 25000000,
+                "pk_script": "0x76a9144c40548d6152a5bb8960f79bb91843d9ba7add4488ac",
+                "cached": false
+              },
+              {
+                "value": 149000000,
+                "pk_script": "0x76a9149d34a61d737cb5f1d53923bf869d8116252436e688ac",
+                "cached": false
+              },
+              {
+                "value": 132000000,
+                "pk_script": "0x76a914bfcfc32fb87b93c2ffdb52f171916cd57358153288ac",
+                "cached": false
+              },
+              {
+                "value": 311000000,
+                "pk_script": "0x76a914fde5ac20de0b0a419122efa316b739d40d68f46188ac",
+                "cached": false
+              },
+              {
+                "value": 524000000,
+                "pk_script": "0x76a914f074e81f45f4f4349de1cc8fb3ef9d693147fcbd88ac",
+                "cached": false
+              },
+              {
+                "value": 51000000,
+                "pk_script": "0x76a914b1bf2253fe4534aef71cbc3a14cfb5f06641fb0088ac",
+                "cached": false
+              },
+              {
+                "value": 35000000,
+                "pk_script": "0x76a914a39fcf895f7c9fb88a6f19733c941e04bed5401e88ac",
+                "cached": false
+              },
+              {
+                "value": 100000000,
+                "pk_script": "0x76a914b34181595a872e91290f397c26a0616dbf0270ff88ac",
+                "cached": false
+              },
+              {
+                "value": 2000000,
+                "pk_script": "0x76a914e84b6f911944b94eeaeec0cc13f094ce98ab7d2188ac",
+                "cached": false
+              },
+              {
+                "value": 101000000,
+                "pk_script": "0x76a914b33c443918382cd286e98a9db3750b697b327fb088ac",
+                "cached": false
+              },
+              {
+                "value": 113000000,
+                "pk_script": "0x76a91418ae4c931958b7684e3781456ecb16cc1339597688ac",
+                "cached": false
+              },
+              {
+                "value": 104000000,
+                "pk_script": "0x76a91465cba8a0ccb4dee7443076fac6e791e4dbc85c2e88ac",
+                "cached": false
+              },
+              {
+                "value": 3000000,
+                "pk_script": "0x76a9140f96881765e5eff54831716b4b831ca2b22b7acf88ac",
+                "cached": false
+              },
+              {
+                "value": 62000000,
+                "pk_script": "0x76a914e43bf4657400bb707b8133f285834a727cfcdf8388ac",
+                "cached": false
+              },
+              {
+                "value": 4000000,
+                "pk_script": "0x76a91419e4fe7403d4cdf4e7a44c080aab114520b1e88e88ac",
+                "cached": false
+              },
+              {
+                "value": 41000000,
+                "pk_script": "0x76a91400597216aed27899e7ba4f09976142f26d8833c988ac",
+                "cached": false
+              }
+            ],
+            "lock_time": 0
+          },
+          {
+            "version": 1,
+            "is_segwit": false,
+            "inputs": [
+              {
+                "script": "0x47304402203868e6998506289d90a43663e08375d6327aed3a0fe1ea6d0aed0486c01efee902204201f593355d72f77333a853c31b4a03d555580def6f77dd8b73a6d5c6263150014104e5e227327835504db49ea3af37c725c54e27a63a7448495313d47c0618f7f0c9afeed8b58b1f3d6c0c68c33a9a05f80a0d7a46759acebc2bb5808dd9b6ed4724",
+                "sequence": 4294967295,
+                "previous_output": {
+                  "txid": "80c74e080bdb779990f83d528728c40ee9747f9806b5d251fc45e6c0e71acf67",
+                  "vout": 0,
+                  "data": {
+                    "value": 23500000000,
+                    "pk_script": "0x76a914ae48c1bd365a32fa2aff25cfafb0ff0eecfe1f4e88ac",
+                    "cached": false
+                  },
+                  "block_height": 116927,
+                  "median_time_past": 1302032098,
+                  "is_coinbase": false
+                },
+                "witness": []
+              }
+            ],
+            "outputs": [
+              {
+                "value": 23000000000,
+                "pk_script": "0x76a914b8cd788c36a0b45e5f7e08923ef8be0bda6fb95288ac",
+                "cached": false
+              },
+              {
+                "value": 500000000,
+                "pk_script": "0x76a914e86675c30804f57d0cffac1ea7def683d41a785388ac",
+                "cached": false
+              }
+            ],
+            "lock_time": 0
+          },
+          {
+            "version": 1,
+            "is_segwit": false,
+            "inputs": [
+              {
+                "script": "0x493046022100a12a8a282edc665ee51641fc62d133f3e2cec37839873642debe01de3939127d022100e08557f2f822d970480ff588ddac5f60f31212380c2a6e865c944488746d94c60141049ad4aa08627a0e76abae1550ef06152f378bce5e51d12526e29c490b8e3691fbbb8b5743a1ff95e34f8345f6e74e8a360783478018fa5d376b55a81d9df08c1c",
+                "sequence": 4294967295,
+                "previous_output": {
+                  "txid": "6ca8ec334d11c1d66a1131ceae83488e087a2093d0755ba49dff2dfb2e7af7c5",
+                  "vout": 0,
+                  "data": {
+                    "value": 757100000,
+                    "pk_script": "0x76a9144365a2afba4d346766806881c375afe284e259fd88ac",
+                    "cached": false
+                  },
+                  "block_height": 116926,
+                  "median_time_past": 1302031602,
+                  "is_coinbase": false
+                },
+                "witness": []
+              },
+              {
+                "script": "0x493046022100c9dd40c3a3229abbe6c3b3ee05cac0b36c67ad248402f0616ac720eff7d8e4dd022100b6fac3cbf3cdc6a05942ca9a0cd35feca5fa29e271268da4214524c8b96784800141043956dccabafd08dc5781f4b58bedb7dfed0d4ead89da2caa1eb26e3c41fd134194bd7ad383588d9d4980ec340165e5d4793af1088fc7432fca07e248f994334d",
+                "sequence": 4294967295,
+                "previous_output": {
+                  "txid": "6ca8ec334d11c1d66a1131ceae83488e087a2093d0755ba49dff2dfb2e7af7c5",
+                  "vout": 1,
+                  "data": {
+                    "value": 11045000000,
+                    "pk_script": "0x76a91411c27716405c1dc432bb8595f9d2beb48063f4ab88ac",
+                    "cached": false
+                  },
+                  "block_height": 116926,
+                  "median_time_past": 1302031602,
+                  "is_coinbase": false
+                },
+                "witness": []
+              }
+            ],
+            "outputs": [
+              {
+                "value": 2823000000,
+                "pk_script": "0x76a9147a42ef481b2e2b42453df4d86d94aedac91fcc4088ac",
+                "cached": false
+              },
+              {
+                "value": 8979100000,
+                "pk_script": "0x76a914df15deed18f8e191e32663fd4e6234be61d3374288ac",
+                "cached": false
+              }
+            ],
+            "lock_time": 0
+          },
+          {
+            "version": 1,
+            "is_segwit": false,
+            "inputs": [
+              {
+                "script": "0x473044022064f1aef34971e8bceddbc7a8544ff862c1768094545841288a3344e5a2cc9048022055936195eb887d375b54f7ba9633dc1d484b7c1b64b3f75eb3e70c714ae52aa4014104aa2b4d53e72a720a40c48bae36405b4ec1ad1a65613a150a5685482c25db2b2b328f776234bc8c907dc92fd0eb54e6d443c4784ae679016eddd17f4a70a45879",
+                "sequence": 4294967295,
+                "previous_output": {
+                  "txid": "b69e29d054c4db44c82022a60be3665e8273e3c52958974a4223b2f86cc97aeb",
+                  "vout": 0,
+                  "data": {
+                    "value": 700000000,
+                    "pk_script": "0x76a9148d5316b73c7c7da9991db450e1aa2e724a46e09888ac",
+                    "cached": false
+                  },
+                  "block_height": 116911,
+                  "median_time_past": 1302027037,
+                  "is_coinbase": false
+                },
+                "witness": []
+              }
+            ],
+            "outputs": [
+              {
+                "value": 200000000,
+                "pk_script": "0x76a914ecd8416347c43cf628ccc27a33279e2513b4451a88ac",
+                "cached": false
+              },
+              {
+                "value": 500000000,
+                "pk_script": "0x76a9141266042baac115dcd6753daa189db2a72a5073cf88ac",
+                "cached": false
+              }
+            ],
+            "lock_time": 0
+          },
+          {
+            "version": 1,
+            "is_segwit": false,
+            "inputs": [
+              {
+                "script": "0x48304502206ff45294577af270a1c6f1d2a431fe3108350850ee0be9c0f83fa0bddabf9ba9022100bfe30c152f505151e167f267394bc5e6fc44465c46b9b6e2ef507e6a45c823d6014104921632736e5cf520029c0ed601d5963868997573c44b205731894a47007f27be5254e07d1900fdd20de0c01fe3be04fb449b2e78b548e854d57c7ae06cec0cd6",
+                "sequence": 4294967295,
+                "previous_output": {
+                  "txid": "e089490d6a43c85e799ca7f53b9d42ca97e7bddd5ee2db0b35c00311480f013f",
+                  "vout": 0,
+                  "data": {
+                    "value": 1858000000,
+                    "pk_script": "0x76a91447d1a5e54454bd5eb3d24823e0f305711f571ba288ac",
+                    "cached": false
+                  },
+                  "block_height": 116918,
+                  "median_time_past": 1302028719,
+                  "is_coinbase": false
+                },
+                "witness": []
+              },
+              {
+                "script": "0x493046022100aa8241a4ad6611e774a04408b47ecaa68966dec43b43761e542181e7633f96ac0221008f50ccb5c0cd613f2fe73afb4c6e2a21bcf6e748297908feb0be4d2bda723186014104f3c00fc79b2ab3bac6ecd3a4a26cda5258b58dc17481e81cfd1af7ba3a063c630937b8fea851d37bb0a3bd52c3b873100cc328ecf124e3571ec4129059683c67",
+                "sequence": 4294967295,
+                "previous_output": {
+                  "txid": "9fe38d75145c305825340b56e1071e3af629ca7c15a746d19ecf416f4ae98ef5",
+                  "vout": 0,
+                  "data": {
+                    "value": 114000000,
+                    "pk_script": "0x76a914d4bf55357801890503451b417fe9cd30623b489988ac",
+                    "cached": false
+                  },
+                  "block_height": 116921,
+                  "median_time_past": 1302030090,
+                  "is_coinbase": false
+                },
+                "witness": []
+              }
+            ],
+            "outputs": [
+              {
+                "value": 63000000,
+                "pk_script": "0x76a914ed8ccbc19345aeaa1cd07b1ffeea100524f667e188ac",
+                "cached": false
+              },
+              {
+                "value": 1909000000,
+                "pk_script": "0x76a914b32bc21ae57ec895883b2a05e2dd04ddc11fb7ae88ac",
+                "cached": false
+              }
+            ],
+            "lock_time": 0
+          },
+          {
+            "version": 1,
+            "is_segwit": false,
+            "inputs": [
+              {
+                "script": "0x47304402201606ac253c5191df5dd83abf7238d117a6b1a30ba63313500e014a71ccf12215022069f1c80692d5fb94e3e5965c25913aa48a0182af8312ffbd1ed393846a0fcf7c014104b1bfb271e88a0052f1816aaa2ba4e8bd5c3e5dc5ef8393f9efe2bea1f9e1b4d7fa8ebe11778fe0b6778b30e9ee222afe5fcd1083a2493b1717626559c5567840",
+                "sequence": 4294967295,
+                "previous_output": {
+                  "txid": "7deeb9ac5138eef48a90d2bd1dc746fd46e3e8ea7460b491451de08bab1f50d0",
+                  "vout": 1,
+                  "data": {
+                    "value": 500000000,
+                    "pk_script": "0x76a9146eee11e4ff527f471f67949125a8037e0fcb49df88ac",
+                    "cached": false
+                  },
+                  "block_height": 116917,
+                  "median_time_past": 1302028349,
+                  "is_coinbase": false
+                },
+                "witness": []
+              }
+            ],
+            "outputs": [
+              {
+                "value": 500000000,
+                "pk_script": "0x76a914ec4650388547c54f14ea5cdeffc02f871469268388ac",
+                "cached": false
+              }
+            ],
+            "lock_time": 0
+          },
+          {
+            "version": 1,
+            "is_segwit": false,
+            "inputs": [
+              {
+                "script": "0x483045022100be5c57ca60d00220b3de8eb091d7dbba26a4fa5dd11801d20b99293f5aae3fb0022076b89f7bfc3c964ad3b9a2fb620e883a1b5eb350cd2bf2896c8723e4e49ee12a0141046729ec162b912b865b546f6dd4293f05da277a37226e9f7cd1978472eab9d8d84525d9d10dff2ff41f29038b7a9a2fb88f584cd871dcf1aa427fbccf31633dcb",
+                "sequence": 4294967295,
+                "previous_output": {
+                  "txid": "5e1071fc0ec0ad123850896adc71c007b004fbf4fa4a5c5efb2033ea3e0bd78a",
+                  "vout": 0,
+                  "data": {
+                    "value": 2756000000,
+                    "pk_script": "0x76a914208326478910d605bcd12e8909a2e237fc8945bd88ac",
+                    "cached": false
+                  },
+                  "block_height": 116927,
+                  "median_time_past": 1302032098,
+                  "is_coinbase": false
+                },
+                "witness": []
+              }
+            ],
+            "outputs": [
+              {
+                "value": 2750000000,
+                "pk_script": "0x76a9145700cb6020ca13bf801f3649a140a014d0bef76588ac",
+                "cached": true
+              },
+              {
+                "value": 5000000,
+                "pk_script": "0x76a9140c41f821d91ff5eb21ad79fa2bb3cbb120faec1c88ac",
+                "cached": false
+              }
+            ],
+            "lock_time": 0
+          },
+          {
+            "version": 1,
+            "is_segwit": false,
+            "inputs": [
+              {
+                "script": "0x48304502202e3756d43561b3da6c79da76d9c3e17f0822692cabdb72f0a7896537bd0d952d022100e3f5870364d2db9ab72e795b42c214c2257394876caa1a64d258813b2727bb1f014104c5e1ebad124b38b6fa54468bf0d1d1d5d20a067dba8e15eebc88ad7667a3d8553b2fecdb315b7cc1ce5c3fa4e70e607284cdc60564e2dab108277fa56d91fb5d",
+                "sequence": 4294967295,
+                "previous_output": {
+                  "txid": "39dffb54f86121f6d69cc81e90002027a148771d58e43bbb46683a1a8111179a",
+                  "vout": 0,
+                  "data": {
+                    "value": 2716000000,
+                    "pk_script": "0x76a91490c4ce6a433c48f6bdc356a902bd2947ece6aa7c88ac",
+                    "cached": false
+                  },
+                  "block_height": 116927,
+                  "median_time_past": 1302032098,
+                  "is_coinbase": false
+                },
+                "witness": []
+              }
+            ],
+            "outputs": [
+              {
+                "value": 1195000000,
+                "pk_script": "0x76a9141d53f9083f85ca44a57aad0ce37c25c34ced58ca88ac",
+                "cached": false
+              },
+              {
+                "value": 1521000000,
+                "pk_script": "0x76a914117035eb36af2f4943af223ae5431cbdf22af8ac88ac",
+                "cached": false
+              }
+            ],
+            "lock_time": 0
+          },
+          {
+            "version": 1,
+            "is_segwit": false,
+            "inputs": [
+              {
+                "script": "0x493046022100b52c5cc4a85e48c06b915a3a4af63eb42f0fa3f24598c69d0e6ec83ece68869b022100c16ad0e309fc30fdac98e06f083247e671727263cf110279963351b86a676668014104fa5c41f2ea70a57b5e661a0abc77be73c2da8205ee5fab03b34a7bdb25357941e0d5c905c766750fbe05dc68a51e2a73d241ac60ae00d9b8c348f7494bcae9f3",
+                "sequence": 4294967295,
+                "previous_output": {
+                  "txid": "dfefe12432ede593c3c8c6c6d42b044ce01d2e91aef4a073fe455b4d6ca68597",
+                  "vout": 0,
+                  "data": {
+                    "value": 2750000000,
+                    "pk_script": "0x76a9145700cb6020ca13bf801f3649a140a014d0bef76588ac",
+                    "cached": true
+                  },
+                  "block_height": 116928,
+                  "median_time_past": 1302032163,
+                  "is_coinbase": false
+                },
+                "witness": []
+              }
+            ],
+            "outputs": [
+              {
+                "value": 2744000000,
+                "pk_script": "0x76a91485c69c1ce9b851e8a28a051be21d79f39166433c88ac",
+                "cached": false
+              },
+              {
+                "value": 5000000,
+                "pk_script": "0x76a9142b142cc8e000f6b1d241e8163f1ca16554dda4d888ac",
+                "cached": false
+              }
+            ],
+            "lock_time": 0
+          }
+        ]
+      }
+    }
+  ],
+  "expected": {
+    "block_height": 116928,
+    "total_work": "3272365325893318574",
+    "best_block_hash": "000000000000494457221111a6a99da34a993c69c2761582bec31f90ba5d560d",
+    "current_target": "327394795212563108599383268946242257264650552916910648089116672",
+    "epoch_start_time": 1302034197,
+    "prev_timestamps": [
+      1302030365,
+      1302030684,
+      1302031124,
+      1302031602,
+      1302032098,
+      1302032163,
+      1302032258,
+      1302032385,
+      1302033507,
+      1302034036,
+      1302034197
+    ]
+  }
+}

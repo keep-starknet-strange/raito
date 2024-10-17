@@ -22,7 +22,6 @@
   "blocks": [
     {
       "header": {
-        "hash": "00000000d1145790a8694403d4063f323d499e655c83426834d4ce2f8dd4a2ee",
         "version": 1,
         "time": 1231731025,
         "bits": 486604799,
@@ -46,9 +45,8 @@
                     "pk_script": "0x",
                     "cached": false
                   },
-                  "block_hash": "0000000000000000000000000000000000000000000000000000000000000000",
                   "block_height": 0,
-                  "block_time": 0,
+                  "median_time_past": 0,
                   "is_coinbase": false
                 },
                 "witness": [
@@ -80,9 +78,8 @@
                     "pk_script": "0x410411db93e1dcdb8a016b49840f8c53bc1eb68a382e97b1482ecad7b148a6909a5cb2e0eaddfb84ccf9744464f82e160bfa9b8b64f9d4c03f999b8643f656b412a3ac",
                     "cached": false
                   },
-                  "block_hash": "000000008d9dc510f23c2657fc4f67bea30078cc05a90eb89e84cc475c080805",
                   "block_height": 9,
-                  "block_time": 1231473279,
+                  "median_time_past": 1231471428,
                   "is_coinbase": true
                 },
                 "witness": []

@@ -62,6 +62,7 @@ pub impl DigestIntoByteArray of Into<Digest, ByteArray> {
     }
 }
 
+
 const POW_2_32: u128 = 0x100000000;
 const POW_2_64: u128 = 0x10000000000000000;
 const POW_2_96: u128 = 0x1000000000000000000000000;
@@ -119,8 +120,8 @@ pub impl DigestHash<S, +HashStateTrait<S>, +Drop<S>> of Hash<Digest, S> {
     fn update_state(state: S, value: Digest) -> S {
         let u256_digest: u256 = value.into();
 
-        let state = state.update(u256_digest.low.into());
         let state = state.update(u256_digest.high.into());
+        let state = state.update(u256_digest.low.into());
         state
     }
 }
