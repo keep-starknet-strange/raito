@@ -9,7 +9,7 @@ pub impl StumpUtreexoAccumulatorImpl of StumpUtreexoAccumulator {
         // https://github.com/mit-dci/rustreexo/blob/6a8fe53fa545df8f1a30733fa6ca9f7b0077d051/src/accumulator/stump.rs#L252
         *self
     }
-    
+
     /// Verifies that specified leaves are part of the utreexo forest given a proof.
     fn verify(
         self: @UtreexoStumpState, proof: @UtreexoBatchProof, leaves: Span<felt252>
@@ -18,14 +18,15 @@ pub impl StumpUtreexoAccumulatorImpl of StumpUtreexoAccumulator {
         let mut res = Result::Ok(());
         while let Option::Some(computed_root) = computed_roots.pop_front() {
             let mut root_exists = false;
-            for root_opt in *self.roots {
-                if let Option::Some(root) = *root_opt {
-                    if root == computed_root {
-                        root_exists = true;
-                        break;
+            for root_opt in *self
+                .roots {
+                    if let Option::Some(root) = *root_opt {
+                        if root == computed_root {
+                            root_exists = true;
+                            break;
+                        }
                     }
-                }
-            };
+                };
             if !root_exists {
                 res = Result::Err("Proof verification failed");
                 break;
@@ -42,19 +43,20 @@ pub impl StumpUtreexoAccumulatorImpl of StumpUtreexoAccumulator {
         let mut updated_roots = proof.compute_roots_with_deletion(leaves, *self.num_leaves)?;
         let mut roots = array![];
 
-        for root_opt in *self.roots {
-            if let Option::Some(root) = root_opt {
-                if  let Option::Some(updated_root) = updated_roots.get(0) {
-                    let (old_root, new_root) = updated_root.unbox();
-                    if *root == *old_root {
-                        updated_roots.pop_front().unwrap();
-                        roots.append(*new_root);
-                        continue;
+        for root_opt in *self
+            .roots {
+                if let Option::Some(root) = root_opt {
+                    if let Option::Some(updated_root) = updated_roots.get(0) {
+                        let (old_root, new_root) = updated_root.unbox();
+                        if *root == *old_root {
+                            updated_roots.pop_front().unwrap();
+                            roots.append(*new_root);
+                            continue;
+                        }
                     }
                 }
-            }
-            roots.append(*root_opt);
-        };
+                roots.append(*root_opt);
+            };
 
         if !updated_roots.is_empty() {
             return Result::Err("Proof verification failed");
@@ -67,7 +69,8 @@ pub impl StumpUtreexoAccumulatorImpl of StumpUtreexoAccumulator {
     fn verify_legacy(
         self: @UtreexoStumpState, proof: @UtreexoBatchProof, del_hashes: Span<felt252>
     ) -> Result<(), ByteArray> {
-        let computed_roots: Span<felt252> = proof.compute_roots_legacy(del_hashes, *self.num_leaves)?;
+        let computed_roots: Span<felt252> = proof
+            .compute_roots_legacy(del_hashes, *self.num_leaves)?;
         let mut number_matched_roots: u32 = 0;
 
         for i in 0
@@ -598,7 +601,7 @@ mod tests {
             Result::Ok(())
         );
     }
-    
+
     #[test]
     fn test_deletion_1_1() {
         let state = UtreexoStumpState { roots: array![Option::Some('a')].span(), num_leaves: 1 };
@@ -607,7 +610,8 @@ mod tests {
 
         let leaves = array![];
 
-        let new_state = state.verify_and_delete(@proof, leaves.span())
+        let new_state = state
+            .verify_and_delete(@proof, leaves.span())
             .expect('Verification failed');
 
         assert_eq!(new_state.num_leaves, 1);
@@ -622,7 +626,8 @@ mod tests {
 
         let leaves = array!['a'];
 
-        let new_state = state.verify_and_delete(@proof, leaves.span())
+        let new_state = state
+            .verify_and_delete(@proof, leaves.span())
             .expect('Verification failed');
 
         assert_eq!(new_state.num_leaves, 1);
@@ -656,7 +661,8 @@ mod tests {
 
         let leaves = array!['a'];
 
-        let new_state = state.verify_and_delete(@proof, leaves.span())
+        let new_state = state
+            .verify_and_delete(@proof, leaves.span())
             .expect('Verification failed');
 
         assert_eq!(new_state.num_leaves, 8);
@@ -700,7 +706,8 @@ mod tests {
 
         let leaves = array!['a', 'b'];
 
-        let new_state = state.verify_and_delete(@proof, leaves.span())
+        let new_state = state
+            .verify_and_delete(@proof, leaves.span())
             .expect('Verification failed');
 
         assert_eq!(new_state.num_leaves, 8);
@@ -736,15 +743,15 @@ mod tests {
         let proof = UtreexoBatchProof {
             targets: array![0, 1, 2].span(),
             proof: array![
-                'd',
-                1970675917964935639615849678644334216784892342767290630432190461589093258001
+                'd', 1970675917964935639615849678644334216784892342767290630432190461589093258001
             ]
                 .span()
         };
 
         let leaves = array!['a', 'b', 'c'];
 
-        let new_state = state.verify_and_delete(@proof, leaves.span())
+        let new_state = state
+            .verify_and_delete(@proof, leaves.span())
             .expect('Verification failed');
 
         assert_eq!(new_state.num_leaves, 8);
@@ -783,7 +790,8 @@ mod tests {
 
         let leaves = array!['a', 'b', 'c', 'd', 'e', 'f', 'g'];
 
-        let new_state = state.verify_and_delete(@proof, leaves.span())
+        let new_state = state
+            .verify_and_delete(@proof, leaves.span())
             .expect('Verification failed');
 
         assert_eq!(new_state.num_leaves, 8);
@@ -814,7 +822,8 @@ mod tests {
 
         let leaves = array!['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
 
-        let new_state = state.verify_and_delete(@proof, leaves.span())
+        let new_state = state
+            .verify_and_delete(@proof, leaves.span())
             .expect('Verification failed');
 
         assert_eq!(new_state.num_leaves, 8);
@@ -842,15 +851,15 @@ mod tests {
         let proof = UtreexoBatchProof {
             targets: array![0].span(),
             proof: array![
-                'b',
-                1702961261074558847535372708423978610134065667337563473891781271138689292959
+                'b', 1702961261074558847535372708423978610134065667337563473891781271138689292959
             ]
                 .span()
         };
 
         let leaves = array!['a'];
 
-        let new_state = state.verify_and_delete(@proof, leaves.span())
+        let new_state = state
+            .verify_and_delete(@proof, leaves.span())
             .expect('Verification failed');
 
         assert_eq!(new_state.num_leaves, 7);
@@ -886,13 +895,13 @@ mod tests {
         };
 
         let proof = UtreexoBatchProof {
-            targets: array![0, 2, 4, 6].span(),
-            proof: array!['b', 'd', 'f'].span()
+            targets: array![0, 2, 4, 6].span(), proof: array!['b', 'd', 'f'].span()
         };
 
         let leaves = array!['a', 'c', 'e', 'g'];
 
-        let new_state = state.verify_and_delete(@proof, leaves.span())
+        let new_state = state
+            .verify_and_delete(@proof, leaves.span())
             .expect('Verification failed');
 
         assert_eq!(new_state.num_leaves, 7);
@@ -926,13 +935,13 @@ mod tests {
         };
 
         let proof = UtreexoBatchProof {
-            targets: array![1, 3, 5].span(),
-            proof: array!['a', 'c', 'e'].span()
+            targets: array![1, 3, 5].span(), proof: array!['a', 'c', 'e'].span()
         };
 
         let leaves = array!['b', 'd', 'f'];
 
-        let new_state = state.verify_and_delete(@proof, leaves.span())
+        let new_state = state
+            .verify_and_delete(@proof, leaves.span())
             .expect('Verification failed');
 
         assert_eq!(new_state.num_leaves, 7);
@@ -968,15 +977,15 @@ mod tests {
         let proof = UtreexoBatchProof {
             targets: array![0, 6].span(),
             proof: array![
-                'b',
-                1702961261074558847535372708423978610134065667337563473891781271138689292959
+                'b', 1702961261074558847535372708423978610134065667337563473891781271138689292959
             ]
                 .span()
         };
 
         let leaves = array!['a', 'g'];
 
-        let new_state = state.verify_and_delete(@proof, leaves.span())
+        let new_state = state
+            .verify_and_delete(@proof, leaves.span())
             .expect('Verification failed');
 
         assert_eq!(new_state.num_leaves, 7);
@@ -1011,13 +1020,12 @@ mod tests {
             num_leaves: 7
         };
 
-        let proof = UtreexoBatchProof {
-            targets: array![4, 5, 6].span(), proof: array![].span()
-        };
+        let proof = UtreexoBatchProof { targets: array![4, 5, 6].span(), proof: array![].span() };
 
         let leaves = array!['e', 'f', 'g'];
 
-        let new_state = state.verify_and_delete(@proof, leaves.span())
+        let new_state = state
+            .verify_and_delete(@proof, leaves.span())
             .expect('Verification failed');
 
         assert_eq!(new_state.num_leaves, 7);
@@ -1056,13 +1064,14 @@ mod tests {
 
         let leaves = array!['a', 'b', 'c', 'd', 'e', 'f', 'g'];
 
-        let new_state = state.verify_and_delete(@proof, leaves.span())
+        let new_state = state
+            .verify_and_delete(@proof, leaves.span())
             .expect('Verification failed');
 
         assert_eq!(new_state.num_leaves, 7);
         assert_eq!(new_state.roots, array![Option::None, Option::None, Option::None].span());
     }
-    
+
     #[test]
     fn test_deletion_7_7() {
         let state = UtreexoStumpState {
@@ -1084,15 +1093,15 @@ mod tests {
         let proof = UtreexoBatchProof {
             targets: array![0].span(),
             proof: array![
-                'b',
-                1702961261074558847535372708423978610134065667337563473891781271138689292959
+                'b', 1702961261074558847535372708423978610134065667337563473891781271138689292959
             ]
                 .span()
         };
 
         let leaves = array!['a'];
 
-        let new_state = state.verify_and_delete(@proof, leaves.span())
+        let new_state = state
+            .verify_and_delete(@proof, leaves.span())
             .expect('Verification 0 failed');
 
         // Remove 1
@@ -1107,51 +1116,48 @@ mod tests {
 
         let leaves = array!['b'];
 
-        let new_state = new_state.verify_and_delete(@proof, leaves.span())
+        let new_state = new_state
+            .verify_and_delete(@proof, leaves.span())
             .expect('Verification 1 failed');
 
         // Remove 2
 
-        let proof = UtreexoBatchProof {
-            targets: array![8].span(), proof: array!['d'].span()
-        };
+        let proof = UtreexoBatchProof { targets: array![8].span(), proof: array!['d'].span() };
 
         let leaves = array!['c'];
 
-        let new_state = new_state.verify_and_delete(@proof, leaves.span())
+        let new_state = new_state
+            .verify_and_delete(@proof, leaves.span())
             .expect('Verification 2 failed');
 
         // Remove 3
 
-        let proof = UtreexoBatchProof {
-            targets: array![12].span(), proof: array![].span()
-        };
+        let proof = UtreexoBatchProof { targets: array![12].span(), proof: array![].span() };
 
         let leaves = array!['d'];
 
-        let new_state = new_state.verify_and_delete(@proof, leaves.span())
+        let new_state = new_state
+            .verify_and_delete(@proof, leaves.span())
             .expect('Verification 3 failed');
 
         // Remove 4
 
-        let proof = UtreexoBatchProof {
-            targets: array![4].span(), proof: array!['f'].span()
-        };
+        let proof = UtreexoBatchProof { targets: array![4].span(), proof: array!['f'].span() };
 
         let leaves = array!['e'];
 
-        let new_state = new_state.verify_and_delete(@proof, leaves.span())
+        let new_state = new_state
+            .verify_and_delete(@proof, leaves.span())
             .expect('Verification 4 failed');
 
         // Remove 5
 
-        let proof = UtreexoBatchProof {
-            targets: array![10].span(), proof: array![].span()
-        };
+        let proof = UtreexoBatchProof { targets: array![10].span(), proof: array![].span() };
 
         let leaves = array!['f'];
 
-        let new_state = new_state.verify_and_delete(@proof, leaves.span())
+        let new_state = new_state
+            .verify_and_delete(@proof, leaves.span())
             .expect('Verification 5 failed');
 
         // Remove 6
@@ -1160,7 +1166,8 @@ mod tests {
 
         let leaves = array!['g'];
 
-        let new_state = new_state.verify_and_delete(@proof, leaves.span())
+        let new_state = new_state
+            .verify_and_delete(@proof, leaves.span())
             .expect('Verification 6 failed');
 
         assert_eq!(new_state.num_leaves, 7);

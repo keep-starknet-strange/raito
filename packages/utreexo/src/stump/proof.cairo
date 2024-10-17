@@ -59,14 +59,15 @@ pub impl UtreexoBatchProofImpl of UtreexoBatchProofTrait {
         // then we take the very first row of the forest:
         // length of the row in the actual forest
         let mut row_len = num_leaves;
-        // length of the row in the "perfect forest" (a forest extrapolated into a single perfect tree)
+        // length of the row in the "perfect forest"
+        // (a forest extrapolated intoa single perfect tree)
         let mut row_cap = u64_next_power_of_two(num_leaves);
         // first absolute position in the row ("absolute" means within the perfect forest)
         let mut row_start = 0;
         // last absolute position in the row + 1
         let mut row_end = row_cap;
         // we take all the targets with absolute positions in [row_start; row_end)
-        // and put them into a row, also converting their positions to relative, i.e. in [0; row_len)
+        // and put them into a row, also converting positions to relative, i.e. in [0; row_len)
         let mut row = extract_row(ref targets, row_start, row_end);
 
         // here we accumulate the result
@@ -88,13 +89,12 @@ pub impl UtreexoBatchProofImpl of UtreexoBatchProofTrait {
                         let (next_pos, next_hash) = box.unbox();
                         // and if that target is exactly on the next position
                         if *next_pos == pos + 1 {
-                            // then they are siblings and we are able to compute their parent directly
-                            // also, since we use relative positions, we can easily calculate position of the parent on the upper row
+                            // then they are siblings and we are able to compute their parent
+                            // directly. Also, since we use relative positions, we can easily
+                            // calculate position of the parent on the upper row
                             row.pop_front().unwrap();
                             next_row_computed.append((pos / 2, parent_hash(hash, *next_hash)));
-                        }
-                        // or if the next target is not a sibling
-                        else {
+                        } else { // or if the next target is not a sibling
                             // then the sibling must be in the proof, so we take it from there
                             if let Option::Some(proof_hash) = proof.pop_front() {
                                 // and compute the parent node
@@ -104,10 +104,8 @@ pub impl UtreexoBatchProofImpl of UtreexoBatchProofTrait {
                                 break;
                             }
                         }
-                    }
-                    // or if there are no more targets on the current row, and we are not at the end of the row,
-                    // there must be a sibling in the proof
-                    else if pos != last {
+                    } else if pos != last { // or if there are no more targets on the current row, and we are not at the end
+                        // of the row, there must be a sibling in the proof
                         // so we get the sibling from the proof
                         if let Option::Some(proof_hash) = proof.pop_front() {
                             // and compute the parent node
@@ -116,17 +114,13 @@ pub impl UtreexoBatchProofImpl of UtreexoBatchProofTrait {
                             inner_result = Result::Err("Invalid proof");
                             break;
                         }
-                    }
-                    // or if we are at the end of the row, and the relative position is even,
-                    // there cannot be siblings, which means it's a root
-                    else {
+                    } else { // or if we are at the end of the row, and the relative position is even,
+                        // there cannot be siblings, which means it's a root
                         // so we save the root
                         roots.append(hash);
                     }
-                }
-                // otherwise, if the relative position is odd, then we know for sure that
-                // there must be a sibling, moreover it must be in the proof
-                else {
+                } else { // otherwise, if the relative position is odd, then we know for sure that
+                    // there must be a sibling, moreover it must be in the proof
                     // so we take the sibling from the proof
                     if let Option::Some(proof_hash) = proof.pop_front() {
                         // and compute the parent node
@@ -139,8 +133,8 @@ pub impl UtreexoBatchProofImpl of UtreexoBatchProofTrait {
             };
 
             // after we processed all the targets in the current row and computed their parents,
-            // we move the parents (and pending targets from the proof) to the next row and continue,
-            // till we reach the top root
+            // we move the parents (and pending targets from the proof) to the next row and
+            // continue, till we reach the top root
 
             // here we calculate the next row props
             row_len /= 2;
@@ -153,20 +147,21 @@ pub impl UtreexoBatchProofImpl of UtreexoBatchProofTrait {
                 row = next_row_computed;
             } else {
                 let mut next_row_targets = extract_row(ref targets, row_start, row_end);
-                row = if next_row_targets.is_empty() {
-                    next_row_computed
-                } else if next_row_computed.is_empty() {
-                    next_row_targets
-                } else {
-                    // if both arrays are not empty, we merge them into a single sorted array
-                    merge_sorted(ref next_row_targets, ref next_row_computed)
-                }
+                row =
+                    if next_row_targets.is_empty() {
+                        next_row_computed
+                    } else if next_row_computed.is_empty() {
+                        next_row_targets
+                    } else {
+                        // if both arrays are not empty, we merge them into a single sorted array
+                        merge_sorted(ref next_row_targets, ref next_row_computed)
+                    }
             }
         };
 
-        // after we processed all rows of the forest, computed roots are all settled in the `roots` array,
-        // which is automatically ordered, btw
-    
+        // after we processed all rows of the forest, computed roots are all settled in the `roots`
+        // array, which is automatically ordered, btw
+
         inner_result?;
         Result::Ok(roots)
     }
@@ -175,10 +170,11 @@ pub impl UtreexoBatchProofImpl of UtreexoBatchProofTrait {
     fn compute_roots_with_deletion(
         self: @UtreexoBatchProof, leaves: Span<felt252>, num_leaves: u64,
     ) -> Result<Array<(felt252, Option<felt252>)>, ByteArray> {
-        // the algorithm is practically the same as in the `compute_roots`, with the only difference - we convert
-        // the targets into pairs (target, None), meaning (old_value, new_value), and compute parent pairs accordingly,
-        // so in the end we have an array of pairs of roots (old_root, new_root), where old_root can be used to verify
-        // inclusion and new_root can be used to update utreexo state
+        // the algorithm is practically the same as in the `compute_roots`, with the only difference
+        // - we convert the targets into pairs (target, None), meaning (old_value, new_value), and
+        // compute parent pairs accordingly, so in the end we have an array of pairs of roots
+        // (old_root, new_root), where old_root can be used to verify inclusion and new_root can be
+        // used to update utreexo state
 
         // hashes of leaves in the proof
         let mut hashes = leaves;
@@ -202,19 +198,22 @@ pub impl UtreexoBatchProofImpl of UtreexoBatchProofTrait {
         // then we take the very first row of the forest:
         // length of the row in the actual forest
         let mut row_len = num_leaves;
-        // length of the row in the "perfect forest" (a forest extrapolated into a single perfect tree)
+        // length of the row in the "perfect forest"
+        // (a forest extrapolated into a single perfect tree)
         let mut row_cap = u64_next_power_of_two(num_leaves);
         // first absolute position in the row ("absolute" means within the perfect forest)
         let mut row_start = 0;
         // last absolute position in the row + 1
         let mut row_end = row_cap;
         // we take all the targets with absolute positions in [row_start; row_end)
-        // and put them into a row, also converting their positions to relative, i.e. in [0; row_len)
+        // and put them into a row, also converting positions to relative, i.e. in [0; row_len)
         let mut row = extract_row(ref targets, row_start, row_end);
 
         // here we accumulate the result
         let mut roots = array![];
-        let mut inner_result: Result<Array<(felt252, Option<felt252>)>, ByteArray> = Result::Ok(array![]);
+        let mut inner_result: Result<Array<(felt252, Option<felt252>)>, ByteArray> = Result::Ok(
+            array![]
+        );
 
         // we process the whole forest row by row from the bottom leaves to the top root
         while row_len != 0 {
@@ -231,49 +230,64 @@ pub impl UtreexoBatchProofImpl of UtreexoBatchProofTrait {
                         let (next_pos, next_hash) = box.unbox();
                         // and if that target is exactly on the next position
                         if *next_pos == pos + 1 {
-                            // then they are siblings and we are able to compute their parent directly
-                            // also, since we use relative positions, we can easily calculate position of the parent on the upper row
+                            // then they are siblings and we are able to compute their parent
+                            // directly. Also, since we use relative positions, we can easily
+                            // calculate position of the parent on the upper row
                             row.pop_front().unwrap();
                             next_row_computed.append((pos / 2, parent_hash_pair(hash, *next_hash)));
-                        }
-                        // or if the next target is not a sibling
-                        else {
+                        } else { // or if the next target is not a sibling
                             // then the sibling must be in the proof, so we take it from there
                             if let Option::Some(proof_hash) = proof.pop_front() {
                                 // and compute the parent node
-                                next_row_computed.append((pos / 2, parent_hash_pair(hash, (*proof_hash, Option::Some(*proof_hash)))));
+                                next_row_computed
+                                    .append(
+                                        (
+                                            pos / 2,
+                                            parent_hash_pair(
+                                                hash, (*proof_hash, Option::Some(*proof_hash))
+                                            )
+                                        )
+                                    );
                             } else {
                                 inner_result = Result::Err("Invalid proof");
                                 break;
                             }
                         }
-                    }
-                    // or if there are no more targets on the current row, and we are not at the end of the row,
-                    // there must be a sibling in the proof
-                    else if pos != last {
+                    } else if pos != last { // or if there are no more targets on the current row, and we are not at the end
+                        // of the row, there must be a sibling in the proof
                         // so we get the sibling from the proof
                         if let Option::Some(proof_hash) = proof.pop_front() {
                             // and compute the parent node
-                            next_row_computed.append((pos / 2, parent_hash_pair(hash, (*proof_hash, Option::Some(*proof_hash)))));
+                            next_row_computed
+                                .append(
+                                    (
+                                        pos / 2,
+                                        parent_hash_pair(
+                                            hash, (*proof_hash, Option::Some(*proof_hash))
+                                        )
+                                    )
+                                );
                         } else {
                             inner_result = Result::Err("Invalid proof");
                             break;
                         }
-                    }
-                    // or if we are at the end of the row, and the relative position is even,
-                    // there cannot be siblings, which means it's a root
-                    else {
+                    } else { // or if we are at the end of the row, and the relative position is even,
+                        // there cannot be siblings, which means it's a root
                         // so we save the root
                         roots.append(hash);
                     }
-                }
-                // otherwise, if the relative position is odd, then we know for sure that
-                // there must be a sibling, moreover it must be in the proof
-                else {
+                } else { // otherwise, if the relative position is odd, then we know for sure that
+                    // there must be a sibling, moreover it must be in the proof
                     // so we take the sibling from the proof
                     if let Option::Some(proof_hash) = proof.pop_front() {
                         // and compute the parent node
-                        next_row_computed.append((pos / 2, parent_hash_pair((*proof_hash, Option::Some(*proof_hash)), hash)));
+                        next_row_computed
+                            .append(
+                                (
+                                    pos / 2,
+                                    parent_hash_pair((*proof_hash, Option::Some(*proof_hash)), hash)
+                                )
+                            );
                     } else {
                         inner_result = Result::Err("Invalid proof");
                         break;
@@ -282,8 +296,8 @@ pub impl UtreexoBatchProofImpl of UtreexoBatchProofTrait {
             };
 
             // after we processed all the targets in the current row and computed their parents,
-            // we move the parents (and pending targets from the proof) to the next row and continue,
-            // till we reach the top root
+            // we move the parents (and pending targets from the proof) to the next row and
+            // continue, till we reach the top root
 
             // here we calculate the next row props
             row_len /= 2;
@@ -296,24 +310,25 @@ pub impl UtreexoBatchProofImpl of UtreexoBatchProofTrait {
                 row = next_row_computed;
             } else {
                 let mut next_row_targets = extract_row(ref targets, row_start, row_end);
-                row = if next_row_targets.is_empty() {
-                    next_row_computed
-                } else if next_row_computed.is_empty() {
-                    next_row_targets
-                } else {
-                    // if both arrays are not empty, we merge them into a single sorted array
-                    merge_sorted(ref next_row_targets, ref next_row_computed)
-                }
+                row =
+                    if next_row_targets.is_empty() {
+                        next_row_computed
+                    } else if next_row_computed.is_empty() {
+                        next_row_targets
+                    } else {
+                        // if both arrays are not empty, we merge them into a single sorted array
+                        merge_sorted(ref next_row_targets, ref next_row_computed)
+                    }
             }
         };
 
-        // after we processed all rows of the forest, computed roots are all settled in the `roots` array,
-        // which is automatically ordered, btw
-    
+        // after we processed all rows of the forest, computed roots are all settled in the `roots`
+        // array, which is automatically ordered, btw
+
         inner_result?;
         Result::Ok(roots)
     }
-    
+
     /// Legacy implementation of leaves' roots computation.
     fn compute_roots_legacy(
         self: @UtreexoBatchProof, mut del_hashes: Span<felt252>, num_leaves: u64,
@@ -450,8 +465,11 @@ pub impl UtreexoBatchProofImpl of UtreexoBatchProofTrait {
     }
 }
 
-/// Extracts all nodes with absolute positions in [row_start; row_end) and transforms their positions to relative
-fn extract_row<T, +Copy<T>, +Drop<T>>(ref nodes: Array<(u64, T)>, row_start: u64, row_end: u64) -> Array<(u64, T)> {
+/// Extracts all nodes with absolute positions in [row_start; row_end)
+/// and transforms their positions to relative
+fn extract_row<T, +Copy<T>, +Drop<T>>(
+    ref nodes: Array<(u64, T)>, row_start: u64, row_end: u64
+) -> Array<(u64, T)> {
     let mut row = array![];
     while let Option::Some(box) = nodes.get(0) {
         let (pos, value) = box.unbox();
@@ -465,7 +483,9 @@ fn extract_row<T, +Copy<T>, +Drop<T>>(ref nodes: Array<(u64, T)>, row_start: u64
 }
 
 /// Merges two sorted arrays into a single sorted array
-fn merge_sorted<T, +Drop<T>>(ref arr1: Array<(u64, T)>, ref arr2: Array<(u64, T)>) -> Array<(u64, T)> {
+fn merge_sorted<T, +Drop<T>>(
+    ref arr1: Array<(u64, T)>, ref arr2: Array<(u64, T)>
+) -> Array<(u64, T)> {
     let mut res = array![];
     while let Option::Some((p1, v1)) = arr1.pop_front() {
         while let Option::Some(box) = arr2.get(0) {
@@ -483,9 +503,11 @@ fn merge_sorted<T, +Drop<T>>(ref arr1: Array<(u64, T)>, ref arr2: Array<(u64, T)
     res
 }
 
-/// Takes two nodes containing two values each: (L1, L2) and (R1, R2), and calculates the parent node,
-/// that also contains two values (P1 = h(L1, R1), P2 = h(L2, R2))
-fn parent_hash_pair(left: (felt252, Option<felt252>), right: (felt252, Option<felt252>)) -> (felt252, Option<felt252>) {
+/// Takes two nodes containing two values each: (L1, L2) and (R1, R2), and calculates
+/// a parent node, that also contains two values (P1 = h(L1, R1), P2 = h(L2, R2))
+fn parent_hash_pair(
+    left: (felt252, Option<felt252>), right: (felt252, Option<felt252>)
+) -> (felt252, Option<felt252>) {
     let (old_left, new_left) = left;
     let (old_right, new_right) = right;
     let old_parent = parent_hash(old_left, old_right);
