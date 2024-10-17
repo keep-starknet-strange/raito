@@ -15,26 +15,9 @@ Shinigami is a zero-knowledge Bitcoin client implemented in Cairo. It aims to pr
 
 > **Disclaimer:** This project is in the early stages of development and should not be used in production. It will evolve rapidly, expect breaking changes.
 
-```mermaid
-flowchart TB
-Pnm1(STARK proof of the chain state up to the block <i>n - 1</i>, including utxo accumulator) --> Vp(zk verifier)
-Bn(blocks <i>n..m</i>) ----> Vb
-
-subgraph Cairo
-    Vp{{STARK verifier}}-->ChS(verified chain state)
-    ChS --> Vb{{validate block<br>against the chain state}}
-    Vb --> ChS
-end
-
-Vb --> Pn(STARK proof of the chain state up to the block <i>m</i>,<br> including utxo accumulator)
-
-style Bn fill:pink
-style Pn fill:lightgreen
-style Pnm1 fill:lightgreen
-style ChS fill:greenyellow
-style Vp fill:gold
-style Vb fill:gold
-```
+<p align="center" width="100%">
+  <img src="./docs/img/client.svg" alt="client"/>
+</p>
 
 At its core, consensus client accepts two inputs: a batch of consecutive blocks <i>n</i> to <i>m</i> and a STARK proof of the state of the chain up to block <i>n−1</i>. It ensures that the historical chain state is valid by verifying the STARK proof. Then, it produces a new chain state by applying the new blocks on top of the historical state. As a result, a proof of the new state is generated.
 
@@ -154,11 +137,12 @@ pip install -r scripts/data/requirements.txt
 
 ## References
 
+* [Data processing notes](./data/data.md)
+* [ZeroSync](https://github.com/ZeroSync/ZeroSync)
+* [Shinigami Script](https://github.com/keep-starknet-strange/shinigami)
 * [STWO](https://github.com/starkware-libs/stwo)
 * [Cairo](https://www.cairo-lang.org/)
 * [Circle STARK paper](https://eprint.iacr.org/2024/278)
-* [ZeroSync](https://github.com/ZeroSync/ZeroSync)
-* [Shinigami](https://github.com/keep-starknet-strange/shinigami)
 
 ## Contributors ✨
 
