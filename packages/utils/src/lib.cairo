@@ -1,5 +1,4 @@
 pub mod bit_shifts;
-pub mod bits;
 pub mod bytearray;
 pub mod double_sha256;
 pub mod hash;
