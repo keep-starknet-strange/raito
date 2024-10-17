@@ -1,21 +1,26 @@
+from dataclasses import dataclass
 import json
+import re
+import os
 import threading
 import queue
 import argparse
 import subprocess
+import logging
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 import random
 from generate_data import generate_data
 from format_args import format_args
 
+logger = logging.getLogger(__name__)
+
 # Constants
-MAX_WEIGHT_LIMIT = 50  # Total weight limit for all jobs
-THREAD_POOL_SIZE = 4  # Number of threads for processing
+MAX_WEIGHT_LIMIT = 1000  # Total weight limit for all jobs
+THREAD_POOL_SIZE = os.cpu_count()  # Number of threads for processing
 QUEUE_MAX_SIZE = THREAD_POOL_SIZE * 2  # Maximum size of the job queue
 
 BASE_DIR = Path(".client_cache")
-DEFAULT_NO_OF_BLOCKS = 1
 
 # Shared state variables
 current_weight = 0
@@ -24,13 +29,26 @@ job_queue = queue.Queue(maxsize=QUEUE_MAX_SIZE)
 
 
 # Function to calculate weight of a block
-def calculate_job_weight(block_data):
-    return sum(
-        len(tx["inputs"]) + len(tx["outputs"])
-        for block in block_data["blocks"]
-        for tx in block["transactions"]
-    )
+def calculate_batch_weight(block_data, mode):
+    if mode == "light":
+        return len(block_data["blocks"])
+    else:
+        return sum(
+            len(tx["inputs"]) + len(tx["outputs"])
+            for block in block_data["blocks"]
+            for tx in block["data"]["transactions"]
+        )
 
+@dataclass
+class Job:
+    height: int
+    step: int
+    mode: str
+    weight: int
+    batch_file: Path
+    
+    def __str__(self):
+        return f"Job(height='{self.height}', step={self.step}, weight='{self.weight}')"
 
 # Generator function to create jobs
 def job_generator(start, blocks, step, mode, strategy):
@@ -46,29 +64,24 @@ def job_generator(start, blocks, step, mode, strategy):
     for height in height_range:
         batch_file = BASE_DIR / f"{mode}_{height}_{step}.json"
 
-        generate_data(
-            fast=True,
-            mode=mode,
-            height=height,
-            num_blocks=step,
-            output_file=str(batch_file),
+        batch_data = generate_data(
+            mode=mode, initial_height=height, num_blocks=step, fast=True
         )
 
-        # Placeholder: Assuming generated data can be loaded from the batch_file
-        with open(batch_file, "r") as f:
-            block_data = json.load(f)
+        Path(batch_file).write_text(json.dumps(batch_data, indent=2))
 
-        batch_weight = calculate_job_weight(block_data)
-        yield batch_file, batch_weight
+        batch_weight = calculate_batch_weight(batch_data, mode)
+        yield Job(height, step, mode, batch_weight, batch_file), batch_weight
 
 
 # Function to process a batch
-def process_batch(batch_file):
-    print(f"Running client on blocks from {batch_file}")
-    arguments_file = batch_file.replace(".json", "-arguments.json")
-    with open(batch_file, "r") as bf, open(arguments_file, "w") as af:
-        formatted_args = format_args(bf)
-        af.write(formatted_args)
+def process_batch(job):
+    logger.debug(f"Running client on: {job}")
+
+    arguments_file = job.batch_file.as_posix().replace(".json", "-arguments.json")
+
+    with open(arguments_file, "w") as af:
+        af.write(str(format_args(job.batch_file, False, False)))
 
     result = subprocess.run(
         [
@@ -78,7 +91,7 @@ def process_batch(batch_file):
             "--package",
             "client",
             "--function",
-            "test",
+            "main",
             "--arguments-file",
             str(arguments_file),
         ],
@@ -89,15 +102,18 @@ def process_batch(batch_file):
     if (
         result.returncode != 0
         or "FAIL" in result.stdout
-        or "error" in result.stderr
-        or "panicked" in result.stderr
+        or "error" in result.stdout
+        or "panicked" in result.stdout
     ):
-        print("fail")
-        print(result.stdout)
-        print(result.stderr)
+        logger.error(
+            f"Error while processing: {job}:\n{result.stdout or result.stderr}"
+        )
     else:
-        print("ok")
-        print(result.stdout)
+        match = re.search(r'gas_spent=(\d+)', result.stdout)
+        if not match:
+            logger.warning(f"While processing: {job}: not gas info found")
+        else:
+            logger.info(f"{job} processed, gas spent: {int(match.group(1))}")
 
 
 # Producer function: Generates data and adds jobs to the queue
@@ -107,18 +123,26 @@ def job_producer(job_gen):
     for job, weight in job_gen:
         # Wait until there is enough weight capacity to add the new block
         with weight_lock:
-            while current_weight + weight > MAX_WEIGHT_LIMIT:
+            while (
+                current_weight + weight > MAX_WEIGHT_LIMIT or job_queue.full()
+            ): # or not (job_queue.empty() and weight > MAX_WEIGHT_LIMIT):
+                logger.debug("Producer is waiting for weight to be released.")
                 weight_lock.wait()  # Wait for the condition to be met
 
             # Add the job to the queue and update the weight
             job_queue.put((job, weight))
             current_weight += weight
-            print(
-                f"Produced job with weight {weight}, current total weight: {current_weight}"
+            logger.debug(
+                f"Produced job: {job} with weight {weight}, current total weight: {current_weight}"
             )
 
             # Notify consumers that a new job is available
             weight_lock.notify_all()
+
+    with weight_lock:
+        weight_lock.notify_all()
+
+    logger.debug("Producer is exiting.")
 
 
 # Consumer function: Processes blocks from the queue
@@ -127,17 +151,21 @@ def job_consumer(process_job):
 
     while True:
         try:
+            logger.debug(f"Consumer is waiting for a job.")
             # Get a job from the queue
             (job, weight) = job_queue.get(
                 timeout=5
             )  # Timeout to exit if no jobs are available
 
             # Process the block
-            process_job(job)
+            try:
+                process_job(job)
+            except Exception as e:
+                logger.error(f"Error while processing job: {job}:\n{e}")
 
             with weight_lock:
                 current_weight -= weight
-                print(
+                logger.debug(
                     f"Finished processing job, released weight: {weight}, current total weight: {current_weight}"
                 )
                 weight_lock.notify_all()  # Notify producer to add more jobs
@@ -147,11 +175,15 @@ def job_consumer(process_job):
 
         except queue.Empty:
             # If queue is empty for too long, exit the consumer thread
-            print("Queue is empty, consumer is exiting.")
+            logger.debug("Queue is empty, consumer is exiting.")
             break
 
 
 def main(start, blocks, step, mode, strategy):
+    
+    logger.info("Starting client, initial height: %d, blocks: %d, step: %d, mode: %s, strategy: %s", start, blocks, step, mode, strategy)
+    logger.info("Max weight limit: %d, Thread pool size: %d, Queue max size: %d", MAX_WEIGHT_LIMIT, THREAD_POOL_SIZE, QUEUE_MAX_SIZE)
+    
     # Create the job generator
     job_gen = job_generator(start, blocks, step, mode, strategy)
 
@@ -176,12 +208,21 @@ def main(start, blocks, step, mode, strategy):
 
 
 if __name__ == "__main__":
+    console_handler = logging.StreamHandler()
+    console_handler.setLevel(logging.DEBUG)
+    console_handler.setFormatter(logging.Formatter("%(asctime)s - %(name)-10.10s - %(levelname)s - %(message)s"))
+    root_logger = logging.getLogger()
+    root_logger.addHandler(console_handler)
+    root_logger.setLevel(logging.INFO)
+
+    logging.getLogger("urllib3").setLevel(logging.WARNING)
+
     parser = argparse.ArgumentParser(description="Run client script")
-    parser.add_argument("--start", type=int, default=1, help="Start block height")
+    parser.add_argument("--start", type=int, required=True, help="Start block height")
     parser.add_argument(
         "--blocks",
         type=int,
-        default=DEFAULT_NO_OF_BLOCKS,
+        default=1,
         help="Number of blocks to process",
     )
     parser.add_argument(
