@@ -137,7 +137,7 @@ pip install -r scripts/data/requirements.txt
 
 ## References
 
-* [Data processing notes](./data/data.md)
+* [Data processing notes](./docs/data.md)
 * [ZeroSync](https://github.com/ZeroSync/ZeroSync)
 * [Shinigami Script](https://github.com/keep-starknet-strange/shinigami)
 * [STWO](https://github.com/starkware-libs/stwo)
