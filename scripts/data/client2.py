@@ -39,6 +39,7 @@ def calculate_batch_weight(block_data, mode):
             for tx in block["data"]["transactions"]
         )
 
+
 @dataclass
 class Job:
     height: int
@@ -46,9 +47,10 @@ class Job:
     mode: str
     weight: int
     batch_file: Path
-    
+
     def __str__(self):
         return f"Job(height='{self.height}', step={self.step}, weight='{self.weight}')"
+
 
 # Generator function to create jobs
 def job_generator(start, blocks, step, mode, strategy):
@@ -109,7 +111,7 @@ def process_batch(job):
             f"Error while processing: {job}:\n{result.stdout or result.stderr}"
         )
     else:
-        match = re.search(r'gas_spent=(\d+)', result.stdout)
+        match = re.search(r"gas_spent=(\d+)", result.stdout)
         if not match:
             logger.warning(f"While processing: {job}: not gas info found")
         else:
@@ -125,7 +127,7 @@ def job_producer(job_gen):
         with weight_lock:
             while (
                 current_weight + weight > MAX_WEIGHT_LIMIT or job_queue.full()
-            ): # or not (job_queue.empty() and weight > MAX_WEIGHT_LIMIT):
+            ):  # or not (job_queue.empty() and weight > MAX_WEIGHT_LIMIT):
                 logger.debug("Producer is waiting for weight to be released.")
                 weight_lock.wait()  # Wait for the condition to be met
 
@@ -180,10 +182,22 @@ def job_consumer(process_job):
 
 
 def main(start, blocks, step, mode, strategy):
-    
-    logger.info("Starting client, initial height: %d, blocks: %d, step: %d, mode: %s, strategy: %s", start, blocks, step, mode, strategy)
-    logger.info("Max weight limit: %d, Thread pool size: %d, Queue max size: %d", MAX_WEIGHT_LIMIT, THREAD_POOL_SIZE, QUEUE_MAX_SIZE)
-    
+
+    logger.info(
+        "Starting client, initial height: %d, blocks: %d, step: %d, mode: %s, strategy: %s",
+        start,
+        blocks,
+        step,
+        mode,
+        strategy,
+    )
+    logger.info(
+        "Max weight limit: %d, Thread pool size: %d, Queue max size: %d",
+        MAX_WEIGHT_LIMIT,
+        THREAD_POOL_SIZE,
+        QUEUE_MAX_SIZE,
+    )
+
     # Create the job generator
     job_gen = job_generator(start, blocks, step, mode, strategy)
 
@@ -210,7 +224,9 @@ def main(start, blocks, step, mode, strategy):
 if __name__ == "__main__":
     console_handler = logging.StreamHandler()
     console_handler.setLevel(logging.DEBUG)
-    console_handler.setFormatter(logging.Formatter("%(asctime)s - %(name)-10.10s - %(levelname)s - %(message)s"))
+    console_handler.setFormatter(
+        logging.Formatter("%(asctime)s - %(name)-10.10s - %(levelname)s - %(message)s")
+    )
     root_logger = logging.getLogger()
     root_logger.addHandler(console_handler)
     root_logger.setLevel(logging.INFO)
