@@ -68,6 +68,7 @@ pub fn compute_and_validate_tx_data(
         txids.append(txid);
 
         if (is_coinbase) {
+            // skip duplicated txid (it's not possible to spend these coinbase outputs)
             if (is_coinbase_txid_duplicated(txid, block_height)) {
                 continue;
             }
