@@ -22,6 +22,7 @@ light_test_cases=(
     32255   # First target adjustment (32256)
     57042   # Block containing pizza tx (57043)
     72575   # Difficulty adjustment
+    91721   # Duplicate coinbase txid (91722)
     116927  # Difficulty adjustment
     150012  # Small Block (150013)
     209999  # First halving block (210000)
@@ -45,6 +46,7 @@ full_test_cases=(
     32255   # First target adjustment (32256)
     57042   # Block containing pizza tx (57043)
     72575   # Difficulty adjustment
+    91721   # Duplicate coinbase txid (91722)
     116927  # Difficulty adjustment
     150012  # Small Block (150013)
     209999  # First halving block (210000)

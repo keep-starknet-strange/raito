@@ -9,6 +9,9 @@ const BIP_34_BLOCK_HEIGHT: u32 = 227_836;
 const BIP_141_BLOCK_HEIGHT: u32 = 481_824;
 const WTNS_PK_SCRIPT_LEN: u32 = 38;
 const WTNS_PK_SCRIPT_PREFIX: felt252 = 116705705699821; // 0x6a24aa21a9ed
+const FIRST_DUP_TXID: u256 = 0xe3bf3d07d4b0375638d5f1db5255fe07ba2c4cb067cd81b84ee974b6585fb468;
+const SECOND_DUP_TXID: u256 = 0xd5d27987d2a3dfc724e359870c6644b40e497bdc0589a033220fe15429d88599;
+
 
 /// Validates coinbase transaction.
 pub fn validate_coinbase(
@@ -172,14 +175,21 @@ fn validate_coinbase_outputs(
     Result::Ok(())
 }
 
-
-/// Determines if the transaction outputs of a block at a given height are unspendable due to
-/// BIP-30.
+/// (BIP-30) Skip coinbase tx for duplicated txids
+/// Only the first tx is valid, the duplicated tx is ignored
 ///
-/// This function checks if the block height corresponds to one of the two exceptional blocks
-/// where transactions with duplicate TXIDs were allowed.
-pub fn is_bip30_unspendable(block_height: u32) -> bool {
-    block_height == 91722 || block_height == 91812
+/// First txid e3bf3d07d4b0375638d5f1db5255fe07ba2c4cb067cd81b84ee974b6585fb468
+/// at blocks 91722 and 91880
+/// Second txid d5d27987d2a3dfc724e359870c6644b40e497bdc0589a033220fe15429d88599
+/// at blocks 91812 and 91842
+pub fn is_coinbase_txid_duplicated(txid: Digest, block_height: u32) -> bool {
+    // TODO: allow duplicate transactions in case the previous instance of the transaction had no
+    // spendable outputs left.
+    if ((txid.into() == FIRST_DUP_TXID && block_height == 91880)
+        || (txid.into() == SECOND_DUP_TXID && block_height == 91842)) {
+        return true;
+    }
+    false
 }
 
 #[cfg(test)]
@@ -188,9 +198,23 @@ mod tests {
     use super::{
         compute_block_reward, validate_coinbase, validate_coinbase_input,
         validate_coinbase_sig_script, validate_coinbase_witness, validate_coinbase_outputs,
-        calculate_wtxid_commitment, is_bip30_unspendable
+        calculate_wtxid_commitment, is_coinbase_txid_duplicated, FIRST_DUP_TXID, SECOND_DUP_TXID,
     };
     use utils::{hex::{from_hex, hex_to_hash_rev}, hash::Digest};
+
+    #[test]
+    fn test_bip30_first_txid_dup() {
+        let txid: Digest = FIRST_DUP_TXID.into();
+        assert!(!is_coinbase_txid_duplicated(txid, 91722));
+        assert!(is_coinbase_txid_duplicated(txid, 91880));
+    }
+
+    #[test]
+    fn test_bip30_second_txid_dup() {
+        let txid: Digest = SECOND_DUP_TXID.into();
+        assert!(!is_coinbase_txid_duplicated(txid, 91812));
+        assert!(is_coinbase_txid_duplicated(txid, 91842));
+    }
 
     // Ref implementation here:
     // https://github.com/bitcoin/bitcoin/blob/0f68a05c084bef3e53e3f549c403bc90b1db319c/src/test/validation_tests.cpp#L24
@@ -663,23 +687,5 @@ mod tests {
         );
 
         validate_coinbase(@tx, total_fees, block_height, wtxid_root_hash).unwrap();
-    }
-
-    #[test]
-    fn test_is_bip30_unspendable() {
-        let block_height = 91722;
-        let result = is_bip30_unspendable(block_height);
-
-        assert_eq!(result, true);
-
-        let block_height = 91812;
-        let result = is_bip30_unspendable(block_height);
-
-        assert_eq!(result, true);
-
-        let block_height = 9;
-        let result = is_bip30_unspendable(block_height);
-
-        assert_eq!(result, false);
     }
 }
