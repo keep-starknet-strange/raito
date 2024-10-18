@@ -183,7 +183,7 @@ def job_consumer(process_job):
 
 def main(start, blocks, step, mode, strategy):
 
-    logger.info(
+    logger.warning(
         "Starting client, initial height: %d, blocks: %d, step: %d, mode: %s, strategy: %s",
         start,
         blocks,
@@ -191,7 +191,7 @@ def main(start, blocks, step, mode, strategy):
         mode,
         strategy,
     )
-    logger.info(
+    logger.warning(
         "Max weight limit: %d, Thread pool size: %d, Queue max size: %d",
         MAX_WEIGHT_LIMIT,
         THREAD_POOL_SIZE,
@@ -222,13 +222,21 @@ def main(start, blocks, step, mode, strategy):
 
 
 if __name__ == "__main__":
+
+    file_handler = logging.FileHandler("client.log")
+    file_handler.setLevel(logging.WARNING)
+    file_handler.setFormatter(
+        logging.Formatter("%(asctime)s - %(name)-10.10s - %(levelname)s - %(message)s")
+    )
+
     console_handler = logging.StreamHandler()
     console_handler.setLevel(logging.DEBUG)
     console_handler.setFormatter(
-        logging.Formatter("%(asctime)s - %(name)-10.10s - %(levelname)s - %(message)s")
+        logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
     )
     root_logger = logging.getLogger()
     root_logger.addHandler(console_handler)
+    root_logger.addHandler(file_handler)
     root_logger.setLevel(logging.INFO)
 
     logging.getLogger("urllib3").setLevel(logging.WARNING)

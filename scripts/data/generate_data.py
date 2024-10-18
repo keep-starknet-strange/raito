@@ -321,7 +321,9 @@ def generate_data(
     :return: tuple (arguments, expected output)
     """
 
-    logger.debug(f"Fetching initial chain state{' (fast)' if fast else ' '}, blocks: [{initial_height}, {initial_height + num_blocks - 1}]...")
+    logger.debug(
+        f"Fetching initial chain state{' (fast)' if fast else ' '}, blocks: [{initial_height}, {initial_height + num_blocks - 1}]..."
+    )
 
     chain_state = (
         fetch_chain_state_fast(initial_height)
@@ -336,9 +338,7 @@ def generate_data(
     utreexo_data = {}
 
     for i in range(num_blocks):
-        logger.debug(
-            f"Fetching block {initial_height + i + 1} {i + 1}/{num_blocks}..."
-        )
+        logger.debug(f"Fetching block {initial_height + i + 1} {i + 1}/{num_blocks}...")
 
         # Interblock cache
         tmp_utxo_set = {}
@@ -379,9 +379,7 @@ def generate_data(
         chain_state = next_chain_state(chain_state, block)
         next_block_hash = block["nextblockhash"]
 
-        logger.info(
-            f"Fetched block {initial_height + i + 1} {i + 1}/{num_blocks}"
-        )
+        logger.info(f"Fetched block {initial_height + i + 1} {i + 1}/{num_blocks}")
 
     block_formatter = (
         format_block if mode == "light" else format_block_with_transactions
