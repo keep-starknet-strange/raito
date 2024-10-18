@@ -40,13 +40,9 @@ pub impl UtxoSetImpl of UtxoSetTrait {
             if (!is_pubscript_unspendable(outpoint.data.pk_script)) {
                 if outpoint.data.cached {
                     self.num_cached += 1;
+
                 } else {
                     self.leaves_to_add.append(hash);
-                }
-                if outpoint.data.cached {
-                    println!("inserting outpoint: {:?}, hash: {}", outpoint, hash);
-                } else {
-                    self.cache.insert(hash, TX_OUTPUT_STATUS_NONE);
                 }
                 self.cache.insert(hash, TX_OUTPUT_STATUS_UNSPENT);
             }

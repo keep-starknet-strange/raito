@@ -326,7 +326,7 @@ def generate_data(
     else:
         logger.debug("Fetching initial chain state...")
 
-    logger.debug(f"Block range: [{initial_height}, {initial_height + num_blocks - 1}]")
+    print(f"blocks: {initial_height} - {initial_height + num_blocks - 1}")
 
     chain_state = (
         fetch_chain_state_fast(initial_height)
@@ -341,8 +341,10 @@ def generate_data(
     utreexo_data = {}
 
     for i in range(num_blocks):
-        logger.debug(
-            f"Fetching block {initial_height + i + 1} {i + 1}/{num_blocks}..."
+        print(
+            f"\rFetching block {initial_height + i + 1}/{initial_height + num_blocks}",
+            end="",
+            flush=True,
         )
 
         # Interblock cache
