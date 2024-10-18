@@ -100,25 +100,71 @@ fn bits_to_target(bits: u32) -> Result<u256, ByteArray> {
         return Result::Err("Target cannot have most significant bit set");
     }
 
-    // Calculate the full target value
-    if exponent == 0 {
-        // Special case: exponent 0 means we use the mantissa as-is
-        return Result::Ok(mantissa.into());
-    } else if exponent <= 3 {
-        // For exponents 1, 2, and 3, divide by 256^(3 - exponent) i.e right shift
-        let shift = 8 * (3 - exponent);
-        // MAX_TARGET > 2^128 so we can return early
-        return Result::Ok(shr_u64(mantissa.into(), shift).into());
-    } else if exponent <= 32 {
-        let shift = 8 * (exponent - 3);
-        let target = shl(mantissa.into(), shift);
-        // Ensure the target doesn't exceed the maximum allowed value
-        if target > MAX_TARGET {
-            return Result::Err("Target exceeds maximum value");
-        }
-        Result::Ok(target)
+    let target = match exponent {
+        0 => { return Result::Ok(u256 { low: (mantissa / 0x1000000).into(), high: 0 }); },
+        1 => { return Result::Ok(u256 { low: (mantissa / 0x10000).into(), high: 0 }); },
+        2 => { return Result::Ok(u256 { low: (mantissa / 0x100).into(), high: 0 }); },
+        3 => { return Result::Ok(u256 { low: mantissa.into(), high: 0 }); },
+        // because mantissa is on 3 bytes, if we shift by less than 2^(128-24), it's a low
+        4 => { return Result::Ok(u256 { low: (mantissa.into() * 0x100), high: 0 }); },
+        5 => { return Result::Ok(u256 { low: (mantissa.into() * 0x10000), high: 0 }); },
+        6 => { return Result::Ok(u256 { low: (mantissa.into() * 0x1000000), high: 0 }); },
+        7 => { return Result::Ok(u256 { low: (mantissa.into() * 0x100000000), high: 0 }); },
+        8 => { return Result::Ok(u256 { low: (mantissa.into() * 0x10000000000), high: 0 }); },
+        9 => { return Result::Ok(u256 { low: (mantissa.into() * 0x1000000000000), high: 0 }); },
+        10 => { return Result::Ok(u256 { low: (mantissa.into() * 0x100000000000000), high: 0 }); },
+        11 => {
+            return Result::Ok(u256 { low: (mantissa.into() * 0x10000000000000000), high: 0 });
+        },
+        12 => {
+            return Result::Ok(u256 { low: (mantissa.into() * 0x1000000000000000000), high: 0 });
+        },
+        13 => {
+            return Result::Ok(u256 { low: (mantissa.into() * 0x100000000000000000000), high: 0 });
+        },
+        14 => {
+            return Result::Ok(u256 { low: (mantissa.into() * 0x10000000000000000000000), high: 0 });
+        },
+        15 => {
+            return Result::Ok(
+                u256 { low: (mantissa.into() * 0x1000000000000000000000000), high: 0 }
+            );
+        },
+        16 => {
+            return Result::Ok(
+                u256 { low: (mantissa.into() * 0x100000000000000000000000000), high: 0 }
+            );
+        },
+        // here we don't know
+        17 => { return Result::Ok(mantissa.into() * 0x10000000000000000000000000000); },
+        18 => { return Result::Ok(mantissa.into() * 0x1000000000000000000000000000000); },
+        19 => { return Result::Ok(mantissa.into() * 0x100000000000000000000000000000000); },
+        // here it's only a high
+        20 => { return Result::Ok(u256 { low: 0, high: mantissa.into() * 0x100 }); },
+        21 => { return Result::Ok(u256 { low: 0, high: mantissa.into() * 0x10000 }); },
+        22 => { return Result::Ok(u256 { low: 0, high: mantissa.into() * 0x1000000 }); },
+        23 => { return Result::Ok(u256 { low: 0, high: mantissa.into() * 0x100000000 }); },
+        24 => { return Result::Ok(u256 { low: 0, high: mantissa.into() * 0x10000000000 }); },
+        25 => { return Result::Ok(u256 { low: 0, high: mantissa.into() * 0x1000000000000 }); },
+        26 => { return Result::Ok(u256 { low: 0, high: mantissa.into() * 0x100000000000000 }); },
+        27 => { return Result::Ok(u256 { low: 0, high: mantissa.into() * 0x10000000000000000 }); },
+        28 => {
+            return Result::Ok(u256 { low: 0, high: mantissa.into() * 0x1000000000000000000 });
+        },
+        // because 0x7FFFFF * 2**(8 * (28 - 3)) < MAX_TARGET, for these two elements we have to
+        // check the target
+        29 => u256 { low: 0, high: mantissa.into() * 0x100000000000000000000 },
+        30 => u256 { low: 0, high: mantissa.into() * 0x10000000000000000000000 },
+        // because 2^(8 * (31 - 3)) > MAX_TARGET
+        31 => { return Result::Err("Target exceeds maximum value"); },
+        32 => { return Result::Err("Target exceeds maximum value"); },
+        _ => { return Result::Err("Target size cannot exceed 32 bytes"); },
+    };
+
+    if target > MAX_TARGET {
+        Result::Err("Target exceeds maximum value")
     } else {
-        return Result::Err("Target size cannot exceed 32 bytes");
+        Result::Ok(target)
     }
 }
 
