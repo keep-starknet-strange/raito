@@ -1,38 +1,6 @@
 //! Bit shifts.
 
-use core::num::traits::{Zero, One, BitSize};
-
-/// Performs a bitwise left shift on the given value by a specified number of bits.
-pub fn shl<
-    T,
-    U,
-    +Zero<T>,
-    +Zero<U>,
-    +One<T>,
-    +One<U>,
-    +Add<T>,
-    +Add<U>,
-    +Sub<U>,
-    +Mul<T>,
-    +Div<U>,
-    +Rem<U>,
-    +Copy<T>,
-    +Copy<U>,
-    +Drop<T>,
-    +Drop<U>,
-    +PartialOrd<U>,
-    +PartialEq<U>,
-    +BitSize<T>,
-    +Into<usize, U>
->(
-    self: T, shift: U,
-) -> T {
-    if shift > BitSize::<T>::bits().into() - One::one() {
-        return Zero::zero();
-    }
-    let two = One::one() + One::one();
-    self * fast_pow(two, shift)
-}
+use core::num::traits::{Zero, One};
 
 /// Performs a bitwise right shift on a u64 value by a specified number of bits.
 /// This specialized version offers optimal performance for u64 types.
@@ -178,7 +146,7 @@ pub fn pow2(exponent: u32) -> u64 {
 
 #[cfg(test)]
 mod tests {
-    use super::{fast_pow, pow2, shl, shr_u64};
+    use super::{fast_pow, pow2, shr_u64};
 
     #[test]
     #[available_gas(1000000000)]
@@ -201,19 +169,6 @@ mod tests {
         assert_eq!(pow2(10), 1024, "2^10 should be 1024");
         assert_eq!(pow2(63), 0x8000000000000000, "2^63 should be 0x8000000000000000");
         assert_eq!(pow2(63), 0x8000000000000000, "2^64 should be 0x8000000000000000");
-    }
-
-    #[test]
-    fn test_shl() {
-        let value1: u32 = 3;
-        let shift1: u32 = 2;
-        let result = shl(value1, shift1);
-        assert_eq!(result, 12, "invalid result");
-
-        let value2: u32 = 5;
-        let shift2: u32 = 0;
-        let result = shl(value2, shift2);
-        assert_eq!(result, 5);
     }
 
     #[test]
