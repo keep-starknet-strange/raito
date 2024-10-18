@@ -40,10 +40,15 @@ pub impl UtxoSetImpl of UtxoSetTrait {
             if (!is_pubscript_unspendable(outpoint.data.pk_script)) {
                 if outpoint.data.cached {
                     self.num_cached += 1;
-                    self.cache.insert(hash, TX_OUTPUT_STATUS_UNSPENT);
                 } else {
                     self.leaves_to_add.append(hash);
                 }
+                if outpoint.data.cached {
+                    println!("inserting outpoint: {:?}, hash: {}", outpoint, hash);
+                } else {
+                    self.cache.insert(hash, TX_OUTPUT_STATUS_NONE);
+                }
+                self.cache.insert(hash, TX_OUTPUT_STATUS_UNSPENT);
             }
             Result::Ok(())
         } else {
@@ -56,14 +61,17 @@ pub impl UtxoSetImpl of UtxoSetTrait {
         let status = self.cache.get(hash);
         if status == TX_OUTPUT_STATUS_NONE {
             // Extra check that can be removed later.
-            assert(!*outpoint.data.cached, 'cached output was not cached');
+            if *outpoint.data.cached {
+                println!("cached output was not cached: {:?}, hash: {}", *outpoint, hash);
+            }
+            assert!(!*outpoint.data.cached, "cached output was not cached");
 
             self.cache.insert(hash, TX_OUTPUT_STATUS_SPENT);
             self.leaves_to_delete.append(hash);
             Result::Ok(())
         } else if status == TX_OUTPUT_STATUS_UNSPENT {
             // Extra check that can be removed later.
-            assert(*outpoint.data.cached, 'non-cached output was cached');
+            assert!(*outpoint.data.cached, "non-cached output was cached");
 
             self.cache.insert(hash, TX_OUTPUT_STATUS_SPENT);
             self.num_cached -= 1;

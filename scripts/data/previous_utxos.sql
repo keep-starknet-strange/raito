@@ -31,7 +31,7 @@ JOIN (
     block_number,
     array(
       select * from unnest(previous_timestamps) as timestamp order by timestamp asc
-    )[6] as median_timestamp,
+    )[5] as median_timestamp,
   from (
     select
     bn___.number block_number,
@@ -61,7 +61,7 @@ JOIN (
     join `bigquery-public-data.crypto_bitcoin.blocks` as bn_10 on (bn_09.number - 1) = bn_10.number
     join `bigquery-public-data.crypto_bitcoin.blocks` as bn_11 on (bn_10.number - 1) = bn_11.number
   )) as blocks
-  ON blocks.block_number = outputs.block_number - 1
--- WHERE inputs.block_number = 97821
+  ON blocks.block_number = outputs.block_number
+-- WHERE inputs.block_number = 116928
 group by block_number
-order by block_number; -- to make number of files smaller
+order by block_number

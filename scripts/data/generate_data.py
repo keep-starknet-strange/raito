@@ -326,7 +326,7 @@ def generate_data(
     else:
         logger.debug("Fetching initial chain state...")
 
-    logger.debug(f"blocks: {initial_height} - {initial_height + num_blocks - 1}")
+    logger.debug(f"Block range: [{initial_height}, {initial_height + num_blocks - 1}]")
 
     chain_state = (
         fetch_chain_state_fast(initial_height)
@@ -342,7 +342,7 @@ def generate_data(
 
     for i in range(num_blocks):
         logger.debug(
-            f"Fetching block {initial_height + i + 1}/{initial_height + num_blocks}"
+            f"Fetching block {initial_height + i + 1} {i + 1}/{num_blocks}..."
         )
 
         # Interblock cache
@@ -384,6 +384,10 @@ def generate_data(
         chain_state = next_chain_state(chain_state, block)
         next_block_hash = block["nextblockhash"]
 
+        logger.info(
+            f"Fetched block {initial_height + i + 1} {i + 1}/{num_blocks}..."
+        )
+
     block_formatter = (
         format_block if mode == "light" else format_block_with_transactions
     )
@@ -419,9 +423,16 @@ def str2bool(value):
 # Example: generate_data.py --mode 'utreexo' --height 0 --num_blocks 10 --output_file utreexo_0_10.json --fast
 if __name__ == "__main__":
 
-    logging.basicConfig(
-        format="%(asctime)s - %(levelname)s - %(message)s", level=logging.INFO
+    console_handler = logging.StreamHandler()
+    console_handler.setLevel(logging.DEBUG)
+    console_handler.setFormatter(
+        logging.Formatter("%(asctime)s - %(levelname)4.4s - %(message)s")
     )
+    root_logger = logging.getLogger()
+    root_logger.addHandler(console_handler)
+    root_logger.setLevel(logging.DEBUG)
+
+    logging.getLogger("urllib3").setLevel(logging.WARNING)
 
     parser = argparse.ArgumentParser(description="Process UTXO files.")
     parser.add_argument(
