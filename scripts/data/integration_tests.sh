@@ -51,13 +51,21 @@ ignored_files=(
     "tests/data/utreexo_169.json", # Unexpected root (TODO: create issue)
     # "tests/data/full_478557.json", #runs on server
 )
+
+ignore_file="tests/data/ignore"
+if [[ -f "$ignore_file" ]]; then
+  while IFS= read -r line; do
+    ignored_files+="tests/data/$line"
+  done < "$ignore_file"
+fi
+
 ignored="${ignored_files[@]}"
 
 # If no test files are explicitly specified, default to tests/data/*
 if [[ $fullonly -eq 1 && ${#test_files[@]} -eq 0 ]]; then
-  test_files=("tests/data"/full*)
+  test_files=("tests/data"/full*.json)
 elif [[ ${#test_files[@]} -eq 0 ]]; then
-  test_files=("tests/data"/*)
+  test_files=("tests/data"/*.json)
 fi
 
 if [[ $execute_scripts -eq 1 ]]; then

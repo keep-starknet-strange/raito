@@ -8,6 +8,7 @@ pub mod stump {
     pub mod proof;
     pub mod accumulator;
 }
+pub mod test;
 
 use core::poseidon::PoseidonTrait;
 use core::hash::{HashStateTrait, HashStateExTrait};
