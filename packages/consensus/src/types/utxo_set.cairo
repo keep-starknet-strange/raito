@@ -56,7 +56,7 @@ pub impl UtxoSetImpl of UtxoSetTrait {
         let status = self.cache.get(hash);
         if status == TX_OUTPUT_STATUS_NONE {
             // Extra check that can be removed later.
-            assert!(!*outpoint.data.cached, "cached output was not cached: {:?}", outpoint);
+            assert!(!*outpoint.data.cached, "cached output was not cached: {}", outpoint);
 
             self.cache.insert(hash, TX_OUTPUT_STATUS_SPENT);
             self.leaves_to_delete.append(hash);
