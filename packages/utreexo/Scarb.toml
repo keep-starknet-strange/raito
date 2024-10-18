@@ -12,4 +12,4 @@ cairo_test.workspace = true
 [scripts]
 # TODO: cairo lint
 lint = "scarb fmt"
-test = "scarb build && ../../scripts/data/integration_tests.sh"
+test = "scarb cairo-test && ../../scripts/data/integration_tests.sh"
