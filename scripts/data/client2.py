@@ -156,7 +156,7 @@ def job_consumer(process_job):
             logger.debug(f"Consumer is waiting for a job.")
             # Get a job from the queue
             (job, weight) = job_queue.get(
-                timeout=5
+                timeout=1
             )  # Timeout to exit if no jobs are available
 
             # Process the block
