@@ -321,7 +321,7 @@ def generate_data(
     :return: tuple (arguments, expected output)
     """
 
-    logger.debug(f"Fetching initial chain state{" (fast)" if fast else " "}, blocks: [{initial_height}, {initial_height + num_blocks - 1}]...")
+    logger.debug(f"Fetching initial chain state{' (fast)' if fast else ' '}, blocks: [{initial_height}, {initial_height + num_blocks - 1}]...")
 
     chain_state = (
         fetch_chain_state_fast(initial_height)
