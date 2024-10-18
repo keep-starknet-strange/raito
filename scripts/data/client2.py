@@ -232,6 +232,7 @@ if __name__ == "__main__":
     root_logger.setLevel(logging.INFO)
 
     logging.getLogger("urllib3").setLevel(logging.WARNING)
+    logging.getLogger("generate_data").setLevel(logging.WARNING)
 
     parser = argparse.ArgumentParser(description="Run client script")
     parser.add_argument("--start", type=int, required=True, help="Start block height")
