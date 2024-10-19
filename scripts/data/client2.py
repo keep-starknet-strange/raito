@@ -64,17 +64,19 @@ def job_generator(start, blocks, step, mode, strategy):
     )
 
     for height in height_range:
-        batch_file = BASE_DIR / f"{mode}_{height}_{step}.json"
+        try: 
+            batch_file = BASE_DIR / f"{mode}_{height}_{step}.json"
 
-        batch_data = generate_data(
-            mode=mode, initial_height=height, num_blocks=step, fast=True
-        )
+            batch_data = generate_data(
+                mode=mode, initial_height=height, num_blocks=step, fast=True
+            )
 
-        Path(batch_file).write_text(json.dumps(batch_data, indent=2))
+            Path(batch_file).write_text(json.dumps(batch_data, indent=2))
 
-        batch_weight = calculate_batch_weight(batch_data, mode)
-        yield Job(height, step, mode, batch_weight, batch_file), batch_weight
-
+            batch_weight = calculate_batch_weight(batch_data, mode)
+            yield Job(height, step, mode, batch_weight, batch_file), batch_weight
+        except Exception as e:
+            logger.error(f"Error while generating data for: {height}:\n{e}")
 
 # Function to process a batch
 def process_batch(job):
@@ -122,30 +124,33 @@ def process_batch(job):
 def job_producer(job_gen):
     global current_weight
 
-    for job, weight in job_gen:
-        # Wait until there is enough weight capacity to add the new block
+    try: 
+        for job, weight in job_gen:
+            # Wait until there is enough weight capacity to add the new block
+            with weight_lock:
+                while (
+                    current_weight + weight > MAX_WEIGHT_LIMIT or job_queue.full()
+                ):  # or not (job_queue.empty() and weight > MAX_WEIGHT_LIMIT):
+                    logger.debug("Producer is waiting for weight to be released.")
+                    weight_lock.wait()  # Wait for the condition to be met
+
+                # Add the job to the queue and update the weight
+                job_queue.put((job, weight))
+                current_weight += weight
+                logger.debug(
+                    f"Produced job: {job} with weight {weight}, current total weight: {current_weight}"
+                )
+
+                # Notify consumers that a new job is available
+                weight_lock.notify_all()
+    finally:
+        for _ in range(THREAD_POOL_SIZE):
+            job_queue.put(None)
+
         with weight_lock:
-            while (
-                current_weight + weight > MAX_WEIGHT_LIMIT or job_queue.full()
-            ):  # or not (job_queue.empty() and weight > MAX_WEIGHT_LIMIT):
-                logger.debug("Producer is waiting for weight to be released.")
-                weight_lock.wait()  # Wait for the condition to be met
-
-            # Add the job to the queue and update the weight
-            job_queue.put((job, weight))
-            current_weight += weight
-            logger.debug(
-                f"Produced job: {job} with weight {weight}, current total weight: {current_weight}"
-            )
-
-            # Notify consumers that a new job is available
             weight_lock.notify_all()
 
-    with weight_lock:
-        weight_lock.notify_all()
-
-    logger.debug("Producer is exiting.")
-
+        logger.debug("Producer is exiting.")
 
 # Consumer function: Processes blocks from the queue
 def job_consumer(process_job):
@@ -155,9 +160,13 @@ def job_consumer(process_job):
         try:
             logger.debug(f"Consumer is waiting for a job.")
             # Get a job from the queue
-            (job, weight) = job_queue.get(
-                timeout=1
-            )  # Timeout to exit if no jobs are available
+            work_to_do = job_queue.get(block=True)
+
+            if work_to_do is None:
+                logger.debug("No more work to do, consumer is exiting.")
+                break
+            
+            (job, weight) = work_to_do
 
             # Process the block
             try:
@@ -175,9 +184,8 @@ def job_consumer(process_job):
             # Mark job as done
             job_queue.task_done()
 
-        except queue.Empty:
-            # If queue is empty for too long, exit the consumer thread
-            logger.debug("Queue is empty, consumer is exiting.")
+        except Exception as e:
+            logger.error("Error in the consumer: %s", e)    
             break
 
 

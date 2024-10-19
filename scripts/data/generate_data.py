@@ -44,9 +44,9 @@ def request_rpc(method: str, params: list):
         try:
             res = requests.post(url, auth=auth, headers=headers, json=payload)
             return res.json()["result"]
-        except Exception:
+        except Exception as e:
             if attempt < RETRIES - 1:
-                f"Connection error: {res.text}, will retry in {DELAY}s"
+                logger.debug(f"Connection error: {e}, will retry in {DELAY}s")
                 time.sleep(DELAY)  # Wait before retrying
             else:
                 raise ConnectionError(
