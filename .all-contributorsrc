@@ -225,6 +225,42 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "fishonamos",
+      "name": "Fishon Amos",
+      "avatar_url": "https://avatars.githubusercontent.com/u/43862685?v=4",
+      "profile": "https://github.com/fishonamos",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "raizo07",
+      "name": "Wolf",
+      "avatar_url": "https://avatars.githubusercontent.com/u/81079370?v=4",
+      "profile": "https://github.com/raizo07",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "baitcode",
+      "name": "Ilia Batii",
+      "avatar_url": "https://avatars.githubusercontent.com/u/801611?v=4",
+      "profile": "https://github.com/baitcode",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "Th0rgal",
+      "name": "Thomas Marchand",
+      "avatar_url": "https://avatars.githubusercontent.com/u/41830259?v=4",
+      "profile": "https://github.com/Th0rgal",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,
