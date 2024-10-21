@@ -131,7 +131,8 @@ def job_producer(job_gen):
                     f"Adding job: {job}, current total weight: {current_weight}..."
                 )
                 while (
-                    (current_weight + weight > MAX_WEIGHT_LIMIT) and current_weight != 0
+                    (current_weight + weight > MAX_WEIGHT_LIMIT)
+                    and current_weight != 0
                     or job_queue.full()
                 ):
                     logger.debug("Producer is waiting for weight to be released.")
@@ -157,14 +158,15 @@ def job_producer(job_gen):
         logger.debug("Consumers notified")
 
 
-
 # Consumer function: Processes blocks from the queue
 def job_consumer(process_job):
     global current_weight
 
     while True:
         try:
-            logger.debug(f"Consumer is waiting for a job. Queue lenght: {job_queue.qsize()}")
+            logger.debug(
+                f"Consumer is waiting for a job. Queue lenght: {job_queue.qsize()}"
+            )
             # Get a job from the queue
             work_to_do = job_queue.get(block=True)
 
@@ -259,9 +261,7 @@ if __name__ == "__main__":
         choices=["sequential", "random"],
         help="Processing strategy",
     )
-    parser.add_argument(
-        "--verbose", action="store_true", help="Verbose"
-    )
+    parser.add_argument("--verbose", action="store_true", help="Verbose")
 
     args = parser.parse_args()
 
@@ -279,7 +279,7 @@ if __name__ == "__main__":
     root_logger = logging.getLogger()
     root_logger.addHandler(console_handler)
     root_logger.addHandler(file_handler)
-    
+
     if args.verbose:
         root_logger.setLevel(logging.DEBUG)
     else:
