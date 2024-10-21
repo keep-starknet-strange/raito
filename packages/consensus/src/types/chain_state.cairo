@@ -64,8 +64,9 @@ pub impl BlockValidatorImpl of BlockValidator {
         let block_height = self.block_height + 1;
 
         let prev_block_time = *self.prev_timestamps[self.prev_timestamps.len() - 1];
+
+        let median_time_past = compute_median_time_past(self.prev_timestamps);
         let prev_timestamps = next_prev_timestamps(self.prev_timestamps, block.header.time);
-        let median_time_past = compute_median_time_past(prev_timestamps);
 
         validate_timestamp(median_time_past, block.header.time)?;
 
