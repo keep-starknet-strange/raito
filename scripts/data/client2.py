@@ -64,7 +64,7 @@ def job_generator(start, blocks, step, mode, strategy):
     )
 
     for height in height_range:
-        try: 
+        try:
             batch_file = BASE_DIR / f"{mode}_{height}_{step}.json"
 
             batch_data = generate_data(
@@ -77,6 +77,7 @@ def job_generator(start, blocks, step, mode, strategy):
             yield Job(height, step, mode, batch_weight, batch_file), batch_weight
         except Exception as e:
             logger.error(f"Error while generating data for: {height}:\n{e}")
+
 
 # Function to process a batch
 def process_batch(job):
@@ -124,13 +125,13 @@ def process_batch(job):
 def job_producer(job_gen):
     global current_weight
 
-    try: 
+    try:
         for job, weight in job_gen:
             # Wait until there is enough weight capacity to add the new block
             with weight_lock:
                 while (
                     current_weight + weight > MAX_WEIGHT_LIMIT or job_queue.full()
-                ):  # or not (job_queue.empty() and weight > MAX_WEIGHT_LIMIT):
+                ) and not (job_queue.empty() and weight > MAX_WEIGHT_LIMIT):
                     logger.debug("Producer is waiting for weight to be released.")
                     weight_lock.wait()  # Wait for the condition to be met
 
@@ -152,6 +153,7 @@ def job_producer(job_gen):
 
         logger.debug("Producer is exiting.")
 
+
 # Consumer function: Processes blocks from the queue
 def job_consumer(process_job):
     global current_weight
@@ -165,7 +167,7 @@ def job_consumer(process_job):
             if work_to_do is None:
                 logger.debug("No more work to do, consumer is exiting.")
                 break
-            
+
             (job, weight) = work_to_do
 
             # Process the block
@@ -185,7 +187,7 @@ def job_consumer(process_job):
             job_queue.task_done()
 
         except Exception as e:
-            logger.error("Error in the consumer: %s", e)    
+            logger.error("Error in the consumer: %s", e)
             break
 
 
@@ -226,7 +228,7 @@ def main(start, blocks, step, mode, strategy):
     # Wait for all items in the queue to be processed
     job_queue.join()
 
-    print("All jobs have been processed.")
+    logger.warning("All jobs have been processed.")
 
 
 if __name__ == "__main__":
