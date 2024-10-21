@@ -165,7 +165,7 @@ def job_consumer(process_job):
     while True:
         try:
             logger.debug(
-                f"Consumer is waiting for a job. Queue lenght: {job_queue.qsize()}"
+                f"Consumer is waiting for a job. Queue length: {job_queue.qsize()}"
             )
             # Get a job from the queue
             work_to_do = job_queue.get(block=True)
