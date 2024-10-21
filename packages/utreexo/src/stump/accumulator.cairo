@@ -28,7 +28,7 @@ pub impl StumpUtreexoAccumulatorImpl of StumpUtreexoAccumulator {
 
                 // Checks that new_roots_span is not empty
                 if let Option::Some(root) = root {
-                    // Chechs that root has value
+                    // Checks that root has value
                     if let Option::Some(root) = root {
                         // Merging with the hash
                         to_add = parent_hash(*root, to_add);
