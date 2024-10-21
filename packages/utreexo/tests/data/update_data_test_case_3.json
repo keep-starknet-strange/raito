@@ -1,0 +1,35 @@
+{
+  "state": {
+    "roots": [
+      {
+        "variant_id": 1
+      }
+    ],
+    "leaves": 4
+  },
+  "proof": {
+    "nodes": [],
+    "targets": []
+  },
+  "leaves_to_del": [],
+  "leaves_to_add": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "expected_state": {
+    "roots": [
+      {
+        "variant_id": 0,
+        "value": 1229371501456391789924831928153470943555736434402105893904574254763197682709
+      },
+      {
+        "variant_id": 0,
+        "value": 4
+      }
+    ],
+    "leaves": 9
+  }
+}
