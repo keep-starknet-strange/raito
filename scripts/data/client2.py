@@ -81,8 +81,6 @@ def job_generator(start, blocks, step, mode, strategy):
 
 # Function to process a batch
 def process_batch(job):
-    logger.debug(f"Running client on: {job}")
-
     arguments_file = job.batch_file.as_posix().replace(".json", "-arguments.json")
 
     with open(arguments_file, "w") as af:
@@ -129,9 +127,13 @@ def job_producer(job_gen):
         for job, weight in job_gen:
             # Wait until there is enough weight capacity to add the new block
             with weight_lock:
+                logger.debug(
+                    f"Adding job: {job}, current total weight: {current_weight}..."
+                )
                 while (
-                    current_weight + weight > MAX_WEIGHT_LIMIT or job_queue.full()
-                ) and not (job_queue.empty() and weight > MAX_WEIGHT_LIMIT):
+                    (current_weight + weight > MAX_WEIGHT_LIMIT) and current_weight != 0
+                    or job_queue.full()
+                ):
                     logger.debug("Producer is waiting for weight to be released.")
                     weight_lock.wait()  # Wait for the condition to be met
 
@@ -139,19 +141,21 @@ def job_producer(job_gen):
                 job_queue.put((job, weight))
                 current_weight += weight
                 logger.debug(
-                    f"Produced job: {job} with weight {weight}, current total weight: {current_weight}"
+                    f"Produced job: {job}, current total weight: {current_weight}"
                 )
 
                 # Notify consumers that a new job is available
                 weight_lock.notify_all()
     finally:
+        logger.debug("Producer is exiting...")
         for _ in range(THREAD_POOL_SIZE):
             job_queue.put(None)
 
         with weight_lock:
             weight_lock.notify_all()
 
-        logger.debug("Producer is exiting.")
+        logger.debug("Consumers notified")
+
 
 
 # Consumer function: Processes blocks from the queue
@@ -160,18 +164,20 @@ def job_consumer(process_job):
 
     while True:
         try:
-            logger.debug(f"Consumer is waiting for a job.")
+            logger.debug(f"Consumer is waiting for a job. Queue lenght: {job_queue.qsize()}")
             # Get a job from the queue
             work_to_do = job_queue.get(block=True)
 
             if work_to_do is None:
                 logger.debug("No more work to do, consumer is exiting.")
+                job_queue.task_done()
                 break
 
             (job, weight) = work_to_do
 
             # Process the block
             try:
+                logger.debug(f"Executing job: {job}...")
                 process_job(job)
             except Exception as e:
                 logger.error(f"Error while processing job: {job}:\n{e}")
@@ -179,7 +185,7 @@ def job_consumer(process_job):
             with weight_lock:
                 current_weight -= weight
                 logger.debug(
-                    f"Finished processing job, released weight: {weight}, current total weight: {current_weight}"
+                    f"Finished processing job, current total weight: {current_weight}"
                 )
                 weight_lock.notify_all()  # Notify producer to add more jobs
 
@@ -193,7 +199,7 @@ def job_consumer(process_job):
 
 def main(start, blocks, step, mode, strategy):
 
-    logger.warning(
+    logger.info(
         "Starting client, initial height: %d, blocks: %d, step: %d, mode: %s, strategy: %s",
         start,
         blocks,
@@ -201,7 +207,7 @@ def main(start, blocks, step, mode, strategy):
         mode,
         strategy,
     )
-    logger.warning(
+    logger.info(
         "Max weight limit: %d, Thread pool size: %d, Queue max size: %d",
         MAX_WEIGHT_LIMIT,
         THREAD_POOL_SIZE,
@@ -228,29 +234,10 @@ def main(start, blocks, step, mode, strategy):
     # Wait for all items in the queue to be processed
     job_queue.join()
 
-    logger.warning("All jobs have been processed.")
+    logger.info("All jobs have been processed.")
 
 
 if __name__ == "__main__":
-
-    file_handler = logging.FileHandler("client.log")
-    file_handler.setLevel(logging.WARNING)
-    file_handler.setFormatter(
-        logging.Formatter("%(asctime)s - %(name)-10.10s - %(levelname)s - %(message)s")
-    )
-
-    console_handler = logging.StreamHandler()
-    console_handler.setLevel(logging.DEBUG)
-    console_handler.setFormatter(
-        logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
-    )
-    root_logger = logging.getLogger()
-    root_logger.addHandler(console_handler)
-    root_logger.addHandler(file_handler)
-    root_logger.setLevel(logging.INFO)
-
-    logging.getLogger("urllib3").setLevel(logging.WARNING)
-    logging.getLogger("generate_data").setLevel(logging.WARNING)
 
     parser = argparse.ArgumentParser(description="Run client script")
     parser.add_argument("--start", type=int, required=True, help="Start block height")
@@ -272,7 +259,33 @@ if __name__ == "__main__":
         choices=["sequential", "random"],
         help="Processing strategy",
     )
+    parser.add_argument(
+        "--verbose", action="store_true", help="Verbose"
+    )
 
     args = parser.parse_args()
+
+    file_handler = logging.FileHandler("client.errors.log")
+    file_handler.setLevel(logging.INFO)
+    file_handler.setFormatter(
+        logging.Formatter("%(asctime)s - %(name)-10.10s - %(levelname)s - %(message)s")
+    )
+
+    console_handler = logging.StreamHandler()
+    console_handler.setLevel(logging.DEBUG)
+    console_handler.setFormatter(
+        logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
+    )
+    root_logger = logging.getLogger()
+    root_logger.addHandler(console_handler)
+    root_logger.addHandler(file_handler)
+    
+    if args.verbose:
+        root_logger.setLevel(logging.DEBUG)
+    else:
+        root_logger.setLevel(logging.INFO)
+
+    logging.getLogger("urllib3").setLevel(logging.WARNING)
+    logging.getLogger("generate_data").setLevel(logging.WARNING)
 
     main(args.start, args.blocks, args.step, args.mode, args.strategy)

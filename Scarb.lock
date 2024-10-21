@@ -20,7 +20,7 @@ dependencies = [
 [[package]]
 name = "ripemd160"
 version = "0.1.0"
-source = "git+https://github.com/j1mbo64/ripemd160_cairo.git#cdc5ab58b0acc64db87e0b03851fb18213977dc8"
+source = "git+https://github.com/j1mbo64/ripemd160_cairo.git#b56e8f3135f2e30bcf3e035a72b7bc4d0f4a9e45"
 
 [[package]]
 name = "sha1"
