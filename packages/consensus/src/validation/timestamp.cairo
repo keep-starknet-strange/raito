@@ -46,11 +46,7 @@ pub fn validate_timestamp(median_time_past: u32, block_time: u32) -> Result<(), 
         Result::Ok(())
     } else {
         Result::Err(
-            format!(
-                "Median time past: {} >= block's timestamp: {}.",
-                median_time_past,
-                block_time
-            )
+            format!("Median time past: {} >= block's timestamp: {}.", median_time_past, block_time)
         )
     }
 }
