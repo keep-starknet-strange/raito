@@ -10,6 +10,9 @@ However the accumulator scheme proposed in the paper doesn't perform well in the
 
 Check out our community call where the Utreexo accumulator is explained: https://www.youtube.com/watch?v=jq6cx6LowkA&pp=ygUYc2hpbmlnYW1pIGNvbW11bml0eSBjYWxs
 
+> [!TIP]  
+> Make sure you are familiar enough with the original Utreexo design before moving on to the next sections, as they are mostly focused on the differences between two schemes.
+
 ## Pollard
 
 The key distinction between the original and new designs is that deleted leaves are not actually removed from the forest but made "empty" instead, moreover, their remaining siblings are "promoted" to the parent node (i.e. moving upwards). The full discussion about new accumulator design: https://github.com/mit-dci/utreexo/discussions/249
@@ -55,7 +58,7 @@ Also it's worth noting that before "null" was indicating a missing roots whereas
 
 ## Batch proof
 
-Batch inclusion proofs were introduced in the Utreexo paper (see Appendix) and they can reduce the total size of proof(s) significantly. But the batch delete algorithm was pretty complex and IO intensive. The pollard scheme streamlined batch deletions and made batch proofs more practical.
+Batch inclusion proofs were introduced in the Utreexo paper (see Appendix) and they can reduce the total size of proof(s) significantly But the batch delete algorithm was pretty complex and IO intensive. The pollard scheme streamlined batch deletions and made batch proofs more practical. Pollar batch proof contains all the intermediate nodes that cannot be computed and which are required to eventually calculate the roots (going row by row, left to right, bottom top).
 
 <p align="center" width="100%">
   <img src="./img/utreexo_proof.svg" alt=""/>
