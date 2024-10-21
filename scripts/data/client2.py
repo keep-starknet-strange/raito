@@ -263,7 +263,7 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    file_handler = logging.FileHandler("client.log")
+    file_handler = logging.FileHandler("client.errors.log")
     file_handler.setLevel(logging.INFO)
     file_handler.setFormatter(
         logging.Formatter("%(asctime)s - %(name)-10.10s - %(levelname)s - %(message)s")

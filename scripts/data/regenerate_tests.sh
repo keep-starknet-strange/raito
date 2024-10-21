@@ -44,6 +44,7 @@ full_test_cases=(
     2015    # First new epoch (2016)
     24834   # Block containing first off ramp tx from Martti Malmi (24835)
     32255   # First target adjustment (32256)
+    32635   # Bug: Median time past is greater than or equal to block's timestamp
     57042   # Block containing pizza tx (57043)
     72575   # Difficulty adjustment
     91721   # Duplicate coinbase txid (91722)
