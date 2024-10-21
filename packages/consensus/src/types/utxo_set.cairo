@@ -40,7 +40,6 @@ pub impl UtxoSetImpl of UtxoSetTrait {
             if (!is_pubscript_unspendable(outpoint.data.pk_script)) {
                 if outpoint.data.cached {
                     self.num_cached += 1;
-
                 } else {
                     self.leaves_to_add.append(hash);
                 }
@@ -57,9 +56,6 @@ pub impl UtxoSetImpl of UtxoSetTrait {
         let status = self.cache.get(hash);
         if status == TX_OUTPUT_STATUS_NONE {
             // Extra check that can be removed later.
-            if *outpoint.data.cached {
-                println!("cached output was not cached: {:?}, hash: {}", *outpoint, hash);
-            }
             assert!(!*outpoint.data.cached, "cached output was not cached");
 
             self.cache.insert(hash, TX_OUTPUT_STATUS_SPENT);
