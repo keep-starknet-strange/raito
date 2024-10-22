@@ -1,8 +1,8 @@
+use core::traits::DivRem;
 use crate::stump::state::UtreexoStumpState;
 use crate::stump::proof::{UtreexoBatchProof, UtreexoBatchProofTrait};
 use crate::parent_hash;
 
-use utils::bit_shifts::{shr_u64};
 
 #[generate_trait]
 pub impl StumpUtreexoAccumulatorImpl of StumpUtreexoAccumulator {
@@ -23,11 +23,10 @@ pub impl StumpUtreexoAccumulatorImpl of StumpUtreexoAccumulator {
             let mut to_add = *add;
 
             // This is similar to the vanilla algorithm
-            while shr_u64(leaves, h) % 2 == 1 {
-                let root = new_roots_span.pop_back();
-
+            let (mut next_row_len, mut has_root) = DivRem::div_rem(leaves, 2);
+            while has_root == 1 {
                 // Checks that new_roots_span is not empty
-                if let Option::Some(root) = root {
+                if let Option::Some(root) = new_roots_span.pop_back() {
                     // Checks that root has value
                     if let Option::Some(root) = root {
                         // Merging with the hash
@@ -35,6 +34,10 @@ pub impl StumpUtreexoAccumulatorImpl of StumpUtreexoAccumulator {
                     }
                 }
                 h += 1;
+
+                let (q, r) = DivRem::div_rem(next_row_len, 2);
+                next_row_len = q;
+                has_root = r;
             };
 
             new_roots = new_roots_span.into();
