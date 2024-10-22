@@ -19,7 +19,6 @@ pub impl StumpUtreexoAccumulatorImpl of StumpUtreexoAccumulator {
             // We will use new_roots_span to iterate over the roots that we
             // will merge (thus remove from the state) with the new hash.
             let mut new_roots_span = new_roots.span();
-            let mut h = 0;
             let mut to_add = *add;
 
             // This is similar to the vanilla algorithm
@@ -33,7 +32,6 @@ pub impl StumpUtreexoAccumulatorImpl of StumpUtreexoAccumulator {
                         to_add = parent_hash(*root, to_add);
                     }
                 }
-                h += 1;
 
                 let (q, r) = DivRem::div_rem(next_row_len, 2);
                 next_row_len = q;
