@@ -18,7 +18,10 @@
       1
     ]
   },
-  "leaves_to_del": [],
+  "leaves_to_del": [
+    0,
+    1
+  ],
   "leaves_to_add": [
     20,
     21,

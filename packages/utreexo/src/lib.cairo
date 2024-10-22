@@ -2,11 +2,15 @@ pub mod vanilla {
     pub mod state;
     pub mod proof;
     pub mod accumulator;
+    #[cfg(test)]
+    mod accumulator_tests;
 }
 pub mod stump {
     pub mod state;
     pub mod proof;
     pub mod accumulator;
+    #[cfg(test)]
+    mod accumulator_tests;
 }
 pub mod test;
 
