@@ -75,7 +75,7 @@ Try to run script validation with external Cairo crate.
 
 Tasks:
 
-* [ ] Integrate Shinigami-script
+* [x] Integrate Shinigami-script
 
 ### Milestone 4 - UTXO set verification
 
@@ -92,7 +92,7 @@ Tasks:
 * [x] implement Utreexo single output removal
 * [x] implement Utreexo bridge node that generates individual inclusion proofs
 * [x] implement script that runs the program e2e for a span of blocks
-* [ ] implement Utreexo accumulator version compatible with [rustreexo](https://github.com/mit-dci/rustreexo)
+* [x] implement Utreexo accumulator version compatible with [rustreexo](https://github.com/mit-dci/rustreexo)
 
 ### Milestone 5 - Full consensus validation
 

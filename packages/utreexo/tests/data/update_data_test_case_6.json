@@ -26,7 +26,13 @@
       14
     ]
   },
-  "leaves_to_del": [],
+  "leaves_to_del": [
+    0,
+    2,
+    7,
+    12,
+    14
+  ],
   "leaves_to_add": [
     0,
     1,

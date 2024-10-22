@@ -27,7 +27,12 @@
       7
     ]
   },
-  "leaves_to_del": [],
+  "leaves_to_del": [
+    4,
+    5,
+    6,
+    7
+  ],
   "leaves_to_add": [],
   "expected_state": {
     "roots": [
