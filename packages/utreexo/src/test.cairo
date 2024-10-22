@@ -15,7 +15,7 @@ struct Args {
 fn main(mut arguments: Span<felt252>, _flags: felt252) {
     let mut gas_before = get_available_gas();
 
-    let Args { mut state, proof, leaves_to_del, leaves_to_add: _, expected_state } =
+    let Args { mut state, proof, leaves_to_del, leaves_to_add, expected_state } =
         Serde::deserialize(
         ref arguments
     )
@@ -28,6 +28,8 @@ fn main(mut arguments: Span<felt252>, _flags: felt252) {
             panic!();
         }
     }
+
+    state = state.add(leaves_to_add.span());
 
     if state != expected_state {
         println!(

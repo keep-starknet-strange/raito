@@ -1,13 +1,49 @@
+use core::traits::DivRem;
 use crate::stump::state::UtreexoStumpState;
 use crate::stump::proof::{UtreexoBatchProof, UtreexoBatchProofTrait};
+use crate::parent_hash;
+
 
 #[generate_trait]
 pub impl StumpUtreexoAccumulatorImpl of StumpUtreexoAccumulator {
     /// Adds multiple items to the accumulator.
     fn add(self: @UtreexoStumpState, hashes: Span<felt252>) -> UtreexoStumpState {
-        // TODO: check if vanilla implementation is compatible with rustreexo, add tests
-        // https://github.com/mit-dci/rustreexo/blob/6a8fe53fa545df8f1a30733fa6ca9f7b0077d051/src/accumulator/stump.rs#L252
-        *self
+        let mut leaves = *self.num_leaves;
+
+        // This array will hold state of roots after adding new hashes
+        // IMPORTANT: This line copies all roots from the current state
+        // to the new array
+        let mut new_roots: Array<Option<felt252>> = (*self.roots).into();
+
+        for add in hashes {
+            // We will use new_roots_span to iterate over the roots that we
+            // will merge (thus remove from the state) with the new hash.
+            let mut new_roots_span = new_roots.span();
+            let mut to_add = *add;
+
+            // This is similar to the vanilla algorithm
+            let (mut next_row_len, mut has_root) = DivRem::div_rem(leaves, 2);
+            while has_root == 1 {
+                // Checks that new_roots_span is not empty
+                if let Option::Some(root) = new_roots_span.pop_back() {
+                    // Checks that root has value
+                    if let Option::Some(root) = root {
+                        // Merging with the hash
+                        to_add = parent_hash(*root, to_add);
+                    }
+                }
+
+                let (q, r) = DivRem::div_rem(next_row_len, 2);
+                next_row_len = q;
+                has_root = r;
+            };
+
+            new_roots = new_roots_span.into();
+            new_roots.append(Option::Some(to_add));
+            leaves += 1;
+        };
+
+        UtreexoStumpState { roots: new_roots.span(), num_leaves: leaves, }
     }
 
     /// Verifies that specified leaves are part of the utreexo forest given a proof.
