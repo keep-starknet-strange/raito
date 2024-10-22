@@ -83,15 +83,16 @@ Add inclusion proofs for the UTXOs included in the block.
 
 Tasks:
 
-* [ ] isolate unspendable outputs (OP_RETURN, etc)
-* [ ] implement cache for UTXOs spent in the same block they are created (*)
-* [ ] implement transaction outpoint hashing
-* [ ] implement Utreexo accumulator (addition)
-* [ ] Utreexo backend that maintains utxo set and Utreexo roots
-* [ ] implement Utreexo single inclusion proof verification
-* [ ] implement Utreexo single output removal
-* [ ] implement Utreexo bridge node that generates individual inclusion proofs
-* [ ] implement script that runs the program e2e for a span of blocks
+* [x] isolate unspendable outputs (OP_RETURN, etc)
+* [x] implement cache for UTXOs spent in the same block they are created (*)
+* [x] implement transaction outpoint hashing
+* [x] implement Utreexo accumulator (addition)
+* [x] Utreexo backend that maintains utxo set and Utreexo roots
+* [x] implement Utreexo single inclusion proof verification
+* [x] implement Utreexo single output removal
+* [x] implement Utreexo bridge node that generates individual inclusion proofs
+* [x] implement script that runs the program e2e for a span of blocks
+* [ ] implement Utreexo accumulator version compatible with [rustreexo](https://github.com/mit-dci/rustreexo)
 
 ### Milestone 5 - Full consensus validation
 
