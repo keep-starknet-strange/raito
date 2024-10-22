@@ -100,31 +100,26 @@ def hardcoded_timestamp_data(block_number):
             0: {
                 "block_number": "0",
                 "epoch_start_time": "1231006505",
-                "median_timestamp": "1231006505",
                 "previous_timestamps": [],
             },
             1: {
                 "block_number": "1",
                 "epoch_start_time": "1231469665",
-                "median_timestamp": "1231469665",
                 "previous_timestamps": ["1231006505"],
             },
             2: {
                 "block_number": "2",
                 "epoch_start_time": "1231469744",
-                "median_timestamp": "1231469744",
                 "previous_timestamps": ["1231006505", "1231469665"],
             },
             3: {
                 "block_number": "3",
                 "epoch_start_time": "1231470173",
-                "median_timestamp": "1231470173",
                 "previous_timestamps": ["1231006505", "1231469665", "1231469744"],
             },
             4: {
                 "block_number": "4",
                 "epoch_start_time": "1231470988",
-                "median_timestamp": "1231470988",
                 "previous_timestamps": [
                     "1231006505",
                     "1231469665",
@@ -135,7 +130,6 @@ def hardcoded_timestamp_data(block_number):
             5: {
                 "block_number": "5",
                 "epoch_start_time": "1231471428",
-                "median_timestamp": "1231471428",
                 "previous_timestamps": [
                     "1231006505",
                     "1231469665",
@@ -147,7 +141,6 @@ def hardcoded_timestamp_data(block_number):
             6: {
                 "block_number": "6",
                 "epoch_start_time": "1231471789",
-                "median_timestamp": "1231471789",
                 "previous_timestamps": [
                     "1231006505",
                     "1231469665",
@@ -160,7 +153,6 @@ def hardcoded_timestamp_data(block_number):
             7: {
                 "block_number": "7",
                 "epoch_start_time": "1231472369",
-                "median_timestamp": "1231472369",
                 "previous_timestamps": [
                     "1231006505",
                     "1231469665",
@@ -174,7 +166,6 @@ def hardcoded_timestamp_data(block_number):
             8: {
                 "block_number": "8",
                 "epoch_start_time": "1231472743",
-                "median_timestamp": "1231472743",
                 "previous_timestamps": [
                     "1231006505",
                     "1231469665",
@@ -189,7 +180,6 @@ def hardcoded_timestamp_data(block_number):
             9: {
                 "block_number": "9",
                 "epoch_start_time": "1231473279",
-                "median_timestamp": "1231473279",
                 "previous_timestamps": [
                     "1231006505",
                     "1231469665",
@@ -205,7 +195,6 @@ def hardcoded_timestamp_data(block_number):
             10: {
                 "block_number": "10",
                 "epoch_start_time": "1231473952",
-                "median_timestamp": "1231473952",
                 "previous_timestamps": [
                     "1231006505",
                     "1231469665",
