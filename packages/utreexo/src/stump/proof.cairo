@@ -5,7 +5,7 @@ use utils::{numeric::u64_next_power_of_two, sort::bubble_sort};
 
 /// Utreexo inclusion proof for multiple outputs.
 /// Compatible with https://github.com/utreexo/utreexo
-#[derive(Drop, Copy)]
+#[derive(Drop, Copy, Serde, Debug)]
 pub struct UtreexoBatchProof {
     /// List of sibling nodes required to calculate the roots.
     pub proof: Span<felt252>,
