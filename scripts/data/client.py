@@ -263,9 +263,16 @@ if __name__ == "__main__":
         choices=["sequential", "random"],
         help="Processing strategy",
     )
+    
+    parser.add_argument(
+        "--maxweight", type=int, default=MAX_WEIGHT_LIMIT, help="Max weight limit"
+    )
+    
     parser.add_argument("--verbose", action="store_true", help="Verbose")
 
     args = parser.parse_args()
+
+    MAX_WEIGHT_LIMIT=args.maxweight
 
     file_handler = logging.FileHandler("client.errors.log")
     file_handler.setLevel(logging.INFO)
