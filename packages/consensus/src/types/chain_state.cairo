@@ -65,7 +65,7 @@ pub impl BlockValidatorImpl of BlockValidator {
 
         let prev_block_time = *self.prev_timestamps[self.prev_timestamps.len() - 1];
 
-        // MTP of the _previous_ block  
+        // MTP of the _previous_ block
         let median_time_past = compute_median_time_past(self.prev_timestamps);
         let prev_timestamps = next_prev_timestamps(self.prev_timestamps, block.header.time);
 
