@@ -61,7 +61,7 @@ JOIN (
     join `bigquery-public-data.crypto_bitcoin.blocks` as bn_10 on (bn_09.number - 1) = bn_10.number
     join `bigquery-public-data.crypto_bitcoin.blocks` as bn_11 on (bn_10.number - 1) = bn_11.number
   )) as blocks
-  ON blocks.block_number = outputs.block_number
+  ON blocks.block_number + 1 = outputs.block_number
 -- WHERE inputs.block_number = 116928
 group by block_number
 order by block_number

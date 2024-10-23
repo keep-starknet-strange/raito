@@ -16,7 +16,7 @@ from format_args import format_args
 logger = logging.getLogger(__name__)
 
 # Constants
-MAX_WEIGHT_LIMIT = 1000  # Total weight limit for all jobs
+MAX_WEIGHT_LIMIT = 8000  # Total weight limit for all jobs
 THREAD_POOL_SIZE = os.cpu_count()  # Number of threads for processing
 QUEUE_MAX_SIZE = THREAD_POOL_SIZE * 2  # Maximum size of the job queue
 
@@ -58,7 +58,7 @@ def job_generator(start, blocks, step, mode, strategy):
     end = start + blocks
 
     height_range, step = (
-        (random.randrange(start, end), 1)
+        ([random.randint(start, end) for _ in range(start, end)], 1)
         if strategy == "random"
         else (range(start, end, step), step)
     )
