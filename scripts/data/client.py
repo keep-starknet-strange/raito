@@ -103,7 +103,7 @@ def process_batch(job):
         capture_output=True,
         text=True,
     )
-    
+
     if (
         result.returncode != 0
         or "FAIL" in result.stdout
@@ -113,13 +113,17 @@ def process_batch(job):
         error = result.stdout or result.stderr
         if result.returncode == -9:
             match = re.search(r"gas_spent=(\d+)", result.stdout)
-            gas_info = f", gas spent: {int(match.group(1))}" if match else ", no gas info found"
+            gas_info = (
+                f", gas spent: {int(match.group(1))}"
+                if match
+                else ", no gas info found"
+            )
             error = f"Return code -9, killed by OOM?{gas_info}"
             message = error
-        else:    
+        else:
             error_match = re.search(r"error='([^']*)'", error)
             message = error_match.group(1) if error_match else ""
-        
+
         logger.error(f"{job} error: {message}")
         logger.debug(f"Full error while processing: {job}:\n{error}")
     else:
