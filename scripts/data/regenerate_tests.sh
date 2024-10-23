@@ -51,6 +51,7 @@ full_test_cases=(
     116927  # Difficulty adjustment
     150012  # Small Block (150013)
     209999  # First halving block (210000)
+    255017  # Bug: Output is not mature (output height: 254918, current block height: 255018)
     403199  # Difficulty adjustment
     478557  # Bitcoin Cash hard fork block (478558)
     481823  # Segwit soft fork block (481824)
