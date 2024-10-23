@@ -103,22 +103,31 @@ def process_batch(job):
         capture_output=True,
         text=True,
     )
-
+    
     if (
         result.returncode != 0
         or "FAIL" in result.stdout
         or "error" in result.stdout
         or "panicked" in result.stdout
     ):
-        logger.error(
-            f"Error while processing: {job}:\n{result.stdout or result.stderr}"
-        )
+        error = result.stdout or result.stderr
+        if result.returncode == -9:
+            match = re.search(r"gas_spent=(\d+)", result.stdout)
+            gas_info = f", gas spent: {int(match.group(1))}" if match else ", no gas info found"
+            error = f"Return code -9, killed by OOM?{gas_info}"
+            message = error
+        else:    
+            error_match = re.search(r"error='([^']*)'", error)
+            message = error_match.group(1) if error_match else ""
+        
+        logger.error(f"{job} error: {message}")
+        logger.debug(f"Full error while processing: {job}:\n{error}")
     else:
         match = re.search(r"gas_spent=(\d+)", result.stdout)
+        gas_info = f"gas spent: {int(match.group(1))}" if match else "no gas info found"
+        logger.info(f"{job} done, {gas_info}")
         if not match:
-            logger.warning(f"While processing: {job}: not gas info found")
-        else:
-            logger.info(f"{job} processed, gas spent: {int(match.group(1))}")
+            logger.warning(f"{job}: not gas info found")
 
 
 # Producer function: Generates data and adds jobs to the queue
@@ -139,6 +148,9 @@ def job_producer(job_gen):
                 ):
                     logger.debug("Producer is waiting for weight to be released.")
                     weight_lock.wait()  # Wait for the condition to be met
+
+                if (current_weight + weight > MAX_WEIGHT_LIMIT) and current_weight == 0:
+                    logger.warning(f"{job} over the weight limit: {MAX_WEIGHT_LIMIT}")
 
                 # Add the job to the queue and update the weight
                 job_queue.put((job, weight))
