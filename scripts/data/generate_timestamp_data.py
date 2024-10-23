@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import json
 import os
@@ -90,8 +90,7 @@ def get_timestamp_data(block_number):
     if block_number <= 10:
         return hardcoded_timestamp_data(block_number)
     file_name = index_file_name(int(block_number) // INDEX_SIZE)
-    index = load_index(file_name)
-    return index
+    return load_index(file_name)[str(block_number)]
 
 
 def hardcoded_timestamp_data(block_number):

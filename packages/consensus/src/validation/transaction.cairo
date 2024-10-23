@@ -107,7 +107,7 @@ fn compute_transaction_fee(
 
 /// Ensure than coinbase output is old enough to be spent.
 fn validate_coinbase_maturity(output_height: u32, block_height: u32) -> Result<(), ByteArray> {
-    if block_height <= output_height + 100 {
+    if block_height < output_height + 100 {
         return Result::Err(
             format!(
                 "Output is not mature (output height: {}, current block height: {})",
@@ -542,7 +542,7 @@ mod tests {
     }
 
     #[test]
-    #[should_panic(expected: 'cached output was not cached')]
+    #[should_panic(expected: "cached output was not cached")]
     fn test_missed_cached_utxo() {
         let block_height = 150;
 
@@ -586,7 +586,7 @@ mod tests {
     }
 
     #[test]
-    #[should_panic(expected: 'non-cached output was cached')]
+    #[should_panic(expected: "non-cached output was cached")]
     fn test_wrongly_cached_utxo() {
         let block_height = 150;
 

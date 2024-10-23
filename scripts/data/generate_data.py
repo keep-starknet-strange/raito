@@ -1,18 +1,20 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import argparse
 import json
 import os
 import time
+import logging
 from decimal import Decimal, getcontext
 from pathlib import Path
 
 import requests
-from tqdm import tqdm
 
 from generate_timestamp_data import get_timestamp_data
 from generate_utreexo_data import UtreexoData
 from generate_utxo_data import get_utxo_set
+
+logger = logging.getLogger(__name__)
 
 getcontext().prec = 16
 
@@ -42,9 +44,9 @@ def request_rpc(method: str, params: list):
         try:
             res = requests.post(url, auth=auth, headers=headers, json=payload)
             return res.json()["result"]
-        except Exception:
+        except Exception as e:
             if attempt < RETRIES - 1:
-                f"Connection error: {res.text}, will retry in {DELAY}s"
+                logger.debug(f"Connection error: {e}, will retry in {DELAY}s")
                 time.sleep(DELAY)  # Wait before retrying
             else:
                 raise ConnectionError(
@@ -57,7 +59,7 @@ def fetch_chain_state_fast(block_height: int):
     block_hash = request_rpc("getblockhash", [block_height])
     head = request_rpc("getblockheader", [block_hash])
 
-    data = get_timestamp_data(block_height)[str(block_height)]
+    data = get_timestamp_data(block_height)
     head["prev_timestamps"] = [int(t) for t in data["previous_timestamps"]]
     if block_height < 2016:
         head["epoch_start_time"] = 1231006505
@@ -146,8 +148,7 @@ def fetch_block(block_hash: str, fast: bool):
     )
 
     block["data"] = {
-        tx["txid"]: resolve_transaction(tx, previous_outputs)
-        for tx in tqdm(block["tx"], "Resolving transactions")
+        tx["txid"]: resolve_transaction(tx, previous_outputs) for tx in block["tx"]
     }
     return block
 
@@ -320,12 +321,9 @@ def generate_data(
     :return: tuple (arguments, expected output)
     """
 
-    if fast:
-        print("Fetching initial chain state (fast)...")
-    else:
-        print("Fetching initial chain state...")
-
-    print(f"blocks: {initial_height} - {initial_height + num_blocks - 1}")
+    logger.debug(
+        f"Fetching initial chain state{' (fast)' if fast else ' '}, blocks: [{initial_height}, {initial_height + num_blocks - 1}]..."
+    )
 
     chain_state = (
         fetch_chain_state_fast(initial_height)
@@ -340,11 +338,7 @@ def generate_data(
     utreexo_data = {}
 
     for i in range(num_blocks):
-        print(
-            f"\rFetching block {initial_height + i + 1}/{initial_height + num_blocks}",
-            end="",
-            flush=True,
-        )
+        logger.debug(f"Fetching block {initial_height + i + 1} {i + 1}/{num_blocks}...")
 
         # Interblock cache
         tmp_utxo_set = {}
@@ -385,6 +379,8 @@ def generate_data(
         chain_state = next_chain_state(chain_state, block)
         next_block_hash = block["nextblockhash"]
 
+        logger.info(f"Fetched block {initial_height + i + 1} {i + 1}/{num_blocks}")
+
     block_formatter = (
         format_block if mode == "light" else format_block_with_transactions
     )
@@ -419,6 +415,17 @@ def str2bool(value):
 # Example: generate_data.py --mode 'full' --height 0 --num_blocks 10 --output_file full_0_10.json --fast
 # Example: generate_data.py --mode 'utreexo' --height 0 --num_blocks 10 --output_file utreexo_0_10.json --fast
 if __name__ == "__main__":
+
+    console_handler = logging.StreamHandler()
+    console_handler.setLevel(logging.DEBUG)
+    console_handler.setFormatter(
+        logging.Formatter("%(asctime)s - %(levelname)4.4s - %(message)s")
+    )
+    root_logger = logging.getLogger()
+    root_logger.addHandler(console_handler)
+    root_logger.setLevel(logging.DEBUG)
+
+    logging.getLogger("urllib3").setLevel(logging.WARNING)
 
     parser = argparse.ArgumentParser(description="Process UTXO files.")
     parser.add_argument(

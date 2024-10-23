@@ -65,7 +65,7 @@ mod tests {
         let expected_work = 0x0100010001;
         let target: u256 = 0x00000000ffff0000000000000000000000000000000000000000000000000000;
         let work = compute_work_from_target(target);
-        assert(expected_work == work, 'Failed to compute target');
+        assert!(expected_work == work, "Failed to compute target");
     }
 
     #[test]
@@ -73,7 +73,7 @@ mod tests {
         let expected_work = 0x26d946e509ac00026d;
         let target: u256 = 0x00000000000000000696f4000000000000000000000000000000000000000000;
         let work = compute_work_from_target(target);
-        assert(expected_work == work, 'Failed to compute target');
+        assert!(expected_work == work, "Failed to compute target");
     }
 
     #[test]
@@ -81,7 +81,7 @@ mod tests {
         let expected_work = 0xe10005c64415f04ef3e387b97db388404db9fdfaab2b1918f6783471d;
         let target: u256 = 0x12345600;
         let work = compute_work_from_target(target);
-        assert(expected_work == work, 'Failed to compute target');
+        assert!(expected_work == work, "Failed to compute target");
     }
 
     #[test]
@@ -89,7 +89,7 @@ mod tests {
         let expected_work = 0x1c040c95a099201bcaf85db4e7f2e21e18707c8d55a887643b95afb2f;
         let target: u256 = 0x92340000;
         let work = compute_work_from_target(target);
-        assert(expected_work == work, 'Failed to compute target');
+        assert!(expected_work == work, "Failed to compute target");
     }
 
     #[test]
@@ -97,6 +97,6 @@ mod tests {
         let expected_work = 0x21809b468faa88dbe34f;
         let target: u256 = 0x00000000000000000007a4290000000000000000000000000000000000000000;
         let work = compute_work_from_target(target);
-        assert(expected_work == work, 'Failed to compute target');
+        assert!(expected_work == work, "Failed to compute target");
     }
 }
