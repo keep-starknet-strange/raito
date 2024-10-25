@@ -298,7 +298,7 @@ if __name__ == "__main__":
         when="midnight",
         interval=1,
         backupCount=14,
-        encoding="utf8"
+        encoding="utf8",
     )
     file_handler.setLevel(logging.INFO)
     file_handler.setFormatter(
