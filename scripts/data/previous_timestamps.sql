@@ -5,11 +5,7 @@ EXPORT DATA OPTIONS(
 select
   block_number,
   epoch_start_time,
-  array(
-    select * from unnest(previous_timestamps) as timestamp order by timestamp asc
-  )[6] as median_timestamp,
   previous_timestamps,
-
 from (
   select
   bn___.number block_number,
@@ -41,5 +37,5 @@ from (
   join `bigquery-public-data.crypto_bitcoin.blocks` as bn_11 on (bn_10.number - 1) = bn_11.number
   join `bigquery-public-data.crypto_bitcoin.blocks` as epoch on div(bn___.number, 2016) * 2016 = epoch.number 
 )
--- where block_number = 169
-order by block_number; -- to make number of files smaller
+-- where block_number = 116928
+order by block_number;

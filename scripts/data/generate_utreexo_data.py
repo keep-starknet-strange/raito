@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import typing as t
 from collections import OrderedDict
 from utreexo import Utreexo

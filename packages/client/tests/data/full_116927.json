@@ -79,7 +79,7 @@
                     "cached": false
                   },
                   "block_height": 116857,
-                  "median_time_past": 1302006137,
+                  "median_time_past": 1302005866,
                   "is_coinbase": false
                 },
                 "witness": []
@@ -96,7 +96,7 @@
                     "cached": false
                   },
                   "block_height": 116823,
-                  "median_time_past": 1301992054,
+                  "median_time_past": 1301991525,
                   "is_coinbase": false
                 },
                 "witness": []
@@ -242,7 +242,7 @@
                     "cached": false
                   },
                   "block_height": 116927,
-                  "median_time_past": 1302032098,
+                  "median_time_past": 1302031602,
                   "is_coinbase": false
                 },
                 "witness": []
@@ -278,7 +278,7 @@
                     "cached": false
                   },
                   "block_height": 116926,
-                  "median_time_past": 1302031602,
+                  "median_time_past": 1302031124,
                   "is_coinbase": false
                 },
                 "witness": []
@@ -295,7 +295,7 @@
                     "cached": false
                   },
                   "block_height": 116926,
-                  "median_time_past": 1302031602,
+                  "median_time_past": 1302031124,
                   "is_coinbase": false
                 },
                 "witness": []
@@ -331,7 +331,7 @@
                     "cached": false
                   },
                   "block_height": 116911,
-                  "median_time_past": 1302027037,
+                  "median_time_past": 1302026761,
                   "is_coinbase": false
                 },
                 "witness": []
@@ -367,7 +367,7 @@
                     "cached": false
                   },
                   "block_height": 116918,
-                  "median_time_past": 1302028719,
+                  "median_time_past": 1302028349,
                   "is_coinbase": false
                 },
                 "witness": []
@@ -384,7 +384,7 @@
                     "cached": false
                   },
                   "block_height": 116921,
-                  "median_time_past": 1302030090,
+                  "median_time_past": 1302029182,
                   "is_coinbase": false
                 },
                 "witness": []
@@ -420,7 +420,7 @@
                     "cached": false
                   },
                   "block_height": 116917,
-                  "median_time_past": 1302028349,
+                  "median_time_past": 1302028283,
                   "is_coinbase": false
                 },
                 "witness": []
@@ -451,7 +451,7 @@
                     "cached": false
                   },
                   "block_height": 116927,
-                  "median_time_past": 1302032098,
+                  "median_time_past": 1302031602,
                   "is_coinbase": false
                 },
                 "witness": []
@@ -487,7 +487,7 @@
                     "cached": false
                   },
                   "block_height": 116927,
-                  "median_time_past": 1302032098,
+                  "median_time_past": 1302031602,
                   "is_coinbase": false
                 },
                 "witness": []
@@ -523,7 +523,7 @@
                     "cached": true
                   },
                   "block_height": 116928,
-                  "median_time_past": 1302032163,
+                  "median_time_past": 1302032098,
                   "is_coinbase": false
                 },
                 "witness": []

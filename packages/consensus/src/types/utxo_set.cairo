@@ -56,14 +56,14 @@ pub impl UtxoSetImpl of UtxoSetTrait {
         let status = self.cache.get(hash);
         if status == TX_OUTPUT_STATUS_NONE {
             // Extra check that can be removed later.
-            assert(!*outpoint.data.cached, 'cached output was not cached');
+            assert!(!*outpoint.data.cached, "cached output was not cached");
 
             self.cache.insert(hash, TX_OUTPUT_STATUS_SPENT);
             self.leaves_to_delete.append(hash);
             Result::Ok(())
         } else if status == TX_OUTPUT_STATUS_UNSPENT {
             // Extra check that can be removed later.
-            assert(*outpoint.data.cached, 'non-cached output was cached');
+            assert!(*outpoint.data.cached, "non-cached output was cached");
 
             self.cache.insert(hash, TX_OUTPUT_STATUS_SPENT);
             self.num_cached -= 1;

@@ -81,7 +81,7 @@ for test_file in "${test_files[@]}"; do
             echo " ignored"
             num_ignored=$((num_ignored + 1))
         else
-            arguments_file=".arguments-$(basename "$test_file")"
+            arguments_file="$(dirname "$test_file")/.arguments-$(basename "$test_file")"
             python ../../scripts/data/format_args.py --input_file ${test_file} $([[ $execute_scripts -eq 1 ]] && echo "--execute_script") > $arguments_file
             output=$(scarb cairo-run --no-build --function main --arguments-file $arguments_file)
             gas_spent=$(echo $output | grep -o 'gas_spent=[0-9]*' | sed 's/gas_spent=//')
