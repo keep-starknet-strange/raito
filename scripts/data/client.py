@@ -14,6 +14,8 @@ from pathlib import Path
 import random
 from generate_data import generate_data
 from format_args import format_args
+import logging
+from logging.handlers import TimedRotatingFileHandler
 
 logger = logging.getLogger(__name__)
 
@@ -290,7 +292,14 @@ if __name__ == "__main__":
 
     MAX_WEIGHT_LIMIT = args.maxweight
 
-    file_handler = logging.FileHandler("client.errors.log")
+    # file_handler = logging.FileHandler("client.log")
+    file_handler = TimedRotatingFileHandler(
+        filename="client.log",
+        when="midnight",
+        interval=1,
+        backupCount=14,
+        encoding="utf8"
+    )
     file_handler.setLevel(logging.INFO)
     file_handler.setFormatter(
         logging.Formatter("%(asctime)s - %(name)-10.10s - %(levelname)s - %(message)s")
