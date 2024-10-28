@@ -47,8 +47,7 @@ ignored_files=(
     "tests/data/full_478557.json", # Run panicked with [108217864776563 ('blocks'), ]. 
     "tests/data/full_57042.json",  # Run panicked with [108217864776563 ('blocks'), ]. 
     "tests/data/full_72575.json",  # Run panicked with [108217864776563 ('blocks'), ]. 
-    "tests/data/full_757752.json", # Run panicked with [108217864776563 ('blocks'), ]. 
-    "tests/data/utreexo_169.json", # Unexpected root (TODO: create issue)
+    "tests/data/full_757752.json", # Run panicked with [108217864776563 ('blocks'), ].
     # "tests/data/full_478557.json", #runs on server
 )
 
