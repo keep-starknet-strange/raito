@@ -21,6 +21,14 @@ fn main(mut arguments: Span<felt252>, _flags: felt252) {
     )
         .expect('Failed to deserialize');
 
+    match state.verify(@proof, leaves_to_del.span()) {
+        Result::Ok(_) => {},
+        Result::Err(err) => {
+            println!("FAIL: gas_spent={} error='{:?}'", gas_before - get_available_gas(), err);
+            panic!();
+        }
+    }
+
     match state.verify_and_delete(@proof, leaves_to_del.span()) {
         Result::Ok(new_state) => { state = new_state; },
         Result::Err(err) => {

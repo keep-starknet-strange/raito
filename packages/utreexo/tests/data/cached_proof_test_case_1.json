@@ -20,7 +20,11 @@
       4
     ]
   },
-  "leaves_to_del": [],
+  "leaves_to_del": [
+    0,
+    1,
+    4
+  ],
   "leaves_to_add": [
     8
   ],
