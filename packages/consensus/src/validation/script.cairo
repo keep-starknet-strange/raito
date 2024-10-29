@@ -1,7 +1,7 @@
 use shinigami_engine::engine::EngineTrait;
 use shinigami_engine::engine::EngineImpl;
 use shinigami_engine::hash_cache::HashCacheImpl;
-use shinigami_engine::scriptflags::ScriptFlags;
+use shinigami_engine::flags::ScriptFlags;
 use shinigami_engine::transaction::{
     EngineTransactionInputTrait, EngineTransactionOutputTrait, EngineTransactionTrait
 };

@@ -28,29 +28,19 @@ version = "0.1.0"
 source = "git+https://github.com/j1mbo64/sha1_cairo.git#2b65bc00a829bdcc244c140d0f31feda32f8d2c4"
 
 [[package]]
-name = "shinigami_compiler"
-version = "0.1.0"
-source = "git+https://github.com/keep-starknet-strange/shinigami.git?rev=9e7692d#9e7692d34fb2ff7e862488b0921ba6c72de8602f"
-dependencies = [
- "shinigami_engine",
- "shinigami_utils",
-]
-
-[[package]]
 name = "shinigami_engine"
 version = "0.1.0"
-source = "git+https://github.com/keep-starknet-strange/shinigami.git?rev=9e7692d#9e7692d34fb2ff7e862488b0921ba6c72de8602f"
+source = "git+https://github.com/keep-starknet-strange/shinigami.git?rev=3415ed6#3415ed6331d3ea2dc2de6f9ab8e0be6562585f2d"
 dependencies = [
  "ripemd160",
  "sha1",
- "shinigami_compiler",
  "shinigami_utils",
 ]
 
 [[package]]
 name = "shinigami_utils"
 version = "0.1.0"
-source = "git+https://github.com/keep-starknet-strange/shinigami.git?rev=9e7692d#9e7692d34fb2ff7e862488b0921ba6c72de8602f"
+source = "git+https://github.com/keep-starknet-strange/shinigami.git?rev=3415ed6#3415ed6331d3ea2dc2de6f9ab8e0be6562585f2d"
 
 [[package]]
 name = "utils"
