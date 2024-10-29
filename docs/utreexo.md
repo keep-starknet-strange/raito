@@ -64,6 +64,8 @@ Batch inclusion proofs were introduced in the Utreexo paper (see Appendix) and t
   <img src="./img/utreexo_proof.svg" alt=""/>
 </p>
 
+As can be seen from the illustration, the batch proof can be much more compact because more intermediate nodes can be calculated rather than be provided.
+
 Implementation wise there are several things you should note:
 - Proof nodes are in the exact order you need them to verify proof/delete leaves
 - Leaf nodes might edge in (since they are not necessarily in the bottom most row), so on every step you should pick one of {leaf, proof, computed} nodes
