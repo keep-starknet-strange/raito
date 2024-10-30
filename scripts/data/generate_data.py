@@ -295,10 +295,10 @@ def next_chain_state(current_state: dict, new_block: dict) -> dict:
     """Computes the next chain state given the current state and a new block."""
     next_state = new_block.copy()
 
-    # Update prev_timestamps
-    next_state["prev_timestamps"] = current_state["prev_timestamps"][1:] + [
-        new_block["time"]
-    ]
+    # We need to recalculate the prev_timestamps field given the previous chain state
+    # and all the blocks we applied to it
+    prev_timestamps = current_state["prev_timestamps"] + [new_block["time"]]
+    next_state["prev_timestamps"] = prev_timestamps[-11:]
 
     # Update epoch start time
     if new_block["height"] % 2016 == 0:
