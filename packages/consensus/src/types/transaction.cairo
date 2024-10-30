@@ -221,8 +221,8 @@ impl TxOutDisplay of Display<TxOut> {
 
 #[cfg(test)]
 mod tests {
-    use super::{OutPoint, OutPointTrait, TxOut, HashStateTrait, HashStateExTrait};
-    use utils::hash::{DigestTrait};
+    use super::{OutPoint, TxOut, HashStateTrait, HashStateExTrait, OutPointTrait};
+    use utils::hex::{hex_to_hash_rev, from_hex};
     use core::poseidon::PoseidonTrait;
 
     fn hash(tx: @TxOut) -> felt252 {
@@ -256,24 +256,64 @@ mod tests {
         assert_ne!(hash(@tx1), hash(@tx_with_value_changed));
     }
 
+    #[derive(Debug, Drop, Default)]
+    pub struct HashState {
+        pub value: Array<felt252>
+    }
+
+    impl HashStateImpl of HashStateTrait<HashState> {
+        fn update(self: HashState, value: felt252) -> HashState {
+            let mut new_value = self.value;
+            new_value.append(value);
+            HashState { value: new_value }
+        }
+
+        fn finalize(self: HashState) -> felt252 {
+            0
+        }
+    }
+
     #[test]
     pub fn test_outpoint_poseidon_hash() {
-        let mut test_outpoint = OutPoint {
-            txid: DigestTrait::new([1, 2, 3, 4, 5, 6, 7, 8]),
-            vout: 2,
-            // https://learnmeabitcoin.com/explorer/tx/0437cd7f8525ceed2324359c2d0ba26006d92d856a9c20fa0241106ee5a597c9#output-0
+        let mut coinbase_9_utxo = OutPoint {
+            txid: hex_to_hash_rev(
+                "0437cd7f8525ceed2324359c2d0ba26006d92d856a9c20fa0241106ee5a597c9"
+            ),
+            vout: 0,
             data: TxOut {
-                value: 50_u64,
-                pk_script: @"410411db93e1dcdb8a016b49840f8c53bc1eb68a382e97b1482ecad7b148a6909a5cb2e0eaddfb84ccf9744464f82e160bfa9b8b64f9d4c03f999b8643f656b412a3ac",
+                value: 5000000000,
+                pk_script: @from_hex(
+                    "410411db93e1dcdb8a016b49840f8c53bc1eb68a382e97b1482ecad7b148a6909a5cb2e0eaddfb84ccf9744464f82e160bfa9b8b64f9d4c03f999b8643f656b412a3ac"
+                ),
                 cached: false,
             },
             block_height: 9,
-            median_time_past: 1650000000,
-            is_coinbase: false,
+            median_time_past: 1231470988,
+            is_coinbase: true,
         };
+
+        let mut state: HashState = Default::default();
+        state = state.update_with(coinbase_9_utxo);
+
+        let expected: Array<felt252> = array![
+            5606656307511680658662848977137541728,
+            9103019671783490751638296454939121609,
+            0,
+            5000000000,
+            2,
+            114873147639302600539941532864842037771792291166958548649371950632810924198,
+            255491345418700057264349667014908841246825595399329019948869966327385048054,
+            372388307884,
+            5,
+            9,
+            1231470988,
+            1
+        ];
+        assert_eq!(expected, state.value);
+
+        let hash = coinbase_9_utxo.hash();
         assert_eq!(
-            test_outpoint.hash(),
-            3426256427357770988835517595549266311441229240020614569376880225204214993534
+            761592244424273723796345514960638980240531938129162865626185984897576522513, hash
         );
     }
 }

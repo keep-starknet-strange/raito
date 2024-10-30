@@ -208,12 +208,17 @@ def resolve_outpoint(input: dict):
     """
     tx = request_rpc("getrawtransaction", [input["txid"], True])
     block = request_rpc("getblockheader", [tx["blockhash"]])
+    # Time-based relative lock-times are measured from the
+    # smallest allowed timestamp of the block containing the
+    # txout being spent, which is the median time past of the
+    # block prior.
+    prev_block = request_rpc("getblockheader", [block["previousblockhash"]])
     return {
         "txid": input["txid"],
         "vout": input["vout"],
         "data": format_output(tx["vout"][input["vout"]]),
         "block_height": block["height"],
-        "median_time_past": block["mediantime"],
+        "median_time_past": prev_block["mediantime"],
         "is_coinbase": tx["vin"][0].get("coinbase") is not None,
     }
 
@@ -290,10 +295,10 @@ def next_chain_state(current_state: dict, new_block: dict) -> dict:
     """Computes the next chain state given the current state and a new block."""
     next_state = new_block.copy()
 
-    # Update prev_timestamps
-    next_state["prev_timestamps"] = current_state["prev_timestamps"][1:] + [
-        new_block["time"]
-    ]
+    # We need to recalculate the prev_timestamps field given the previous chain state
+    # and all the blocks we applied to it
+    prev_timestamps = current_state["prev_timestamps"] + [new_block["time"]]
+    next_state["prev_timestamps"] = prev_timestamps[-11:]
 
     # Update epoch start time
     if new_block["height"] % 2016 == 0:
@@ -392,7 +397,9 @@ def generate_data(
 
     if mode == "utreexo":
         utreexo_data = UtreexoData()
-        result["utreexo"] = utreexo_data.apply_blocks(blocks)
+        result["utreexo"] = utreexo_data.apply_blocks(
+            blocks, int(chain_state["mediantime"])
+        )
         result["blocks"] = [result["blocks"][-1]]
         if num_blocks > 1:
             result["chain_state"] = format_chain_state(prev_chain_state)

@@ -47,10 +47,7 @@ class TxOut:
             pending_word = 0
             pending_word_len = 0
 
-        # Check if there's still a word pending
-        if pending_word_len > 0:
-            sub_data.append(pending_word)
-
+        sub_data.append(pending_word)
         sub_data.append(pending_word_len)
 
         return sub_data
@@ -61,7 +58,8 @@ class TxOut:
         sub_data = self._calculate_sub_data()
 
         res["value"] = self.value
-        res["sub_data_len"] = len(sub_data)
+        # length of the array containing full words
+        res["sub_data_len"] = len(sub_data) - 2
 
         for idx, word in enumerate(sub_data):
             res["sub_data_{}".format(idx)] = word
@@ -98,7 +96,7 @@ class OutPoint:
         tab.append(self.vout)
 
         # prev output
-        for e in self.data.serialize():
+        for _, e in self.data.serialize().items():
             tab.append(e)
 
         tab.append(self.block_height)
@@ -129,7 +127,7 @@ class UtreexoData:
             "roots": list(map(format_root_node, self.utreexo.root_nodes)),
         }
 
-    def apply_blocks(self, blocks: list) -> dict:
+    def apply_blocks(self, blocks: list, prev_mtp: int) -> dict:
         state = {}
         proofs = []
         for block_idx, block in enumerate(blocks):
@@ -150,10 +148,12 @@ class UtreexoData:
                 self.handle_txout(
                     tx["outputs"],
                     block["height"],
-                    block["mediantime"],
+                    prev_mtp,
                     txid,
                     i == 0,
                 )
+            prev_mtp = block["mediantime"]
+
         return {"state": state, "proofs": proofs, "expected": self.snapshot_state()}
 
     def handle_txin(self, inputs: list) -> list:

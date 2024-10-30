@@ -76,13 +76,7 @@ pub impl UtxoSetImpl of UtxoSetTrait {
     fn finalize(ref self: UtxoSet) -> Result<(), ByteArray> {
         if self.num_cached != 0 {
             Result::Err("There are unprocessed cached outputs")
-        } // TODO: uncomment when utreexo is enabled
-        // else if self.leaves_to_add.len() != 0 {
-        //     Result::Err("There are unprocessed leaves to add")
-        // } else if self.leaves_to_delete.len() != 0 {
-        //     Result::Err("There are unprocessed leaves to delete")
-        // }
-        else {
+        } else {
             Result::Ok(())
         }
     }
@@ -210,7 +204,7 @@ mod tests {
                 cached: false
             },
             block_height: 9,
-            median_time_past: 1231473279,
+            median_time_past: 1231470988,
             is_coinbase: true
         }
     }
@@ -220,7 +214,8 @@ mod tests {
     fn test_poseidon1() {
         let outpoint: OutPoint = get_outpoint();
         let outpoint_hash = PoseidonTrait::new().update_with(outpoint).finalize();
-        let expected: felt252 = 0x3945D2584EE5EF0B482B70CD63E0E8CD18827CB348F839D1E6EB8ECBB2B397D;
+        let expected: felt252 =
+            761592244424273723796345514960638980240531938129162865626185984897576522513;
         assert_eq!(outpoint_hash, expected);
     }
 }
