@@ -258,7 +258,7 @@ mod tests {
     #[test]
     fn test_absolute_locktime_block_height() {
         let tx = Transaction {
-            version: 1,
+            version: 2,
             is_segwit: false,
             inputs: array![
                 TxIn {
@@ -312,7 +312,7 @@ mod tests {
     #[test]
     fn test_absolute_locktime_block_time() {
         let tx = Transaction {
-            version: 1,
+            version: 2,
             is_segwit: false,
             inputs: array![
                 TxIn {
