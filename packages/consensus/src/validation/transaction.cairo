@@ -48,7 +48,7 @@ pub fn validate_transaction(
                 }
             }
 
-            if !is_input_final(*input.sequence) {
+            if *tx.version >= 2 && !is_input_final(*input.sequence) {
                 inner_result = validate_relative_locktime(input, block_height, median_time_past);
                 if inner_result.is_err() {
                     break;
