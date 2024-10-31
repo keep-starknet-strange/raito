@@ -14,7 +14,12 @@ const MAX_SCRIPT_SIZE: u32 = 10000;
 ///
 /// This does not include script checks and outpoint inclusion verification.
 pub fn validate_transaction(
-    tx: @Transaction, block_height: u32, block_time: u32, median_time_past: u32, txid: Digest, ref utxo_set: UtxoSet
+    tx: @Transaction,
+    block_height: u32,
+    block_time: u32,
+    median_time_past: u32,
+    txid: Digest,
+    ref utxo_set: UtxoSet
 ) -> Result<u64, ByteArray> {
     if (*tx.inputs).is_empty() {
         return Result::Err("transaction inputs are empty");
