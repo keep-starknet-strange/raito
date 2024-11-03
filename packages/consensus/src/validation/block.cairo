@@ -73,7 +73,7 @@ pub fn compute_and_validate_tx_data(
             if (is_coinbase_txid_duplicated(txid, block_height)) {
                 continue;
             }
-            
+
             let mut vout = 0;
             for output in *tx
                 .outputs {

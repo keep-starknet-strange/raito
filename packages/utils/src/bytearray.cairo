@@ -25,7 +25,7 @@ pub impl ByteArraySnapHash<S, +HashStateTrait<S>, +Drop<S>> of Hash<@ByteArray, 
         for felt in serialized_bytearray {
             state = state.update(felt);
         };
-        
+
         state
     }
 }

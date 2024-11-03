@@ -37,6 +37,6 @@ pub fn bubble_sort<T, +Copy<T>, +Drop<T>, +PartialOrd<T>>(mut array: Span<T>) ->
             }
         };
     };
-    
+
     sorted_array
 }

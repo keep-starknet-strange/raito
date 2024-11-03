@@ -68,10 +68,10 @@ pub fn fast_pow<
 ///
 /// # Arguments
 /// * `exponent` - The exponent to raise 2 to
-/// 
+///
 /// # Returns
 /// * `u64` - The result of 2^exponent
-/// 
+///
 /// # Panics
 /// * If `exponent` is greater than 63 (out of the supported range)
 pub fn pow2(exponent: u32) -> u64 {

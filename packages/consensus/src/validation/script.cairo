@@ -198,6 +198,6 @@ pub fn validate_scripts(header: @Header, txs: Span<Transaction>) -> Result<(), B
         }
         i += 1;
     };
-    
+
     r
 }

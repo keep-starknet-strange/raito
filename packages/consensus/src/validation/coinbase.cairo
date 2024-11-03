@@ -341,7 +341,7 @@ mod tests {
             },
             witness: array![].span(),
         };
-        
+
         validate_coinbase_input(@input, 1).unwrap_err();
     }
 

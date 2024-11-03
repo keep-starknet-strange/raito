@@ -102,7 +102,7 @@ fn compute_transaction_fee(
             format!("Negative fee (output {total_output_amount} > input {total_input_amount})")
         );
     }
-    
+
     Result::Ok(total_input_amount - total_output_amount)
 }
 

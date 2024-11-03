@@ -51,7 +51,8 @@ pub fn validate_timestamp(median_time_past: u32, block_time: u32) -> Result<(), 
     }
 }
 
-/// Updates the list of the recent timestamps, removing the oldest and appending the most recent one.
+/// Updates the list of the recent timestamps, removing the oldest and appending the most recent
+/// one.
 pub fn next_prev_timestamps(prev_timestamps: Span<u32>, block_time: u32) -> Span<u32> {
     let mut timestamps: Array<u32> = prev_timestamps.into();
     timestamps.pop_front().unwrap(); // Remove the oldest timestamp (not necessarily the min)

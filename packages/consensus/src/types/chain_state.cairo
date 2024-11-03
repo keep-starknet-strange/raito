@@ -136,7 +136,6 @@ impl ChainStateDisplay of Display<ChainState> {
         Result::Ok(())
     }
 }
-
 // TODO: implement Digest trait for ChainState
 
 
