@@ -50,7 +50,7 @@ pub fn compute_sha256_u32_array(
 /// 1. Append a single bit with value 1 to the end of the array.
 /// 2. Append zeros until the length of the array is 448 mod 512.
 /// 3. Append the length of the array in bits as a 64-bit number.
-/// use last_input_word when the number of bytes in the last input word is less than 4.
+/// Use last_input_word when the number of bytes in the last input word is less than 4.
 fn add_sha256_padding(ref arr: Array<u32>, last_input_word: u32, last_input_num_bytes: u32) {
     let len = arr.len();
     if last_input_num_bytes == 0 {
@@ -344,9 +344,9 @@ const k: [
 
 #[cfg(test)]
 mod tests {
-    use super::compute_sha256_byte_array;
     use crate::hash::DigestTrait;
     use crate::hex::from_hex;
+    use super::compute_sha256_byte_array;
 
     #[test]
     fn test_cairo_sha256() {
@@ -364,7 +364,7 @@ mod tests {
             digest.into()
         );
 
-        // Following tests have been inspired by the test suite
+        // Following tests have been inspired by the following test suite:
         // https://github.com/SystemsCyber/CAN-Logger-3/blob/master/tests/sha256-test/sha256-test.ino
         let input: ByteArray = "abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq";
         let digest = DigestTrait::new(compute_sha256_byte_array(@input));

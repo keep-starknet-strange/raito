@@ -1,3 +1,10 @@
+pub mod codec;
+pub mod types {
+    pub mod chain_state;
+    pub mod block;
+    pub mod transaction;
+    pub mod utxo_set;
+}
 pub mod validation {
     pub mod difficulty;
     pub mod coinbase;
@@ -7,11 +14,4 @@ pub mod validation {
     pub mod transaction;
     pub mod work;
     pub mod block;
-}
-pub mod codec;
-pub mod types {
-    pub mod chain_state;
-    pub mod block;
-    pub mod transaction;
-    pub mod utxo_set;
 }

@@ -2,7 +2,7 @@
 
 use super::{double_sha256::double_sha256_parent, hash::Digest};
 
-/// Calculate Merkle tree root given the array of leaves.
+/// Calculates Merkle tree root given the array of leaves.
 pub fn merkle_root(hashes: Span<Digest>) -> Digest {
     let len = hashes.len();
 

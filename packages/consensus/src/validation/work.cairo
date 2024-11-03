@@ -2,14 +2,14 @@
 
 use utils::hash::Digest;
 
-/// Check if the work done (by calculating the block hash) satisfies the difficulty target.
+/// Checks if the work done (by calculating the block hash) satisfies the difficulty target.
 pub fn validate_proof_of_work(target: u256, block_hash: Digest) -> Result<(), ByteArray> {
     if block_hash.into() <= target {
         Result::Ok(())
     } else {
         Result::Err(
             format!(
-                "Insufficient proof of work. Expected block hash {:?} to be less than or equal to {}.",
+                "Insufficient proof of work. Expected block hash {:?} to be less than or equal to {}",
                 block_hash,
                 target
             )
@@ -17,11 +17,12 @@ pub fn validate_proof_of_work(target: u256, block_hash: Digest) -> Result<(), By
     }
 }
 
-/// Compute total chain work based on the previous value and current difficulty target.
+/// Computes total chain work based on the previous value and current difficulty target.
 pub fn compute_total_work(current_total_work: u256, target: u256) -> u256 {
     current_total_work + compute_work_from_target(target)
 }
 
+/// Computes the chain work given a target.
 // Need to compute 2**256 / (target+1), but we can't represent 2**256
 // as it's too large for an u256. However, as 2**256 is at least as large
 // as target+1, it is equal to ((2**256 - target - 1) / (target+1)) + 1,
@@ -36,23 +37,23 @@ mod tests {
 
     #[test]
     fn test_validate_proof_of_work() {
-        // target is less than prev block hash
+        // Target is less than prev block hash
         let result = validate_proof_of_work(0, 1_u256.into());
         assert!(result.is_err(), "Expect target less than prev block hash");
 
-        // target is greater than prev block hash
+        // Target is greater than prev block hash
         let result = validate_proof_of_work(2, 1_u256.into());
         assert!(result.is_ok(), "Expect target gt prev block hash");
 
-        // target is equal to prev block hash
+        // Target is equal to prev block hash
         let result = validate_proof_of_work(1, 1_u256.into());
         assert!(result.is_ok(), "Expect target equal to prev block hash");
 
-        // block prev block hash is greater than target
+        // Block prev block hash is greater than target
         let result = validate_proof_of_work(1, 2_u256.into());
         assert!(result.is_err(), "Expect prev block hash gt target");
 
-        // block prev block hash is less than target
+        // Block prev block hash is less than target
         let result = validate_proof_of_work(
             0x00000000ffff0000000000000000000000000000000000000000000000000000_u256,
             0x000000002a22cfee1f2c846adbd12b3e183d4f97683f85dad08a79780a84bd55_u256.into()

@@ -1,32 +1,32 @@
+use core::serde::Serde;
+use core::testing::get_available_gas;
 use consensus::types::block::Block;
 use consensus::types::chain_state::{ChainState, BlockValidatorImpl};
 use consensus::types::utxo_set::{UtxoSet, UtxoSetTrait};
 use utreexo::vanilla::state::{UtreexoState, UtreexoStateTrait};
 use utreexo::vanilla::proof::UtreexoProof;
-use core::testing::get_available_gas;
-use core::serde::Serde;
 
 /// Integration testing program arguments.
 #[derive(Drop)]
 struct Args {
-    /// Current (initial) chain state
+    /// Current (initial) chain state.
     chain_state: ChainState,
-    /// Batch of blocks that have to be applied to the current chain state
+    /// Batch of blocks that have to be applied to the current chain state.
     blocks: Array<Block>,
-    /// Expected chain state (that we want to compare the result with)
+    /// Expected chain state (that we want to compare the result with).
     expected_chain_state: ChainState,
-    /// Optional Utreexo arguments
+    /// Optional Utreexo arguments.
     utreexo_args: Option<UtreexoArgs>,
 }
 
-/// Utreexo arguments necessary for constraining the UTXO set
+/// Utreexo arguments necessary for constraining the UTXO set.
 #[derive(Drop, Serde)]
 struct UtreexoArgs {
-    /// Current (initial) accumulator state
+    /// Current (initial) accumulator state.
     state: UtreexoState,
-    /// Inclusion proofs for TXOs spent during program run
+    /// Inclusion proofs for TXOs spent during program run.
     proofs: Array<UtreexoProof>,
-    /// Expected accumulator state at the end of the execution
+    /// Expected accumulator state at the end of the execution.
     expected_state: UtreexoState,
 }
 
@@ -98,7 +98,7 @@ pub(crate) fn main(mut arguments: Span<felt252>, execute_script: bool) {
 }
 
 /// Workaround for handling missing `utreexo_args` field.
-/// Rough analogue of `#[serde(default)]`
+/// Rough analogue of `#[serde(default)]`.
 impl ArgsSerde of Serde<Args> {
     fn serialize(self: @Args, ref output: Array<felt252>) {
         panic!("not implemented");

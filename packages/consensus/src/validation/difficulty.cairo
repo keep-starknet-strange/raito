@@ -17,7 +17,7 @@ const MIN_EPOCH_TIMESPAN: u32 = 302400;
 /// EXPECTED_EPOCH_TIMESPAN * 4
 const MAX_EPOCH_TIMESPAN: u32 = 4838400;
 
-/// Check if the given bits match the target difficulty.
+/// Checks if the given bits match the target difficulty.
 pub fn validate_bits(target: u256, bits: u32) -> Result<(), ByteArray> {
     if bits_to_target(bits)? == target {
         Result::Ok(())
@@ -32,7 +32,6 @@ pub fn validate_bits(target: u256, bits: u32) -> Result<(), ByteArray> {
 /// Actual block time is needed to calculate the new epoch start time.
 /// Returns new difficulty target and new epoch start time.
 pub fn adjust_difficulty(
-    /// TODO: Split this function into smaller functions
     current_target: u256,
     epoch_start_time: u32,
     block_height: u32,
@@ -74,6 +73,7 @@ fn reduce_target_precision(target: u256) -> u256 {
         num /= 256;
         size += 1;
     };
+
     // Extract 3 most significant bytes and round down
     if size > 2 {
         let factor = fast_pow(256, size - 3);
@@ -89,7 +89,7 @@ fn reduce_target_precision(target: u256) -> u256 {
     }
 }
 
-/// Converts difficulty target the compact form (bits) to a big integer.
+/// Converts the difficulty target compact form (bits) to a big integer.
 fn bits_to_target(bits: u32) -> Result<u256, ByteArray> {
     // Extract exponent and mantissa
     let (exponent, mantissa) = core::traits::DivRem::div_rem(bits, 0x1000000);
@@ -135,11 +135,11 @@ fn bits_to_target(bits: u32) -> Result<u256, ByteArray> {
                 u256 { low: (mantissa.into() * 0x100000000000000000000000000), high: 0 }
             );
         },
-        // here we don't know
+        // Here we don't know
         17 => { return Result::Ok(mantissa.into() * 0x10000000000000000000000000000); },
         18 => { return Result::Ok(mantissa.into() * 0x1000000000000000000000000000000); },
         19 => { return Result::Ok(mantissa.into() * 0x100000000000000000000000000000000); },
-        // here it's only a high
+        // Here it's only a high
         20 => { return Result::Ok(u256 { low: 0, high: mantissa.into() * 0x100 }); },
         21 => { return Result::Ok(u256 { low: 0, high: mantissa.into() * 0x10000 }); },
         22 => { return Result::Ok(u256 { low: 0, high: mantissa.into() * 0x1000000 }); },
@@ -151,11 +151,11 @@ fn bits_to_target(bits: u32) -> Result<u256, ByteArray> {
         28 => {
             return Result::Ok(u256 { low: 0, high: mantissa.into() * 0x1000000000000000000 });
         },
-        // because 0x7FFFFF * 2**(8 * (28 - 3)) < MAX_TARGET, for these two elements we have to
+        // Because 0x7FFFFF * 2**(8 * (28 - 3)) < MAX_TARGET, for these two elements we have to
         // check the target
         29 => u256 { low: 0, high: mantissa.into() * 0x100000000000000000000 },
         30 => u256 { low: 0, high: mantissa.into() * 0x10000000000000000000000 },
-        // because 2^(8 * (31 - 3)) > MAX_TARGET
+        // Because 2^(8 * (31 - 3)) > MAX_TARGET
         31 => { return Result::Err("Target exceeds maximum value"); },
         32 => { return Result::Err("Target exceeds maximum value"); },
         _ => { return Result::Err("Target size cannot exceed 32 bytes"); },
@@ -174,13 +174,13 @@ mod tests {
 
     #[test]
     fn test_adjust_difficulty_block_2016_no_retargeting() {
-        // chainstate before block 2016
+        // Chainstate before block 2016
         let current_target: u256 =
             0x00000000ffff0000000000000000000000000000000000000000000000000000_u256;
         let epoch_start_time: u32 = 1231006505;
         let prev_block_time: u32 = 1233061996;
 
-        // block 2016
+        // Block 2016
         let block_time: u32 = 1233063531;
         let block_height: u32 = 2016;
 
@@ -196,13 +196,13 @@ mod tests {
 
     #[test]
     fn test_adjust_difficulty_block_2017_no_retargeting_no_new_epoch() {
-        // chainstate before block 2017
+        // Chainstate before block 2017
         let current_target: u256 =
             0x00000000ffff0000000000000000000000000000000000000000000000000000_u256;
         let epoch_start_time: u32 = 1233063531;
         let prev_block_time: u32 = 1233063531;
 
-        // block 2017
+        // Block 2017
         let block_time: u32 = 1233064909;
         let block_height: u32 = 2017;
 
@@ -218,13 +218,13 @@ mod tests {
 
     #[test]
     fn test_adjust_difficulty_block_32256_decrease() {
-        // chainstate before block 32256
+        // Chainstate before block 32256
         let current_target: u256 =
             0x00000000ffff0000000000000000000000000000000000000000000000000000_u256;
         let epoch_start_time: u32 = 1261130161;
         let prev_block_time: u32 = 1262152739;
 
-        // block 32256
+        // Block 32256
         let block_time: u32 = 1262153464;
         let block_height: u32 = 32256;
 
@@ -240,13 +240,13 @@ mod tests {
 
     #[test]
     fn test_adjust_difficulty_block_56448_increase() {
-        // chainstate before block 56448
+        // Chainstate before block 56448
         let current_target: u256 =
             0x0000000013ec5300000000000000000000000000000000000000000000000000_u256;
         let epoch_start_time: u32 = 1272966376;
         let prev_block_time: u32 = 1274278387;
 
-        // block 56448
+        // Block 56448
         let block_time: u32 = 1274278435;
         let block_height: u32 = 56448;
 

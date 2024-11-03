@@ -3,10 +3,10 @@
 //! Types are extended with extra information required for validation.
 //! The data is expected to be prepared in advance and passed as program arguments.
 
-use utils::{hash::Digest, bytearray::{ByteArraySnapHash, ByteArraySnapSerde}};
 use core::fmt::{Display, Formatter, Error};
 use core::hash::{HashStateTrait, HashStateExTrait, Hash};
 use core::poseidon::PoseidonTrait;
+use utils::{hash::Digest, bytearray::{ByteArraySnapHash, ByteArraySnapSerde}};
 
 /// Represents a transaction.
 /// https://learnmeabitcoin.com/technical/transaction/
@@ -44,7 +44,7 @@ pub struct TxIn {
     pub previous_output: OutPoint,
     /// The witness data for transactions.
     /// A list of items (of different size) pushed onto stack before sig script execution.
-    /// Can be empty if this particular inputs spends a non-segwit output.
+    /// Can be empty if this particular input spends a non-segwit output.
     /// NOTE that this field actually belongs to the transaction, but we store it in the input for
     /// convenience.
     pub witness: Span<ByteArray>,
@@ -90,7 +90,7 @@ pub struct OutPoint {
     pub data: TxOut,
     /// The height of the block that contains this output (meta field).
     /// Used to validate coinbase tx spending (not sooner than 100 blocks) and relative timelocks
-    /// (it has been more than X block since the transaction containing this output was mined).
+    /// (it has been more than X blocks since the transaction containing this output was mined).
     pub block_height: u32,
     /// The median time past of the block that contains this output (meta field).
     /// This is the median timestamp of the previous 11 blocks.
@@ -98,9 +98,7 @@ pub struct OutPoint {
     /// It ensures that the transaction containing this output has been mined for more than X
     /// seconds.
     pub median_time_past: u32,
-    // Determine if the outpoint is a coinbase transaction
-    // Has 100 or more block confirmation,
-    // is added when block are queried
+    /// Determines if the outpoint is a coinbase transaction
     pub is_coinbase: bool
 }
 
@@ -130,9 +128,7 @@ pub struct TxOut {
     pub cached: bool,
 }
 
-///
-/// Custom implementation of the Hash trait for TxOut removed cached field.
-///
+/// Custom implementation of the `Hash` trait for `TxOut`, excluding `cached` field.
 impl TxOutHash<S, +HashStateTrait<S>, +Drop<S>> of Hash<TxOut, S> {
     fn update_state(state: S, value: TxOut) -> S {
         let state = state.update(value.value.into());
@@ -141,19 +137,22 @@ impl TxOutHash<S, +HashStateTrait<S>, +Drop<S>> of Hash<TxOut, S> {
     }
 }
 
+/// `Outpoint` Poseidon hash implementation.
 #[generate_trait]
-pub impl OutPointImpl of OutPointTrait {
+pub impl OutPointHashImpl of OutPointHashTrait {
     fn hash(self: @OutPoint) -> felt252 {
         PoseidonTrait::new().update_with(*self).finalize()
     }
 }
 
+/// `Default` trait implementation for `TxOut`.
 impl TxOutDefault of Default<TxOut> {
     fn default() -> TxOut {
         TxOut { value: 0, pk_script: @"", cached: false, }
     }
 }
 
+/// `Display` trait implementation for `Transaction`.
 impl TransactionDisplay of Display<Transaction> {
     fn fmt(self: @Transaction, ref f: Formatter) -> Result<(), Error> {
         let str: ByteArray = format!(
@@ -169,6 +168,7 @@ impl TransactionDisplay of Display<Transaction> {
     }
 }
 
+/// `Display` trait implementation for `TxIn`.
 impl TxInDisplay of Display<TxIn> {
     fn fmt(self: @TxIn, ref f: Formatter) -> Result<(), Error> {
         let str: ByteArray = format!(
@@ -183,6 +183,7 @@ impl TxInDisplay of Display<TxIn> {
     }
 }
 
+/// `Display` trait implementation for `OutPoint`.
 impl OutPointDisplay of Display<OutPoint> {
     fn fmt(self: @OutPoint, ref f: Formatter) -> Result<(), Error> {
         let str: ByteArray = format!(
@@ -206,6 +207,7 @@ impl OutPointDisplay of Display<OutPoint> {
     }
 }
 
+/// `Display` trait implementation for `TxOut`.
 impl TxOutDisplay of Display<TxOut> {
     fn fmt(self: @TxOut, ref f: Formatter) -> Result<(), Error> {
         let str: ByteArray = format!(
@@ -221,9 +223,9 @@ impl TxOutDisplay of Display<TxOut> {
 
 #[cfg(test)]
 mod tests {
-    use super::{OutPoint, TxOut, HashStateTrait, HashStateExTrait, OutPointTrait};
-    use utils::hex::{hex_to_hash_rev, from_hex};
     use core::poseidon::PoseidonTrait;
+    use utils::hex::{hex_to_hash_rev, from_hex};
+    use super::{OutPoint, TxOut, HashStateTrait, HashStateExTrait, OutPointHashTrait};
 
     fn hash(tx: @TxOut) -> felt252 {
         PoseidonTrait::new().update_with(*tx).finalize()

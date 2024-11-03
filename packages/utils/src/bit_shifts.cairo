@@ -1,12 +1,12 @@
-//! Bit shifts.
+//! Bit shifts and pow helpers.
 
 use core::num::traits::{Zero, One};
 
-/// Performs a bitwise right shift on a u64 value by a specified number of bits.
-/// This specialized version offers optimal performance for u64 types.
+/// Performs a bitwise right shift on a `u64` value by a specified number of bits.
+/// This specialized version offers optimal performance for `u64` types.
 ///
 /// # Arguments
-/// * `self` - The u64 value to be shifted
+/// * `self` - The `u64` value to be shifted
 /// * `shift` - The number of bits to shift right
 ///
 /// # Returns
@@ -19,8 +19,7 @@ pub fn shr_u64(self: u64, shift: u32) -> u64 {
     self / pow2(shift)
 }
 
-
-// Fast exponentiation using the square-and-multiply algorithm
+// Fast exponentiation using the square-and-multiply algorithm.
 // Reference:
 // https://github.com/keep-starknet-strange/alexandria/blob/bcdca70afdf59c9976148e95cebad5cf63d75a7f/packages/math/src/fast_power.cairo#L12
 pub fn fast_pow<
@@ -64,14 +63,15 @@ pub fn fast_pow<
     }
 }
 
-
-/// Fast power of 2 using lookup tables
+/// Fast power of 2 using lookup tables.
 /// Reference: https://github.com/keep-starknet-strange/alexandria/pull/336
 ///
 /// # Arguments
 /// * `exponent` - The exponent to raise 2 to
+/// 
 /// # Returns
 /// * `u64` - The result of 2^exponent
+/// 
 /// # Panics
 /// * If `exponent` is greater than 63 (out of the supported range)
 pub fn pow2(exponent: u32) -> u64 {

@@ -1,17 +1,17 @@
 //! Block validation helpers.
+
+use core::num::traits::zero::Zero;
 use crate::types::utxo_set::{UtxoSet, UtxoSetTrait};
 use crate::types::transaction::{OutPoint, Transaction};
 use crate::codec::{Encode, TransactionCodec};
-use crate::validation::coinbase::is_coinbase_txid_duplicated;
+use crate::validation::{coinbase::is_coinbase_txid_duplicated, transaction::validate_transaction};
 use utils::{hash::Digest, merkle_tree::merkle_root, double_sha256::double_sha256_byte_array,};
-use super::transaction::validate_transaction;
-use core::num::traits::zero::Zero;
 
 const MAX_BLOCK_WEIGHT_LEGACY: usize = 1_000_000;
 const MAX_BLOCK_WEIGHT: usize = 4_000_000;
 const SEGWIT_BLOCK: usize = 481_824;
 
-/// Validate block weight.
+/// Validates block weight.
 /// Blocks after Segwit upgrade have a limit of 4,000,000 weight units.
 pub fn validate_block_weight(weight: usize) -> Result<(), ByteArray> {
     if (weight > MAX_BLOCK_WEIGHT) {
@@ -21,13 +21,14 @@ pub fn validate_block_weight(weight: usize) -> Result<(), ByteArray> {
             )
         );
     }
+
     Result::Ok(())
 }
 
 /// Validates transactions and aggregates:
 ///  - Total fee
 ///  - TXID merkle root
-///  - wTXID commitment (only for blocks after Segwit upgrade, otherwise return zero hash)
+///  - wTXID commitment (only for blocks after Segwit upgrade, otherwise returns zero hash)
 ///  - Block weight
 pub fn compute_and_validate_tx_data(
     txs: Span<Transaction>, block_height: u32, median_time_past: u32, ref utxo_set: UtxoSet
@@ -48,8 +49,8 @@ pub fn compute_and_validate_tx_data(
                 .encode_with_witness(tx_bytes_legacy); // SegWit transaction encoding
 
             /// The wTXID for the coinbase transaction must be set to all zeros. This is because
-            /// it's eventually going to contain the commitment inside it
-            /// see https://learnmeabitcoin.com/technical/transaction/wtxid/#commitment
+            /// it's eventually going to contain the commitment inside it.
+            /// See https://learnmeabitcoin.com/technical/transaction/wtxid/#commitment
             let wtxid = if is_coinbase {
                 Zero::zero()
             } else {
@@ -68,10 +69,11 @@ pub fn compute_and_validate_tx_data(
         txids.append(txid);
 
         if (is_coinbase) {
-            // skip duplicated txid (it's not possible to spend these coinbase outputs)
+            // Skip duplicated txid (it's not possible to spend these coinbase outputs)
             if (is_coinbase_txid_duplicated(txid, block_height)) {
                 continue;
             }
+            
             let mut vout = 0;
             for output in *tx
                 .outputs {
