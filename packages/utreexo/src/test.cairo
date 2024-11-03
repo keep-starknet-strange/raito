@@ -1,7 +1,7 @@
+use core::testing::get_available_gas;
 use crate::stump::state::UtreexoStumpState;
 use crate::stump::proof::UtreexoBatchProof;
 use crate::stump::accumulator::StumpUtreexoAccumulator;
-use core::testing::get_available_gas;
 
 #[derive(Drop, Serde, Debug)]
 struct Args {

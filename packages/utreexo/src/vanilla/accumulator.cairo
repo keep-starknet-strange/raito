@@ -26,7 +26,7 @@ pub impl VanillaUtreexoAccumulatorImpl of VanillaUtreexoAccumulator {
                 }
             };
 
-        // Checks if terminates with Option::None
+        // Check if terminates with `Option::None`
         if (new_roots[new_roots.len() - 1].is_some()) {
             new_roots.append(Option::None);
         }

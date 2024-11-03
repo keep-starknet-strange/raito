@@ -13,6 +13,7 @@ pub struct UtreexoBatchProof {
     pub targets: Span<u64>,
 }
 
+/// `Display` implementation for `UtreexoBatchProof`.
 impl UtreexoBatchProofDisplay of Display<UtreexoBatchProof> {
     fn fmt(self: @UtreexoBatchProof, ref f: Formatter) -> Result<(), Error> {
         let mut targets: ByteArray = Default::default();
@@ -466,7 +467,7 @@ pub impl UtreexoBatchProofImpl of UtreexoBatchProofTrait {
 }
 
 /// Extracts all nodes with absolute positions in [row_start; row_end)
-/// and transforms their positions to relative
+/// and transforms their positions to relative.
 fn extract_row<T, +Copy<T>, +Drop<T>>(
     ref nodes: Array<(u64, T)>, row_start: u64, row_end: u64
 ) -> Array<(u64, T)> {
@@ -482,7 +483,7 @@ fn extract_row<T, +Copy<T>, +Drop<T>>(
     row
 }
 
-/// Merges two sorted arrays into a single sorted array
+/// Merges two sorted arrays into a single sorted array.
 fn merge_sorted<T, +Drop<T>>(
     ref arr1: Array<(u64, T)>, ref arr2: Array<(u64, T)>
 ) -> Array<(u64, T)> {
@@ -504,7 +505,7 @@ fn merge_sorted<T, +Drop<T>>(
 }
 
 /// Takes two nodes containing two values each: (L1, L2) and (R1, R2), and calculates
-/// a parent node, that also contains two values (P1 = h(L1, R1), P2 = h(L2, R2))
+/// a parent node, that also contains two values (P1 = h(L1, R1), P2 = h(L2, R2)).
 fn parent_hash_pair(
     left: (felt252, Option<felt252>), right: (felt252, Option<felt252>)
 ) -> (felt252, Option<felt252>) {
@@ -520,7 +521,7 @@ fn parent_hash_pair(
     (old_parent, new_parent)
 }
 
-/// PartialOrd implementation for tuple (u64, T).
+/// `PartialOrd` trait implementation for tuple (u64, T).
 impl PositionPartialOrd<T, +Drop<T>> of PartialOrd<(u64, T)> {
     fn lt(lhs: (u64, T), rhs: (u64, T)) -> bool {
         let (l, _) = lhs;
