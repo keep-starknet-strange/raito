@@ -96,18 +96,19 @@ Tasks:
 
 ### Milestone 5 - Full consensus validation
 
-Validate full block execution, including the Bitcoin scripts checks and Utreexo.
+Validate full block execution over large number of blocks, including the Bitcoin scripts checks and Utreexo proofs.
+* [x] consensus logic
+* [ ] consensus logic + utreexo proofs  
+* [ ] consensus logic + utreexo proofs + scripts
 
-### Milestone 6 - Optimizations
+### Milestone 6 - Proving
 
-* [ ] identify Cairo code botlenecks
+Recursively verify STARK proofs of chain state updates. Still largely tbd. From initial observations it is clear that a series of optimizations will be necessary.
+* [ ] sha256 optimization
+* [ ] don't use ByteArray when serializing data
+* [ ] blocklevel recursion
 * [ ] consider using garaga msm to batch signature verifications
-
-### Milestone 7 - Proving the validation
-
-Recursively verify STARK proofs of chain state updates. Still largely tbd.
-
-* [ ] use garaga to implement signature verifications
+* [ ] identify other Cairo code botlenecks
 
 # Contact
 
@@ -139,6 +140,7 @@ pip install -r scripts/data/requirements.txt
 ## References
 
 * [Data processing notes](./docs/data.md)
+* [Utreexo implementation notes](./docs/utreexo.md)
 * [ZeroSync](https://github.com/ZeroSync/ZeroSync)
 * [Shinigami Script](https://github.com/keep-starknet-strange/shinigami)
 * [STWO](https://github.com/starkware-libs/stwo)
