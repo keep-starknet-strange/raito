@@ -97,6 +97,7 @@ Tasks:
 ### Milestone 5 - Full consensus validation
 
 Validate full block execution over large number of blocks, including the Bitcoin scripts checks and Utreexo proofs.
+
 * [x] consensus logic
 * [ ] consensus logic + utreexo proofs  
 * [ ] consensus logic + utreexo proofs + scripts
@@ -104,6 +105,7 @@ Validate full block execution over large number of blocks, including the Bitcoin
 ### Milestone 6 - Proving
 
 Recursively verify STARK proofs of chain state updates. Still largely tbd. From initial observations it is clear that a series of optimizations will be necessary.
+
 * [ ] sha256 optimization
 * [ ] don't use ByteArray when serializing data
 * [ ] blocklevel recursion
