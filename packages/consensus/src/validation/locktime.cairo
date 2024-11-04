@@ -80,12 +80,6 @@ pub fn validate_relative_locktime(
         let lock_time = value * 512;
         let absolute_lock_time = *input.previous_output.median_time_past + lock_time;
         if absolute_lock_time > median_time_past {
-            // println!("sequence: {}", *input.sequence);
-            // println!("txid: {}", input.previous_output.txid);
-            // println!("input: {:?}", input);
-            // println!("{}", value);
-            // println!("absolute_lock_time: {}", absolute_lock_time);
-            // println!("median_time_past: {}", median_time_past);
             return Result::Err(
                 format!(
                     "Relative time-based lock time is not respected: current MTP: {}, outpoint MTP: {}, lock time: {} seconds",
