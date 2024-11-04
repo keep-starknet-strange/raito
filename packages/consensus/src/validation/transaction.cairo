@@ -14,7 +14,12 @@ const MAX_SCRIPT_SIZE: u32 = 10000;
 ///
 /// This does not include script checks and outpoint inclusion verification.
 pub fn validate_transaction(
-    tx: @Transaction, block_height: u32, median_time_past: u32, txid: Digest, ref utxo_set: UtxoSet
+    tx: @Transaction,
+    block_height: u32,
+    block_time: u32,
+    median_time_past: u32,
+    txid: Digest,
+    ref utxo_set: UtxoSet
 ) -> Result<u64, ByteArray> {
     if (*tx.inputs).is_empty() {
         return Result::Err("transaction inputs are empty");
@@ -48,7 +53,7 @@ pub fn validate_transaction(
                 }
             }
 
-            if !is_input_final(*input.sequence) {
+            if *tx.version >= 2 && !is_input_final(*input.sequence) {
                 inner_result = validate_relative_locktime(input, block_height, median_time_past);
                 if inner_result.is_err() {
                     break;
@@ -65,7 +70,7 @@ pub fn validate_transaction(
 
     if !is_tx_final {
         // If at least one input is not final
-        validate_absolute_locktime(*tx.lock_time, block_height, median_time_past)?;
+        validate_absolute_locktime(*tx.lock_time, block_height, block_time)?;
     }
 
     // Validate and process transaction outputs
@@ -180,11 +185,11 @@ mod tests {
         let txid = double_sha256_byte_array(tx_bytes_legacy);
         let mut utxo_set: UtxoSet = Default::default();
 
-        assert!(validate_transaction(@tx, 0, 0, txid, ref utxo_set).is_err());
+        assert!(validate_transaction(@tx, 0, 0, 0, txid, ref utxo_set).is_err());
 
         utxo_set = Default::default();
 
-        let fee = validate_transaction(@tx, 101, 0, txid, ref utxo_set).unwrap();
+        let fee = validate_transaction(@tx, 101, 0, 0, txid, ref utxo_set).unwrap();
         assert_eq!(fee, 10);
     }
 
@@ -209,7 +214,7 @@ mod tests {
         let txid = double_sha256_byte_array(tx_bytes_legacy);
         let mut utxo_set: UtxoSet = Default::default();
 
-        let result = validate_transaction(@tx, 0, 0, txid, ref utxo_set);
+        let result = validate_transaction(@tx, 0, 0, 0, txid, ref utxo_set);
         assert!(result.is_err());
         // assert_eq!(result.unwrap_err(), "transaction inputs are empty");
     }
@@ -245,7 +250,7 @@ mod tests {
         let txid = double_sha256_byte_array(tx_bytes_legacy);
         let mut utxo_set: UtxoSet = Default::default();
 
-        let result = validate_transaction(@tx, 0, 0, txid, ref utxo_set);
+        let result = validate_transaction(@tx, 0, 0, 0, txid, ref utxo_set);
         assert!(result.is_err());
         // assert_eq!(result.unwrap_err(), "transaction outputs are empty");
     }
@@ -253,7 +258,7 @@ mod tests {
     #[test]
     fn test_absolute_locktime_block_height() {
         let tx = Transaction {
-            version: 1,
+            version: 2,
             is_segwit: false,
             inputs: array![
                 TxIn {
@@ -289,7 +294,7 @@ mod tests {
         let mut utxo_set: UtxoSet = Default::default();
 
         // Transaction should be invalid when current block height is less than locktime
-        let result = validate_transaction(@tx, 500000, 0, txid, ref utxo_set);
+        let result = validate_transaction(@tx, 500000, 0, 0, txid, ref utxo_set);
         assert!(result.is_err());
         assert_eq!(
             result.unwrap_err().into(),
@@ -300,14 +305,14 @@ mod tests {
 
         // Transaction should be valid when current block height is equal to or greater than
         // locktime
-        let result = validate_transaction(@tx, 500001, 0, txid, ref utxo_set);
+        let result = validate_transaction(@tx, 500001, 0, 0, txid, ref utxo_set);
         assert!(result.is_ok());
     }
 
     #[test]
     fn test_absolute_locktime_block_time() {
         let tx = Transaction {
-            version: 1,
+            version: 2,
             is_segwit: false,
             inputs: array![
                 TxIn {
@@ -343,7 +348,7 @@ mod tests {
         let mut utxo_set: UtxoSet = Default::default();
 
         // Transaction should be invalid when current block time is not greater than locktime
-        let result = validate_transaction(@tx, 0, 1600000000, txid, ref utxo_set);
+        let result = validate_transaction(@tx, 0, 1600000000, 1600000000, txid, ref utxo_set);
         assert!(result.is_err());
         assert_eq!(
             result.unwrap_err().into(),
@@ -353,7 +358,7 @@ mod tests {
         utxo_set = Default::default();
 
         // Transaction should be valid when current block time is equal to or greater than locktime
-        let result = validate_transaction(@tx, 0, 1600000001, txid, ref utxo_set);
+        let result = validate_transaction(@tx, 0, 1600000001, 1600000001, txid, ref utxo_set);
         assert!(result.is_ok());
     }
 
@@ -396,13 +401,13 @@ mod tests {
         let mut utxo_set: UtxoSet = Default::default();
 
         // Transaction should still valid when current block time is not greater than locktime
-        let result = validate_transaction(@tx, 0, 1600000000, txid, ref utxo_set);
+        let result = validate_transaction(@tx, 0, 1600000000, 1600000000, txid, ref utxo_set);
         assert!(result.is_ok());
 
         utxo_set = Default::default();
 
         // Transaction should be valid when current block time is greater than locktime
-        let result = validate_transaction(@tx, 0, 1600000001, txid, ref utxo_set);
+        let result = validate_transaction(@tx, 0, 1600000001, 1600000001, txid, ref utxo_set);
         assert!(result.is_ok());
     }
 
@@ -445,13 +450,13 @@ mod tests {
         let mut utxo_set: UtxoSet = Default::default();
 
         // Transaction should still valid when current block time is not greater than locktime
-        let result = validate_transaction(@tx, 500000, 0, txid, ref utxo_set);
+        let result = validate_transaction(@tx, 500000, 0, 0, txid, ref utxo_set);
         assert!(result.is_ok());
 
         utxo_set = Default::default();
 
         // Transaction should be valid when current block time is greater than locktime
-        let result = validate_transaction(@tx, 500001, 0, txid, ref utxo_set);
+        let result = validate_transaction(@tx, 500001, 0, 0, txid, ref utxo_set);
         assert!(result.is_ok());
     }
 
@@ -495,7 +500,7 @@ mod tests {
         let txid = double_sha256_byte_array(tx_bytes_legacy);
         let mut utxo_set: UtxoSet = Default::default();
 
-        validate_transaction(@tx, block_height, 0, txid, ref utxo_set).unwrap_err();
+        validate_transaction(@tx, block_height, 0, 0, txid, ref utxo_set).unwrap_err();
     }
 
     #[test]
@@ -538,7 +543,7 @@ mod tests {
         let txid = double_sha256_byte_array(tx_bytes_legacy);
         let mut utxo_set: UtxoSet = Default::default();
 
-        validate_transaction(@tx, block_height, 0, txid, ref utxo_set).unwrap();
+        validate_transaction(@tx, block_height, 0, 0, txid, ref utxo_set).unwrap();
     }
 
     #[test]
@@ -582,7 +587,7 @@ mod tests {
         let txid = double_sha256_byte_array(tx_bytes_legacy);
         let mut utxo_set: UtxoSet = Default::default();
 
-        validate_transaction(@tx, block_height, 0, txid, ref utxo_set).unwrap();
+        validate_transaction(@tx, block_height, 0, 0, txid, ref utxo_set).unwrap();
     }
 
     #[test]
@@ -630,7 +635,7 @@ mod tests {
         cache.insert(outpoint_hash, TX_OUTPUT_STATUS_UNSPENT);
         let mut utxo_set = UtxoSet { cache, ..Default::default() };
 
-        validate_transaction(@tx, block_height, 0, txid, ref utxo_set).unwrap();
+        validate_transaction(@tx, block_height, 0, 0, txid, ref utxo_set).unwrap();
     }
 
     #[test]
@@ -677,7 +682,7 @@ mod tests {
         cache.insert(outpoint_hash, TX_OUTPUT_STATUS_UNSPENT);
         let mut utxo_set = UtxoSet { cache, ..Default::default() };
 
-        validate_transaction(@tx, block_height, 0, txid, ref utxo_set).unwrap();
+        validate_transaction(@tx, block_height, 0, 0, txid, ref utxo_set).unwrap();
     }
 
     #[test]
@@ -732,7 +737,7 @@ mod tests {
         cache.insert(outpoint_hash, TX_OUTPUT_STATUS_UNSPENT);
         let mut utxo_set = UtxoSet { cache, ..Default::default() };
 
-        let result = validate_transaction(@tx, block_height, 0, txid, ref utxo_set);
+        let result = validate_transaction(@tx, block_height, 0, 0, txid, ref utxo_set);
         assert!(result.is_err());
         assert_eq!(result.unwrap_err(), "The output has already been added");
     }
@@ -796,7 +801,7 @@ mod tests {
         cache.insert(outpoint_hash, TX_OUTPUT_STATUS_UNSPENT);
         let mut utxo_set = UtxoSet { cache, ..Default::default() };
 
-        let result = validate_transaction(@tx, block_height, 0, txid, ref utxo_set);
+        let result = validate_transaction(@tx, block_height, 0, 0, txid, ref utxo_set);
         assert!(result.is_err());
         assert_eq!(result.unwrap_err(), "The output has already been spent");
     }
@@ -856,7 +861,7 @@ mod tests {
         let txid = double_sha256_byte_array(tx_bytes_legacy);
         let mut utxo_set: UtxoSet = Default::default();
 
-        let result = validate_transaction(@tx, block_height, 0, txid, ref utxo_set);
+        let result = validate_transaction(@tx, block_height, 0, 0, txid, ref utxo_set);
         assert!(result.is_err());
         assert_eq!(result.unwrap_err(), "The output has already been spent");
     }
