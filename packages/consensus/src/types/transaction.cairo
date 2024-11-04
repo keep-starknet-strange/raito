@@ -98,7 +98,7 @@ pub struct OutPoint {
     /// It ensures that the transaction containing this output has been mined for more than X
     /// seconds.
     pub median_time_past: u32,
-    /// Determines if the outpoint is a coinbase transaction
+    /// Determines if the outpoint is a coinbase transaction.
     pub is_coinbase: bool
 }
 
