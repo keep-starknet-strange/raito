@@ -3,8 +3,8 @@ use core::testing::get_available_gas;
 use consensus::types::block::Block;
 use consensus::types::chain_state::{ChainState, BlockValidatorImpl};
 use consensus::types::utxo_set::{UtxoSet, UtxoSetTrait};
-use utreexo::vanilla::state::{UtreexoState, UtreexoStateTrait};
 use utreexo::vanilla::proof::UtreexoProof;
+use utreexo::vanilla::state::{UtreexoState, UtreexoStateTrait};
 
 /// Integration testing program arguments.
 #[derive(Drop)]
