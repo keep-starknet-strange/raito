@@ -11,7 +11,7 @@ from pathlib import Path
 import requests
 
 from generate_timestamp_data import get_timestamp_data
-from generate_utreexo_data import UtreexoData
+from generate_utreexo_data import get_utreexo_data
 from generate_utxo_data import get_utxo_set
 
 logger = logging.getLogger(__name__)
@@ -84,7 +84,7 @@ def fetch_chain_state(block_height: int):
     prev_timestamps = [int(head["time"])]
     for _ in range(10):
         if prev_header["height"] == 0:
-            prev_timestamps.insert(0, 0)
+            break
         else:
             prev_header = request_rpc(
                 "getblockheader", [prev_header["previousblockhash"]]
@@ -323,6 +323,7 @@ def generate_data(
         "utreexo" — only last block from the batch is included, but it is extended with Utreexo state/proofs
     :param initial_height: The block height of the initial chain state (0 means the state after genesis)
     :param num_blocks: The number of blocks to apply on top of it (has to be at least 1)
+    :param fast: Use data exported from BigQuery rather than Bitcoin node
     :return: tuple (arguments, expected output)
     """
 
@@ -335,12 +336,10 @@ def generate_data(
         if fast
         else fetch_chain_state(initial_height)
     )
-    prev_chain_state = None
     initial_chain_state = chain_state
 
     next_block_hash = chain_state["nextblockhash"]
     blocks = []
-    utreexo_data = {}
 
     for i in range(num_blocks):
         logger.debug(f"Fetching block {initial_height + i + 1} {i + 1}/{num_blocks}...")
@@ -380,7 +379,6 @@ def generate_data(
             raise NotImplementedError(mode)
 
         blocks.append(block)
-        prev_chain_state = chain_state
         chain_state = next_chain_state(chain_state, block)
         next_block_hash = block["nextblockhash"]
 
@@ -396,13 +394,8 @@ def generate_data(
     }
 
     if mode == "utreexo":
-        utreexo_data = UtreexoData()
-        result["utreexo"] = utreexo_data.apply_blocks(
-            blocks, int(chain_state["mediantime"])
-        )
-        result["blocks"] = [result["blocks"][-1]]
-        if num_blocks > 1:
-            result["chain_state"] = format_chain_state(prev_chain_state)
+        assert len(blocks) == 1, "Cannot handle more than one block in Utreexo mode"
+        result["utreexo"] = get_utreexo_data(blocks[0]["height"])
 
     return result
 
