@@ -79,7 +79,7 @@ pub impl BlockValidatorImpl of BlockValidator {
                 )?;
                 validate_coinbase(txs[0], total_fees, block_height, wtxid_root)?;
                 if execute_script {
-                    validate_scripts(@block.header, txs)?;
+                    validate_scripts(@block.header, txs.slice(1, txs.len() - 1))?;
                 }
                 txid_root
             }
