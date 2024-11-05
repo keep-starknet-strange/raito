@@ -16,6 +16,7 @@ from generate_data import generate_data
 from format_args import format_args
 import logging
 from logging.handlers import TimedRotatingFileHandler
+import signal
 
 logger = logging.getLogger(__name__)
 
@@ -31,6 +32,15 @@ current_weight = 0
 weight_lock = threading.Condition()
 job_queue = queue.Queue(maxsize=QUEUE_MAX_SIZE)
 
+# Create an event for graceful shutdown
+shutdown_event = threading.Event()
+
+def handle_sigterm(signum, frame):
+    logger.info("Received SIGTERM signal. Shutting down gracefully...")
+    shutdown_event.set()  # Set the event to signal threads to exit
+
+# Register the SIGTERM handler
+signal.signal(signal.SIGTERM, handle_sigterm)
 
 # Function to calculate weight of a block
 def calculate_batch_weight(block_data, mode):
@@ -137,12 +147,17 @@ def process_batch(job):
 
 
 # Producer function: Generates data and adds jobs to the queue
+# Update job_producer function
 def job_producer(job_gen):
     global current_weight
 
     try:
         for job, weight in job_gen:
-            # Wait until there is enough weight capacity to add the new block
+            # Check for shutdown
+            if shutdown_event.is_set():
+                logger.info("Shutdown event detected in producer. Exiting...")
+                break
+            
             with weight_lock:
                 logger.debug(
                     f"Adding job: {job}, current total weight: {current_weight}..."
@@ -152,21 +167,20 @@ def job_producer(job_gen):
                     and current_weight != 0
                     or job_queue.full()
                 ):
+                    if shutdown_event.is_set():
+                        logger.info("Shutdown event detected while waiting. Exiting...")
+                        return
+                    
                     logger.debug("Producer is waiting for weight to be released.")
-                    weight_lock.wait()  # Wait for the condition to be met
-
+                    weight_lock.wait()
+                
                 if (current_weight + weight > MAX_WEIGHT_LIMIT) and current_weight == 0:
                     logger.warning(f"{job} over the weight limit: {MAX_WEIGHT_LIMIT}")
-
-                # Add the job to the queue and update the weight
+                
                 job_queue.put((job, weight))
                 current_weight += weight
-                logger.debug(
-                    f"Produced job: {job}, current total weight: {current_weight}"
-                )
-
-                # Notify consumers that a new job is available
                 weight_lock.notify_all()
+                
     finally:
         logger.debug("Producer is exiting...")
         for _ in range(THREAD_POOL_SIZE):
@@ -175,29 +189,28 @@ def job_producer(job_gen):
         with weight_lock:
             weight_lock.notify_all()
 
-        logger.debug("Consumers notified")
-
-
 # Consumer function: Processes blocks from the queue
+# Update job_consumer function
 def job_consumer(process_job):
     global current_weight
 
     while True:
+        if shutdown_event.is_set():
+            logger.info("Shutdown event detected in consumer. Exiting...")
+            break
+        
         try:
             logger.debug(
                 f"Consumer is waiting for a job. Queue length: {job_queue.qsize()}"
             )
-            # Get a job from the queue
             work_to_do = job_queue.get(block=True)
-
+            
             if work_to_do is None:
-                logger.debug("No more work to do, consumer is exiting.")
                 job_queue.task_done()
                 break
 
             (job, weight) = work_to_do
 
-            # Process the block
             try:
                 logger.debug(f"Executing job: {job}...")
                 process_job(job)
@@ -206,18 +219,13 @@ def job_consumer(process_job):
 
             with weight_lock:
                 current_weight -= weight
-                logger.debug(
-                    f"Finished processing job, current total weight: {current_weight}"
-                )
-                weight_lock.notify_all()  # Notify producer to add more jobs
+                weight_lock.notify_all()
 
-            # Mark job as done
             job_queue.task_done()
-
+            
         except Exception as e:
             logger.error("Error in the consumer: %s", e)
             break
-
 
 def main(start, blocks, step, mode, strategy):
 
