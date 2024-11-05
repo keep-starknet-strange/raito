@@ -59,7 +59,7 @@ pub fn next_prev_timestamps(prev_timestamps: Span<u32>, block_time: u32) -> Span
         timestamps.pop_front().unwrap(); // remove the oldest timestamp (not necessarily the min)
     }
     timestamps.append(block_time); //  append the most recent timestamp (not necessarily the max)
-    
+
     timestamps.span()
 }
 

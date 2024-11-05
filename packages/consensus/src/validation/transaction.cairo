@@ -855,7 +855,7 @@ mod tests {
         let tx_bytes_legacy = @tx.encode();
         let txid = double_sha256_byte_array(tx_bytes_legacy);
         let mut utxo_set: UtxoSet = Default::default();
-        
+
         let result = validate_transaction(@tx, block_height, 0, 0, txid, ref utxo_set);
         assert_eq!(result.unwrap_err(), "The output has already been spent");
     }
