@@ -10,12 +10,14 @@ struct Args {
     leaves_to_del: Array<felt252>,
     leaves_to_add: Array<felt252>,
     expected_state: UtreexoStumpState,
+    _unused: felt252,
 }
 
-fn main(mut arguments: Span<felt252>, _flags: felt252) {
+fn main(args: Array<felt252>) -> Array<felt252> {
     let mut gas_before = get_available_gas();
+    let mut arguments = args.span();
 
-    let Args { mut state, proof, leaves_to_del, leaves_to_add, expected_state } =
+    let Args { mut state, proof, leaves_to_del, leaves_to_add, expected_state, _unused: _ } =
         Serde::deserialize(
         ref arguments
     )
@@ -50,4 +52,5 @@ fn main(mut arguments: Span<felt252>, _flags: felt252) {
     }
 
     println!("OK: gas_spent={}", gas_before - get_available_gas());
+    array![]
 }

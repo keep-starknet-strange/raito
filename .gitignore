@@ -29,6 +29,7 @@ __pycache__
 
 .client_cache/
 .utxo_data/
+.utreexo_data
 .timestamps_data/
 .arguments*.json
 

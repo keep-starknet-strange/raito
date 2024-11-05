@@ -274,7 +274,7 @@ mod tests {
     }
 
     #[test]
-    pub fn test_outpoint_poseidon_hash() {
+    pub fn test_outpoint_poseidon_hash_cb9() {
         let mut coinbase_9_utxo = OutPoint {
             txid: hex_to_hash_rev(
                 "0437cd7f8525ceed2324359c2d0ba26006d92d856a9c20fa0241106ee5a597c9"
@@ -314,6 +314,50 @@ mod tests {
         let hash = coinbase_9_utxo.hash();
         assert_eq!(
             761592244424273723796345514960638980240531938129162865626185984897576522513, hash
+        );
+    }
+
+    #[test]
+    pub fn test_outpoint_poseidon_hash_cb1() {
+        let mut coinbase_9_utxo = OutPoint {
+            txid: hex_to_hash_rev(
+                "0e3e2357e806b6cdb1f70b54c3a3a17b6714ee1f0e68bebb44a74b1efd512098"
+            ),
+            vout: 0,
+            data: TxOut {
+                value: 5000000000,
+                pk_script: @from_hex(
+                    "410496b538e853519c726a2c91e61ec11600ae1390813a627c66fb8be7947be63c52da7589379515d4e0a604f8141781e62294721166bf621e73a82cbf2342c858eeac"
+                ),
+                cached: false,
+            },
+            block_height: 1,
+            median_time_past: 1231006505,
+            is_coinbase: true,
+        };
+
+        let mut state: HashState = Default::default();
+        state = state.update_with(coinbase_9_utxo);
+
+        let expected: Array<felt252> = array![
+            18931831195212887181660290436187791739,
+            137019159177035157628276746705882390680,
+            0,
+            5000000000,
+            2,
+            114876729272917404712191936498804624660105992100397383656070609774475449467,
+            406791163401893627439198994794895943141891052128672824792182596804809637667,
+            286829113004,
+            5,
+            1,
+            1231006505,
+            1
+        ];
+        assert_eq!(expected, state.value);
+
+        let hash = coinbase_9_utxo.hash();
+        assert_eq!(
+            49459078824306138476779209834441505868925737545954320330266544605873965565, hash
         );
     }
 }

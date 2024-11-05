@@ -65,7 +65,7 @@ def serialize(obj):
         raise NotImplementedError(obj)
 
 
-def flatten_tuples(src):
+def flatten_tuples(src) -> list:
     """Recursively flattens tuples.
     Example: (0, (1, 2), [(3, 4, [5, 6])]) -> [0, 1, 2, [3, 4, [5, 6]]]
 
@@ -117,11 +117,11 @@ def format_args(input_file, execute_script, cairo1_run):
     """
     args = json.loads(Path(input_file).read_text())
     res = flatten_tuples(serialize(args))
-    flag = 1 if execute_script else 0
+    res.append(1 if execute_script else 0)
     if cairo1_run:
-        return f"{format_cairo1_run(res)} {flag}"
+        return format_cairo1_run(res)
     else:
-        return [res, flag]
+        return [res]
 
 
 if __name__ == "__main__":
