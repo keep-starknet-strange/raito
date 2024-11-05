@@ -17,3 +17,35 @@ Input data is processed in multiple steps:
 
 ## UtxoSet
 tbd
+
+## Utreexo data
+
+In order to generate Utreexo states and batch proofs for every block in the Bitcoin history we need to use a special [Bridge node](https://github.com/Davidson-Souza/bridge).
+
+### Install
+
+```sh
+cargo install --git https://github.com/Davidson-Souza/bridge.git --no-default-features --features shinigami
+```
+
+### Configure
+
+You need to configure connection to the Bitcoin RPC via environment variables:
+
+```sh
+export BITCOIN_CORE_RPC_URL=http://localhost:8332
+export BITCOIN_CORE_RPC_USER=username
+export BITCOIN_CORE_RPC_PASSWORD=password
+```
+
+### Run
+
+Run via `screen`, `nohup`, or set up a systemd service:
+
+```sh
+~/.cargo/bin/bridge
+```
+
+You can access per-block data at `~/.bridge/blocks/<bucket>/<block_height>.json`:
+- Bucket size is 10k blocks;
+- The data directory can be changed by setting the `DATA_DIR` environment variable.
