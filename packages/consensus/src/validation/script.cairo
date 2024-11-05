@@ -190,7 +190,7 @@ fn validate_script(header: @Header, tx: @Transaction, tx_idx: u32) -> Result<(),
 /// Validates scripts for one or multiple transactions.
 pub fn validate_scripts(header: @Header, txs: Span<Transaction>) -> Result<(), ByteArray> {
     let mut r = Result::Ok(());
-    let mut i = 0;
+    let mut i = 1;
     for tx in txs {
         r = validate_script(header, tx, i);
         if r.is_err() {

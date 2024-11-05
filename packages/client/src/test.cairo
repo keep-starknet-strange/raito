@@ -3,8 +3,9 @@ use core::testing::get_available_gas;
 use consensus::types::block::Block;
 use consensus::types::chain_state::{ChainState, BlockValidatorImpl};
 use consensus::types::utxo_set::{UtxoSet, UtxoSetTrait};
-use utreexo::vanilla::proof::UtreexoProof;
-use utreexo::vanilla::state::{UtreexoState, UtreexoStateTrait};
+use utreexo::stump::accumulator::StumpUtreexoAccumulator;
+use utreexo::stump::state::UtreexoStumpState;
+use utreexo::stump::proof::UtreexoBatchProof;
 
 /// Integration testing program arguments.
 #[derive(Drop)]
@@ -17,17 +18,21 @@ struct Args {
     expected_chain_state: ChainState,
     /// Optional Utreexo arguments.
     utreexo_args: Option<UtreexoArgs>,
+    /// If this flag is set, locking scripts will be executed
+    execute_script: bool,
 }
 
 /// Utreexo arguments necessary for constraining the UTXO set.
 #[derive(Drop, Serde)]
 struct UtreexoArgs {
     /// Current (initial) accumulator state.
-    state: UtreexoState,
-    /// Inclusion proofs for TXOs spent during program run.
-    proofs: Array<UtreexoProof>,
+    state: UtreexoStumpState,
+    /// Batch inclusion proof for TXOs spent during the current block.
+    /// Note that it doesn't support flow with multiple blocks applied
+    /// in a single program run.
+    proof: UtreexoBatchProof,
     /// Expected accumulator state at the end of the execution.
-    expected_state: UtreexoState,
+    expected_state: UtreexoStumpState,
 }
 
 /// Integration testing program entrypoint.
@@ -35,12 +40,14 @@ struct UtreexoArgs {
 /// Receives arguments in a serialized format (Cairo serde).
 /// Panics in case of a validation error or chain state mismatch.
 /// Prints result to the stdout.
-pub(crate) fn main(mut arguments: Span<felt252>, execute_script: bool) {
+fn main(arguments: Array<felt252>) -> Array<felt252> {
     println!("Running integration test... ");
     let mut gas_before = get_available_gas();
+    let mut args = arguments.span();
 
-    let Args { mut chain_state, blocks, expected_chain_state, utreexo_args } = Serde::deserialize(
-        ref arguments
+    let Args { mut chain_state, blocks, expected_chain_state, utreexo_args, execute_script } =
+        Serde::deserialize(
+        ref args
     )
         .expect('Failed to deserialize');
 
@@ -71,17 +78,16 @@ pub(crate) fn main(mut arguments: Span<felt252>, execute_script: bool) {
         panic!();
     }
 
-    if let Option::Some(UtreexoArgs { mut state, proofs, expected_state }) = utreexo_args {
-        match state
-            .validate_and_apply(
-                utxo_set.leaves_to_add.span(), utxo_set.leaves_to_delete.span(), proofs.span(),
-            ) {
+    if let Option::Some(UtreexoArgs { mut state, proof, expected_state }) = utreexo_args {
+        match state.verify_and_delete(@proof, utxo_set.leaves_to_delete.span()) {
             Result::Ok(new_state) => { state = new_state; },
             Result::Err(err) => {
                 println!("FAIL: gas_spent={} error='{:?}'", gas_before - get_available_gas(), err);
                 panic!();
             }
         }
+
+        state = state.add(utxo_set.leaves_to_add.span());
 
         if state != expected_state {
             println!(
@@ -95,6 +101,7 @@ pub(crate) fn main(mut arguments: Span<felt252>, execute_script: bool) {
     }
 
     println!("OK: gas_spent={}", gas_before - get_available_gas());
+    array![]
 }
 
 /// Workaround for handling missing `utreexo_args` field.
@@ -109,11 +116,14 @@ impl ArgsSerde of Serde<Args> {
         let blocks: Array<Block> = Serde::deserialize(ref serialized).expect('blocks');
         let expected_chain_state: ChainState = Serde::deserialize(ref serialized)
             .expect('expected_chain_state');
-        let utreexo_args: Option<UtreexoArgs> = if serialized.len() > 0 {
+        let utreexo_args: Option<UtreexoArgs> = if serialized.len() > 1 {
             Option::Some(Serde::deserialize(ref serialized).expect('utreexo_args'))
         } else {
             Option::None
         };
-        Option::Some(Args { chain_state, blocks, expected_chain_state, utreexo_args, })
+        let execute_script: bool = Serde::deserialize(ref serialized).expect('execute_script');
+        Option::Some(
+            Args { chain_state, blocks, expected_chain_state, utreexo_args, execute_script, }
+        )
     }
 }

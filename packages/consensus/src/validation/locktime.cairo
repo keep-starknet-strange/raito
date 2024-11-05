@@ -82,7 +82,7 @@ pub fn validate_relative_locktime(
         if absolute_lock_time > median_time_past {
             return Result::Err(
                 format!(
-                    "Relative time-based lock time is not respected: current MTP {}, outpoint MTP {}, lock time {} seconds",
+                    "Relative time-based lock time is not respected: current MTP: {}, outpoint MTP: {}, lock time: {} seconds",
                     median_time_past,
                     *input.previous_output.median_time_past,
                     lock_time
@@ -94,7 +94,7 @@ pub fn validate_relative_locktime(
         if absolute_lock_time > block_height {
             return Result::Err(
                 format!(
-                    "Relative block-based lock time is not respected: current height {}, outpoint height {}, lock time {} blocks",
+                    "Relative block-based lock time is not respected: current height: {}, outpoint height: {}, lock time: {} blocks",
                     block_height,
                     *input.previous_output.block_height,
                     value

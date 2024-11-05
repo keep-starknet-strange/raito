@@ -1,0 +1,90 @@
+{
+  "chain_state": {
+    "block_height": 0,
+    "total_work": "4295032833",
+    "best_block_hash": "000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f",
+    "current_target": "26959535291011309493156476344723991336010898738574164086137773096960",
+    "epoch_start_time": 1231006505,
+    "prev_timestamps": [
+      1231006505
+    ]
+  },
+  "blocks": [
+    {
+      "header": {
+        "version": 1,
+        "time": 1231469665,
+        "bits": 486604799,
+        "nonce": 2573394689
+      },
+      "data": {
+        "variant_id": 1,
+        "transactions": [
+          {
+            "version": 1,
+            "is_segwit": false,
+            "inputs": [
+              {
+                "script": "0x04ffff001d0104",
+                "sequence": 4294967295,
+                "previous_output": {
+                  "txid": "0000000000000000000000000000000000000000000000000000000000000000",
+                  "vout": 4294967295,
+                  "data": {
+                    "value": 0,
+                    "pk_script": "0x",
+                    "cached": false
+                  },
+                  "block_height": 0,
+                  "median_time_past": 0,
+                  "is_coinbase": false
+                },
+                "witness": [
+                  "0x0000000000000000000000000000000000000000000000000000000000000000"
+                ]
+              }
+            ],
+            "outputs": [
+              {
+                "value": 5000000000,
+                "pk_script": "0x410496b538e853519c726a2c91e61ec11600ae1390813a627c66fb8be7947be63c52da7589379515d4e0a604f8141781e62294721166bf621e73a82cbf2342c858eeac",
+                "cached": false
+              }
+            ],
+            "lock_time": 0
+          }
+        ]
+      }
+    }
+  ],
+  "expected": {
+    "block_height": 1,
+    "total_work": "8590065666",
+    "best_block_hash": "00000000839a8e6886ab5951d76f411475428afc90947ee320161bbf18eb6048",
+    "current_target": "26959535291011309493156476344723991336010898738574164086137773096960",
+    "epoch_start_time": 1231006505,
+    "prev_timestamps": [
+      1231006505,
+      1231469665
+    ]
+  },
+  "utreexo": {
+    "state": {
+      "roots": [],
+      "num_leaves": 0
+    },
+    "proof": {
+      "proof": [],
+      "targets": []
+    },
+    "expected_state": {
+      "roots": [
+        {
+          "variant_id": 0,
+          "value": 49459078824306138476779209834441505868925737545954320330266544605873965565
+        }
+      ],
+      "num_leaves": 1
+    }
+  }
+}

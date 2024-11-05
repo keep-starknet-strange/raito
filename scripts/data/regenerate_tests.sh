@@ -66,7 +66,10 @@ full_test_cases=(
 )
 
 utreexo_test_cases=(
+    0        # To test leaf serialization compliance
+    1
     169      # Block containing first P2P tx to Hal Finney (170)
+    182
 )
 
 mkdir $data_dir || true
@@ -94,5 +97,5 @@ done
 
 for test_case in "${utreexo_test_cases[@]}"; do
     echo -e "\nGenerating test data: utreexo mode, chain state @ $test_case, single block"
-    generate_test "utreexo" 0 $(($test_case+1))
+    generate_test "utreexo" $test_case
 done

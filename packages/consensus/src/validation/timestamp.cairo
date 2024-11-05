@@ -37,7 +37,7 @@ pub fn compute_median_time_past(prev_timestamps: Span<u32>) -> u32 {
         };
     };
 
-    *sorted_prev_timestamps.at(sorted_prev_timestamps.len() - 6)
+    *sorted_prev_timestamps.at(sorted_prev_timestamps.len() / 2)
 }
 
 /// Checks that the block time is greater than the Median Time Past (MTP).
@@ -55,8 +55,11 @@ pub fn validate_timestamp(median_time_past: u32, block_time: u32) -> Result<(), 
 /// one.
 pub fn next_prev_timestamps(prev_timestamps: Span<u32>, block_time: u32) -> Span<u32> {
     let mut timestamps: Array<u32> = prev_timestamps.into();
-    timestamps.pop_front().unwrap(); // Remove the oldest timestamp (not necessarily the min)
-    timestamps.append(block_time); //  Append the most recent timestamp (not necessarily the max)
+    if timestamps.len() == 11 {
+        timestamps.pop_front().unwrap(); // remove the oldest timestamp (not necessarily the min)
+    }
+    timestamps.append(block_time); //  append the most recent timestamp (not necessarily the max)
+    
     timestamps.span()
 }
 
@@ -124,5 +127,14 @@ mod tests {
         block_time = 5;
         let result = validate_timestamp(mtp, block_time);
         assert!(result.is_err(), "MTP is greater than block's timestamp");
+    }
+
+    #[test]
+    fn test_few_prev_timestamps() {
+        assert_eq!(1, compute_median_time_past(array![1].span()));
+        assert_eq!(2, compute_median_time_past(array![1, 2].span()));
+        assert_eq!(2, compute_median_time_past(array![1, 2, 3].span()));
+        assert_eq!(3, compute_median_time_past(array![1, 2, 3, 4].span()));
+        assert_eq!(3, compute_median_time_past(array![1, 2, 3, 4, 5].span()));
     }
 }
