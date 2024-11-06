@@ -45,12 +45,11 @@ signal.signal(signal.SIGTERM, handle_sigterm)
 def calculate_batch_weight(block_data, mode):
     if mode == "light":
         return len(block_data["blocks"])
-    else:
-        return sum(
-            len(tx["inputs"]) + len(tx["outputs"])
-            for block in block_data["blocks"]
-            for tx in block["data"]["transactions"]
-        )
+    return sum(
+        len(tx["inputs"]) + len(tx["outputs"])
+        for block in block_data["blocks"]
+        for tx in block["data"]["transactions"]
+    )
 
 @dataclass
 class Job:
@@ -100,9 +99,12 @@ def process_batch(job):
         text=True,
     )
     
-    if (result.returncode != 0 or "FAIL" in result.stdout or 
-            "error" in result.stdout or "panicked" in result.stdout):
-        
+    if (
+        result.returncode != 0 or 
+        "FAIL" in result.stdout or 
+        "error" in result.stdout or 
+        "panicked" in result.stdout
+    ):
         error = result.stdout or result.stderr
         
         if result.returncode == -9:
@@ -140,7 +142,11 @@ def job_producer(job_gen):
             with weight_lock:
                 logger.debug(f"Adding job: {job}, current total weight: {current_weight}...")
                 
-                while ((current_weight + weight > MAX_WEIGHT_LIMIT) and current_weight != 0 or job_queue.full()):
+                while (
+                    (current_weight + weight > MAX_WEIGHT_LIMIT) and 
+                    current_weight != 0 or 
+                    job_queue.full()
+                ):
                     if shutdown_event.is_set():
                         logger.info("Shutdown event detected while waiting. Exiting...")
                         return
