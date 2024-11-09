@@ -84,9 +84,6 @@ def job_generator(start, blocks, step, mode, strategy):
         else (range(start, end, step), step)
     )
     for height in height_range:
-        if shutdown_event.is_set():
-            logger.info("Shutdown detected in generator. Stopping job generation.")
-            break
         try:
             batch_file = BASE_DIR / f"{mode}{height}_{step}.json"
             batch_data = generate_data(
@@ -99,8 +96,8 @@ def job_generator(start, blocks, step, mode, strategy):
             logger.error(f"Error while generating data for: {height}:\n{e}")
 
 
-def run_process(arguments_file, job):
-    """Run the process and handle termination or errors."""
+def run_process(arguments_file):
+    """Run the process and return stdout, stderr, and return code."""
     process = subprocess.Popen(
         [
             "scarb",
@@ -120,43 +117,15 @@ def run_process(arguments_file, job):
 
     while process.poll() is None:
         if shutdown_event.is_set():
-            logger.info(f"Shutdown detected, terminating process for job: {job}")
             process.terminate()
             try:
                 process.wait(timeout=2)
             except subprocess.TimeoutExpired:
                 process.kill()
-            return
+            return None, None, -1
 
     stdout, stderr = process.communicate()
-
-    if (
-        process.returncode != 0
-        or "FAIL" in stdout
-        or "error" in stdout
-        or "panicked" in stdout
-    ):
-        error = stdout or stderr
-        if process.returncode == -9:
-            match = re.search(r"gas_spent=(\d+)", stdout)
-            gas_info = (
-                f", gas spent: {int(match.group(1))}"
-                if match
-                else ", no gas info found"
-            )
-            error = f"Return code -9, killed by OOM?{gas_info}"
-            message = error
-        else:
-            error_match = re.search(r"error='([^']*)'", error)
-            message = error_match.group(1) if error_match else ""
-        logger.error(f"{job} error: {message}")
-        logger.debug(f"Full error while processing: {job}:\n{error}")
-    else:
-        match = re.search(r"gas_spent=(\d+)", stdout)
-        gas_info = f"gas spent: {int(match.group(1))}" if match else "no gas info found"
-        logger.info(f"{job} done, {gas_info}")
-        if not match:
-            logger.warning(f"{job}: no gas info found")
+    return stdout, stderr, process.returncode
 
 
 def process_batch(job):
@@ -168,7 +137,42 @@ def process_batch(job):
     try:
         with open(arguments_file, "w") as af:
             af.write(str(format_args(job.batch_file, False, False)))
-        run_process(arguments_file, job)
+
+        stdout, stderr, returncode = run_process(arguments_file)
+
+        if stdout is None:  # Process was terminated due to shutdown
+            return
+
+        if (
+            returncode != 0
+            or "FAIL" in stdout
+            or "error" in stdout
+            or "panicked" in stdout
+        ):
+            error = stdout or stderr
+            if returncode == -9:
+                match = re.search(r"gas_spent=(\d+)", stdout)
+                gas_info = (
+                    f", gas spent: {int(match.group(1))}"
+                    if match
+                    else ", no gas info found"
+                )
+                error = f"Return code -9, killed by OOM?{gas_info}"
+                message = error
+            else:
+                error_match = re.search(r"error='([^']*)'", error)
+                message = error_match.group(1) if error_match else ""
+            logger.error(f"{job} error: {message}")
+            logger.debug(f"Full error while processing: {job}:\n{error}")
+        else:
+            match = re.search(r"gas_spent=(\d+)", stdout)
+            gas_info = (
+                f"gas spent: {int(match.group(1))}" if match else "no gas info found"
+            )
+            logger.info(f"{job} done, {gas_info}")
+            if not match:
+                logger.warning(f"{job}: no gas info found")
+
     except Exception as e:
         logger.error(f"Error processing batch {job}: {e}")
 
@@ -178,23 +182,17 @@ def job_producer(job_gen):
 
     try:
         for job, weight in job_gen:
-            if shutdown_event.is_set():
-                logger.info("Shutdown detected in producer. Stopping job production.")
-                break
-
             with weight_lock:
                 logger.debug(
                     f"Adding job: {job}, current total weight: {current_weight}..."
                 )
-                while not shutdown_event.is_set() and (
-                    (current_weight + weight > MAX_WEIGHT_LIMIT and current_weight != 0)
-                    or job_queue.full()
-                ):
+                while (
+                    current_weight + weight > MAX_WEIGHT_LIMIT and current_weight != 0
+                ) or job_queue.full():
+                    if shutdown_event.is_set():
+                        return
                     logger.debug("Producer is waiting for weight to be released.")
                     weight_lock.wait(timeout=1)
-
-                if shutdown_event.is_set():
-                    break
 
                 if current_weight + weight > MAX_WEIGHT_LIMIT and current_weight == 0:
                     logger.warning(f"{job} over the weight limit: {MAX_WEIGHT_LIMIT}")
@@ -202,12 +200,11 @@ def job_producer(job_gen):
                 job_queue.put((job, weight))
                 current_weight += weight
                 weight_lock.notify_all()
-
     finally:
         logger.debug("Producer is exiting...")
-        if not shutdown_event.is_set():
-            for _ in range(THREAD_POOL_SIZE):
-                job_queue.put(None)
+        # Signal end of work to consumers
+        for _ in range(THREAD_POOL_SIZE):
+            job_queue.put(None)
         with weight_lock:
             weight_lock.notify_all()
 
@@ -215,15 +212,9 @@ def job_producer(job_gen):
 def job_consumer(process_job):
     global current_weight
 
-    while not shutdown_event.is_set():
+    while True:
         try:
-            logger.debug(
-                f"Consumer is waiting for a job. Queue length: {job_queue.qsize()}"
-            )
-            try:
-                work_to_do = job_queue.get(timeout=1)
-            except queue.Empty:
-                continue
+            work_to_do = job_queue.get()
 
             if work_to_do is None:
                 job_queue.task_done()
@@ -231,9 +222,7 @@ def job_consumer(process_job):
 
             job, weight = work_to_do
             try:
-                if not shutdown_event.is_set():
-                    logger.debug(f"Executing job: {job}...")
-                    process_job(job)
+                process_job(job)
             finally:
                 with weight_lock:
                     current_weight -= weight
