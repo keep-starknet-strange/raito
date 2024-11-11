@@ -28,10 +28,7 @@ pub fn double_sha256_byte_array(bytes: @ByteArray) -> Digest {
 /// It's important that there are no trailing bytes, otherwise the
 /// data will be truncated.
 pub fn double_sha256_u32_array(words: Array<u32>) -> Digest {
-    let mut input2: Array<u32> = array![];
-    input2.append_span(compute_sha256_u32_array(words, 0, 0).span());
-
-    DigestTrait::new(compute_sha256_u32_array(input2, 0, 0))
+    DigestTrait::new(compute_sha256_u32_array(words, 0, 0))
 }
 
 #[cfg(test)]

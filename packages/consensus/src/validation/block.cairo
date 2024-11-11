@@ -3,7 +3,11 @@ use crate::types::utxo_set::{UtxoSet, UtxoSetTrait};
 use crate::types::transaction::{OutPoint, Transaction};
 use crate::codec::{Encode, TransactionCodec};
 use crate::validation::coinbase::is_coinbase_txid_duplicated;
-use utils::{hash::Digest, merkle_tree::merkle_root, double_sha256::double_sha256_byte_array,};
+use utils::{
+    hash::Digest, merkle_tree::merkle_root,
+    double_sha256::{double_sha256_byte_array, double_sha256_u32_array},
+    sha256::compute_sha256_byte_array
+};
 use super::transaction::validate_transaction;
 use core::num::traits::zero::Zero;
 
@@ -45,11 +49,11 @@ pub fn compute_and_validate_tx_data(
 
     for tx in txs {
         let tx_bytes_legacy = @tx.encode();
-        let txid = double_sha256_byte_array(tx_bytes_legacy);
+        let txid = double_sha256_u32_array(tx_bytes_legacy.clone());
 
         if block_height >= SEGWIT_BLOCK {
             let tx_bytes_segwit = @tx
-                .encode_with_witness(tx_bytes_legacy); // SegWit transaction encoding
+                .encode_with_witness(tx_bytes_legacy.clone()); // SegWit transaction encoding
 
             /// The wTXID for the coinbase transaction must be set to all zeros. This is because
             /// it's eventually going to contain the commitment inside it
@@ -57,7 +61,7 @@ pub fn compute_and_validate_tx_data(
             let wtxid = if is_coinbase {
                 Zero::zero()
             } else {
-                double_sha256_byte_array(tx_bytes_segwit)
+                double_sha256_u32_array(tx_bytes_segwit.clone())
             };
 
             total_weight += 3 * tx_bytes_legacy.len()
