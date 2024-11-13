@@ -10,8 +10,8 @@
 //! Utreexo accumulator or local cache.
 
 use core::dict::Felt252Dict;
-use super::transaction::{OutPoint, OutPointTrait};
 use consensus::validation::transaction::is_pubscript_unspendable;
+use super::transaction::{OutPoint, OutPointHashTrait};
 
 pub const TX_OUTPUT_STATUS_NONE: u8 = 0;
 pub const TX_OUTPUT_STATUS_UNSPENT: u8 = 1;
@@ -26,13 +26,14 @@ pub struct UtxoSet {
     /// Number of pending cached UTXOs that must be spent within the current block(s).
     pub num_cached: i32,
     /// Statuses of UTXOs created or spent within the current block(s).
-    /// Note that to preserve the ordering, statuses has to be updated right after a
+    /// Note that to preserve the ordering, statuses have to be updated right after a
     /// particular output is created or spent.
     pub cache: Felt252Dict<u8>,
 }
 
 #[generate_trait]
 pub impl UtxoSetImpl of UtxoSetTrait {
+    /// Adds an outpoint to the UTXO set.
     fn add(ref self: UtxoSet, outpoint: OutPoint) -> Result<(), ByteArray> {
         let hash = outpoint.hash();
 
@@ -51,18 +52,19 @@ pub impl UtxoSetImpl of UtxoSetTrait {
         }
     }
 
+    /// Spends an outpoint contained in the UTXO set.
     fn spend(ref self: UtxoSet, outpoint: @OutPoint) -> Result<(), ByteArray> {
         let hash = outpoint.hash();
         let status = self.cache.get(hash);
         if status == TX_OUTPUT_STATUS_NONE {
-            // Extra check that can be removed later.
+            // Extra check that can be removed later
             assert!(!*outpoint.data.cached, "cached output was not cached");
 
             self.cache.insert(hash, TX_OUTPUT_STATUS_SPENT);
             self.leaves_to_delete.append(hash);
             Result::Ok(())
         } else if status == TX_OUTPUT_STATUS_UNSPENT {
-            // Extra check that can be removed later.
+            // Extra check that can be removed later
             assert!(*outpoint.data.cached, "non-cached output was cached");
 
             self.cache.insert(hash, TX_OUTPUT_STATUS_SPENT);
@@ -73,6 +75,7 @@ pub impl UtxoSetImpl of UtxoSetTrait {
         }
     }
 
+    /// Ensures all outpoints in the UTXO set have been processed.
     fn finalize(ref self: UtxoSet) -> Result<(), ByteArray> {
         if self.num_cached != 0 {
             Result::Err("There are unprocessed cached outputs")
@@ -189,7 +192,7 @@ mod tests {
         }
     }
 
-    /// block 170 tx1 v0 -> block9 tx coinbase v0
+    // Block 170 tx1 v0 -> block9 tx coinbase v0
     fn get_outpoint() -> OutPoint {
         OutPoint {
             txid: hex_to_hash_rev(
@@ -209,7 +212,7 @@ mod tests {
         }
     }
 
-    /// outpoint hash of first output spent block 170
+    // Outpoint hash of first output spent block 170
     #[test]
     fn test_poseidon1() {
         let outpoint: OutPoint = get_outpoint();

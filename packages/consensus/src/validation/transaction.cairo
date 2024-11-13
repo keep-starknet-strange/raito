@@ -10,7 +10,7 @@ use utils::hash::Digest;
 const OP_RETURN: u8 = 0x6a;
 const MAX_SCRIPT_SIZE: u32 = 10000;
 
-/// Validate transaction and return transaction fee.
+/// Validates a transaction and returns the transaction fee.
 ///
 /// This does not include script checks and outpoint inclusion verification.
 pub fn validate_transaction(
@@ -39,7 +39,7 @@ pub fn validate_transaction(
 
     for input in *tx
         .inputs {
-            // Ensures that the output is not yet spent and spends it
+            // Ensure that the output is not yet spent and spends it
             inner_result = utxo_set.spend(input.previous_output);
             if inner_result.is_err() {
                 break;
@@ -79,8 +79,8 @@ pub fn validate_transaction(
     let mut vout = 0;
     for output in *tx
         .outputs {
-            // Adds outpoint to the cache if the corresponding transaction output will be used
-            // as a transaction input in the same block(s), or adds it to the utreexo otherwise.
+            // Add outpoint to the cache if the corresponding transaction output will be used
+            // as a transaction input in the same block(s), or add it to the utreexo otherwise
             let outpoint = OutPoint {
                 txid, vout, data: *output, block_height, median_time_past, is_coinbase: false,
             };
@@ -95,10 +95,10 @@ pub fn validate_transaction(
         };
 
     inner_result?;
-    return compute_transaction_fee(total_input_amount, total_output_amount);
+    compute_transaction_fee(total_input_amount, total_output_amount)
 }
 
-/// Ensure transaction fee is not negative.
+/// Computes the transaction fee and ensures transaction fee is not negative.
 fn compute_transaction_fee(
     total_input_amount: u64, total_output_amount: u64
 ) -> Result<u64, ByteArray> {
@@ -107,10 +107,11 @@ fn compute_transaction_fee(
             format!("Negative fee (output {total_output_amount} > input {total_input_amount})")
         );
     }
-    return Result::Ok(total_input_amount - total_output_amount);
+
+    Result::Ok(total_input_amount - total_output_amount)
 }
 
-/// Ensure than coinbase output is old enough to be spent.
+/// Ensures than coinbase output is old enough to be spent.
 fn validate_coinbase_maturity(output_height: u32, block_height: u32) -> Result<(), ByteArray> {
     if block_height < output_height + 100 {
         return Result::Err(
@@ -138,10 +139,10 @@ pub fn is_pubscript_unspendable(pubscript: @ByteArray) -> bool {
 mod tests {
     use core::dict::Felt252Dict;
     use crate::codec::Encode;
-    use crate::types::transaction::{Transaction, TxIn, TxOut, OutPoint, OutPointTrait};
+    use crate::types::transaction::{Transaction, TxIn, TxOut, OutPoint, OutPointHashTrait};
     use crate::types::utxo_set::{UtxoSet, TX_OUTPUT_STATUS_UNSPENT};
-    use utils::{hex::{from_hex, hex_to_hash_rev}, double_sha256::double_sha256_byte_array};
     use super::{validate_transaction, is_pubscript_unspendable, MAX_SCRIPT_SIZE};
+    use utils::{hex::{from_hex, hex_to_hash_rev}, double_sha256::double_sha256_byte_array};
 
     #[test]
     fn test_tx_fee() {
@@ -215,8 +216,7 @@ mod tests {
         let mut utxo_set: UtxoSet = Default::default();
 
         let result = validate_transaction(@tx, 0, 0, 0, txid, ref utxo_set);
-        assert!(result.is_err());
-        // assert_eq!(result.unwrap_err(), "transaction inputs are empty");
+        assert_eq!(result.unwrap_err(), "transaction inputs are empty");
     }
 
     #[test]
@@ -251,8 +251,7 @@ mod tests {
         let mut utxo_set: UtxoSet = Default::default();
 
         let result = validate_transaction(@tx, 0, 0, 0, txid, ref utxo_set);
-        assert!(result.is_err());
-        // assert_eq!(result.unwrap_err(), "transaction outputs are empty");
+        assert_eq!(result.unwrap_err(), "transaction outputs are empty");
     }
 
     #[test]
@@ -263,7 +262,7 @@ mod tests {
             inputs: array![
                 TxIn {
                     script: @from_hex(""),
-                    sequence: 0xfffffffe, // absolute locktime
+                    sequence: 0xfffffffe, // Absolute locktime
                     previous_output: OutPoint {
                         txid: hex_to_hash_rev(
                             "0000000000000000000000000000000000000000000000000000000000000000"
@@ -295,7 +294,6 @@ mod tests {
 
         // Transaction should be invalid when current block height is less than locktime
         let result = validate_transaction(@tx, 500000, 0, 0, txid, ref utxo_set);
-        assert!(result.is_err());
         assert_eq!(
             result.unwrap_err().into(),
             "Transaction locktime 500000 is not lesser than current block height 500000"
@@ -349,7 +347,6 @@ mod tests {
 
         // Transaction should be invalid when current block time is not greater than locktime
         let result = validate_transaction(@tx, 0, 1600000000, 1600000000, txid, ref utxo_set);
-        assert!(result.is_err());
         assert_eq!(
             result.unwrap_err().into(),
             "Transaction locktime 1600000000 is not lesser than current block time 1600000000"
@@ -370,7 +367,7 @@ mod tests {
             inputs: array![
                 TxIn {
                     script: @from_hex(""),
-                    sequence: 0xffffffff, // final
+                    sequence: 0xffffffff, // Final
                     previous_output: OutPoint {
                         txid: hex_to_hash_rev(
                             "0000000000000000000000000000000000000000000000000000000000000000"
@@ -419,7 +416,7 @@ mod tests {
             inputs: array![
                 TxIn {
                     script: @from_hex(""),
-                    sequence: 0xffffffff, // final
+                    sequence: 0xffffffff, // Final
                     previous_output: OutPoint {
                         txid: hex_to_hash_rev(
                             "0000000000000000000000000000000000000000000000000000000000000000"
@@ -738,7 +735,6 @@ mod tests {
         let mut utxo_set = UtxoSet { cache, ..Default::default() };
 
         let result = validate_transaction(@tx, block_height, 0, 0, txid, ref utxo_set);
-        assert!(result.is_err());
         assert_eq!(result.unwrap_err(), "The output has already been added");
     }
 
@@ -802,7 +798,6 @@ mod tests {
         let mut utxo_set = UtxoSet { cache, ..Default::default() };
 
         let result = validate_transaction(@tx, block_height, 0, 0, txid, ref utxo_set);
-        assert!(result.is_err());
         assert_eq!(result.unwrap_err(), "The output has already been spent");
     }
 
@@ -862,7 +857,6 @@ mod tests {
         let mut utxo_set: UtxoSet = Default::default();
 
         let result = validate_transaction(@tx, block_height, 0, 0, txid, ref utxo_set);
-        assert!(result.is_err());
         assert_eq!(result.unwrap_err(), "The output has already been spent");
     }
 

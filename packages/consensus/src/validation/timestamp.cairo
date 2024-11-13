@@ -2,7 +2,7 @@
 //!
 //! Read more: https://learnmeabitcoin.com/technical/block/time/
 
-/// Compute the Median Time Past (MTP) from the previous timestamps.
+/// Computes the Median Time Past (MTP) from the previous timestamps.
 pub fn compute_median_time_past(prev_timestamps: Span<u32>) -> u32 {
     // Sort the last 11 timestamps
     // adapted from :
@@ -40,24 +40,26 @@ pub fn compute_median_time_past(prev_timestamps: Span<u32>) -> u32 {
     *sorted_prev_timestamps.at(sorted_prev_timestamps.len() / 2)
 }
 
-/// Check that the block time is greater than the Median Time Past (MTP).
+/// Checks that the block time is greater than the Median Time Past (MTP).
 pub fn validate_timestamp(median_time_past: u32, block_time: u32) -> Result<(), ByteArray> {
     if block_time > median_time_past {
         Result::Ok(())
     } else {
         Result::Err(
-            format!("Median time past: {} >= block's timestamp: {}.", median_time_past, block_time)
+            format!("Median time past: {} >= block's timestamp: {}", median_time_past, block_time)
         )
     }
 }
 
-/// Update the list of the recent timestamps, removing the oldest and appending the most recent one.
+/// Updates the list of the recent timestamps, removing the oldest and appending the most recent
+/// one.
 pub fn next_prev_timestamps(prev_timestamps: Span<u32>, block_time: u32) -> Span<u32> {
     let mut timestamps: Array<u32> = prev_timestamps.into();
     if timestamps.len() == 11 {
         timestamps.pop_front().unwrap(); // remove the oldest timestamp (not necessarily the min)
     }
     timestamps.append(block_time); //  append the most recent timestamp (not necessarily the max)
+
     timestamps.span()
 }
 
@@ -81,16 +83,16 @@ mod tests {
         let mtp = 6_u32;
         let mut block_time = 7_u32;
 
-        // new timestamp is greater than MTP
+        // New timestamp is greater than MTP
         let result = validate_timestamp(mtp, block_time);
         assert(result.is_ok(), 'Expected timestamp to be valid');
 
-        // new timestamp is equal to MTP
+        // New timestamp is equal to MTP
         block_time = 6;
         let result = validate_timestamp(mtp, block_time);
         assert!(result.is_err(), "MTP is greater than or equal to block's timestamp");
 
-        // new timestamp is less than MTP
+        // New timestamp is less than MTP
         block_time = 5;
         let result = validate_timestamp(mtp, block_time);
         assert!(result.is_err(), "MTP is greater than block's timestamp");
@@ -112,16 +114,16 @@ mod tests {
         let mtp = compute_median_time_past(prev_timestamps);
         let mut block_time = 12_u32;
 
-        // new timestamp is greater than MTP
+        // New timestamp is greater than MTP
         let result = validate_timestamp(mtp, block_time);
         assert(result.is_ok(), 'Expected timestamp to be valid');
 
-        // new timestamp is equal to MTP
+        // New timestamp is equal to MTP
         block_time = 6;
         let result = validate_timestamp(mtp, block_time);
         assert!(result.is_err(), "MTP is greater than or equal to block's timestamp");
 
-        // new timestamp is less than MTP
+        // New timestamp is less than MTP
         block_time = 5;
         let result = validate_timestamp(mtp, block_time);
         assert!(result.is_err(), "MTP is greater than block's timestamp");

@@ -2,7 +2,7 @@ use super::accumulator::VanillaUtreexoAccumulator;
 use super::proof::UtreexoProof;
 use super::state::UtreexoState;
 
-/// Test the basic functionality of the Utreexo accumulator
+/// Tests the basic functionality of the Utreexo accumulator.
 ///
 /// This test covers the following scenarios:
 /// 1. Adding a single leaf and verifying it
@@ -18,6 +18,7 @@ use super::state::UtreexoState;
 ///
 /// The test uses predefined txid values (0x111111..., 0x222222..., etc.) for simplicity.
 /// It checks the correct root values at each stage of the Utreexo tree's growth.
+
 #[test]
 fn test_verify_inclusion() {
     // Add the first leaf (0x111111111111111111111111)
@@ -141,7 +142,7 @@ fn test_utreexo_add() {
     let mut utreexo_state: UtreexoState = Default::default();
     let outpoint: felt252 = 0x291F8F5FC449D42C715B529E542F24A80136D18F4A85DE28829CD3DCAAC1B9C;
 
-    // add first leave to empty utreexo
+    // Add first leave to empty utreexo
     utreexo_state = utreexo_state.add(outpoint);
 
     let expected: Span<Option<felt252>> = array![
@@ -151,7 +152,7 @@ fn test_utreexo_add() {
         .span();
     assert_eq!(utreexo_state.roots, expected, "cannot add first leave");
 
-    // add second leave
+    // Add second leave
     utreexo_state = utreexo_state.add(outpoint);
 
     let expected: Span<Option<felt252>> = array![
@@ -162,7 +163,7 @@ fn test_utreexo_add() {
         .span();
     assert_eq!(utreexo_state.roots, expected, "cannot add second leave");
 
-    // add thirdth leave
+    // Add thirdth leave
     utreexo_state = utreexo_state.add(outpoint);
 
     let expected: Span<Option<felt252>> = array![
@@ -173,7 +174,7 @@ fn test_utreexo_add() {
         .span();
     assert_eq!(utreexo_state.roots, expected, "cannot add thirdth leave");
 
-    // add fourth leave
+    // Add fourth leave
     utreexo_state = utreexo_state.add(outpoint);
 
     let expected: Span<Option<felt252>> = array![
@@ -185,7 +186,7 @@ fn test_utreexo_add() {
         .span();
     assert_eq!(utreexo_state.roots, expected, "cannot add fourth leave");
 
-    // add fifth leave
+    // Add fifth leave
     utreexo_state = utreexo_state.add(outpoint);
 
     let expected: Span<Option<felt252>> = array![
@@ -197,7 +198,7 @@ fn test_utreexo_add() {
         .span();
     assert_eq!(utreexo_state.roots, expected, "cannot add fifth leave");
 
-    // add 3 leaves
+    // Add 3 leaves
     for _ in 1..4_u8 {
         utreexo_state = utreexo_state.add(outpoint);
     };
@@ -212,7 +213,7 @@ fn test_utreexo_add() {
         .span();
     assert_eq!(utreexo_state.roots, expected, "cannot add 3 leaves");
 
-    // add 22 leaves
+    // Add 22 leaves
     for _ in 1..23_u8 {
         utreexo_state = utreexo_state.add(outpoint);
     };
@@ -234,7 +235,7 @@ fn test_utreexo_delete() {
 
     let mut utreexo_state: UtreexoState = Default::default();
 
-    // adds 16 leaves to empty utreexo
+    // Adds 16 leaves to empty utreexo
     utreexo_state = utreexo_state
         .add(0x111111111111111111111111)
         .add(0x222222222222222222222222)
@@ -275,7 +276,7 @@ fn test_utreexo_delete() {
             .span()
     };
 
-    // deletes the 3rd leaf
+    // Deletes the 3rd leaf
     utreexo_state = utreexo_state.delete(@proof_for_3rd_leaf);
 
     let expected: Span<Option<felt252>> = array![
@@ -297,7 +298,7 @@ fn test_utreexo_delete_2() {
 
     let mut utreexo_state: UtreexoState = Default::default();
 
-    // adds 7 leaves to empty utreexo
+    // Adds 7 leaves to empty utreexo
     utreexo_state = utreexo_state
         .add(0x111111111111111111111111)
         .add(0x222222222222222222222222)
@@ -318,7 +319,7 @@ fn test_utreexo_delete_2() {
 
     let proof: UtreexoProof = UtreexoProof { leaf_index: 6, proof: array![].span() };
 
-    // deletes the last added leaf which corresponds to the root at h=0
+    // Deletes the last added leaf which corresponds to the root at h=0
     utreexo_state = utreexo_state.delete(@proof);
 
     let expected: Span<Option<felt252>> = array![

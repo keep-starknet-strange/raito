@@ -1,3 +1,7 @@
+//! Shinigami Bitcoin Script VM integration helpers.
+
+use crate::types::transaction::{Transaction, TxIn, TxOut};
+use crate::types::block::Header;
 use shinigami_engine::engine::EngineTrait;
 use shinigami_engine::engine::EngineImpl;
 use shinigami_engine::hash_cache::HashCacheImpl;
@@ -5,8 +9,6 @@ use shinigami_engine::flags::ScriptFlags;
 use shinigami_engine::transaction::{
     EngineTransactionInputTrait, EngineTransactionOutputTrait, EngineTransactionTrait
 };
-use crate::types::transaction::{Transaction, TxIn, TxOut};
-use crate::types::block::Header;
 
 const BIP_16_BLOCK_HEIGHT: u32 = 173805; // Pay-to-Script-Hash (P2SH) 
 const BIP_66_BLOCK_HEIGHT: u32 = 363725; // DER Signatures 
@@ -20,6 +22,7 @@ const POW_2_64: u128 = 0x10000000000000000;
 const POW_2_96: u128 = 0x1000000000000000000000000;
 
 impl EngineTransactionInputImpl of EngineTransactionInputTrait<TxIn> {
+    /// Returns the txid of the previous output that is being spent by a given input.
     fn get_prevout_txid(self: @TxIn) -> u256 {
         // TODO: hash type in Shinigami
         let [a, b, c, d, e, f, g, h] = *self.previous_output.txid.value;
@@ -30,51 +33,62 @@ impl EngineTransactionInputImpl of EngineTransactionInputTrait<TxIn> {
         u256 { low, high }
     }
 
+    /// Returns the vout of the previous output that is being spent by a given input.
     fn get_prevout_vout(self: @TxIn) -> u32 {
         *self.previous_output.vout
     }
 
+    /// Returns the signature script of a given input.
     fn get_signature_script(self: @TxIn) -> @ByteArray {
         *self.script
     }
 
+    /// Returns the witness of the given input.
     fn get_witness(self: @TxIn) -> Span<ByteArray> {
         *self.witness
     }
 
+    /// Returns the locktime feature sequence of the given input.
     fn get_sequence(self: @TxIn) -> u32 {
         *self.sequence
     }
 }
 
 impl EngineTransactionOutputDummyImpl of EngineTransactionOutputTrait<TxOut> {
+    /// Returns the spending script of the given output.
     fn get_publickey_script(self: @TxOut) -> @ByteArray {
         *self.pk_script
     }
 
+    /// Returns the value in satoshis of the given output.
     fn get_value(self: @TxOut) -> i64 {
         Into::<u64, i128>::into(*self.value).try_into().unwrap()
     }
 }
 
 impl EngineTransactionDummyImpl of EngineTransactionTrait<Transaction, TxIn, TxOut,> {
+    /// Returns the version of the given transaction.
     fn get_version(self: @Transaction) -> i32 {
         Into::<u32, i64>::into(*self.version).try_into().unwrap()
     }
 
+    /// Returns the inputs of the given transaction.
     fn get_transaction_inputs(self: @Transaction) -> Span<TxIn> {
         *self.inputs
     }
 
+    /// Returns the outputs of the given transaction.
     fn get_transaction_outputs(self: @Transaction) -> Span<TxOut> {
         *self.outputs
     }
 
+    /// Returns the locktime (block height or time) of the given transaction.
     fn get_locktime(self: @Transaction) -> u32 {
         *self.lock_time
     }
 }
 
+/// Computes the script flags for a given transaction.
 fn script_flags(header: @Header, tx: @Transaction) -> u32 {
     let mut script_flags = 0_u32;
     let block_height = tx.inputs[0].previous_output.block_height;
@@ -119,6 +133,7 @@ fn script_flags(header: @Header, tx: @Transaction) -> u32 {
     script_flags
 }
 
+/// Converts a `felt252` short string into a `ByteArray`.
 fn parse_short_string(short: felt252) -> ByteArray {
     let mut f: u256 = short.into();
     let mut l = 0;
@@ -131,7 +146,7 @@ fn parse_short_string(short: felt252) -> ByteArray {
     parsed
 }
 
-/// Validates script for a given input
+/// Validates script for a given input.
 fn validate_script(header: @Header, tx: @Transaction, tx_idx: u32) -> Result<(), ByteArray> {
     let cache = HashCacheImpl::new(tx);
     let mut result: Option<ByteArray> = Option::None;
@@ -172,6 +187,7 @@ fn validate_script(header: @Header, tx: @Transaction, tx_idx: u32) -> Result<(),
     }
 }
 
+/// Validates scripts for one or multiple transactions.
 pub fn validate_scripts(header: @Header, txs: Span<Transaction>) -> Result<(), ByteArray> {
     let mut r = Result::Ok(());
     let mut i = 1;
@@ -182,5 +198,6 @@ pub fn validate_scripts(header: @Header, txs: Span<Transaction>) -> Result<(), B
         }
         i += 1;
     };
+
     r
 }

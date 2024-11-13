@@ -4,10 +4,10 @@ use super::types::transaction::{Transaction, TxIn, TxOut, OutPoint};
 use utils::hash::Digest;
 
 pub trait Encode<T> {
-    /// Encode using Bitcoin codec and append to the buffer.
+    /// Encodes using Bitcoin codec and appends to the buffer.
     fn encode_to(self: @T, ref dest: ByteArray);
 
-    /// Encode using Bitcoin codec and return byte array
+    /// Encodes using Bitcoin codec and returns a `ByteArray`.
     fn encode(
         self: @T
     ) -> ByteArray {
@@ -17,6 +17,7 @@ pub trait Encode<T> {
     }
 }
 
+/// `Encode` trait implementation for `Span<T>`.
 pub impl EncodeSpan<T, +Encode<T>> of Encode<Span<T>> {
     fn encode_to(self: @Span<T>, ref dest: ByteArray) {
         let items = *self;
@@ -27,6 +28,7 @@ pub impl EncodeSpan<T, +Encode<T>> of Encode<Span<T>> {
     }
 }
 
+/// `Encode` trait implementation for `ByteArray`.
 pub impl EncodeByteArray of Encode<ByteArray> {
     fn encode_to(self: @ByteArray, ref dest: ByteArray) {
         encode_compact_size(self.len(), ref dest);
@@ -34,24 +36,28 @@ pub impl EncodeByteArray of Encode<ByteArray> {
     }
 }
 
+/// `Encode` trait implementation for `u32`.
 pub impl EncodeU32 of Encode<u32> {
     fn encode_to(self: @u32, ref dest: ByteArray) {
         dest.append_word_rev((*self).into(), 4);
     }
 }
 
+/// `Encode` trait implementation for `u64`.
 pub impl EncodeU64 of Encode<u64> {
     fn encode_to(self: @u64, ref dest: ByteArray) {
         dest.append_word_rev((*self).into(), 8);
     }
 }
 
+/// `Encode` trait implementation for `Digest`.
 pub impl EncodeHash of Encode<Digest> {
     fn encode_to(self: @Digest, ref dest: ByteArray) {
         dest.append(@(*self).into());
     }
 }
 
+/// `Encode` trait implementation for `TxIn`.
 pub impl EncodeTxIn of Encode<TxIn> {
     fn encode_to(self: @TxIn, ref dest: ByteArray) {
         self.previous_output.encode_to(ref dest);
@@ -60,6 +66,7 @@ pub impl EncodeTxIn of Encode<TxIn> {
     }
 }
 
+/// `Encode` trait implementation for `TxOut`.
 pub impl EncodeTxOut of Encode<TxOut> {
     fn encode_to(self: @TxOut, ref dest: ByteArray) {
         self.value.encode_to(ref dest);
@@ -67,6 +74,7 @@ pub impl EncodeTxOut of Encode<TxOut> {
     }
 }
 
+/// `Encode` trait implementation for `OutPoint`.
 pub impl EncodeOutpoint of Encode<OutPoint> {
     fn encode_to(self: @OutPoint, ref dest: ByteArray) {
         self.txid.encode_to(ref dest);
@@ -74,6 +82,7 @@ pub impl EncodeOutpoint of Encode<OutPoint> {
     }
 }
 
+/// `Encode` trait implementation for `Transaction`.
 pub impl EncodeTransaction of Encode<Transaction> {
     fn encode_to(self: @Transaction, ref dest: ByteArray) {
         self.version.encode_to(ref dest);
@@ -85,7 +94,7 @@ pub impl EncodeTransaction of Encode<Transaction> {
 
 #[generate_trait]
 pub impl TransactionCodecImpl of TransactionCodec {
-    /// Reencode transaction with witness fields (for computing wtxid) given the legacy encoded
+    /// Reencodes transaction with witness fields (for computing wtxid) given the legacy encoded
     /// bytes.
     /// We use this method to avoid double serialization.
     fn encode_with_witness(self: @Transaction, legacy_bytes: @ByteArray) -> ByteArray {
@@ -117,9 +126,9 @@ pub impl TransactionCodecImpl of TransactionCodec {
 ///
 /// https://learnmeabitcoin.com/technical/general/compact-size/
 pub fn encode_compact_size(len: usize, ref dest: ByteArray) {
-    // first covert the len into the felt252
+    // First convert the len into a `felt252`
     let val: felt252 = len.try_into().unwrap();
-    // then append as the reverse word is this correct i think
+
     if (len < 253) {
         dest.append_word_rev(val, 1);
     } else if (len < 65536) {
@@ -131,11 +140,12 @@ pub fn encode_compact_size(len: usize, ref dest: ByteArray) {
     }
     // Note: `usize` is a `u32` alias, so lens >= 4,294,967,296 are not handled.
 }
+
 #[cfg(test)]
 mod tests {
-    use utils::hex::{from_hex, hex_to_hash_rev};
     use crate::types::transaction::{Transaction, TxIn, TxOut, OutPoint};
     use super::{Encode, TransactionCodec, encode_compact_size};
+    use utils::hex::{from_hex, hex_to_hash_rev};
 
     #[test]
     fn test_encode_compact_size1() {
@@ -182,7 +192,7 @@ mod tests {
 
     #[test]
     fn test_encode_txout() {
-        // block 170 coinbase tx
+        // Block 170 coinbase tx
         let txout = @TxOut {
             value: 5000000000_u64,
             pk_script: @from_hex(
@@ -201,7 +211,7 @@ mod tests {
 
     #[test]
     fn test_encode_outpoint() {
-        // block 170 coinbase tx b1fea52486ce0c62bb442b530a3f0132b826c74e473d1f2c220bfa78111c5082
+        // Block 170 coinbase tx b1fea52486ce0c62bb442b530a3f0132b826c74e473d1f2c220bfa78111c5082
         let outpoint = OutPoint {
             txid: hex_to_hash_rev(
                 "0000000000000000000000000000000000000000000000000000000000000000"
@@ -222,7 +232,7 @@ mod tests {
 
     #[test]
     fn test_encode_outpoint2() {
-        //block 170 tx f4184fc596403b9d638783cf57adfe4c75c605f6356fbc91338530e9831e9e16
+        //Block 170 tx f4184fc596403b9d638783cf57adfe4c75c605f6356fbc91338530e9831e9e16
         let outpoint = OutPoint {
             txid: hex_to_hash_rev(
                 "0437cd7f8525ceed2324359c2d0ba26006d92d856a9c20fa0241106ee5a597c9"
@@ -243,7 +253,7 @@ mod tests {
 
     #[test]
     fn test_encode_txin1() {
-        // tx b1fea52486ce0c62bb442b530a3f0132b826c74e473d1f2c220bfa78111c5082
+        // Tx b1fea52486ce0c62bb442b530a3f0132b826c74e473d1f2c220bfa78111c5082
         let txin = @TxIn {
             script: @from_hex("04ffff001d0102"),
             sequence: 0xffffffff,
@@ -269,7 +279,7 @@ mod tests {
 
     #[test]
     fn test_encode_txin2() {
-        // tx 4ff32a7e58200897220ce4615e30e3e414991222d7eda27e693116abea8b8f33,
+        // Tx 4ff32a7e58200897220ce4615e30e3e414991222d7eda27e693116abea8b8f33,
         // input 2
         let txin = @TxIn {
             script: @from_hex(
@@ -298,7 +308,7 @@ mod tests {
 
     #[test]
     fn test_encode_tx1() {
-        // tx 4ff32a7e58200897220ce4615e30e3e414991222d7eda27e693116abea8b8f33
+        // Tx 4ff32a7e58200897220ce4615e30e3e414991222d7eda27e693116abea8b8f33
         let tx = @Transaction {
             version: 1_u32,
             is_segwit: false,
@@ -383,7 +393,7 @@ mod tests {
 
     #[test]
     fn test_encode_tx_many_inputs() {
-        // tx 23d5c86600b72cd512aecebd68a7274f611cd96eb9106125f4ef2502f54effa5
+        // Tx 23d5c86600b72cd512aecebd68a7274f611cd96eb9106125f4ef2502f54effa5
         let tx = @Transaction {
             version: 1,
             is_segwit: false,
@@ -603,7 +613,7 @@ mod tests {
 
     #[test]
     fn test_encode_tx_many_outputs() {
-        // tx 3e6cc776f588a464c98e8f701cdcde651c7b3620c44c65099fb3d2f4d8ea260e
+        // Tx 3e6cc776f588a464c98e8f701cdcde651c7b3620c44c65099fb3d2f4d8ea260e
         let tx = @Transaction {
             version: 1,
             is_segwit: false,
@@ -711,7 +721,7 @@ mod tests {
 
     #[test]
     fn test_encode_tx_witness1() {
-        // tx 65d8bd45f01bd6209d8695d126ba6bb4f2936501c12b9a1ddc9e38600d35aaa2
+        // Tx 65d8bd45f01bd6209d8695d126ba6bb4f2936501c12b9a1ddc9e38600d35aaa2
         let tx = @Transaction {
             version: 2,
             is_segwit: true,
@@ -775,7 +785,7 @@ mod tests {
 
     #[test]
     fn test_encode_tx_witness2() {
-        // tx 7ee8997b455d8231c162277943a9a2d2d98800faa51da79c17eeb5156739a628,
+        // Tx 7ee8997b455d8231c162277943a9a2d2d98800faa51da79c17eeb5156739a628,
         let tx = @Transaction {
             version: 2,
             is_segwit: true,
@@ -861,8 +871,8 @@ mod tests {
     }
     #[test]
     fn test_encode_tx_witness3() {
-        /// tx c06aaaa2753dc4e74dd4fe817522dc3c126fd71792dd9acfefdaff11f8ff954d
-        /// data from example https://learnmeabitcoin.com/technical/transaction/wtxid/
+        /// Tx c06aaaa2753dc4e74dd4fe817522dc3c126fd71792dd9acfefdaff11f8ff954d
+        /// Data from example https://learnmeabitcoin.com/technical/transaction/wtxid/
         let tx = @Transaction {
             version: 1,
             is_segwit: true,

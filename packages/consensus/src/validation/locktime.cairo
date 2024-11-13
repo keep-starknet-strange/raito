@@ -6,26 +6,26 @@ use crate::types::transaction::TxIn;
 /// fully disables the locktime feature.
 const SEQUENCE_FINAL: u32 = 0xffffffff;
 
-/// If this bit is set the relative locktime is disabled
+/// If this bit is set, the relative locktime is disabled.
 const SEQUENCE_LOCKTIME_DISABLE_FLAG: u32 = 0x80000000;
 
-/// If this bit is set the relative locktime is time-based,
-/// otherwise block-based
+/// If this bit is set, the relative locktime is time-based,
+/// otherwise block-based.
 const SEQUENCE_LOCKTIME_TYPE_FLAG: u32 = 0x00400000;
 
-/// Relative locktime value is stored in the lowest two bytes
+/// Relative locktime value is stored in the lowest two bytes.
 const SEQUENCE_LOCKTIME_MASK: u32 = 0x0000ffff;
 
 /// Threshold for lock_time: below this value it is interpreted as block number,
 /// otherwise as UNIX timestamp.
-const LOCKTIME_THRESHOLD: u32 = 500000000; // Tue Nov  5 00:53:20 1985 UTC
+const LOCKTIME_THRESHOLD: u32 = 500000000; // Tue Nov 5 00:53:20 1985 UTC
 
-/// Checks if the transaction input is final given its sequence
+/// Checks if the transaction input is final given its sequence.
 pub fn is_input_final(sequence: u32) -> bool {
     return sequence == SEQUENCE_FINAL;
 }
 
-/// Validate transaction absolute locktime given that it is enabled.
+/// Validates transaction absolute locktime given that it is enabled.
 ///
 /// https://learnmeabitcoin.com/technical/transaction/locktime/
 pub fn validate_absolute_locktime(
@@ -56,7 +56,7 @@ pub fn validate_absolute_locktime(
     }
 }
 
-/// Validate a transaction input relative locktime given that the input is not final.
+/// Validates a transaction input relative locktime given that the input is not final.
 ///
 /// If relative locktime is enabled, ensure the input's locktime is respected.
 /// https://learnmeabitcoin.com/technical/transaction/input/sequence/
@@ -109,10 +109,8 @@ pub fn validate_relative_locktime(
 #[cfg(test)]
 mod tests {
     use crate::types::transaction::{TxIn, OutPoint, TxOut};
-    use utils::hex::{from_hex, hex_to_hash_rev};
     use super::{validate_absolute_locktime, validate_relative_locktime};
-
-    // TODO: tests for invalid relative locktime
+    use utils::hex::{from_hex, hex_to_hash_rev};
 
     #[test]
     fn test_relative_locktime_disabled() {
@@ -138,7 +136,7 @@ mod tests {
     fn test_relative_locktime_enabled_block_height() {
         // txid 62fb5ecd3f022a2f09b73723b56410db0545923516b611013aed5218e4979322
         // input 0
-        // note: only relevant fields are initialized
+        // Note: only relevant fields are initialized
         let input = TxIn {
             script: @from_hex(""),
             sequence: 144,
@@ -161,7 +159,7 @@ mod tests {
     fn test_relative_locktime_enabled_block_time() {
         // txid 12fa403cb22bf08c4c5542cc00673495a0c54c9cc8181bea850a12d40d7593a2
         // input 0
-        // note: only relevant fields are initialized
+        // Note: only relevant fields are initialized
         let input = TxIn {
             script: @from_hex(""),
             sequence: 4194311,
@@ -209,7 +207,7 @@ mod tests {
     fn test_relative_locktime_block_time_lt_relative_locktime() {
         // txid 12fa403cb22bf08c4c5542cc00673495a0c54c9cc8181bea850a12d40d7593a2
         // input 0
-        // note: only relevant fields are initialized
+        // Note: only relevant fields are initialized
         let input = TxIn {
             script: @from_hex(""),
             sequence: 4194311, // Time-based relative locktime (0x400007 = SEQUENCE_LOCKTIME_TYPE_FLAG + value)

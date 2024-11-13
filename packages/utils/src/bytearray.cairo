@@ -1,7 +1,8 @@
-//! ByteArray extensions.
+//! `ByteArray` helpers.
 
 use core::hash::{Hash, HashStateTrait};
 
+/// `Serde` trait implementation for `ByteArray`.
 pub impl ByteArraySnapSerde of Serde<@ByteArray> {
     fn serialize(self: @@ByteArray, ref output: Array<felt252>) {
         (*self).serialize(ref output);
@@ -15,6 +16,7 @@ pub impl ByteArraySnapSerde of Serde<@ByteArray> {
     }
 }
 
+/// `Hash` trait implementation for `ByteArray`.
 pub impl ByteArraySnapHash<S, +HashStateTrait<S>, +Drop<S>> of Hash<@ByteArray, S> {
     fn update_state(mut state: S, value: @ByteArray) -> S {
         let mut serialized_bytearray: Array<felt252> = array![];
@@ -23,6 +25,7 @@ pub impl ByteArraySnapHash<S, +HashStateTrait<S>, +Drop<S>> of Hash<@ByteArray, 
         for felt in serialized_bytearray {
             state = state.update(felt);
         };
+
         state
     }
 }
