@@ -22,7 +22,7 @@ for arg in "$@"; do
     fullonly=1
   elif [[ "$arg" == "--forceall" ]]; then
     forceall=1
-  elif [[ "$arg" == "--execute_scripts" ]]; then
+  elif [[ "$arg" == "--execute-scripts" ]]; then
     execute_scripts=1
   else
     test_files+=("$arg")  # Add only non-flag arguments as test files

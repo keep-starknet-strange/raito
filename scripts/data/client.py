@@ -51,13 +51,14 @@ class Job:
     mode: str
     weight: int
     batch_file: Path
+    execute_scripts: bool
 
     def __str__(self):
         return f"Job(height='{self.height}', step={self.step}, weight='{self.weight}')"
 
 
 # Generator function to create jobs
-def job_generator(start, blocks, step, mode, strategy):
+def job_generator(start, blocks, step, mode, strategy, execute_scripts):
     BASE_DIR.mkdir(exist_ok=True)
     end = start + blocks
 
@@ -78,7 +79,7 @@ def job_generator(start, blocks, step, mode, strategy):
             Path(batch_file).write_text(json.dumps(batch_data, indent=2))
 
             batch_weight = calculate_batch_weight(batch_data, mode)
-            yield Job(height, step, mode, batch_weight, batch_file), batch_weight
+            yield Job(height, step, mode, batch_weight, batch_file, execute_scripts), batch_weight
         except Exception as e:
             logger.error(f"Error while generating data for: {height}:\n{e}")
 
@@ -88,7 +89,7 @@ def process_batch(job):
     arguments_file = job.batch_file.as_posix().replace(".json", "-arguments.json")
 
     with open(arguments_file, "w") as af:
-        af.write(str(format_args(job.batch_file, False, False)))
+        af.write(str(format_args(job.batch_file, job.execute_scripts, False)))
 
     result = subprocess.run(
         [
@@ -124,7 +125,17 @@ def process_batch(job):
             message = error
         else:
             error_match = re.search(r"error='([^']*)'", error)
-            message = error_match.group(1) if error_match else ""
+            if error_match:
+                message = error_match.group(1)
+            else:
+                error_match = re.search(r"error: (.*)", error, re.DOTALL)
+
+                if error_match:
+                    message = error_match.group(1)
+                else:
+                    message = error
+
+        message = re.sub(r'\s+', ' ', message)
 
         logger.error(f"{job} error: {message}")
         logger.debug(f"Full error while processing: {job}:\n{error}")
@@ -219,15 +230,16 @@ def job_consumer(process_job):
             break
 
 
-def main(start, blocks, step, mode, strategy):
+def main(start, blocks, step, mode, strategy, execute_scripts):
 
     logger.info(
-        "Starting client, initial height: %d, blocks: %d, step: %d, mode: %s, strategy: %s",
+        "Starting client, initial height: %d, blocks: %d, step: %d, mode: %s, strategy: %s, execute_scripts: %s",
         start,
         blocks,
         step,
         mode,
         strategy,
+        execute_scripts
     )
     logger.info(
         "Max weight limit: %d, Thread pool size: %d, Queue max size: %d",
@@ -237,7 +249,7 @@ def main(start, blocks, step, mode, strategy):
     )
 
     # Create the job generator
-    job_gen = job_generator(start, blocks, step, mode, strategy)
+    job_gen = job_generator(start, blocks, step, mode, strategy, execute_scripts)
 
     # Start the job producer thread
     producer_thread = threading.Thread(target=job_producer, args=(job_gen,))
@@ -286,6 +298,8 @@ if __name__ == "__main__":
         "--maxweight", type=int, default=MAX_WEIGHT_LIMIT, help="Max weight limit"
     )
 
+    parser.add_argument("--execute-scripts", action="store_true", help="Execute scripts")
+
     parser.add_argument("--verbose", action="store_true", help="Verbose")
 
     args = parser.parse_args()
@@ -322,4 +336,4 @@ if __name__ == "__main__":
     logging.getLogger("urllib3").setLevel(logging.WARNING)
     logging.getLogger("generate_data").setLevel(logging.WARNING)
 
-    main(args.start, args.blocks, args.step, args.mode, args.strategy)
+    main(args.start, args.blocks, args.step, args.mode, args.strategy, args.execute_scripts)
