@@ -79,7 +79,9 @@ def job_generator(start, blocks, step, mode, strategy, execute_scripts):
             Path(batch_file).write_text(json.dumps(batch_data, indent=2))
 
             batch_weight = calculate_batch_weight(batch_data, mode)
-            yield Job(height, step, mode, batch_weight, batch_file, execute_scripts), batch_weight
+            yield Job(
+                height, step, mode, batch_weight, batch_file, execute_scripts
+            ), batch_weight
         except Exception as e:
             logger.error(f"Error while generating data for: {height}:\n{e}")
 
@@ -135,7 +137,7 @@ def process_batch(job):
                 else:
                     message = error
 
-        message = re.sub(r'\s+', ' ', message)
+        message = re.sub(r"\s+", " ", message)
 
         logger.error(f"{job} error: {message}")
         logger.debug(f"Full error while processing: {job}:\n{error}")
@@ -239,7 +241,7 @@ def main(start, blocks, step, mode, strategy, execute_scripts):
         step,
         mode,
         strategy,
-        execute_scripts
+        execute_scripts,
     )
     logger.info(
         "Max weight limit: %d, Thread pool size: %d, Queue max size: %d",
@@ -298,7 +300,9 @@ if __name__ == "__main__":
         "--maxweight", type=int, default=MAX_WEIGHT_LIMIT, help="Max weight limit"
     )
 
-    parser.add_argument("--execute-scripts", action="store_true", help="Execute scripts")
+    parser.add_argument(
+        "--execute-scripts", action="store_true", help="Execute scripts"
+    )
 
     parser.add_argument("--verbose", action="store_true", help="Verbose")
 
@@ -336,4 +340,11 @@ if __name__ == "__main__":
     logging.getLogger("urllib3").setLevel(logging.WARNING)
     logging.getLogger("generate_data").setLevel(logging.WARNING)
 
-    main(args.start, args.blocks, args.step, args.mode, args.strategy, args.execute_scripts)
+    main(
+        args.start,
+        args.blocks,
+        args.step,
+        args.mode,
+        args.strategy,
+        args.execute_scripts,
+    )
