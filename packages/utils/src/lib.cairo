@@ -7,8 +7,8 @@ pub mod numeric;
 pub mod sort;
 
 // Let's use core non provable functions for now. Much faster.
-// pub mod sha256;
-pub use core::sha256;
+pub mod sha256;
+// pub use core::sha256;
 
 #[cfg(target: 'test')]
 pub mod hex;
