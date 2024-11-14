@@ -12,7 +12,6 @@ const WTNS_PK_SCRIPT_PREFIX: felt252 = 116705705699821; // 0x6a24aa21a9ed
 const FIRST_DUP_TXID: u256 = 0xe3bf3d07d4b0375638d5f1db5255fe07ba2c4cb067cd81b84ee974b6585fb468;
 const SECOND_DUP_TXID: u256 = 0xd5d27987d2a3dfc724e359870c6644b40e497bdc0589a033220fe15429d88599;
 
-
 /// Validates coinbase transaction.
 pub fn validate_coinbase(
     tx: @Transaction, total_fees: u64, block_height: u32, wtxid_root: Digest,
@@ -35,10 +34,10 @@ pub fn validate_coinbase(
     let block_reward = compute_block_reward(block_height);
     assert(total_output_amount <= total_fees + block_reward, 'total output > block rwd + fees');
 
-    // validate BIP-141 segwit output
+    // Validate BIP-141 segwit output
     if block_height >= BIP_141_BLOCK_HEIGHT {
         if *tx.is_segwit {
-            // calculate expected wtxid commitment and validate segwit output
+            // Calculate expected wtxid commitment and validate segwit output
             validate_coinbase_outputs(*tx.outputs, calculate_wtxid_commitment(wtxid_root))?;
         }
     }
@@ -46,7 +45,7 @@ pub fn validate_coinbase(
     Result::Ok(())
 }
 
-/// Validates first and the only coinbase input
+/// Validates the first and only coinbase input.
 fn validate_coinbase_input(input: @TxIn, block_height: u32) -> Result<(), ByteArray> {
     // Ensure the input's vout is 0xFFFFFFFF
     if *input.previous_output.vout != 0xFFFFFFFF {
@@ -71,7 +70,7 @@ fn validate_coinbase_input(input: @TxIn, block_height: u32) -> Result<(), ByteAr
     Result::Ok(())
 }
 
-/// Validate coinbase sig script (BIP-34)
+/// Validates coinbase sig script (BIP-34).
 fn validate_coinbase_sig_script(script: @ByteArray, block_height: u32) -> Result<(), ByteArray> {
     let script_len = script.len();
 
@@ -97,7 +96,7 @@ fn validate_coinbase_sig_script(script: @ByteArray, block_height: u32) -> Result
     Result::Ok(())
 }
 
-/// Validate coinbase witness
+/// Validates coinbase witness.
 fn validate_coinbase_witness(witness: Span<ByteArray>) -> Result<(), ByteArray> {
     if witness.len() != 1 {
         return Result::Err("Expected single witness item");
@@ -111,7 +110,7 @@ fn validate_coinbase_witness(witness: Span<ByteArray>) -> Result<(), ByteArray> 
     Result::Ok(())
 }
 
-/// Return BTC reward in SATS
+/// Returns BTC reward in SATS.
 fn compute_block_reward(block_height: u32) -> u64 {
     let mut result: u64 = 5_000_000_000;
 
@@ -122,29 +121,29 @@ fn compute_block_reward(block_height: u32) -> u64 {
     result
 }
 
-/// Calculate wtxid commitment
+/// Calculates wtxid commitment.
 fn calculate_wtxid_commitment(wtxid_root: Digest) -> Digest {
-    // construct witness reserved value
+    // Construct witness reserved value
     // 0000000000000000000000000000000000000000000000000000000000000000
     let witness_value_bytes: ByteArray =
         "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0";
 
-    // convert wtxid_root to ByteArray
+    // Convert wtxid_root to ByteArray
     let wtxid_root_bytes: ByteArray = wtxid_root.into();
 
-    // concat (witness root hash | witness reserved value)
+    // Concat (witness root hash | witness reserved value)
     let res = ByteArrayTrait::concat(@wtxid_root_bytes, @witness_value_bytes);
 
     double_sha256_byte_array(@res)
 }
 
-/// validate segwit output (BIP-141)
+/// validates segwit output (BIP-141).
 fn validate_coinbase_outputs(
     mut outputs: Span<TxOut>, wtxid_commitment: Digest
 ) -> Result<(), ByteArray> {
     let mut is_wtxid_commitment_present: bool = false;
 
-    // construct expected witness script combining prefix and wtxid commitment
+    // Construct expected witness script combining prefix and wtxid commitment
     let mut expected_witness_script: ByteArray = "";
     expected_witness_script.append_word(WTNS_PK_SCRIPT_PREFIX, 6);
     expected_witness_script.append(@wtxid_commitment.into());
@@ -152,15 +151,15 @@ fn validate_coinbase_outputs(
     while let Option::Some(output) = outputs.pop_back() {
         let pk_script = *output.pk_script;
 
-        // check for pk_script with at least 38 bytes commitment length
+        // Check for pk_script with at least 38 bytes commitment length
         if pk_script.len() >= WTNS_PK_SCRIPT_LEN {
-            // extract witness script containing wtxid commitment
+            // Extract witness script containing wtxid commitment
             let mut extracted_witness_script: ByteArray = "";
             for i in 0..WTNS_PK_SCRIPT_LEN {
                 extracted_witness_script.append_byte(pk_script[i]);
             };
 
-            // compare expected and extracted witness script
+            // Compare expected and extracted witness script
             if expected_witness_script == extracted_witness_script {
                 is_wtxid_commitment_present = true;
                 break;
@@ -175,13 +174,13 @@ fn validate_coinbase_outputs(
     Result::Ok(())
 }
 
-/// (BIP-30) Skip coinbase tx for duplicated txids
-/// Only the first tx is valid, the duplicated tx is ignored
+/// (BIP-30) Skip coinbase tx for duplicated txids.
+/// Only the first tx is valid, the duplicated tx is ignored.
 ///
 /// First txid e3bf3d07d4b0375638d5f1db5255fe07ba2c4cb067cd81b84ee974b6585fb468
-/// at blocks 91722 and 91880
+/// at blocks 91722 and 91880.
 /// Second txid d5d27987d2a3dfc724e359870c6644b40e497bdc0589a033220fe15429d88599
-/// at blocks 91812 and 91842
+/// at blocks 91812 and 91842.
 pub fn is_coinbase_txid_duplicated(txid: Digest, block_height: u32) -> bool {
     // TODO: allow duplicate transactions in case the previous instance of the transaction had no
     // spendable outputs left.
@@ -189,6 +188,7 @@ pub fn is_coinbase_txid_duplicated(txid: Digest, block_height: u32) -> bool {
         || (txid.into() == SECOND_DUP_TXID && block_height == 91842)) {
         return true;
     }
+
     false
 }
 
@@ -222,7 +222,8 @@ mod tests {
     fn test_compute_block_reward() {
         let max_halvings: u32 = 64;
         let reward_initial: u256 = 5000000000;
-        let mut block_height: u32 = 210_000; // halving every 210 000 blocks
+        let mut block_height: u32 = 210_000; // Halving every 210 000 blocks
+
         // Before first halving
         let genesis_halving_reward = compute_block_reward(0);
         assert_eq!(genesis_halving_reward, reward_initial.try_into().unwrap());
@@ -259,7 +260,6 @@ mod tests {
         let last_reward = compute_block_reward(max_halvings * block_height);
         assert_eq!(last_reward, 0);
     }
-
 
     #[test]
     fn test_validate_coinbase_with_multiple_input() {
@@ -322,6 +322,7 @@ mod tests {
             },
             witness: array![].span(),
         };
+
         validate_coinbase_input(@input, 1).unwrap_err();
     }
 
@@ -340,6 +341,7 @@ mod tests {
             },
             witness: array![].span(),
         };
+
         validate_coinbase_input(@input, 1).unwrap_err();
     }
 

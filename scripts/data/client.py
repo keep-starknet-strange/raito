@@ -59,10 +59,10 @@ class Job:
     mode: str
     weight: int
     batch_file: Path
+    execute_scripts: bool
 
     def __str__(self):
         return f"Job(height='{self.height}', step={self.step}, weight='{self.weight}')"
-
 
 def calculate_batch_weight(block_data, mode):
     if mode == "light":
@@ -76,6 +76,8 @@ def calculate_batch_weight(block_data, mode):
 
 
 def job_generator(start, blocks, step, mode, strategy):
+# Generator function to create jobs
+def job_generator(start, blocks, step, mode, strategy, execute_scripts):
     BASE_DIR.mkdir(exist_ok=True)
     end = start + blocks
     height_range, step = (
@@ -91,7 +93,9 @@ def job_generator(start, blocks, step, mode, strategy):
             )
             batch_file.write_text(json.dumps(batch_data, indent=2))
             batch_weight = calculate_batch_weight(batch_data, mode)
-            yield Job(height, step, mode, batch_weight, batch_file), batch_weight
+            yield Job(
+                height, step, mode, batch_weight, batch_file, execute_scripts
+            ), batch_weight
         except Exception as e:
             logger.error(f"Error while generating data for: {height}:\n{e}")
 
@@ -99,6 +103,14 @@ def job_generator(start, blocks, step, mode, strategy):
 def run_process(arguments_file):
     """Run the process and return stdout, stderr, and return code."""
     process = subprocess.Popen(
+# Function to process a batch
+def process_batch(job):
+    arguments_file = job.batch_file.as_posix().replace(".json", "-arguments.json")
+
+    with open(arguments_file, "w") as af:
+        af.write(str(format_args(job.batch_file, job.execute_scripts, False)))
+
+    result = subprocess.run(
         [
             "scarb",
             "cairo-run",
@@ -172,6 +184,21 @@ def process_batch(job):
             logger.info(f"{job} done, {gas_info}")
             if not match:
                 logger.warning(f"{job}: no gas info found")
+            error = f"Return code -9, killed by OOM?{gas_info}"
+            message = error
+        else:
+            error_match = re.search(r"error='([^']*)'", error)
+            if error_match:
+                message = error_match.group(1)
+            else:
+                error_match = re.search(r"error: (.*)", error, re.DOTALL)
+
+                if error_match:
+                    message = error_match.group(1)
+                else:
+                    message = error
+
+        message = re.sub(r"\s+", " ", message)
 
     except Exception as e:
         logger.error(f"Error processing batch {job}: {e}")
@@ -236,17 +263,23 @@ def job_consumer(process_job):
 
 def main(start, blocks, step, mode, strategy):
     global executor
+def main(start, blocks, step, mode, strategy, execute_scripts):
 
     logger.info(
-        "Starting client, initial height: %d, blocks: %d, step: %d, mode: %s, strategy: %s",
+        "Starting client, initial height: %d, blocks: %d, step: %d, mode: %s, strategy: %s, execute_scripts: %s",
         start,
         blocks,
         step,
         mode,
         strategy,
+        execute_scripts,
     )
 
     job_gen = job_generator(start, blocks, step, mode, strategy)
+    # Create the job generator
+    job_gen = job_generator(start, blocks, step, mode, strategy, execute_scripts)
+
+    # Start the job producer thread
     producer_thread = threading.Thread(target=job_producer, args=(job_gen,))
     producer_thread.start()
 
@@ -291,6 +324,11 @@ if __name__ == "__main__":
     parser.add_argument(
         "--maxweight", type=int, default=MAX_WEIGHT_LIMIT, help="Max weight limit"
     )
+
+    parser.add_argument(
+        "--execute-scripts", action="store_true", help="Execute scripts"
+    )
+
     parser.add_argument("--verbose", action="store_true", help="Verbose")
     args = parser.parse_args()
 
@@ -326,4 +364,11 @@ if __name__ == "__main__":
     logging.getLogger("urllib3").setLevel(logging.WARNING)
     logging.getLogger("generate_data").setLevel(logging.WARNING)
 
-    main(args.start, args.blocks, args.step, args.mode, args.strategy)
+    main(
+        args.start,
+        args.blocks,
+        args.step,
+        args.mode,
+        args.strategy,
+        args.execute_scripts,
+    )

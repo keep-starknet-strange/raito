@@ -1,4 +1,6 @@
-/// Bubble sort from
+//! Sorting helpers.
+
+/// Bubble sort from:
 /// https://github.com/keep-starknet-strange/alexandria/blob/main/packages/sorting/src/bubble_sort.cairo
 pub fn bubble_sort<T, +Copy<T>, +Drop<T>, +PartialOrd<T>>(mut array: Span<T>) -> Array<T> {
     if array.len() == 0 {
@@ -35,5 +37,6 @@ pub fn bubble_sort<T, +Copy<T>, +Drop<T>, +PartialOrd<T>>(mut array: Span<T>) ->
             }
         };
     };
+
     sorted_array
 }

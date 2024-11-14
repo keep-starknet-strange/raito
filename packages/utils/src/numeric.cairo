@@ -1,3 +1,5 @@
+//! Numeric helpers.
+
 use crate::bit_shifts::shr_u64;
 
 /// Reverses the byte order of a `u32`.
@@ -12,8 +14,8 @@ pub fn u32_byte_reverse(word: u32) -> u32 {
     return byte0 + byte1 + byte2 + byte3;
 }
 
-/// Computes the next power of two of a u64 variable.
-/// returns 2^x, where x is the smallest integer such that 2^x >= n.
+/// Computes the next power of two of a `u64` variable.
+/// Returns 2^x, where x is the smallest integer such that 2^x >= n.
 pub fn u64_next_power_of_two(mut n: u64) -> u64 {
     if n == 0 {
         return 1;

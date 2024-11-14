@@ -1,10 +1,10 @@
-//! Digest digest struct and trait implementations.
+//! `Digest` struct and trait implementations.
 
 use core::fmt::{Display, Formatter, Error};
-use core::to_byte_array::AppendFormattedToByteArray;
-use core::integer::u128_byte_reverse;
 use core::hash::{Hash, HashStateTrait};
+use core::integer::u128_byte_reverse;
 use core::num::traits::zero::Zero;
+use core::to_byte_array::AppendFormattedToByteArray;
 
 /// 256-bit hash digest.
 /// Represented as an array of 4-byte words.
@@ -21,6 +21,7 @@ pub impl DigestImpl of DigestTrait {
     }
 }
 
+/// `Zero` trait implementation for `Digest`.
 impl DigestZero of Zero<Digest> {
     fn zero() -> Digest {
         Digest { value: [0_u32; 8] }
@@ -35,7 +36,7 @@ impl DigestZero of Zero<Digest> {
     }
 }
 
-/// Formats a `Digest` value for display.
+/// `Display` trait implementation for `Digest`.
 impl DigestDisplay of Display<Digest> {
     fn fmt(self: @Digest, ref f: Formatter) -> Result<(), Error> {
         let hash: u256 = (*self).into();
@@ -44,14 +45,14 @@ impl DigestDisplay of Display<Digest> {
     }
 }
 
-/// Compares two `Digest` values for equality.
+/// `PartialEq` trait implementation for `Digest`.
 impl DigestPartialEq of PartialEq<Digest> {
     fn eq(lhs: @Digest, rhs: @Digest) -> bool {
         lhs.value == rhs.value
     }
 }
 
-/// Converts a `Digest` value into a `ByteArray`.
+/// `Into` implementation that converts a `Digest` value into a `ByteArray`.
 pub impl DigestIntoByteArray of Into<Digest, ByteArray> {
     fn into(self: Digest) -> ByteArray {
         let mut bytes: ByteArray = Default::default();
@@ -62,15 +63,14 @@ pub impl DigestIntoByteArray of Into<Digest, ByteArray> {
     }
 }
 
-
 const POW_2_32: u128 = 0x100000000;
 const POW_2_64: u128 = 0x10000000000000000;
 const POW_2_96: u128 = 0x1000000000000000000000000;
 const NZ_POW2_32_128: NonZero<u128> = 0x100000000;
 const NZ_POW2_32_64: NonZero<u64> = 0x100000000;
 
-/// Converts a `u256` value into a `Digest` type and reverse bytes order.
-/// u256 is big-endian like in explorer, while Digest is little-endian order.
+/// Converts a `u256` value into a `Digest` type and reverses bytes order.
+/// `u256` is big-endian like in explorer, while `Digest` is little-endian order.
 pub impl U256IntoDigest of Into<u256, Digest> {
     fn into(self: u256) -> Digest {
         let low: u128 = u128_byte_reverse(self.high);
@@ -101,9 +101,8 @@ pub impl U256IntoDigest of Into<u256, Digest> {
     }
 }
 
-
-/// Converts a `Digest` value into a `u256` type and reverse bytes order.
-/// Digest is little-endian order, while u256 is big-endian like in explorer.
+/// `Into` implementation that converts a `Digest` value into a `u256` type and reverse bytes order.
+/// `Digest` is little-endian order, while `u256` is big-endian like in explorer.
 pub impl DigestIntoU256 of Into<Digest, u256> {
     fn into(self: Digest) -> u256 {
         let [a, b, c, d, e, f, g, h] = self.value;
@@ -115,7 +114,7 @@ pub impl DigestIntoU256 of Into<Digest, u256> {
     }
 }
 
-
+/// `Hash` trait implementation for `Digest`.
 pub impl DigestHash<S, +HashStateTrait<S>, +Drop<S>> of Hash<Digest, S> {
     fn update_state(state: S, value: Digest) -> S {
         let u256_digest: u256 = value.into();
@@ -180,7 +179,6 @@ mod tests {
 
         assert_eq!(result_u256, expected_u256, "invalid results");
     }
-
 
     #[test]
     fn test_hash_to_u256_to_hash() {

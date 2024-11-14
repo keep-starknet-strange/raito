@@ -2,11 +2,11 @@
 //!
 //! The data is expected to be prepared in advance and passed as program arguments.
 
+use core::fmt::{Display, Formatter, Error};
+use super::transaction::Transaction;
 use utils::hash::Digest;
 use utils::double_sha256::double_sha256_u32_array;
 use utils::numeric::u32_byte_reverse;
-use super::transaction::Transaction;
-use core::fmt::{Display, Formatter, Error};
 
 /// Represents a block in the blockchain.
 #[derive(Drop, Copy, Debug, PartialEq, Default, Serde)]
@@ -54,7 +54,7 @@ pub struct Header {
 
 #[generate_trait]
 pub impl BlockHashImpl of BlockHash {
-    /// Compute hash of the block header given the missing fields.
+    /// Computes the hash of the block header given the missing fields.
     fn hash(self: @Header, prev_block_hash: Digest, merkle_root: Digest) -> Digest {
         let mut header_data_u32: Array<u32> = array![];
 
@@ -70,13 +70,14 @@ pub impl BlockHashImpl of BlockHash {
     }
 }
 
-/// Empty transaction data
+/// `Default` trait implementation of `TransactionData`, i.e., empty transaction data.
 pub impl TransactionDataDefault of Default<TransactionData> {
     fn default() -> TransactionData {
         TransactionData::Transactions(array![].span())
     }
 }
 
+/// `Display` trait implementation for `Block`.
 impl BlockDisplay of Display<Block> {
     fn fmt(self: @Block, ref f: Formatter) -> Result<(), Error> {
         let data = match *self.data {
@@ -89,6 +90,7 @@ impl BlockDisplay of Display<Block> {
     }
 }
 
+/// `Display` trait implementation for `Header`.
 impl HeaderDisplay of Display<Header> {
     fn fmt(self: @Header, ref f: Formatter) -> Result<(), Error> {
         let str: ByteArray = format!(
@@ -103,6 +105,7 @@ impl HeaderDisplay of Display<Header> {
     }
 }
 
+/// `Display` trait implementation for `TransactionData`.
 impl TransactionDataDisplay of Display<TransactionData> {
     fn fmt(self: @TransactionData, ref f: Formatter) -> Result<(), Error> {
         match *self {
@@ -117,8 +120,8 @@ impl TransactionDataDisplay of Display<TransactionData> {
 
 #[cfg(test)]
 mod tests {
-    use super::{Header, BlockHash};
     use crate::types::chain_state::ChainState;
+    use super::{Header, BlockHash};
     use utils::hash::Digest;
 
     #[test]
@@ -128,7 +131,7 @@ mod tests {
             .best_block_hash =
                 0x000000002a22cfee1f2c846adbd12b3e183d4f97683f85dad08a79780a84bd55_u256
             .into();
-        // block 170
+        // Block 170
         let header = Header {
             version: 1_u32, time: 1231731025_u32, bits: 0x1d00ffff_u32, nonce: 1889418792_u32
         };
@@ -153,7 +156,7 @@ mod tests {
             .best_block_hash =
                 0x000000002a22cfee1f2c846adbd12b3e183d4f97683f85dad08a79780a84bd55_u256
             .into();
-        // block 170
+        // Block 170
         let header = Header {
             version: 1_u32, time: 1231731025_u32, bits: 0x1d00ffff_u32, nonce: 1889418792_u32
         };

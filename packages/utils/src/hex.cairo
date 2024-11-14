@@ -1,7 +1,8 @@
-//! Hex helpers
+//! Hex helpers.
+
 use crate::hash::Digest;
 
-/// Get bytes from hex (base16)
+/// Gets bytes from hex (base16).
 pub fn from_hex(hex_string: ByteArray) -> ByteArray {
     let num_characters = hex_string.len();
     assert!(num_characters & 1 == 0, "Invalid hex string length");
@@ -19,7 +20,7 @@ pub fn from_hex(hex_string: ByteArray) -> ByteArray {
     bytes
 }
 
-/// Convert bytes to hex (base16)
+/// Converts bytes to hex (base16).
 pub fn to_hex(data: @ByteArray) -> ByteArray {
     let alphabet: @ByteArray = @"0123456789abcdef";
     let mut result: ByteArray = Default::default();
@@ -32,10 +33,11 @@ pub fn to_hex(data: @ByteArray) -> ByteArray {
         result.append_byte(alphabet.at(r).unwrap());
         i += 1;
     };
+
     result
 }
 
-// Get `Digest` form `ByteArray` reversed
+// Gets `Digest` from reversed `ByteArray`.
 pub fn hex_to_hash_rev(hex_string: ByteArray) -> Digest {
     let mut result: Array<u32> = array![];
     let mut i = 0;
@@ -52,6 +54,7 @@ pub fn hex_to_hash_rev(hex_string: ByteArray) -> Digest {
         i += 2;
     };
     result.append(unit);
+
     Digest {
         value: [
             *result[0],
@@ -84,8 +87,8 @@ fn hex_char_to_nibble(hex_char: u8) -> u8 {
 
 #[cfg(test)]
 mod tests {
-    use super::{from_hex, to_hex, hex_to_hash_rev};
     use crate::hash::Digest;
+    use super::{from_hex, to_hex, hex_to_hash_rev};
 
     #[test]
     fn test_bytes_from_hex() {

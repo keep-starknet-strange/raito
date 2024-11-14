@@ -11,6 +11,7 @@ pub struct UtreexoProof {
     pub leaf_index: u64,
 }
 
+/// `Display` trait implementation for `UtreexoProof`.
 impl UtreexoProofDisplay of Display<UtreexoProof> {
     fn fmt(self: @UtreexoProof, ref f: Formatter) -> Result<(), Error> {
         let mut proofs: ByteArray = Default::default();
@@ -47,7 +48,7 @@ pub impl UtreexoProofImpl of UtreexoProofTrait {
                 curr_node = parent_hash(left, right);
                 node_index = next_node_index;
             };
-        // Returns the computed root (or the node itself if the proof is empty).
+        // Return the computed root (or the node itself if the proof is empty).
         curr_node
     }
 }

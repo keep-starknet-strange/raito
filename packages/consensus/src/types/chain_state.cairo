@@ -1,5 +1,5 @@
 //! Chain state is a minimal subset of data required to unambiguosly
-//! define a particular block chain starting at the genesis.
+//! define a particular blockchain starting at the genesis.
 //!
 //! Chain state alone is not enough to do full block validation, however
 //! it is sufficient to validate block headers.
@@ -11,8 +11,7 @@ use crate::validation::{
     work::{validate_proof_of_work, compute_total_work}, block::compute_and_validate_tx_data,
     script::validate_scripts
 };
-use super::block::{BlockHash, Block, TransactionData};
-use super::utxo_set::UtxoSet;
+use super::{block::{BlockHash, Block, TransactionData}, utxo_set::UtxoSet};
 use utils::hash::Digest;
 
 /// Represents the state of the blockchain.
@@ -34,10 +33,9 @@ pub struct ChainState {
     /// it's possible that one block could have an earlier timestamp
     /// than a block that came before it in the chain.
     pub prev_timestamps: Span<u32>,
-    /// Median Time Past (MTP) of the current block
 }
 
-/// Represents the initial state after genesis block.
+/// `Default` implementation of `ChainState` representing the initial state after genesis block.
 /// https://github.com/bitcoin/bitcoin/blob/ee367170cb2acf82b6ff8e0ccdbc1cce09730662/src/kernel/chainparams.cpp#L99
 impl ChainStateDefault of Default<ChainState> {
     fn default() -> ChainState {
@@ -55,7 +53,7 @@ impl ChainStateDefault of Default<ChainState> {
     }
 }
 
-/// Full block validator (w/o bitcoin script checks and utxo inclusion verification for now).
+/// Full block validator (w/o Bitcoin script checks and UTXO inclusion verification for now).
 #[generate_trait]
 pub impl BlockValidatorImpl of BlockValidator {
     fn validate_and_apply(
@@ -111,6 +109,7 @@ pub impl BlockValidatorImpl of BlockValidator {
     }
 }
 
+/// `Display` trait implementation for `ChainState`.
 impl ChainStateDisplay of Display<ChainState> {
     fn fmt(self: @ChainState, ref f: Formatter) -> Result<(), Error> {
         let mut prev_ts: ByteArray = Default::default();

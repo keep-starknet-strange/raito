@@ -10,7 +10,7 @@ repository = "https://github.com/keep-starknet-strange/raito"
 license-file = "LICENSE"
 
 [workspace.dependencies]
-cairo_test = "2.8.0"
+cairo_test = "2.8.4"
 shinigami_engine = { git = "https://github.com/keep-starknet-strange/shinigami.git", rev = "3415ed6" }
 
 [profile.cairo1-run.cairo]

@@ -10,12 +10,14 @@ pub struct UtreexoState {
     pub roots: Span<Option<felt252>>,
 }
 
+/// `Default` trait implement for `UtreexoState`.
 pub impl UtreexoStateDefault of Default<UtreexoState> {
     fn default() -> UtreexoState {
         UtreexoState { roots: array![Option::None].span() }
     }
 }
 
+/// `Display` trait implement for `UtreexoState`.
 impl UtreexoStateDisplay of Display<UtreexoState> {
     fn fmt(self: @UtreexoState, ref f: Formatter) -> Result<(), Error> {
         let str: ByteArray = format!("UtreexoState {{ roots: {} }}", (*self.roots).len(),);
