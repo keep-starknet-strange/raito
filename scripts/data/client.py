@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+
 from dataclasses import dataclass
 import json
 import re
@@ -12,44 +13,77 @@ from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 import random
 import signal
-import sys
 from generate_data import generate_data
 from format_args import format_args
+import logging
 from logging.handlers import TimedRotatingFileHandler
 
-# Initialize logger
 logger = logging.getLogger(__name__)
 
 # Constants
 MAX_WEIGHT_LIMIT = 8000  # Total weight limit for all jobs
 THREAD_POOL_SIZE = os.cpu_count()  # Number of threads for processing
 QUEUE_MAX_SIZE = THREAD_POOL_SIZE * 2  # Maximum size of the job queue
-BASE_DIR = Path(__file__).resolve().parent / ".client_cache"  # Use absolute path
+
+BASE_DIR = Path(".client_cache")
 
 # Shared state variables
 current_weight = 0
 weight_lock = threading.Condition()
 job_queue = queue.Queue(maxsize=QUEUE_MAX_SIZE)
-shutdown_event = threading.Event()
-executor = None  # Global executor reference for shutdown
+shutdown_event = threading.Event()  # New event for coordinating shutdown
 
 
-def handle_sigterm(signum, frame):
-    """Handle SIGTERM by initiating immediate shutdown."""
-    logger.info("Received SIGTERM signal. Initiating immediate shutdown...")
-    shutdown_event.set()
+class ShutdownRequested(Exception):
+    """Raised when shutdown is requested during process execution"""
 
-    # If executor exists, wait for current tasks to complete
-    if executor:
-        logger.info("Shutting down thread pool...")
-        executor.shutdown(wait=True)
-
-    logger.info("Shutdown complete")
-    sys.exit(0)
+    pass
 
 
-# Register the SIGTERM handler
-signal.signal(signal.SIGTERM, handle_sigterm)
+def run(cmd, timeout=None):
+    """
+    Run a subprocess with proper shutdown handling"""
+    if shutdown_event.is_set():
+        raise ShutdownRequested("Shutdown requested before process start")
+
+    process = subprocess.Popen(
+        cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True
+    )
+
+    try:
+        stdout, stderr = process.communicate(timeout=timeout)
+
+        if shutdown_event.is_set():
+            process.terminate()
+            try:
+                process.wait(timeout=5)
+            except subprocess.TimeoutExpired:
+                process.kill()
+                process.wait()
+            raise ShutdownRequested("Shutdown requested during process execution")
+
+        return stdout, stderr, process.returncode
+
+    except subprocess.TimeoutExpired:
+        process.terminate()
+        try:
+            process.wait(timeout=5)
+        except subprocess.TimeoutExpired:
+            process.kill()
+            process.wait()
+        raise
+
+
+# Function to calculate weight of a block
+def calculate_batch_weight(block_data, mode):
+    if mode == "light":
+        return len(block_data["blocks"])
+    else:
+        return sum(
+            len(tx["inputs"]) + len(tx["outputs"])
+            for block in block_data["blocks"]
+            for tx in block["data"]["transactions"]
+        )
 
 
 @dataclass
@@ -64,34 +98,30 @@ class Job:
     def __str__(self):
         return f"Job(height='{self.height}', step={self.step}, weight='{self.weight}')"
 
-def calculate_batch_weight(block_data, mode):
-    if mode == "light":
-        return len(block_data["blocks"])
-    else:
-        return sum(
-            len(tx["inputs"]) + len(tx["outputs"])
-            for block in block_data["blocks"]
-            for tx in block["data"]["transactions"]
-        )
 
-
-def job_generator(start, blocks, step, mode, strategy):
 # Generator function to create jobs
 def job_generator(start, blocks, step, mode, strategy, execute_scripts):
     BASE_DIR.mkdir(exist_ok=True)
     end = start + blocks
+
     height_range, step = (
         ([random.randint(start, end) for _ in range(start, end)], 1)
         if strategy == "random"
         else (range(start, end, step), step)
     )
+
     for height in height_range:
+        if shutdown_event.is_set():
+            break
         try:
-            batch_file = BASE_DIR / f"{mode}{height}_{step}.json"
+            batch_file = BASE_DIR / f"{mode}_{height}_{step}.json"
+
             batch_data = generate_data(
                 mode=mode, initial_height=height, num_blocks=step, fast=True
             )
-            batch_file.write_text(json.dumps(batch_data, indent=2))
+
+            Path(batch_file).write_text(json.dumps(batch_data, indent=2))
+
             batch_weight = calculate_batch_weight(batch_data, mode)
             yield Job(
                 height, step, mode, batch_weight, batch_file, execute_scripts
@@ -100,60 +130,29 @@ def job_generator(start, blocks, step, mode, strategy, execute_scripts):
             logger.error(f"Error while generating data for: {height}:\n{e}")
 
 
-def run_process(arguments_file):
-    """Run the process and return stdout, stderr, and return code."""
-    process = subprocess.Popen(
-# Function to process a batch
 def process_batch(job):
+    if shutdown_event.is_set():
+        return
+
     arguments_file = job.batch_file.as_posix().replace(".json", "-arguments.json")
 
     with open(arguments_file, "w") as af:
         af.write(str(format_args(job.batch_file, job.execute_scripts, False)))
 
-    result = subprocess.run(
-        [
-            "scarb",
-            "cairo-run",
-            "--no-build",
-            "--package",
-            "client",
-            "--function",
-            "main",
-            "--arguments-file",
-            str(arguments_file),
-        ],
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        text=True,
-    )
-
-    while process.poll() is None:
-        if shutdown_event.is_set():
-            process.terminate()
-            try:
-                process.wait(timeout=2)
-            except subprocess.TimeoutExpired:
-                process.kill()
-            return None, None, -1
-
-    stdout, stderr = process.communicate()
-    return stdout, stderr, process.returncode
-
-
-def process_batch(job):
-    if shutdown_event.is_set():
-        logger.info(f"Shutdown detected, skipping job: {job}")
-        return
-
-    arguments_file = job.batch_file.as_posix().replace(".json", "-arguments.json")
     try:
-        with open(arguments_file, "w") as af:
-            af.write(str(format_args(job.batch_file, False, False)))
-
-        stdout, stderr, returncode = run_process(arguments_file)
-
-        if stdout is None:  # Process was terminated due to shutdown
-            return
+        stdout, stderr, returncode = run(
+            [
+                "scarb",
+                "cairo-run",
+                "--no-build",
+                "--package",
+                "client",
+                "--function",
+                "main",
+                "--arguments-file",
+                str(arguments_file),
+            ]
+        )
 
         if (
             returncode != 0
@@ -173,7 +172,18 @@ def process_batch(job):
                 message = error
             else:
                 error_match = re.search(r"error='([^']*)'", error)
-                message = error_match.group(1) if error_match else ""
+                if error_match:
+                    message = error_match.group(1)
+                else:
+                    error_match = re.search(r"error: (.*)", error, re.DOTALL)
+
+                    if error_match:
+                        message = error_match.group(1)
+                    else:
+                        message = error
+
+            message = re.sub(r"\s+", " ", message)
+
             logger.error(f"{job} error: {message}")
             logger.debug(f"Full error while processing: {job}:\n{error}")
         else:
@@ -184,86 +194,134 @@ def process_batch(job):
             logger.info(f"{job} done, {gas_info}")
             if not match:
                 logger.warning(f"{job}: no gas info found")
-            error = f"Return code -9, killed by OOM?{gas_info}"
-            message = error
-        else:
-            error_match = re.search(r"error='([^']*)'", error)
-            if error_match:
-                message = error_match.group(1)
-            else:
-                error_match = re.search(r"error: (.*)", error, re.DOTALL)
 
-                if error_match:
-                    message = error_match.group(1)
-                else:
-                    message = error
-
-        message = re.sub(r"\s+", " ", message)
-
+    except ShutdownRequested:
+        logger.debug(f"Shutdown requested while processing {job}")
+        return
+    except subprocess.TimeoutExpired:
+        logger.warning(f"Timeout while terminating subprocess for {job}")
     except Exception as e:
-        logger.error(f"Error processing batch {job}: {e}")
+        logger.error(f"Unexpected error while processing {job}: {e}")
 
 
+# Producer function: Generates data and adds jobs to the queue
 def job_producer(job_gen):
     global current_weight
 
     try:
         for job, weight in job_gen:
+            if shutdown_event.is_set():
+                break
+
+            # Wait until there is enough weight capacity to add the new block
             with weight_lock:
                 logger.debug(
                     f"Adding job: {job}, current total weight: {current_weight}..."
                 )
-                while (
-                    current_weight + weight > MAX_WEIGHT_LIMIT and current_weight != 0
-                ) or job_queue.full():
-                    if shutdown_event.is_set():
-                        return
+                while not shutdown_event.is_set() and (
+                    (current_weight + weight > MAX_WEIGHT_LIMIT)
+                    and current_weight != 0
+                    or job_queue.full()
+                ):
                     logger.debug("Producer is waiting for weight to be released.")
-                    weight_lock.wait(timeout=1)
+                    weight_lock.wait(
+                        timeout=1.0
+                    )  # Wait with timeout to check shutdown_event
 
-                if current_weight + weight > MAX_WEIGHT_LIMIT and current_weight == 0:
+                if shutdown_event.is_set():
+                    break
+
+                if (current_weight + weight > MAX_WEIGHT_LIMIT) and current_weight == 0:
                     logger.warning(f"{job} over the weight limit: {MAX_WEIGHT_LIMIT}")
 
+                # Add the job to the queue and update the weight
                 job_queue.put((job, weight))
                 current_weight += weight
+                logger.debug(
+                    f"Produced job: {job}, current total weight: {current_weight}"
+                )
+
+                # Notify consumers that a new job is available
                 weight_lock.notify_all()
     finally:
         logger.debug("Producer is exiting...")
-        # Signal end of work to consumers
+        # Signal end of jobs to consumers
         for _ in range(THREAD_POOL_SIZE):
             job_queue.put(None)
+
         with weight_lock:
             weight_lock.notify_all()
 
+        logger.debug("Consumers notified")
 
+
+# Consumer function: Processes blocks from the queue
 def job_consumer(process_job):
     global current_weight
 
-    while True:
+    while not shutdown_event.is_set():
         try:
-            work_to_do = job_queue.get()
+            logger.debug(
+                f"Consumer is waiting for a job. Queue length: {job_queue.qsize()}"
+            )
+            # Get a job from the queue with timeout to check shutdown_event
+            try:
+                work_to_do = job_queue.get(timeout=1.0)
+            except queue.Empty:
+                continue
 
             if work_to_do is None:
+                logger.debug("No more work to do, consumer is exiting.")
                 job_queue.task_done()
                 break
 
-            job, weight = work_to_do
-            try:
-                process_job(job)
-            finally:
+            (job, weight) = work_to_do
+
+            if shutdown_event.is_set():
                 with weight_lock:
                     current_weight -= weight
                     weight_lock.notify_all()
                 job_queue.task_done()
+                break
+
+            # Process the block
+            try:
+                logger.debug(f"Executing job: {job}...")
+                process_job(job)
+            except Exception as e:
+                logger.error(f"Error while processing job: {job}:\n{e}")
+
+            with weight_lock:
+                current_weight -= weight
+                logger.debug(
+                    f"Finished processing job, current total weight: {current_weight}"
+                )
+                weight_lock.notify_all()  # Notify producer to add more jobs
+
+            # Mark job as done
+            job_queue.task_done()
 
         except Exception as e:
-            logger.error("Error in the consumer: %s", e)
+            if not shutdown_event.is_set():
+                logger.error("Error in the consumer: %s", e)
             break
 
 
-def main(start, blocks, step, mode, strategy):
-    global executor
+def signal_handler(signum, frame):
+    """Handle shutdown signals"""
+    signal_name = signal.Signals(signum).name
+    logger.info(f"Received signal {signal_name}. Initiating graceful shutdown...")
+    shutdown_event.set()
+
+    # Wake up any waiting threads
+    with weight_lock:
+        weight_lock.notify_all()
+
+
 def main(start, blocks, step, mode, strategy, execute_scripts):
+    # Set up signal handlers
+    signal.signal(signal.SIGTERM, signal_handler)
+    signal.signal(signal.SIGINT, signal_handler)
 
     logger.info(
         "Starting client, initial height: %d, blocks: %d, step: %d, mode: %s, strategy: %s, execute_scripts: %s",
@@ -274,8 +332,13 @@ def main(start, blocks, step, mode, strategy, execute_scripts):
         strategy,
         execute_scripts,
     )
+    logger.info(
+        "Max weight limit: %d, Thread pool size: %d, Queue max size: %d",
+        MAX_WEIGHT_LIMIT,
+        THREAD_POOL_SIZE,
+        QUEUE_MAX_SIZE,
+    )
 
-    job_gen = job_generator(start, blocks, step, mode, strategy)
     # Create the job generator
     job_gen = job_generator(start, blocks, step, mode, strategy, execute_scripts)
 
@@ -283,21 +346,28 @@ def main(start, blocks, step, mode, strategy, execute_scripts):
     producer_thread = threading.Thread(target=job_producer, args=(job_gen,))
     producer_thread.start()
 
-    executor = ThreadPoolExecutor(max_workers=THREAD_POOL_SIZE)
-    try:
+    # Start the consumer threads using ThreadPoolExecutor
+    with ThreadPoolExecutor(max_workers=THREAD_POOL_SIZE) as executor:
         futures = [
             executor.submit(job_consumer, process_batch)
             for _ in range(THREAD_POOL_SIZE)
         ]
+
+        # Wait for producer to finish or shutdown signal
         producer_thread.join()
-        job_queue.join()
-    except KeyboardInterrupt:
-        logger.info("Received KeyboardInterrupt, initiating shutdown...")
-        handle_sigterm(signal.SIGTERM, None)
-    finally:
-        if not shutdown_event.is_set():
-            logger.info("All jobs have been processed.")
-            executor.shutdown(wait=True)
+
+        # Wait for all items in the queue to be processed or shutdown signal
+        while not shutdown_event.is_set() and not job_queue.empty():
+            try:
+                job_queue.join()
+                break
+            except KeyboardInterrupt:
+                shutdown_event.set()
+
+    if shutdown_event.is_set():
+        logger.info("Shutdown complete.")
+    else:
+        logger.info("All jobs have been processed.")
 
 
 if __name__ == "__main__":
@@ -321,6 +391,7 @@ if __name__ == "__main__":
         choices=["sequential", "random"],
         help="Processing strategy",
     )
+
     parser.add_argument(
         "--maxweight", type=int, default=MAX_WEIGHT_LIMIT, help="Max weight limit"
     )
@@ -330,10 +401,12 @@ if __name__ == "__main__":
     )
 
     parser.add_argument("--verbose", action="store_true", help="Verbose")
+
     args = parser.parse_args()
 
     MAX_WEIGHT_LIMIT = args.maxweight
 
+    # file_handler = logging.FileHandler("client.log")
     file_handler = TimedRotatingFileHandler(
         filename="client.log",
         when="midnight",
@@ -351,7 +424,6 @@ if __name__ == "__main__":
     console_handler.setFormatter(
         logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
     )
-
     root_logger = logging.getLogger()
     root_logger.addHandler(console_handler)
     root_logger.addHandler(file_handler)
