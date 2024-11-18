@@ -8,10 +8,10 @@ BUCKET_SIZE = 10000
 
 
 def get_utreexo_data(block_height):
-    bucket_number = block_height // BUCKET_SIZE
     utreexo_data = {}
 
     if block_height > 1:
+        bucket_number = block_height - 1 - ((block_height - 1) % BUCKET_SIZE)
         with open(f"{BASE_DIR}/{bucket_number}/{block_height - 1}.json") as f:
             data = json.loads(f.read())
             utreexo_data["state"] = convert_state(data["utreexo_state"])
@@ -21,6 +21,7 @@ def get_utreexo_data(block_height):
             "num_leaves": 0,
         }
 
+    bucket_number = block_height - (block_height % BUCKET_SIZE)
     with open(f"{BASE_DIR}/{bucket_number}/{block_height}.json") as f:
         data = json.loads(f.read())
         utreexo_data["proof"] = convert_proof(data["inclusion_proof"])
