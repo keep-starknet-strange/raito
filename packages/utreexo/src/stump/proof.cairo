@@ -1,7 +1,7 @@
 use core::fmt::{Display, Formatter, Error};
 use core::num::traits::Bounded;
 use crate::parent_hash;
-use utils::{numeric::u64_next_power_of_two, sort::bubble_sort};
+use utils::{numeric::u64_next_power_of_two, sort::merged_sort};
 
 /// Utreexo inclusion proof for multiple outputs.
 /// Compatible with https://github.com/utreexo/utreexo
@@ -55,7 +55,7 @@ pub impl UtreexoBatchProofImpl of UtreexoBatchProofTrait {
             targets.append((*positions.pop_front().unwrap(), *hash));
         };
         // and sort them by position to align with the proof
-        targets = bubble_sort(targets.span());
+        targets = merged_sort(targets.span());
 
         // then we take the very first row of the forest:
         // length of the row in the actual forest
@@ -194,7 +194,7 @@ pub impl UtreexoBatchProofImpl of UtreexoBatchProofTrait {
             targets.append((*positions.pop_front().unwrap(), (*hash, Option::None)));
         };
         // and sort them by position to align with the proof
-        targets = bubble_sort(targets.span());
+        targets = merged_sort(targets.span());
 
         // then we take the very first row of the forest:
         // length of the row in the actual forest
@@ -351,7 +351,7 @@ pub impl UtreexoBatchProofImpl of UtreexoBatchProofTrait {
             }
         };
 
-        let mut leaf_nodes: Array<(u64, felt252)> = bubble_sort(leaf_nodes.span());
+        let mut leaf_nodes: Array<(u64, felt252)> = merged_sort(leaf_nodes.span());
 
         // Proof nodes.
         let mut sibling_nodes: Array<felt252> = (*self.proof).into();

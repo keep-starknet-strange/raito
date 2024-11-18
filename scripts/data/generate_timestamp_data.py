@@ -94,30 +94,26 @@ def get_timestamp_data(block_number):
 
 
 def hardcoded_timestamp_data(block_number):
+    """Previous timestamp data for the first 10 chain states."""
     hardcoded_data = {
         0: {
             "block_number": "0",
             "epoch_start_time": "1231006505",
-            "previous_timestamps": [],
+            "previous_timestamps": ["1231006505"],
         },
         1: {
             "block_number": "1",
-            "epoch_start_time": "1231469665",
-            "previous_timestamps": ["1231006505"],
+            "epoch_start_time": "1231006505",
+            "previous_timestamps": ["1231006505", "1231469665"],
         },
         2: {
             "block_number": "2",
-            "epoch_start_time": "1231469744",
-            "previous_timestamps": ["1231006505", "1231469665"],
+            "epoch_start_time": "1231006505",
+            "previous_timestamps": ["1231006505", "1231469665", "1231469744"],
         },
         3: {
             "block_number": "3",
-            "epoch_start_time": "1231470173",
-            "previous_timestamps": ["1231006505", "1231469665", "1231469744"],
-        },
-        4: {
-            "block_number": "4",
-            "epoch_start_time": "1231470988",
+            "epoch_start_time": "1231006505",
             "previous_timestamps": [
                 "1231006505",
                 "1231469665",
@@ -125,9 +121,9 @@ def hardcoded_timestamp_data(block_number):
                 "1231470173",
             ],
         },
-        5: {
-            "block_number": "5",
-            "epoch_start_time": "1231471428",
+        4: {
+            "block_number": "4",
+            "epoch_start_time": "1231006505",
             "previous_timestamps": [
                 "1231006505",
                 "1231469665",
@@ -136,9 +132,9 @@ def hardcoded_timestamp_data(block_number):
                 "1231470988",
             ],
         },
-        6: {
-            "block_number": "6",
-            "epoch_start_time": "1231471789",
+        5: {
+            "block_number": "5",
+            "epoch_start_time": "1231006505",
             "previous_timestamps": [
                 "1231006505",
                 "1231469665",
@@ -148,9 +144,9 @@ def hardcoded_timestamp_data(block_number):
                 "1231471428",
             ],
         },
-        7: {
-            "block_number": "7",
-            "epoch_start_time": "1231472369",
+        6: {
+            "block_number": "6",
+            "epoch_start_time": "1231006505",
             "previous_timestamps": [
                 "1231006505",
                 "1231469665",
@@ -161,9 +157,9 @@ def hardcoded_timestamp_data(block_number):
                 "1231471789",
             ],
         },
-        8: {
-            "block_number": "8",
-            "epoch_start_time": "1231472743",
+        7: {
+            "block_number": "7",
+            "epoch_start_time": "1231006505",
             "previous_timestamps": [
                 "1231006505",
                 "1231469665",
@@ -175,9 +171,9 @@ def hardcoded_timestamp_data(block_number):
                 "1231472369",
             ],
         },
-        9: {
-            "block_number": "9",
-            "epoch_start_time": "1231473279",
+        8: {
+            "block_number": "8",
+            "epoch_start_time": "1231006505",
             "previous_timestamps": [
                 "1231006505",
                 "1231469665",
@@ -190,9 +186,9 @@ def hardcoded_timestamp_data(block_number):
                 "1231472743",
             ],
         },
-        10: {
-            "block_number": "10",
-            "epoch_start_time": "1231473952",
+        9: {
+            "block_number": "9",
+            "epoch_start_time": "1231006505",
             "previous_timestamps": [
                 "1231006505",
                 "1231469665",
@@ -204,6 +200,23 @@ def hardcoded_timestamp_data(block_number):
                 "1231472369",
                 "1231472743",
                 "1231473279",
+            ],
+        },
+        10: {
+            "block_number": "10",
+            "epoch_start_time": "1231006505",
+            "previous_timestamps": [
+                "1231006505",
+                "1231469665",
+                "1231469744",
+                "1231470173",
+                "1231470988",
+                "1231471428",
+                "1231471789",
+                "1231472369",
+                "1231472743",
+                "1231473279",
+                "1231473952",
             ],
         },
     }
