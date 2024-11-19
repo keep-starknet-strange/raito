@@ -1,5 +1,5 @@
 use super::accumulator::StumpUtreexoAccumulator;
-use super::proof::UtreexoBatchProof;
+use super::proof::UtreexoBatchProofTrait;
 use super::state::UtreexoStumpState;
 
 #[test]
@@ -11,7 +11,7 @@ fn test_verification_1_legacy() {
             .span(),
         num_leaves: 2
     };
-    let proof = UtreexoBatchProof { targets: array![0].span(), proof: array![2].span() };
+    let proof = UtreexoBatchProofTrait::new_sorted(array![0].span(), array![2].span());
     let del_hashes = array![1];
 
     let result = state.verify_legacy(@proof, del_hashes.span(),);
@@ -30,9 +30,9 @@ fn test_verification_2_legacy() {
             .span(),
         num_leaves: 15
     };
-    let proof = UtreexoBatchProof {
-        targets: array![1, 3, 10, 13].span(),
-        proof: array![
+    let proof = UtreexoBatchProofTrait::new_sorted(
+        array![1, 3, 10, 13].span(),
+        array![
             0x1,
             0x3,
             0xC,
@@ -41,7 +41,7 @@ fn test_verification_2_legacy() {
             0xdc9cc50aff0bdadd82a05bbab54015a07fccf2a4e30fa528fdca5a35d5423f
         ]
             .span()
-    };
+    );
     let del_hashes = array![2, 4, 11, 14];
 
     let result = state.verify_legacy(@proof, del_hashes.span(),);
@@ -60,9 +60,9 @@ fn test_verification_3_legacy() {
             .span(),
         num_leaves: 30
     };
-    let proof = UtreexoBatchProof {
-        targets: array![4, 8, 12, 16, 20, 24, 28].span(),
-        proof: array![
+    let proof = UtreexoBatchProofTrait::new_sorted(
+        array![4, 8, 12, 16, 20, 24, 28].span(),
+        array![
             0x6,
             0xA,
             0xE,
@@ -79,7 +79,7 @@ fn test_verification_3_legacy() {
             0x79b32f615bbd57783700ae5f8e7b1ef79677c3545c4c69dc31b3aecce1d8fa6
         ]
             .span()
-    };
+    );
 
     let del_hashes = array![5, 9, 13, 17, 21, 25, 29];
 
@@ -96,7 +96,7 @@ fn test_verification_1() {
             .span(),
         num_leaves: 2
     };
-    let proof = UtreexoBatchProof { targets: array![0].span(), proof: array![2].span() };
+    let proof = UtreexoBatchProofTrait::new_sorted(array![0].span(), array![2].span());
     let del_hashes = array![1];
 
     let result = state.verify(@proof, del_hashes.span(),);
@@ -115,9 +115,9 @@ fn test_verification_2() {
             .span(),
         num_leaves: 15
     };
-    let proof = UtreexoBatchProof {
-        targets: array![1, 3, 10, 13].span(),
-        proof: array![
+    let proof = UtreexoBatchProofTrait::new_sorted(
+        array![1, 3, 10, 13].span(),
+        array![
             0x1,
             0x3,
             0xC,
@@ -126,7 +126,7 @@ fn test_verification_2() {
             0xdc9cc50aff0bdadd82a05bbab54015a07fccf2a4e30fa528fdca5a35d5423f
         ]
             .span()
-    };
+    );
     let del_hashes = array![2, 4, 11, 14];
 
     let result = state.verify(@proof, del_hashes.span(),);
@@ -145,9 +145,9 @@ fn test_verification_3() {
             .span(),
         num_leaves: 30
     };
-    let proof = UtreexoBatchProof {
-        targets: array![4, 8, 12, 16, 20, 24, 28].span(),
-        proof: array![
+    let proof = UtreexoBatchProofTrait::new_sorted(
+        array![4, 8, 12, 16, 20, 24, 28].span(),
+        array![
             0x6,
             0xA,
             0xE,
@@ -164,7 +164,7 @@ fn test_verification_3() {
             0x79b32f615bbd57783700ae5f8e7b1ef79677c3545c4c69dc31b3aecce1d8fa6
         ]
             .span()
-    };
+    );
 
     let del_hashes = array![5, 9, 13, 17, 21, 25, 29];
 
@@ -191,16 +191,16 @@ fn test_verification_4() {
     assert_eq!(
         state
             .verify(
-                @UtreexoBatchProof {
-                    targets: array![0].span(),
-                    proof: array![
+                @UtreexoBatchProofTrait::new_sorted(
+                    array![0].span(),
+                    array![
                         1,
                         359114454570462701179676018441683730149326686283278794303413350979946254235,
                         2920447154653459698578961030005574439730780339384884329678783637696763668074,
                         361638375607381126502342109490869021742109399020176111227133094637834041180,
                     ]
                         .span()
-                },
+                ),
                 array![0].span()
             ),
         Result::Ok(())
@@ -209,16 +209,16 @@ fn test_verification_4() {
     assert_eq!(
         state
             .verify(
-                @UtreexoBatchProof {
-                    targets: array![15].span(),
-                    proof: array![
+                @UtreexoBatchProofTrait::new_sorted(
+                    array![15].span(),
+                    array![
                         14,
                         3009277733733429566191908933097273596911357184294896938062356457901603258437,
                         2224391216833402212724735773212940252356536072547264452695587483243907176367,
                         1010147253610699894986241683624609428739638206544914327400350896031110287324,
                     ]
                         .span()
-                },
+                ),
                 array![15].span()
             ),
         Result::Ok(())
@@ -227,9 +227,9 @@ fn test_verification_4() {
     assert_eq!(
         state
             .verify(
-                @UtreexoBatchProof {
-                    targets: array![0, 2, 5].span(),
-                    proof: array![
+                @UtreexoBatchProofTrait::new_sorted(
+                    array![0, 2, 5].span(),
+                    array![
                         1,
                         3,
                         4,
@@ -237,7 +237,7 @@ fn test_verification_4() {
                         361638375607381126502342109490869021742109399020176111227133094637834041180,
                     ]
                         .span()
-                },
+                ),
                 array![0, 2, 5].span()
             ),
         Result::Ok(())
@@ -246,10 +246,10 @@ fn test_verification_4() {
     assert_eq!(
         state
             .verify(
-                @UtreexoBatchProof {
-                    targets: array![0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15].span(),
-                    proof: array![].span()
-                },
+                @UtreexoBatchProofTrait::new_sorted(
+                    array![0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15].span(),
+                    array![].span()
+                ),
                 array![0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15].span()
             ),
         Result::Ok(())
@@ -258,16 +258,16 @@ fn test_verification_4() {
     assert_eq!(
         state
             .verify(
-                @UtreexoBatchProof {
-                    targets: array![16, 2, 5].span(),
-                    proof: array![
+                @UtreexoBatchProofTrait::new_sorted(
+                    array![16, 2, 5].span(),
+                    array![
                         3,
                         4,
                         2476911194812244264213538976037850550079366744233323933541290896048104351430,
                         361638375607381126502342109490869021742109399020176111227133094637834041180,
                     ]
                         .span()
-                },
+                ),
                 array![
                     2808234728617536643410270558566096818021668177546200472079927509023409591575,
                     2,
@@ -281,9 +281,9 @@ fn test_verification_4() {
     assert_eq!(
         state
             .verify(
-                @UtreexoBatchProof {
-                    targets: array![24, 18, 10, 15].span(),
-                    proof: array![
+                @UtreexoBatchProofTrait::new_sorted(
+                    array![24, 18, 10, 15].span(),
+                    array![
                         11,
                         14,
                         2476911194812244264213538976037850550079366744233323933541290896048104351430,
@@ -291,7 +291,7 @@ fn test_verification_4() {
                         3009277733733429566191908933097273596911357184294896938062356457901603258437,
                     ]
                         .span()
-                },
+                ),
                 array![
                     1229371501456391789924831928153470943555736434402105893904574254763197682709,
                     3613143053999770272842665473502706307602279676970981102529837756866990003067,
@@ -306,13 +306,13 @@ fn test_verification_4() {
     assert_eq!(
         state
             .verify(
-                @UtreexoBatchProof {
-                    targets: array![24, 29].span(),
-                    proof: array![
+                @UtreexoBatchProofTrait::new_sorted(
+                    array![24, 29].span(),
+                    array![
                         2920447154653459698578961030005574439730780339384884329678783637696763668074,
                     ]
                         .span()
-                },
+                ),
                 array![
                     1229371501456391789924831928153470943555736434402105893904574254763197682709,
                     361638375607381126502342109490869021742109399020176111227133094637834041180,
@@ -325,7 +325,7 @@ fn test_verification_4() {
     assert_eq!(
         state
             .verify(
-                @UtreexoBatchProof { targets: array![28, 29].span(), proof: array![].span() },
+                @UtreexoBatchProofTrait::new_sorted(array![28, 29].span(), array![].span()),
                 array![
                     1010147253610699894986241683624609428739638206544914327400350896031110287324,
                     361638375607381126502342109490869021742109399020176111227133094637834041180,
@@ -338,7 +338,7 @@ fn test_verification_4() {
     assert_eq!(
         state
             .verify(
-                @UtreexoBatchProof { targets: array![30].span(), proof: array![].span() },
+                @UtreexoBatchProofTrait::new_sorted(array![30].span(), array![].span()),
                 array![
                     2778277074578782368986165095004756321440748237082580104984033528445453379385,
                 ]
@@ -370,15 +370,15 @@ fn test_verification_5() {
     assert_eq!(
         state
             .verify(
-                @UtreexoBatchProof {
-                    targets: array![0].span(),
-                    proof: array![
+                @UtreexoBatchProofTrait::new_sorted(
+                    array![0].span(),
+                    array![
                         1,
                         359114454570462701179676018441683730149326686283278794303413350979946254235,
                         2920447154653459698578961030005574439730780339384884329678783637696763668074,
                     ]
                         .span()
-                },
+                ),
                 array![0].span()
             ),
         Result::Ok(())
@@ -387,7 +387,7 @@ fn test_verification_5() {
     assert_eq!(
         state
             .verify(
-                @UtreexoBatchProof { targets: array![14].span(), proof: array![].span() },
+                @UtreexoBatchProofTrait::new_sorted(array![14].span(), array![].span()),
                 array![14].span()
             ),
         Result::Ok(())
@@ -396,7 +396,7 @@ fn test_verification_5() {
     assert_eq!(
         state
             .verify(
-                @UtreexoBatchProof { targets: array![13].span(), proof: array![12].span() },
+                @UtreexoBatchProofTrait::new_sorted(array![13].span(), array![12].span()),
                 array![13].span()
             ),
         Result::Ok(())
@@ -405,16 +405,16 @@ fn test_verification_5() {
     assert_eq!(
         state
             .verify(
-                @UtreexoBatchProof {
-                    targets: array![0, 2, 5, 14].span(),
-                    proof: array![
+                @UtreexoBatchProofTrait::new_sorted(
+                    array![0, 2, 5, 14].span(),
+                    array![
                         1,
                         3,
                         4,
                         2476911194812244264213538976037850550079366744233323933541290896048104351430,
                     ]
                         .span()
-                },
+                ),
                 array![0, 2, 5, 14].span()
             ),
         Result::Ok(())
@@ -423,10 +423,9 @@ fn test_verification_5() {
     assert_eq!(
         state
             .verify(
-                @UtreexoBatchProof {
-                    targets: array![0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14].span(),
-                    proof: array![].span()
-                },
+                @UtreexoBatchProofTrait::new_sorted(
+                    array![0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14].span(), array![].span()
+                ),
                 array![0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14].span()
             ),
         Result::Ok(())
@@ -435,15 +434,15 @@ fn test_verification_5() {
     assert_eq!(
         state
             .verify(
-                @UtreexoBatchProof {
-                    targets: array![16, 2, 5, 14].span(),
-                    proof: array![
+                @UtreexoBatchProofTrait::new_sorted(
+                    array![16, 2, 5, 14].span(),
+                    array![
                         3,
                         4,
                         2476911194812244264213538976037850550079366744233323933541290896048104351430,
                     ]
                         .span()
-                },
+                ),
                 array![
                     2808234728617536643410270558566096818021668177546200472079927509023409591575,
                     2,
@@ -458,7 +457,7 @@ fn test_verification_5() {
     assert_eq!(
         state
             .verify(
-                @UtreexoBatchProof { targets: array![24, 25].span(), proof: array![].span() },
+                @UtreexoBatchProofTrait::new_sorted(array![24, 25].span(), array![].span()),
                 array![
                     1229371501456391789924831928153470943555736434402105893904574254763197682709,
                     2920447154653459698578961030005574439730780339384884329678783637696763668074,
@@ -471,13 +470,13 @@ fn test_verification_5() {
     assert_eq!(
         state
             .verify(
-                @UtreexoBatchProof {
-                    targets: array![24, 26].span(),
-                    proof: array![
+                @UtreexoBatchProofTrait::new_sorted(
+                    array![24, 26].span(),
+                    array![
                         2920447154653459698578961030005574439730780339384884329678783637696763668074
                     ]
                         .span()
-                },
+                ),
                 array![
                     1229371501456391789924831928153470943555736434402105893904574254763197682709,
                     2224391216833402212724735773212940252356536072547264452695587483243907176367,
@@ -490,7 +489,7 @@ fn test_verification_5() {
     assert_eq!(
         state
             .verify(
-                @UtreexoBatchProof { targets: array![28].span(), proof: array![].span() },
+                @UtreexoBatchProofTrait::new_sorted(array![28].span(), array![].span()),
                 array![
                     1010147253610699894986241683624609428739638206544914327400350896031110287324,
                 ]
@@ -504,7 +503,7 @@ fn test_verification_5() {
 fn test_deletion_1_1() {
     let state = UtreexoStumpState { roots: array![Option::Some('a')].span(), num_leaves: 1 };
 
-    let proof = UtreexoBatchProof { targets: array![].span(), proof: array![].span() };
+    let proof = UtreexoBatchProofTrait::new_sorted(array![].span(), array![].span());
 
     let leaves = array![];
 
@@ -518,7 +517,7 @@ fn test_deletion_1_1() {
 fn test_deletion_1_2() {
     let state = UtreexoStumpState { roots: array![Option::Some('a')].span(), num_leaves: 1 };
 
-    let proof = UtreexoBatchProof { targets: array![0].span(), proof: array![].span() };
+    let proof = UtreexoBatchProofTrait::new_sorted(array![0].span(), array![].span());
 
     let leaves = array!['a'];
 
@@ -543,15 +542,15 @@ fn test_deletion_8_1() {
         num_leaves: 8
     };
 
-    let proof = UtreexoBatchProof {
-        targets: array![0].span(),
-        proof: array![
+    let proof = UtreexoBatchProofTrait::new_sorted(
+        array![0].span(),
+        array![
             'b',
             1702961261074558847535372708423978610134065667337563473891781271138689292959,
             1970675917964935639615849678644334216784892342767290630432190461589093258001
         ]
             .span()
-    };
+    );
 
     let leaves = array!['a'];
 
@@ -587,14 +586,14 @@ fn test_deletion_8_2() {
         num_leaves: 8
     };
 
-    let proof = UtreexoBatchProof {
-        targets: array![0, 1].span(),
-        proof: array![
+    let proof = UtreexoBatchProofTrait::new_sorted(
+        array![0, 1].span(),
+        array![
             1702961261074558847535372708423978610134065667337563473891781271138689292959,
             1970675917964935639615849678644334216784892342767290630432190461589093258001
         ]
             .span()
-    };
+    );
 
     let leaves = array!['a', 'b'];
 
@@ -630,13 +629,11 @@ fn test_deletion_8_3() {
         num_leaves: 8
     };
 
-    let proof = UtreexoBatchProof {
-        targets: array![0, 1, 2].span(),
-        proof: array![
-            'd', 1970675917964935639615849678644334216784892342767290630432190461589093258001
-        ]
+    let proof = UtreexoBatchProofTrait::new_sorted(
+        array![0, 1, 2].span(),
+        array!['d', 1970675917964935639615849678644334216784892342767290630432190461589093258001]
             .span()
-    };
+    );
 
     let leaves = array!['a', 'b', 'c'];
 
@@ -672,9 +669,9 @@ fn test_deletion_8_4() {
         num_leaves: 8
     };
 
-    let proof = UtreexoBatchProof {
-        targets: array![0, 1, 2, 3, 4, 5, 6].span(), proof: array!['h'].span()
-    };
+    let proof = UtreexoBatchProofTrait::new_sorted(
+        array![0, 1, 2, 3, 4, 5, 6].span(), array!['h'].span()
+    );
 
     let leaves = array!['a', 'b', 'c', 'd', 'e', 'f', 'g'];
 
@@ -701,9 +698,9 @@ fn test_deletion_8_5() {
         num_leaves: 8
     };
 
-    let proof = UtreexoBatchProof {
-        targets: array![0, 1, 2, 3, 4, 5, 6, 7].span(), proof: array![].span()
-    };
+    let proof = UtreexoBatchProofTrait::new_sorted(
+        array![0, 1, 2, 3, 4, 5, 6, 7].span(), array![].span()
+    );
 
     let leaves = array!['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
 
@@ -731,13 +728,11 @@ fn test_deletion_7_1() {
         num_leaves: 7
     };
 
-    let proof = UtreexoBatchProof {
-        targets: array![0].span(),
-        proof: array![
-            'b', 1702961261074558847535372708423978610134065667337563473891781271138689292959
-        ]
+    let proof = UtreexoBatchProofTrait::new_sorted(
+        array![0].span(),
+        array!['b', 1702961261074558847535372708423978610134065667337563473891781271138689292959]
             .span()
-    };
+    );
 
     let leaves = array!['a'];
 
@@ -775,9 +770,9 @@ fn test_deletion_7_2() {
         num_leaves: 7
     };
 
-    let proof = UtreexoBatchProof {
-        targets: array![0, 2, 4, 6].span(), proof: array!['b', 'd', 'f'].span()
-    };
+    let proof = UtreexoBatchProofTrait::new_sorted(
+        array![0, 2, 4, 6].span(), array!['b', 'd', 'f'].span()
+    );
 
     let leaves = array!['a', 'c', 'e', 'g'];
 
@@ -813,9 +808,9 @@ fn test_deletion_7_3() {
         num_leaves: 7
     };
 
-    let proof = UtreexoBatchProof {
-        targets: array![1, 3, 5].span(), proof: array!['a', 'c', 'e'].span()
-    };
+    let proof = UtreexoBatchProofTrait::new_sorted(
+        array![1, 3, 5].span(), array!['a', 'c', 'e'].span()
+    );
 
     let leaves = array!['b', 'd', 'f'];
 
@@ -851,13 +846,11 @@ fn test_deletion_7_4() {
         num_leaves: 7
     };
 
-    let proof = UtreexoBatchProof {
-        targets: array![0, 6].span(),
-        proof: array![
-            'b', 1702961261074558847535372708423978610134065667337563473891781271138689292959
-        ]
+    let proof = UtreexoBatchProofTrait::new_sorted(
+        array![0, 6].span(),
+        array!['b', 1702961261074558847535372708423978610134065667337563473891781271138689292959]
             .span()
-    };
+    );
 
     let leaves = array!['a', 'g'];
 
@@ -895,7 +888,7 @@ fn test_deletion_7_5() {
         num_leaves: 7
     };
 
-    let proof = UtreexoBatchProof { targets: array![4, 5, 6].span(), proof: array![].span() };
+    let proof = UtreexoBatchProofTrait::new_sorted(array![4, 5, 6].span(), array![].span());
 
     let leaves = array!['e', 'f', 'g'];
 
@@ -931,9 +924,9 @@ fn test_deletion_7_6() {
         num_leaves: 7
     };
 
-    let proof = UtreexoBatchProof {
-        targets: array![0, 1, 2, 3, 4, 5, 6].span(), proof: array![].span()
-    };
+    let proof = UtreexoBatchProofTrait::new_sorted(
+        array![0, 1, 2, 3, 4, 5, 6].span(), array![].span()
+    );
 
     let leaves = array!['a', 'b', 'c', 'd', 'e', 'f', 'g'];
 
@@ -961,13 +954,11 @@ fn test_deletion_7_7() {
 
     // Remove 0
 
-    let proof = UtreexoBatchProof {
-        targets: array![0].span(),
-        proof: array![
-            'b', 1702961261074558847535372708423978610134065667337563473891781271138689292959
-        ]
+    let proof = UtreexoBatchProofTrait::new_sorted(
+        array![0].span(),
+        array!['b', 1702961261074558847535372708423978610134065667337563473891781271138689292959]
             .span()
-    };
+    );
 
     let leaves = array!['a'];
 
@@ -975,11 +966,10 @@ fn test_deletion_7_7() {
 
     // Remove 1
 
-    let proof = UtreexoBatchProof {
-        targets: array![8].span(),
-        proof: array![1702961261074558847535372708423978610134065667337563473891781271138689292959]
-            .span()
-    };
+    let proof = UtreexoBatchProofTrait::new_sorted(
+        array![8].span(),
+        array![1702961261074558847535372708423978610134065667337563473891781271138689292959].span()
+    );
 
     let leaves = array!['b'];
 
@@ -989,7 +979,7 @@ fn test_deletion_7_7() {
 
     // Remove 2
 
-    let proof = UtreexoBatchProof { targets: array![8].span(), proof: array!['d'].span() };
+    let proof = UtreexoBatchProofTrait::new_sorted(array![8].span(), array!['d'].span());
 
     let leaves = array!['c'];
 
@@ -999,7 +989,7 @@ fn test_deletion_7_7() {
 
     // Remove 3
 
-    let proof = UtreexoBatchProof { targets: array![12].span(), proof: array![].span() };
+    let proof = UtreexoBatchProofTrait::new_sorted(array![12].span(), array![].span());
 
     let leaves = array!['d'];
 
@@ -1009,7 +999,7 @@ fn test_deletion_7_7() {
 
     // Remove 4
 
-    let proof = UtreexoBatchProof { targets: array![4].span(), proof: array!['f'].span() };
+    let proof = UtreexoBatchProofTrait::new_sorted(array![4].span(), array!['f'].span());
 
     let leaves = array!['e'];
 
@@ -1019,7 +1009,7 @@ fn test_deletion_7_7() {
 
     // Remove 5
 
-    let proof = UtreexoBatchProof { targets: array![10].span(), proof: array![].span() };
+    let proof = UtreexoBatchProofTrait::new_sorted(array![10].span(), array![].span());
 
     let leaves = array!['f'];
 
@@ -1029,7 +1019,7 @@ fn test_deletion_7_7() {
 
     // Remove 6
 
-    let proof = UtreexoBatchProof { targets: array![6].span(), proof: array![].span() };
+    let proof = UtreexoBatchProofTrait::new_sorted(array![6].span(), array![].span());
 
     let leaves = array!['g'];
 

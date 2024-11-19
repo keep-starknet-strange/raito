@@ -31,9 +31,11 @@ def get_utreexo_data(block_height):
 
 
 def convert_proof(proof):
+    sorted_targets = list(sorted(proof["targets"]))
     return {
         "proof": list(map(convert_felt, proof["hashes"])),
         "targets": proof["targets"],
+        "idx_hints": [proof["targets"].index(t) for t in sorted_targets]
     }
 
 

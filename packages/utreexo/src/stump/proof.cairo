@@ -1,7 +1,8 @@
 use core::fmt::{Display, Formatter, Error};
 use core::num::traits::Bounded;
+use core::dict::Felt252Dict;
 use crate::parent_hash;
-use utils::{numeric::u64_next_power_of_two, sort::bubble_sort};
+use utils::{numeric::u64_next_power_of_two, sort::merged_sort};
 
 /// Utreexo inclusion proof for multiple outputs.
 /// Compatible with https://github.com/utreexo/utreexo
@@ -11,6 +12,8 @@ pub struct UtreexoBatchProof {
     pub proof: Span<felt252>,
     /// Indices of leaves to be deleted (ordered starting from 0, left to right).
     pub targets: Span<u64>,
+    /// Sorted pointers to the elements of the array containing hashes of spent outpoints.
+    pub idx_hints: Span<u32>,
 }
 
 impl UtreexoBatchProofDisplay of Display<UtreexoBatchProof> {
@@ -33,6 +36,15 @@ impl UtreexoBatchProofDisplay of Display<UtreexoBatchProof> {
 
 #[generate_trait]
 pub impl UtreexoBatchProofImpl of UtreexoBatchProofTrait {
+    fn new_sorted(targets: Span<u64>, proof: Span<felt252>) -> UtreexoBatchProof {
+        let mut idx_hints = ArrayTrait::new();
+        let num_targets = targets.len();
+        for i in 0..num_targets {
+            idx_hints.append(i.into());
+        };
+        UtreexoBatchProof { proof, targets, idx_hints: idx_hints.span(), }
+    }
+
     /// Computes leaves' roots.
     fn compute_roots(
         self: @UtreexoBatchProof, leaves: Span<felt252>, num_leaves: u64,
@@ -54,7 +66,7 @@ pub impl UtreexoBatchProofImpl of UtreexoBatchProofTrait {
             targets.append((*positions.pop_front().unwrap(), *hash));
         };
         // and sort them by position to align with the proof
-        targets = bubble_sort(targets.span());
+        targets = merged_sort(targets.span());
 
         // then we take the very first row of the forest:
         // length of the row in the actual forest
@@ -176,24 +188,11 @@ pub impl UtreexoBatchProofImpl of UtreexoBatchProofTrait {
         // (old_root, new_root), where old_root can be used to verify inclusion and new_root can be
         // used to update utreexo state
 
-        // hashes of leaves in the proof
-        let mut hashes = leaves;
-        // positions of leaves in the proof (must exactly match hashes)
-        let mut positions = *self.targets;
         // siblings, needed to compute the roots
         let mut proof = *self.proof;
 
-        if hashes.len() != positions.len() {
-            return Result::Err("Leaves do not match proof targets");
-        }
-
         // we pair positions with hashes into a single array
-        let mut targets = array![];
-        while let Option::Some(hash) = hashes.pop_front() {
-            targets.append((*positions.pop_front().unwrap(), (*hash, Option::None)));
-        };
-        // and sort them by position to align with the proof
-        targets = bubble_sort(targets.span());
+        let mut leaf_array = LeafArrayTrait::new(leaves, *self.targets, *self.idx_hints)?;
 
         // then we take the very first row of the forest:
         // length of the row in the actual forest
@@ -207,7 +206,7 @@ pub impl UtreexoBatchProofImpl of UtreexoBatchProofTrait {
         let mut row_end = row_cap;
         // we take all the targets with absolute positions in [row_start; row_end)
         // and put them into a row, also converting positions to relative, i.e. in [0; row_len)
-        let mut row = extract_row(ref targets, row_start, row_end);
+        let mut row = leaf_array.extract_row(row_start, row_end)?;
 
         // here we accumulate the result
         let mut roots = array![];
@@ -306,19 +305,27 @@ pub impl UtreexoBatchProofImpl of UtreexoBatchProofTrait {
             row_end += row_cap;
 
             // here we move all computed parents and pending targets to the next row
-            if targets.is_empty() {
+            if leaf_array.is_empty() {
                 row = next_row_computed;
             } else {
-                let mut next_row_targets = extract_row(ref targets, row_start, row_end);
-                row =
-                    if next_row_targets.is_empty() {
-                        next_row_computed
-                    } else if next_row_computed.is_empty() {
-                        next_row_targets
-                    } else {
-                        // if both arrays are not empty, we merge them into a single sorted array
-                        merge_sorted(ref next_row_targets, ref next_row_computed)
+                match leaf_array.extract_row(row_start, row_end) {
+                    Result::Ok(mut next_row_targets) => {
+                        row =
+                            if next_row_targets.is_empty() {
+                                next_row_computed
+                            } else if next_row_computed.is_empty() {
+                                next_row_targets
+                            } else {
+                                // if both arrays are not empty, we merge them into a single sorted
+                                // array
+                                merge_sorted(ref next_row_targets, ref next_row_computed)
+                            }
+                    },
+                    Result::Err(err) => {
+                        inner_result = Result::Err(err);
+                        break;
                     }
+                };
             }
         };
 
@@ -350,7 +357,7 @@ pub impl UtreexoBatchProofImpl of UtreexoBatchProofTrait {
             }
         };
 
-        let mut leaf_nodes: Array<(u64, felt252)> = bubble_sort(leaf_nodes.span());
+        let mut leaf_nodes: Array<(u64, felt252)> = merged_sort(leaf_nodes.span());
 
         // Proof nodes.
         let mut sibling_nodes: Array<felt252> = (*self.proof).into();
@@ -526,5 +533,68 @@ impl PositionPartialOrd<T, +Drop<T>> of PartialOrd<(u64, T)> {
         let (l, _) = lhs;
         let (r, _) = rhs;
         l < r
+    }
+}
+
+#[derive(Destruct)]
+pub struct LeafArray {
+    leaves: Span<felt252>,
+    targets: Span<u64>,
+    positions: Span<u32>,
+    idx_read: Felt252Dict<bool>,
+}
+
+#[generate_trait]
+impl LeafArrayImpl of LeafArrayTrait {
+    fn new(
+        leaves: Span<felt252>, targets: Span<u64>, positions: Span<u32>
+    ) -> Result<LeafArray, ByteArray> {
+        if leaves.len() != positions.len() {
+            return Result::Err("Leaves and positions must have the same length");
+        }
+        if leaves.len() != targets.len() {
+            return Result::Err("Leaves and targets must have the same length");
+        }
+        Result::Ok(LeafArray { leaves, targets, positions, idx_read: Default::default() })
+    }
+
+    fn is_empty(ref self: LeafArray) -> bool {
+        self.positions.is_empty()
+    }
+
+    fn extract_row(
+        ref self: LeafArray, row_start: u64, row_end: u64
+    ) -> Result<Array<(u64, (felt252, Option<felt252>))>, ByteArray> {
+        let mut row = array![];
+        let mut inner_result: Result<Array<(u64, (felt252, Option<felt252>))>, ByteArray> =
+            Result::Ok(
+            array![]
+        );
+
+        while let Option::Some(position) = self.positions.get(0) {
+            let idx = *position.unbox();
+            if idx >= self.leaves.len() {
+                inner_result = Result::Err(format!("Index out of bounds: {}", idx));
+                break;
+            }
+
+            let target = *self.targets[idx];
+            if target >= row_end {
+                break;
+            }
+
+            if self.idx_read.get(idx.into()) {
+                inner_result = Result::Err(format!("Index already read: {}", idx));
+                break;
+            }
+
+            self.idx_read.insert(idx.into(), true);
+            self.positions.pop_front().unwrap();
+
+            row.append((target - row_start, (*self.leaves[idx], Option::None)));
+        };
+        inner_result?;
+
+        Result::Ok(row)
     }
 }
