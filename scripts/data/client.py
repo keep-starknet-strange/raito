@@ -287,7 +287,10 @@ if __name__ == "__main__":
         "--step", type=int, default=1, help="Step size for block processing"
     )
     parser.add_argument(
-        "--mode", default="light", choices=["light", "full"], help="Client mode"
+        "--mode",
+        default="light",
+        choices=["light", "full", "utreexo"],
+        help="Client mode",
     )
     parser.add_argument(
         "--strategy",
