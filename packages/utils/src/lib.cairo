@@ -5,6 +5,7 @@ pub mod hash;
 pub mod merkle_tree;
 pub mod numeric;
 pub mod sort;
+pub mod word_array;
 
 
 // pub mod sha256;

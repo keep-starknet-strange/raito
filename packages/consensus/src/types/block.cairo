@@ -5,8 +5,8 @@
 use core::fmt::{Display, Formatter, Error};
 use super::transaction::Transaction;
 use utils::hash::Digest;
-use utils::double_sha256::double_sha256_u32_array;
-use utils::numeric::u32_byte_reverse;
+use utils::double_sha256::double_sha256_word_array;
+use utils::word_array::{WordArray, WordArrayTrait};
 
 /// Represents a block in the blockchain.
 #[derive(Drop, Copy, Debug, PartialEq, Default, Serde)]
@@ -56,17 +56,17 @@ pub struct Header {
 pub impl BlockHashImpl of BlockHash {
     /// Computes the hash of the block header given the missing fields.
     fn hash(self: @Header, prev_block_hash: Digest, merkle_root: Digest) -> Digest {
-        let mut header_data_u32: Array<u32> = array![];
+        let mut words: WordArray = Default::default();
 
-        header_data_u32.append(u32_byte_reverse(*self.version));
-        header_data_u32.append_span(prev_block_hash.value.span());
-        header_data_u32.append_span(merkle_root.value.span());
+        words.append_u32_le(*self.version);
+        words.append_span(prev_block_hash.value.span());
+        words.append_span(merkle_root.value.span());
 
-        header_data_u32.append(u32_byte_reverse(*self.time));
-        header_data_u32.append(u32_byte_reverse(*self.bits));
-        header_data_u32.append(u32_byte_reverse(*self.nonce));
+        words.append_u32_le(*self.time);
+        words.append_u32_le(*self.bits);
+        words.append_u32_le(*self.nonce);
 
-        double_sha256_u32_array(header_data_u32)
+        double_sha256_word_array(words)
     }
 }
 

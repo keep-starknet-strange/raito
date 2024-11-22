@@ -5,7 +5,8 @@ use crate::types::utxo_set::{UtxoSet, UtxoSetTrait};
 use crate::types::transaction::{OutPoint, Transaction};
 use crate::codec::{Encode, TransactionCodec};
 use crate::validation::{coinbase::is_coinbase_txid_duplicated, transaction::validate_transaction};
-use utils::{hash::Digest, merkle_tree::merkle_root, double_sha256::double_sha256_byte_array,};
+use utils::{hash::Digest, merkle_tree::merkle_root, double_sha256::double_sha256_word_array,};
+use utils::word_array::WordArrayTrait;
 
 const MAX_BLOCK_WEIGHT_LEGACY: usize = 1_000_000;
 const MAX_BLOCK_WEIGHT: usize = 4_000_000;
@@ -45,12 +46,16 @@ pub fn compute_and_validate_tx_data(
     let mut is_coinbase = true;
 
     for tx in txs {
-        let tx_bytes_legacy = @tx.encode();
-        let txid = double_sha256_byte_array(tx_bytes_legacy);
+        let tx_words = tx.encode();
+        let tx_words_span = tx_words.span();
+        let tx_byte_len = tx_words.byte_len();
+
+        let txid = double_sha256_word_array(tx_words);
 
         if block_height >= SEGWIT_BLOCK {
-            let tx_bytes_segwit = @tx
-                .encode_with_witness(tx_bytes_legacy); // SegWit transaction encoding
+            let tx_words_segwit = tx
+                .encode_with_witness(tx_words_span); // SegWit transaction encoding
+            let tx_byte_len_segwit = tx_words_segwit.byte_len();
 
             /// The wTXID for the coinbase transaction must be set to all zeros. This is because
             /// it's eventually going to contain the commitment inside it.
@@ -58,16 +63,16 @@ pub fn compute_and_validate_tx_data(
             let wtxid = if is_coinbase {
                 Zero::zero()
             } else {
-                double_sha256_byte_array(tx_bytes_segwit)
+                double_sha256_word_array(tx_words_segwit)
             };
 
-            total_weight += 3 * tx_bytes_legacy.len()
-                + tx_bytes_segwit.len(); // Calculate block weight with SegWit
+            total_weight += 3 * tx_byte_len
+                + tx_byte_len_segwit; // Calculate block weight with SegWit
 
             wtxids.append(wtxid); // Append wtxid to array
         } else {
             // For blocks before SegWit, only legacy tx weight is considered
-            total_weight += 4 * tx_bytes_legacy.len(); // Calculate block weight without SegWit
+            total_weight += 4 * tx_byte_len; // Calculate block weight without SegWit
         }
 
         txids.append(txid);
