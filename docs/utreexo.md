@@ -58,7 +58,7 @@ Also it's worth noting that before "null" was indicating a missing roots whereas
 
 ## Batch proof
 
-Batch inclusion proofs were introduced in the Utreexo paper (see Appendix) and they can reduce the total size of proof(s) significantly But the batch delete algorithm was pretty complex and IO intensive. The pollard scheme streamlined batch deletions and made batch proofs more practical. Pollar batch proof contains all the intermediate nodes that cannot be computed and which are required to eventually calculate the roots (going row by row, left to right, bottom top).
+Batch inclusion proofs were introduced in the Utreexo paper (see Appendix) and they can reduce the total size of proof(s) significantly But the batch delete algorithm was pretty complex and IO intensive. The pollard scheme streamlined batch deletions and made batch proofs more practical. Pollard batch proof contains all the intermediate nodes that cannot be computed and which are required to eventually calculate the roots (going row by row, left to right, bottom top).
 
 <p align="center" width="100%">
   <img src="./img/utreexo_proof.svg" alt=""/>
