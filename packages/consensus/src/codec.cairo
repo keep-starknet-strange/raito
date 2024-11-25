@@ -2,16 +2,18 @@
 
 use super::types::transaction::{Transaction, TxIn, TxOut, OutPoint};
 use utils::hash::Digest;
+use utils::word_array::{WordArray, WordArrayTrait, WordSpan, WordSpanTrait};
+use core::traits::DivRem;
 
 pub trait Encode<T> {
     /// Encodes using Bitcoin codec and appends to the buffer.
-    fn encode_to(self: @T, ref dest: ByteArray);
+    fn encode_to(self: @T, ref dest: WordArray);
 
-    /// Encodes using Bitcoin codec and returns a `ByteArray`.
+    /// Encodes using Bitcoin codec and returns a `WordArray`.
     fn encode(
         self: @T
-    ) -> ByteArray {
-        let mut dest: ByteArray = Default::default();
+    ) -> WordArray {
+        let mut dest: WordArray = Default::default();
         Self::encode_to(self, ref dest);
         dest
     }
@@ -19,7 +21,7 @@ pub trait Encode<T> {
 
 /// `Encode` trait implementation for `Span<T>`.
 pub impl EncodeSpan<T, +Encode<T>> of Encode<Span<T>> {
-    fn encode_to(self: @Span<T>, ref dest: ByteArray) {
+    fn encode_to(self: @Span<T>, ref dest: WordArray) {
         let items = *self;
         encode_compact_size(items.len(), ref dest);
         for item in items {
@@ -29,37 +31,42 @@ pub impl EncodeSpan<T, +Encode<T>> of Encode<Span<T>> {
 }
 
 /// `Encode` trait implementation for `ByteArray`.
+/// TODO: use WordArray for arguments instead of ByteArray.
+/// Extra optimization: predict word array offset
 pub impl EncodeByteArray of Encode<ByteArray> {
-    fn encode_to(self: @ByteArray, ref dest: ByteArray) {
+    fn encode_to(self: @ByteArray, ref dest: WordArray) {
         encode_compact_size(self.len(), ref dest);
-        dest.append(self);
+        let num_bytes = self.len();
+        for i in 0..num_bytes {
+            dest.append_u8(self[i]);
+        }
     }
 }
 
 /// `Encode` trait implementation for `u32`.
 pub impl EncodeU32 of Encode<u32> {
-    fn encode_to(self: @u32, ref dest: ByteArray) {
-        dest.append_word_rev((*self).into(), 4);
+    fn encode_to(self: @u32, ref dest: WordArray) {
+        dest.append_u32_le(*self);
     }
 }
 
 /// `Encode` trait implementation for `u64`.
 pub impl EncodeU64 of Encode<u64> {
-    fn encode_to(self: @u64, ref dest: ByteArray) {
-        dest.append_word_rev((*self).into(), 8);
+    fn encode_to(self: @u64, ref dest: WordArray) {
+        dest.append_u64_le(*self);
     }
 }
 
 /// `Encode` trait implementation for `Digest`.
 pub impl EncodeHash of Encode<Digest> {
-    fn encode_to(self: @Digest, ref dest: ByteArray) {
-        dest.append(@(*self).into());
+    fn encode_to(self: @Digest, ref dest: WordArray) {
+        dest.append_span(self.value.span());
     }
 }
 
 /// `Encode` trait implementation for `TxIn`.
 pub impl EncodeTxIn of Encode<TxIn> {
-    fn encode_to(self: @TxIn, ref dest: ByteArray) {
+    fn encode_to(self: @TxIn, ref dest: WordArray) {
         self.previous_output.encode_to(ref dest);
         (*self.script).encode_to(ref dest);
         self.sequence.encode_to(ref dest);
@@ -68,7 +75,7 @@ pub impl EncodeTxIn of Encode<TxIn> {
 
 /// `Encode` trait implementation for `TxOut`.
 pub impl EncodeTxOut of Encode<TxOut> {
-    fn encode_to(self: @TxOut, ref dest: ByteArray) {
+    fn encode_to(self: @TxOut, ref dest: WordArray) {
         self.value.encode_to(ref dest);
         (*self.pk_script).encode_to(ref dest);
     }
@@ -76,7 +83,7 @@ pub impl EncodeTxOut of Encode<TxOut> {
 
 /// `Encode` trait implementation for `OutPoint`.
 pub impl EncodeOutpoint of Encode<OutPoint> {
-    fn encode_to(self: @OutPoint, ref dest: ByteArray) {
+    fn encode_to(self: @OutPoint, ref dest: WordArray) {
         self.txid.encode_to(ref dest);
         self.vout.encode_to(ref dest);
     }
@@ -84,7 +91,7 @@ pub impl EncodeOutpoint of Encode<OutPoint> {
 
 /// `Encode` trait implementation for `Transaction`.
 pub impl EncodeTransaction of Encode<Transaction> {
-    fn encode_to(self: @Transaction, ref dest: ByteArray) {
+    fn encode_to(self: @Transaction, ref dest: WordArray) {
         self.version.encode_to(ref dest);
         self.inputs.encode_to(ref dest);
         self.outputs.encode_to(ref dest);
@@ -97,25 +104,31 @@ pub impl TransactionCodecImpl of TransactionCodec {
     /// Reencodes transaction with witness fields (for computing wtxid) given the legacy encoded
     /// bytes.
     /// We use this method to avoid double serialization.
-    fn encode_with_witness(self: @Transaction, legacy_bytes: @ByteArray) -> ByteArray {
+    fn encode_with_witness(self: @Transaction, mut tx_words: WordSpan) -> WordArray {
         if !*self.is_segwit {
-            return legacy_bytes.clone();
+            return tx_words.into();
         }
 
-        let mut dest: ByteArray = Default::default();
+        let mut dest: WordArray = Default::default();
 
-        self.version.encode_to(ref dest);
-        dest.append_byte(0); // marker
-        dest.append_byte(1); // flag
-        // Legacy bytes except for first 4 bytes (version) and last 4 bytes (locktime)
-        for i in 4..legacy_bytes.len() - 4 {
-            dest.append_byte(legacy_bytes[i]);
+        // Version & locktime
+        let (version_word, _) = tx_words.pop_front().unwrap();
+        let (lock_time_word, _) = tx_words.pop_back().unwrap();
+
+        // Tx version
+        dest.append_word(version_word, 4);
+        // Segwit market and flag
+        dest.append_word(0x0001, 2);
+        // Rest of the tx (except locktime)
+        while let Option::Some((word, num_bytes)) = tx_words.pop_front() {
+            dest.append_word(word, num_bytes);
         };
         // Append witness data
         for txin in *self.inputs {
             txin.witness.encode_to(ref dest);
         };
-        self.lock_time.encode_to(ref dest);
+        // Append locktime
+        dest.append_word(lock_time_word, 4);
 
         dest
     }
@@ -125,18 +138,17 @@ pub impl TransactionCodecImpl of TransactionCodec {
 /// Converts length value into Compact Size bytes and appends to the buffer.
 ///
 /// https://learnmeabitcoin.com/technical/general/compact-size/
-pub fn encode_compact_size(len: usize, ref dest: ByteArray) {
+pub fn encode_compact_size(len: usize, ref dest: WordArray) {
     // First convert the len into a `felt252`
-    let val: felt252 = len.try_into().unwrap();
-
     if (len < 253) {
-        dest.append_word_rev(val, 1);
+        dest.append_word(len, 1);
     } else if (len < 65536) {
-        dest.append_byte(253);
-        dest.append_word_rev(val, 2);
+        dest.append_u8(253);
+        let (hi, lo) = DivRem::div_rem(len, 0x100);
+        dest.append_word(lo * 0x100 + hi, 2);
     } else {
-        dest.append_byte(254);
-        dest.append_word_rev(val, 4);
+        dest.append_u8(254);
+        dest.append_u32_le(len);
     }
     // Note: `usize` is a `u32` alias, so lens >= 4,294,967,296 are not handled.
 }
@@ -146,40 +158,41 @@ mod tests {
     use crate::types::transaction::{Transaction, TxIn, TxOut, OutPoint};
     use super::{Encode, TransactionCodec, encode_compact_size};
     use utils::hex::{from_hex, hex_to_hash_rev};
+    use utils::word_array::{WordArrayTrait, hex::words_from_hex};
 
     #[test]
     fn test_encode_compact_size1() {
         let mut bytes = Default::default();
         encode_compact_size(1, ref bytes);
-        assert_eq!(bytes, from_hex("01"));
+        assert_eq!(bytes, words_from_hex("01"));
     }
 
     #[test]
     fn test_encode_compact_size2() {
         let mut bytes = Default::default();
         encode_compact_size(252, ref bytes);
-        assert_eq!(bytes, from_hex("fc"));
+        assert_eq!(bytes, words_from_hex("fc"));
     }
 
     #[test]
     fn test_encode_compact_size3() {
         let mut bytes = Default::default();
         encode_compact_size(253, ref bytes);
-        assert_eq!(bytes, from_hex("fdfd00"));
+        assert_eq!(bytes, words_from_hex("fdfd00"));
     }
 
     #[test]
     fn test_encode_compact_size4() {
         let mut bytes = Default::default();
         encode_compact_size(65535, ref bytes);
-        assert_eq!(bytes, from_hex("fdffff"));
+        assert_eq!(bytes, words_from_hex("fdffff"));
     }
 
     #[test]
     fn test_encode_compact_size5() {
         let mut bytes = Default::default();
         encode_compact_size(65536, ref bytes);
-        assert_eq!(bytes, from_hex("fe00000100"));
+        assert_eq!(bytes, words_from_hex("fe00000100"));
     }
 
     #[test]
@@ -187,7 +200,7 @@ mod tests {
         // u32 max
         let mut bytes = Default::default();
         encode_compact_size(4294967295, ref bytes);
-        assert_eq!(bytes, from_hex("feffffffff"));
+        assert_eq!(bytes, words_from_hex("feffffffff"));
     }
 
     #[test]
@@ -203,7 +216,7 @@ mod tests {
 
         let bytes = txout.encode();
 
-        let expected: ByteArray = from_hex(
+        let expected = words_from_hex(
             "00f2052a01000000434104d46c4968bde02899d2aa0963367c7a6ce34eec332b32e42e5f3407e052d64ac625da6f0718e7b302140434bd725706957c092db53805b821a85b23a7ac61725bac"
         );
         assert_eq!(bytes, expected);
@@ -224,7 +237,7 @@ mod tests {
         };
         let bytes = outpoint.encode();
 
-        let expected = from_hex(
+        let expected = words_from_hex(
             "0000000000000000000000000000000000000000000000000000000000000000ffffffff"
         );
         assert_eq!(bytes, expected);
@@ -245,7 +258,7 @@ mod tests {
         };
         let bytes = outpoint.encode();
 
-        let expected = from_hex(
+        let expected = words_from_hex(
             "c997a5e56e104102fa209c6a852dd90660a20b2d9c352423edce25857fcd370400000000"
         );
         assert_eq!(bytes, expected);
@@ -271,7 +284,7 @@ mod tests {
         };
         let bytes = txin.encode();
 
-        let expected = from_hex(
+        let expected = words_from_hex(
             "0000000000000000000000000000000000000000000000000000000000000000ffffffff0704ffff001d0102ffffffff"
         );
         assert_eq!(bytes, expected);
@@ -300,7 +313,7 @@ mod tests {
         };
         let bytes = txin.encode();
 
-        let expected = from_hex(
+        let expected = words_from_hex(
             "f59f3ff699917790b02b3248716b22cdc1f8ddafe583ea28d100ae262f60ce66010000008c493046022100f814323e8be180dd90d063adb8f94b31801fb68ce97eb1acb32970a390bfa72f02210085ed8af17e90e2415d400d7cb08311535243d55461be9982bb3408271aa954aa0141045d21d60c22da05383ef130e3fc314b28c7dd378c762931f8c85e5e708d97b9779d83135a8c3cfe202f435e2781c99329043080627c5eb71f73be103fe45c2028ffffffff"
         );
         assert_eq!(bytes, expected);
@@ -383,8 +396,8 @@ mod tests {
         };
 
         let tx_encoded = tx.encode();
-        let wtx_encoded = tx.encode_with_witness(@tx_encoded);
-        let tx_encoded_expect = from_hex(
+        let wtx_encoded = tx.encode_with_witness(tx_encoded.span());
+        let tx_encoded_expect = words_from_hex(
             "0100000003a763b772966d9f580120455fe8fe264fe40f10461633f02a32b22b117654a7b8000000008c493046022100838b5bd094d57898d359569af330312e2dd99f8a1db7add92dc1704808625dbf022100978160771ea1e3ffe014e1fa7559f0bb5ffd32f6b63f19225bf3be110c2f2d65014104c273b18442afb2263698a09da205bb7a18f23037f9c285fc789874fe012ac32b40a18f12191a0015f2506b5a395d9845005b90a34a813715e9cc5dbf8024ca18ffffffff973a4e2f628a56b88051e65dc78fa70c41372ad79cd32f911c95a18f905eeda7010000008b48304502200b2ff9ed1689c9403b4bf0aca89fa4a53004c2c6ad66b4df25ae8361eef172cc022100c8f5fcd4eeb02762d9b40de1013ad7283042585caec8e60be873689de8e29a4a014104cdadb5199b0d9d356ae03fbf891f28d761547d79a0c5dae24998fa84a147e39f27ce03cd8efd8bd27e9dffc78744d66b2942b76801f79ae4028028e7122a3bb1fffffffff59f3ff699917790b02b3248716b22cdc1f8ddafe583ea28d100ae262f60ce66010000008c493046022100f814323e8be180dd90d063adb8f94b31801fb68ce97eb1acb32970a390bfa72f02210085ed8af17e90e2415d400d7cb08311535243d55461be9982bb3408271aa954aa0141045d21d60c22da05383ef130e3fc314b28c7dd378c762931f8c85e5e708d97b9779d83135a8c3cfe202f435e2781c99329043080627c5eb71f73be103fe45c2028ffffffff0290051000000000001976a914bafe7b8f25824ff18f698d2878d50c6fc43dd1d088acb038ac06000000001976a914ef48d8584b96d95992a664d524e52007b036754188ac00000000"
         );
         assert_eq!(tx_encoded, tx_encoded_expect);
@@ -601,9 +614,9 @@ mod tests {
         };
 
         let tx_encoded = tx.encode();
-        let wtx_encoded = tx.encode_with_witness(@tx_encoded);
+        let wtx_encoded = tx.encode_with_witness(tx_encoded.span());
 
-        let tx_encoded_expect = from_hex(
+        let tx_encoded_expect = words_from_hex(
             "010000000807fd289f78ec7c1aaeb529d987d2c93f76744e1bfba7a03f4f8fd1055a8937cf010000008c493046022100ebbd4f6b412cafa26c6484ec9a16704177964f2570f0867de633cb3f3b48f3520221008211917fee214c506686a7bba3414b9cbbc33769c06ce49f29197ac863c8bee1014104b13bab6066a13e3d672a0b11447659f1986888c9e5cbf9ee6c57283ccf5662c5eeeefc02ad3c38141b6872ab46429f784802892dea1306c909754b3fcb1f1d0cffffffffde5b26f07dd74f1fc6808b1cd10adba4edeaf718303ecd21c0ff3f41f22690e6010000008b483045022100b61a58bc0a99fe55445a44f9a77b2a97a946283f34db3b26fcae24ea8750b6cc02204faf7572c8504b129a699250fdb90f9524a875052a49fb464bcc381f9a1a31af0141045327413c7cec34e5b3cee5e186221ffaab3e808bc9564cf8f110ee9bf4c270a6df410d98705867220e4cbfdde4a42e27288171416935655667c48a3acba08c25ffffffff75eab2494d0d60e8deec4d726349c35f892faa59b03827f984fa213e27fc6f11010000008b483045022100f3fe3bb13a02d226c7876f5f20618e4752e65fdb52fed9558bc280f1196dc6d202205c8bae389dd40524bbd6b890c989b32f476ba8a555ff052c00e469fcf18100730141041dd42c00f540555c3785748f9acacff422ec8c403f080f16a12b69681a8cf3d4ddd0f7b767b60a9ce2809c52b7f2e3100cf82857eb597226a4281ebd99fec983ffffffff4cb4d42710596ac619d5c0b4371b426264c945b335233a1b9212143b9d29f7a6010000008b48304502203edc1344854875d946fa88991249e043e112e2a4716c6758658e4053d96d13d5022100c6388938893200b95c6f0ff718cb875df01b25aead54e6bcaf15ecc4f22bfdd10141047ce313f56017f2b0bf12619a4b3d06ea3926b68b005c6f4b77d05711bc750bc423f22c5bd639265a699f24483d56566efdf86941fda31f741da8e73aa75674a6ffffffff0ffafe93bbb51cd9d18dd8d4844ec2dc3c983db7936200c8f0e1bb05dc365a9e000000008b483045022031e8a1071c3ffb7642156ef6b23db33f8fb74034ed365f161f87721e2267bdc3022100b3b64ecba04459f7b378ad569315e3750eee1debe9520e54b4cd84c49115e586014104ee1a3b5815a9b2f641f013e6ad0b45b297093ef2e61754f6513cb9d565fe90f57488452cf8d467ce429344b53177d53903d9cd20ac56c7bb94b9932c0fc44873ffffffff6ac2bd3c60e6da86ea68905d22388a9706001ccce0947172d1e2dc4af72dee10010000008c49304602210097542b50d8c59dc36103409bbe8a3b127b71ef54cde7cc6b86dfb347b5fc2593022100b0feb2951ea9bd21e70d382513bb5230ea598ba1ad27b16ace79731e286aef42014104190af8345785f062b8f91730c5f1aa0527a540859c2d5bbf8b0e15553c6c596308fb02a4c617baaa81ef970bbb6b5267ecdac860a89a5c84f55c6cc0c242b197ffffffff0bd85fe16cc68f2e8804ee403b17bc9c2685bcd456ee52ee28153529574c8fce010000008b4830450220788dfeb9abbbee831f80fa96421e215ee1d7cf173492fd064756fc881f6b9a2d022100a20ce16d007ca199674cadff4b29c0da7c644efb3e8238045d37848e9d45d7c3014104afdd6ae6cc3df689e7e9bced930cdac7fc7099da002d0fe6ad376dc69159664bb2ef4de657b1f96eeb4f5bd80a0b2f01fcd7fe8dd0eb8d7539c2e985d87ef18fffffffffc936b07c95ba8eea42b63aede2e2714e3a93b0942e8b0e1e9dbafbff6ec4225d010000008b483045022100d08ff8ae18a308718e58955525e57f5482409769b72366c04657c5687a15947802206c77aa5472d324921a3bc58821dd0debc1fb41674fe45ae19bd655be6e6b867a0141042825c68ba0a68b07c64afd202f5eefd7cf587ded6a1b80b16606d27157634642e01ecc67e6f072e5feadfd23a9a4222407e3a10068f8745b1296fa905e80c091ffffffff0200e40b54020000001976a914552362dca64805372f3a1c1bfbe190bd148569a188acca37bf08000000001976a9140b0a49a0f4db52c7aa4cc913cebc49b26500d78288ac00000000"
         );
 
@@ -710,8 +723,8 @@ mod tests {
         };
 
         let tx_encoded = tx.encode();
-        let wtx_encoded = tx.encode_with_witness(@tx_encoded);
-        let tx_encoded_expect = from_hex(
+        let wtx_encoded = tx.encode_with_witness(tx_encoded.span());
+        let tx_encoded_expect = words_from_hex(
             "01000000011d53a73e254f65de0488379811ebbbbbbae21c3d604d65458c0e9bda5c3d7f02010000008a47304402203c31af8b4ad8e035aac5a7b2bcda81c26a5a2ce791df00bbf207aabceff246410220545e269decc8c777beccda949118028a9fa3a2a5452414ee3ff21068db18fcab0141047a38fd20560d9e258b11bf6d71fec9f049a4786d0374bc858317848ad32970337ab61ae3bd3c0296d7dce49d7ad0fb46ba0f0743960ea3324a57699a997e5ad9ffffffff0c00e1f505000000001976a91406f1b6716309948fa3b07b0a6b66804fdfd6873188ac00e1f505000000001976a91406f1b670791f9256bffc898f474271c22f4bb94988ac00e1f505000000001976a91406f1b6703d3f56427bfcfd372f952d50d04b64bd88ac00e1f505000000001976a91406f1b66ffe49df7fce684df16c62f59dc9adbd3f88ac00e1f505000000001976a91406f1b66fc9e59a7b4554cf2e6094032cd9ee45c488ac00e1f505000000001976a91406f1b66fd59a34755c37a8f701f43e937cdbeb1388ac00e1f505000000001976a91406f1b66fb6c0e253f24c74d3ed972ff447ca285c88ac00e1f505000000001976a91406f1b66f8567c6e527fc89b4d664069d20b0969388ac00e1f505000000001976a91406f1b66f6d8af8b3e984e5d807c0e1dd6964796288ac00e1f505000000001976a91406f1b66f5a691ff3169702d615b77d0af1451e7788ac404b4c00000000001976a91406f1b66e25393fabd2b23a237e4bdfd4c2c35fac88ac62878ea1010000001976a9146e9470910291611d311ab76b89a878fead10594788ac00000000"
         );
 
@@ -768,15 +781,15 @@ mod tests {
         };
 
         let tx_encoded = tx.encode();
-        let wtx_encoded = tx.encode_with_witness(@tx_encoded);
+        let wtx_encoded = tx.encode_with_witness(tx_encoded.span());
 
-        let tx_encoded_expect = from_hex(
+        let tx_encoded_expect = words_from_hex(
             "02000000013ce63f3c9d1375b3d7fc59516dbe57120fe3c912a31ebc29241897b16215cc390000000000fdffffff020f900100000000001976a914998db5e1126bc3a5e04109fbf253a7900462410e88acd9bd150000000000160014579bf4f06510c8683f2451262b6685b00012e46f3f600a00"
         );
-        let wtx_encoded_expect = from_hex(
+        let wtx_encoded_expect = words_from_hex(
             "020000000001013ce63f3c9d1375b3d7fc59516dbe57120fe3c912a31ebc29241897b16215cc390000000000fdffffff020f900100000000001976a914998db5e1126bc3a5e04109fbf253a7900462410e88acd9bd150000000000160014579bf4f06510c8683f2451262b6685b00012e46f024730440220537f470c1a18dc1a9d233c0b6af1d2ce18a07f3b244e4d9d54e0e60c34c55e67022058169cd11ac42374cda217d6e28143abd0e79549f7b84acc6542817466dc9b3001210301c1768b48843933bd7f0e8782716e8439fc44723d3745feefde2d57b761f5033f600a00"
         );
-        let total_weight = 3 * tx_encoded.len() + wtx_encoded.len();
+        let total_weight = 3 * tx_encoded.byte_len() + wtx_encoded.byte_len();
 
         assert_eq!(tx_encoded, tx_encoded_expect);
         assert_eq!(wtx_encoded, wtx_encoded_expect);
@@ -855,15 +868,15 @@ mod tests {
         };
 
         let tx_encoded = tx.encode();
-        let wtx_encoded = tx.encode_with_witness(@tx_encoded);
+        let wtx_encoded = tx.encode_with_witness(tx_encoded.span());
 
-        let tx_encoded_expect = from_hex(
+        let tx_encoded_expect = words_from_hex(
             "02000000026f999fbed1c97711bf5610bef9428e9d620afb56320bcb4342fab85aca4824db0000000000ffffffff7b2d4d7c46df64c6911aeabce062be27f0782fc20292c6174ec248b2e7373f1c0100000000ffffffff027cfa0400000000001600148812478461956e68872e7f3e8782d5ecb58b9ec15453010000000000160014857f3f59abc3998e771f07d8f06d3ec6eb5d2da200000000"
         );
-        let wtx_encoded_expect = from_hex(
+        let wtx_encoded_expect = words_from_hex(
             "020000000001026f999fbed1c97711bf5610bef9428e9d620afb56320bcb4342fab85aca4824db0000000000ffffffff7b2d4d7c46df64c6911aeabce062be27f0782fc20292c6174ec248b2e7373f1c0100000000ffffffff027cfa0400000000001600148812478461956e68872e7f3e8782d5ecb58b9ec15453010000000000160014857f3f59abc3998e771f07d8f06d3ec6eb5d2da202483045022100e79c80ee315b6ef4e29f9bd5776b14d50c2c23a378cde2407b8adc907352ecf902200a4b2d2b5db31883e78e84f5d81f0fcc7e5fa54c5a0dc98335cd58efed3c4f19012103e5d541eed7ccea6f94324bdcce27427c0e20b626bb9f2d2cbe2e81f22ae4aafa02473044022065bb4676eb5bebb69241ebdd121dbef5d8e468e7b0af96576d62a38be7af83b70220604dacc80a67fd0511da9cfaeeb72b0ab58c255e712a209325902f50e60ad0bb012103e5d541eed7ccea6f94324bdcce27427c0e20b626bb9f2d2cbe2e81f22ae4aafa00000000"
         );
-        let total_weight = 3 * tx_encoded.len() + wtx_encoded.len();
+        let total_weight = 3 * tx_encoded.byte_len() + wtx_encoded.byte_len();
 
         assert_eq!(tx_encoded, tx_encoded_expect);
         assert_eq!(wtx_encoded, wtx_encoded_expect);
@@ -919,15 +932,15 @@ mod tests {
         };
 
         let tx_encoded = tx.encode();
-        let wtx_encoded = tx.encode_with_witness(@tx_encoded);
+        let wtx_encoded = tx.encode_with_witness(tx_encoded.span());
 
-        let tx_encoded_expect = from_hex(
+        let tx_encoded_expect = words_from_hex(
             "0100000001438afdb24e414d54cc4a17a95f3d40be90d23dfeeb07a48e9e782178efddd8890100000000fdffffff020db9a60000000000160014b549d227c9edd758288112fe3573c1f85240166880a81201000000001976a914ae28f233464e6da03c052155119a413d13f3380188ac00000000"
         );
-        let wtx_encoded_expect = from_hex(
+        let wtx_encoded_expect = words_from_hex(
             "01000000000101438afdb24e414d54cc4a17a95f3d40be90d23dfeeb07a48e9e782178efddd8890100000000fdffffff020db9a60000000000160014b549d227c9edd758288112fe3573c1f85240166880a81201000000001976a914ae28f233464e6da03c052155119a413d13f3380188ac024730440220200254b765f25126334b8de16ee4badf57315c047243942340c16cffd9b11196022074a9476633f093f229456ad904a9d97e26c271fc4f01d0501dec008e4aae71c2012102c37a3c5b21a5991d3d7b1e203be195be07104a1a19e5c2ed82329a56b431213000000000"
         );
-        let total_weight = 3 * tx_encoded.len() + wtx_encoded.len();
+        let total_weight = 3 * tx_encoded.byte_len() + wtx_encoded.byte_len();
 
         assert_eq!(tx_encoded, tx_encoded_expect);
         assert_eq!(wtx_encoded, wtx_encoded_expect);

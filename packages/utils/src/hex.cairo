@@ -69,7 +69,7 @@ pub fn hex_to_hash_rev(hex_string: ByteArray) -> Digest {
     }
 }
 
-fn hex_char_to_nibble(hex_char: u8) -> u8 {
+pub fn hex_char_to_nibble(hex_char: u8) -> u8 {
     if hex_char >= 48 && hex_char <= 57 {
         // 0-9
         hex_char - 48

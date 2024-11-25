@@ -3,7 +3,8 @@
 //! https://learnmeabitcoin.com/technical/mining/coinbase-transaction/
 
 use crate::types::transaction::{Transaction, TxIn, TxOut};
-use utils::{hash::{Digest, DigestIntoByteArray}, double_sha256::{double_sha256_byte_array}};
+use utils::{hash::{Digest, DigestIntoByteArray}, double_sha256::double_sha256_word_array};
+use utils::word_array::{WordArray, WordArrayTrait};
 
 const BIP_34_BLOCK_HEIGHT: u32 = 227_836;
 const BIP_141_BLOCK_HEIGHT: u32 = 481_824;
@@ -123,18 +124,15 @@ fn compute_block_reward(block_height: u32) -> u64 {
 
 /// Calculates wtxid commitment.
 fn calculate_wtxid_commitment(wtxid_root: Digest) -> Digest {
-    // Construct witness reserved value
+    let mut buffer: WordArray = Default::default();
+
+    buffer.append_span(wtxid_root.value.span());
+
+    // Witness reserved value
     // 0000000000000000000000000000000000000000000000000000000000000000
-    let witness_value_bytes: ByteArray =
-        "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0";
+    buffer.append_span(array![0, 0, 0, 0, 0, 0, 0, 0].span());
 
-    // Convert wtxid_root to ByteArray
-    let wtxid_root_bytes: ByteArray = wtxid_root.into();
-
-    // Concat (witness root hash | witness reserved value)
-    let res = ByteArrayTrait::concat(@wtxid_root_bytes, @witness_value_bytes);
-
-    double_sha256_byte_array(@res)
+    double_sha256_word_array(buffer)
 }
 
 /// validates segwit output (BIP-141).
