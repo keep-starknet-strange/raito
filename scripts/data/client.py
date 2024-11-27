@@ -148,71 +148,61 @@ def process_batch(job, cancellation_token=None):
     with open(arguments_file, "w") as af:
         af.write(str(format_args(job.batch_file, job.execute_scripts, False)))
 
-    try:
-        stdout, stderr, returncode = run(
-            [
-                "scarb",
-                "cairo-run",
-                "--no-build",
-                "--package",
-                "client",
-                "--function",
-                "main",
-                "--arguments-file",
-                str(arguments_file),
-            ],
-            cancellation_token=cancellation_token,
-        )
+    stdout, stderr, returncode = run(
+        [
+            "scarb",
+            "cairo-run",
+            "--no-build",
+            "--package",
+            "client",
+            "--function",
+            "main",
+            "--arguments-file",
+            str(arguments_file),
+        ],
+        cancellation_token=cancellation_token,
+    )
 
-        if (
-            returncode != 0
-            or "FAIL" in stdout
-            or "error" in stdout
-            or "panicked" in stdout
-        ):
-            error = stdout or stderr
-            if returncode == -9:
-                match = re.search(r"gas_spent=(\d+)", stdout)
-                gas_info = (
-                    f", gas spent: {int(match.group(1))}"
-                    if match
-                    else ", no gas info found"
-                )
-                error = f"Return code -9, killed by OOM?{gas_info}"
-                message = error
+    if (
+        returncode != 0
+        or "FAIL" in stdout
+        or "error" in stdout
+        or "panicked" in stdout
+    ):
+        error = stdout or stderr
+        if returncode == -9:
+            match = re.search(r"gas_spent=(\d+)", stdout)
+            gas_info = (
+                f", gas spent: {int(match.group(1))}"
+                if match
+                else ", no gas info found"
+            )
+            error = f"Return code -9, killed by OOM?{gas_info}"
+            message = error
+        else:
+            error_match = re.search(r"error='([^']*)'", error)
+            if error_match:
+                message = error_match.group(1)
             else:
-                error_match = re.search(r"error='([^']*)'", error)
+                error_match = re.search(r"error: (.*)", error, re.DOTALL)
+
                 if error_match:
                     message = error_match.group(1)
                 else:
-                    error_match = re.search(r"error: (.*)", error, re.DOTALL)
+                    message = error
 
-                    if error_match:
-                        message = error_match.group(1)
-                    else:
-                        message = error
+        message = re.sub(r"\s+", " ", message)
 
-            message = re.sub(r"\s+", " ", message)
-
-            logger.error(f"{job} error: {message}")
-            logger.debug(f"Full error while processing: {job}:\n{error}")
-        else:
-            match = re.search(r"gas_spent=(\d+)", stdout)
-            gas_info = (
-                f"gas spent: {int(match.group(1))}" if match else "no gas info found"
-            )
-            logger.info(f"{job} done, {gas_info}")
-            if not match:
-                logger.warning(f"{job}: no gas info found")
-
-    except ShutdownRequested:
-        logger.debug(f"Cancellation requested while processing {job}")
-        return
-    except subprocess.TimeoutExpired:
-        logger.warning(f"Timeout while terminating subprocess for {job}")
-    except Exception as e:
-        logger.error(f"Unexpected error while processing {job}: {e}")
-
+        logger.error(f"{job} error: {message}")
+        logger.debug(f"Full error while processing: {job}:\n{error}")
+    else:
+        match = re.search(r"gas_spent=(\d+)", stdout)
+        gas_info = (
+            f"gas spent: {int(match.group(1))}" if match else "no gas info found"
+        )
+        logger.info(f"{job} done, {gas_info}")
+        if not match:
+            logger.warning(f"{job}: no gas info found")
 
 # Producer function: Generates data and adds jobs to the queue
 def job_producer(job_gen, cancellation_token=None):
@@ -256,8 +246,10 @@ def job_producer(job_gen, cancellation_token=None):
     finally:
         logger.debug("Producer is exiting...")
         # Signal end of jobs to consumers
-        for _ in range(THREAD_POOL_SIZE):
-            job_queue.put(None)
+        if not(cancellation_token and cancellation_token.is_cancelled()):
+            for _ in range(THREAD_POOL_SIZE):
+                logger.warning(f"Producer is putting None into the queue..., full: {job_queue.full()}")
+                job_queue.put(None, block=False)
 
         with weight_lock:
             weight_lock.notify_all()
@@ -298,6 +290,11 @@ def job_consumer(process_job, cancellation_token=None):
             try:
                 logger.debug(f"Executing job: {job}...")
                 process_job(job, cancellation_token)
+            except ShutdownRequested:
+                logger.debug(f"Cancellation requested while processing {job}")
+                return
+            except subprocess.TimeoutExpired:
+                logger.warning(f"Timeout while terminating subprocess for {job}")                
             except Exception as e:
                 logger.error(f"Error while processing job: {job}:\n{e}")
 
@@ -316,6 +313,7 @@ def job_consumer(process_job, cancellation_token=None):
                 logger.error("Error in the consumer: %s", e)
             break
 
+    logger.debug("Job consumer done.")
 
 def main(start, blocks, step, mode, strategy, execute_scripts):
     # Create a centralized cancellation mechanism
