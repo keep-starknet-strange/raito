@@ -45,11 +45,9 @@ fn main(arguments: Array<felt252>) -> Array<felt252> {
     let mut gas_before = get_available_gas();
     let mut args = arguments.span();
 
-    let Args { mut chain_state, blocks, expected_chain_state, utreexo_args, execute_script } =
-        Serde::deserialize(
-        ref args
-    )
-        .expect('Failed to deserialize');
+    let Args {
+        mut chain_state, blocks, expected_chain_state, utreexo_args, execute_script,
+    } = Serde::deserialize(ref args).expect('Failed to deserialize');
 
     let mut utxo_set: UtxoSet = Default::default();
 
@@ -59,7 +57,7 @@ fn main(arguments: Array<felt252>) -> Array<felt252> {
             Result::Err(err) => {
                 println!("FAIL: gas_spent={} error='{}'", gas_before - get_available_gas(), err);
                 panic!();
-            }
+            },
         }
     };
 
@@ -68,7 +66,7 @@ fn main(arguments: Array<felt252>) -> Array<felt252> {
             "FAIL: gas_spent={} error='expected chain state {:?}, actual {:?}'",
             gas_before - get_available_gas(),
             expected_chain_state,
-            chain_state
+            chain_state,
         );
         panic!();
     }
@@ -84,7 +82,7 @@ fn main(arguments: Array<felt252>) -> Array<felt252> {
             Result::Err(err) => {
                 println!("FAIL: gas_spent={} error='{:?}'", gas_before - get_available_gas(), err);
                 panic!();
-            }
+            },
         }
 
         state = state.add(utxo_set.leaves_to_add.span());
@@ -94,7 +92,7 @@ fn main(arguments: Array<felt252>) -> Array<felt252> {
                 "FAIL: gas_spent={} error='expected utreexo state {:?}, actual {:?}'",
                 gas_before - get_available_gas(),
                 expected_state,
-                state
+                state,
             );
             panic!();
         }
@@ -123,7 +121,7 @@ impl ArgsSerde of Serde<Args> {
         };
         let execute_script: bool = Serde::deserialize(ref serialized).expect('execute_script');
         Option::Some(
-            Args { chain_state, blocks, expected_chain_state, utreexo_args, execute_script, }
+            Args { chain_state, blocks, expected_chain_state, utreexo_args, execute_script },
         )
     }
 }

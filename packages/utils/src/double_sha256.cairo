@@ -37,16 +37,16 @@ mod tests {
         // hashlib.sha256(sha256(b"bitcoin").digest()).hexdigest()
         assert_eq!(
             double_sha256_word_array(words_from_hex("626974636f696e")).into(),
-            from_hex("f1ef1bf105d788352c052453b15a913403be59b90ddf9f7c1f937edee8938dc5")
+            from_hex("f1ef1bf105d788352c052453b15a913403be59b90ddf9f7c1f937edee8938dc5"),
         );
 
         // hashlib.sha256(sha256(bytes.fromhex("00000001000000020000000300000004000000050000000600000007")).digest()).hexdigest()
         assert_eq!(
             double_sha256_word_array(
-                words_from_hex("00000001000000020000000300000004000000050000000600000007")
+                words_from_hex("00000001000000020000000300000004000000050000000600000007"),
             )
                 .into(),
-            from_hex("489b8eeb4024cb77ab057616ebf7f8d4405aa0bd3ad5f42e6b4c20580e011ac4")
+            from_hex("489b8eeb4024cb77ab057616ebf7f8d4405aa0bd3ad5f42e6b4c20580e011ac4"),
         );
     }
 
@@ -56,7 +56,7 @@ mod tests {
         // 8)).digest()).hexdigest()
         assert_eq!(
             double_sha256_parent(@Digest { value: [1; 8] }, @Digest { value: [2; 8] }).into(),
-            from_hex("14a6e4a4caef969126944266724d11866b39b3390cee070b0aa4c9390cd77f47")
+            from_hex("14a6e4a4caef969126944266724d11866b39b3390cee070b0aa4c9390cd77f47"),
         )
     }
 }

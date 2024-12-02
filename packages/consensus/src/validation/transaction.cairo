@@ -3,7 +3,7 @@
 use crate::types::transaction::{OutPoint, Transaction};
 use crate::types::utxo_set::{UtxoSet, UtxoSetTrait};
 use crate::validation::locktime::{
-    is_input_final, validate_absolute_locktime, validate_relative_locktime
+    is_input_final, validate_absolute_locktime, validate_relative_locktime,
 };
 use utils::hash::Digest;
 
@@ -19,7 +19,7 @@ pub fn validate_transaction(
     block_time: u32,
     median_time_past: u32,
     txid: Digest,
-    ref utxo_set: UtxoSet
+    ref utxo_set: UtxoSet,
 ) -> Result<u64, ByteArray> {
     if (*tx.inputs).is_empty() {
         return Result::Err("transaction inputs are empty");
@@ -37,32 +37,31 @@ pub fn validate_transaction(
 
     // TODO: BIP68 enabled for tx with version >= 2 (is it critical?)
 
-    for input in *tx
-        .inputs {
-            // Ensure that the output is not yet spent and spends it
-            inner_result = utxo_set.spend(input.previous_output);
+    for input in *tx.inputs {
+        // Ensure that the output is not yet spent and spends it
+        inner_result = utxo_set.spend(input.previous_output);
+        if inner_result.is_err() {
+            break;
+        }
+
+        if *input.previous_output.is_coinbase {
+            inner_result =
+                validate_coinbase_maturity(*input.previous_output.block_height, block_height);
             if inner_result.is_err() {
                 break;
             }
+        }
 
-            if *input.previous_output.is_coinbase {
-                inner_result =
-                    validate_coinbase_maturity(*input.previous_output.block_height, block_height);
-                if inner_result.is_err() {
-                    break;
-                }
+        if *tx.version >= 2 && !is_input_final(*input.sequence) {
+            inner_result = validate_relative_locktime(input, block_height, median_time_past);
+            if inner_result.is_err() {
+                break;
             }
+            is_tx_final = false;
+        }
 
-            if *tx.version >= 2 && !is_input_final(*input.sequence) {
-                inner_result = validate_relative_locktime(input, block_height, median_time_past);
-                if inner_result.is_err() {
-                    break;
-                }
-                is_tx_final = false;
-            }
-
-            total_input_amount += *input.previous_output.data.value;
-        };
+        total_input_amount += *input.previous_output.data.value;
+    };
 
     if inner_result.is_err() {
         return Result::Err(inner_result.unwrap_err());
@@ -77,22 +76,21 @@ pub fn validate_transaction(
     let mut total_output_amount = 0;
 
     let mut vout = 0;
-    for output in *tx
-        .outputs {
-            // Add outpoint to the cache if the corresponding transaction output will be used
-            // as a transaction input in the same block(s), or add it to the utreexo otherwise
-            let outpoint = OutPoint {
-                txid, vout, data: *output, block_height, median_time_past, is_coinbase: false,
-            };
-
-            inner_result = utxo_set.add(outpoint);
-            if inner_result.is_err() {
-                break;
-            }
-
-            total_output_amount += *output.value;
-            vout += 1;
+    for output in *tx.outputs {
+        // Add outpoint to the cache if the corresponding transaction output will be used
+        // as a transaction input in the same block(s), or add it to the utreexo otherwise
+        let outpoint = OutPoint {
+            txid, vout, data: *output, block_height, median_time_past, is_coinbase: false,
         };
+
+        inner_result = utxo_set.add(outpoint);
+        if inner_result.is_err() {
+            break;
+        }
+
+        total_output_amount += *output.value;
+        vout += 1;
+    };
 
     inner_result?;
     compute_transaction_fee(total_input_amount, total_output_amount)
@@ -100,11 +98,11 @@ pub fn validate_transaction(
 
 /// Computes the transaction fee and ensures transaction fee is not negative.
 fn compute_transaction_fee(
-    total_input_amount: u64, total_output_amount: u64
+    total_input_amount: u64, total_output_amount: u64,
 ) -> Result<u64, ByteArray> {
     if total_output_amount > total_input_amount {
         return Result::Err(
-            format!("Negative fee (output {total_output_amount} > input {total_input_amount})")
+            format!("Negative fee (output {total_output_amount} > input {total_input_amount})"),
         );
     }
 
@@ -119,7 +117,7 @@ fn validate_coinbase_maturity(output_height: u32, block_height: u32) -> Result<(
                 "Output is not mature (output height: {}, current block height: {})",
                 output_height,
                 block_height,
-            )
+            ),
         );
     } else {
         return Result::Ok(());
@@ -152,12 +150,12 @@ mod tests {
             inputs: array![
                 TxIn {
                     script: @from_hex(
-                        "01091d8d76a82122082246acbb6cc51c839d9012ddaca46048de07ca8eec221518200241cdb85fab4815c6c624d6e932774f3fdf5fa2a1d3a1614951afb83269e1454e2002443047"
+                        "01091d8d76a82122082246acbb6cc51c839d9012ddaca46048de07ca8eec221518200241cdb85fab4815c6c624d6e932774f3fdf5fa2a1d3a1614951afb83269e1454e2002443047",
                     ),
                     sequence: 0xffffffff,
                     previous_output: OutPoint {
                         txid: hex_to_hash_rev(
-                            "0437cd7f8525ceed2324359c2d0ba26006d92d856a9c20fa0241106ee5a597c9"
+                            "0437cd7f8525ceed2324359c2d0ba26006d92d856a9c20fa0241106ee5a597c9",
                         ),
                         vout: 0x00000000,
                         data: TxOut { value: 100, ..Default::default() },
@@ -166,20 +164,20 @@ mod tests {
                         is_coinbase: true,
                     },
                     witness: array![].span(),
-                }
+                },
             ]
                 .span(),
             outputs: array![
                 TxOut {
                     value: 90,
                     pk_script: @from_hex(
-                        "ac4cd86c7e4f702ac7d5debaf126068a3b30b7c1212c145fdfa754f59773b3aae71484a22f30718d37cd74f325229b15f7a2996bf0075f90131bf5c509fe621aae0441"
+                        "ac4cd86c7e4f702ac7d5debaf126068a3b30b7c1212c145fdfa754f59773b3aae71484a22f30718d37cd74f325229b15f7a2996bf0075f90131bf5c509fe621aae0441",
                     ),
                     cached: false,
-                }
+                },
             ]
                 .span(),
-            lock_time: 0
+            lock_time: 0,
         };
 
         let tx_words = tx.encode();
@@ -205,10 +203,10 @@ mod tests {
                     value: 50,
                     pk_script: @from_hex("76a914000000000000000000000000000000000000000088ac"),
                     cached: false,
-                }
+                },
             ]
                 .span(),
-            lock_time: 0
+            lock_time: 0,
         };
 
         let tx_words = tx.encode();
@@ -230,7 +228,7 @@ mod tests {
                     sequence: 0xffffffff,
                     previous_output: OutPoint {
                         txid: hex_to_hash_rev(
-                            "0000000000000000000000000000000000000000000000000000000000000000"
+                            "0000000000000000000000000000000000000000000000000000000000000000",
                         ),
                         vout: 0,
                         data: TxOut { value: 100, ..Default::default() },
@@ -239,11 +237,11 @@ mod tests {
                         is_coinbase: false,
                     },
                     witness: array![].span(),
-                }
+                },
             ]
                 .span(),
             outputs: array![].span(),
-            lock_time: 0
+            lock_time: 0,
         };
 
         let tx_words = tx.encode();
@@ -265,7 +263,7 @@ mod tests {
                     sequence: 0xfffffffe, // Absolute locktime
                     previous_output: OutPoint {
                         txid: hex_to_hash_rev(
-                            "0000000000000000000000000000000000000000000000000000000000000000"
+                            "0000000000000000000000000000000000000000000000000000000000000000",
                         ),
                         vout: 0,
                         data: TxOut { value: 100, ..Default::default() },
@@ -274,7 +272,7 @@ mod tests {
                         is_coinbase: false,
                     },
                     witness: array![].span(),
-                }
+                },
             ]
                 .span(),
             outputs: array![
@@ -282,7 +280,7 @@ mod tests {
                     value: 50,
                     pk_script: @from_hex("76a914000000000000000000000000000000000000000088ac"),
                     cached: false,
-                }
+                },
             ]
                 .span(),
             lock_time: 500000 // Block height locktime
@@ -296,7 +294,7 @@ mod tests {
         let result = validate_transaction(@tx, 500000, 0, 0, txid, ref utxo_set);
         assert_eq!(
             result.unwrap_err().into(),
-            "Transaction locktime 500000 is not lesser than current block height 500000"
+            "Transaction locktime 500000 is not lesser than current block height 500000",
         );
 
         utxo_set = Default::default();
@@ -318,7 +316,7 @@ mod tests {
                     sequence: 0xfffffffe, // Not final
                     previous_output: OutPoint {
                         txid: hex_to_hash_rev(
-                            "0000000000000000000000000000000000000000000000000000000000000000"
+                            "0000000000000000000000000000000000000000000000000000000000000000",
                         ),
                         vout: 0,
                         data: TxOut { value: 100, ..Default::default() },
@@ -327,7 +325,7 @@ mod tests {
                         is_coinbase: false,
                     },
                     witness: array![].span(),
-                }
+                },
             ]
                 .span(),
             outputs: array![
@@ -335,7 +333,7 @@ mod tests {
                     value: 50,
                     pk_script: @from_hex("76a914000000000000000000000000000000000000000088ac"),
                     cached: false,
-                }
+                },
             ]
                 .span(),
             lock_time: 1600000000 // UNIX timestamp locktime
@@ -349,7 +347,7 @@ mod tests {
         let result = validate_transaction(@tx, 0, 1600000000, 1600000000, txid, ref utxo_set);
         assert_eq!(
             result.unwrap_err().into(),
-            "Transaction locktime 1600000000 is not lesser than current block time 1600000000"
+            "Transaction locktime 1600000000 is not lesser than current block time 1600000000",
         );
 
         utxo_set = Default::default();
@@ -370,7 +368,7 @@ mod tests {
                     sequence: 0xffffffff, // Final
                     previous_output: OutPoint {
                         txid: hex_to_hash_rev(
-                            "0000000000000000000000000000000000000000000000000000000000000000"
+                            "0000000000000000000000000000000000000000000000000000000000000000",
                         ),
                         vout: 0,
                         data: TxOut { value: 100, ..Default::default() },
@@ -379,7 +377,7 @@ mod tests {
                         is_coinbase: false,
                     },
                     witness: array![].span(),
-                }
+                },
             ]
                 .span(),
             outputs: array![
@@ -387,7 +385,7 @@ mod tests {
                     value: 50,
                     pk_script: @from_hex("76a914000000000000000000000000000000000000000088ac"),
                     cached: false,
-                }
+                },
             ]
                 .span(),
             lock_time: 1600000000 // UNIX timestamp locktime
@@ -419,7 +417,7 @@ mod tests {
                     sequence: 0xffffffff, // Final
                     previous_output: OutPoint {
                         txid: hex_to_hash_rev(
-                            "0000000000000000000000000000000000000000000000000000000000000000"
+                            "0000000000000000000000000000000000000000000000000000000000000000",
                         ),
                         vout: 0,
                         data: TxOut { value: 100, ..Default::default() },
@@ -428,7 +426,7 @@ mod tests {
                         is_coinbase: false,
                     },
                     witness: array![].span(),
-                }
+                },
             ]
                 .span(),
             outputs: array![
@@ -436,7 +434,7 @@ mod tests {
                     value: 50,
                     pk_script: @from_hex("76a914000000000000000000000000000000000000000088ac"),
                     cached: false,
-                }
+                },
             ]
                 .span(),
             lock_time: 500000 // Block height locktime
@@ -470,7 +468,7 @@ mod tests {
                     sequence: 0xfffffffe,
                     previous_output: OutPoint {
                         txid: hex_to_hash_rev(
-                            "0000000000000000000000000000000000000000000000000000000000000000"
+                            "0000000000000000000000000000000000000000000000000000000000000000",
                         ),
                         vout: 0,
                         data: TxOut { value: 100, ..Default::default() },
@@ -479,7 +477,7 @@ mod tests {
                         is_coinbase: true,
                     },
                     witness: array![].span(),
-                }
+                },
             ]
                 .span(),
             outputs: array![
@@ -487,10 +485,10 @@ mod tests {
                     value: 50,
                     pk_script: @from_hex("76a914000000000000000000000000000000000000000088ac"),
                     cached: false,
-                }
+                },
             ]
                 .span(),
-            lock_time: 0
+            lock_time: 0,
         };
 
         let tx_words = tx.encode();
@@ -513,7 +511,7 @@ mod tests {
                     sequence: 0xfffffffe,
                     previous_output: OutPoint {
                         txid: hex_to_hash_rev(
-                            "0000000000000000000000000000000000000000000000000000000000000000"
+                            "0000000000000000000000000000000000000000000000000000000000000000",
                         ),
                         vout: 0,
                         data: TxOut { value: 100, ..Default::default() },
@@ -522,7 +520,7 @@ mod tests {
                         is_coinbase: true,
                     },
                     witness: array![].span(),
-                }
+                },
             ]
                 .span(),
             outputs: array![
@@ -530,10 +528,10 @@ mod tests {
                     value: 50,
                     pk_script: @from_hex("76a914000000000000000000000000000000000000000088ac"),
                     cached: false,
-                }
+                },
             ]
                 .span(),
-            lock_time: 0
+            lock_time: 0,
         };
 
         let tx_words = tx.encode();
@@ -557,7 +555,7 @@ mod tests {
                     sequence: 0xfffffffe,
                     previous_output: OutPoint {
                         txid: hex_to_hash_rev(
-                            "0000000000000000000000000000000000000000000000000000000000000000"
+                            "0000000000000000000000000000000000000000000000000000000000000000",
                         ),
                         vout: 0,
                         data: TxOut { value: 100, pk_script: @from_hex(""), cached: true },
@@ -566,7 +564,7 @@ mod tests {
                         is_coinbase: false,
                     },
                     witness: array![].span(),
-                }
+                },
             ]
                 .span(),
             outputs: array![
@@ -574,10 +572,10 @@ mod tests {
                     value: 50,
                     pk_script: @from_hex("76a914000000000000000000000000000000000000000088ac"),
                     cached: false,
-                }
+                },
             ]
                 .span(),
-            lock_time: 0
+            lock_time: 0,
         };
 
         let tx_words = tx.encode();
@@ -601,7 +599,7 @@ mod tests {
                     sequence: 0xfffffffe,
                     previous_output: OutPoint {
                         txid: hex_to_hash_rev(
-                            "0000000000000000000000000000000000000000000000000000000000000000"
+                            "0000000000000000000000000000000000000000000000000000000000000000",
                         ),
                         vout: 0,
                         data: TxOut { value: 100, pk_script: @from_hex(""), cached: false },
@@ -610,7 +608,7 @@ mod tests {
                         is_coinbase: false,
                     },
                     witness: array![].span(),
-                }
+                },
             ]
                 .span(),
             outputs: array![
@@ -618,10 +616,10 @@ mod tests {
                     value: 50,
                     pk_script: @from_hex("76a914000000000000000000000000000000000000000088ac"),
                     cached: false,
-                }
+                },
             ]
                 .span(),
-            lock_time: 0
+            lock_time: 0,
         };
 
         let tx_words = tx.encode();
@@ -648,7 +646,7 @@ mod tests {
                     sequence: 0xfffffffe,
                     previous_output: OutPoint {
                         txid: hex_to_hash_rev(
-                            "0000000000000000000000000000000000000000000000000000000000000000"
+                            "0000000000000000000000000000000000000000000000000000000000000000",
                         ),
                         vout: 0,
                         data: TxOut { value: 100, pk_script: @from_hex(""), cached: true },
@@ -657,7 +655,7 @@ mod tests {
                         is_coinbase: false,
                     },
                     witness: array![].span(),
-                }
+                },
             ]
                 .span(),
             outputs: array![
@@ -665,10 +663,10 @@ mod tests {
                     value: 50,
                     pk_script: @from_hex("76a914000000000000000000000000000000000000000088ac"),
                     cached: false,
-                }
+                },
             ]
                 .span(),
-            lock_time: 0
+            lock_time: 0,
         };
 
         let tx_words = tx.encode();
@@ -695,7 +693,7 @@ mod tests {
                     sequence: 0xfffffffe,
                     previous_output: OutPoint {
                         txid: hex_to_hash_rev(
-                            "0000000000000000000000000000000000000000000000000000000000000000"
+                            "0000000000000000000000000000000000000000000000000000000000000000",
                         ),
                         vout: 0,
                         data: TxOut { value: 100, pk_script: @from_hex(""), cached: false },
@@ -704,7 +702,7 @@ mod tests {
                         is_coinbase: false,
                     },
                     witness: array![].span(),
-                }
+                },
             ]
                 .span(),
             outputs: array![
@@ -712,7 +710,7 @@ mod tests {
                     value: 50,
                     pk_script: @from_hex("76a914000000000000000000000000000000000000000088ac"),
                     cached: true,
-                }
+                },
             ]
                 .span(),
             lock_time: 0,
@@ -751,7 +749,7 @@ mod tests {
                     sequence: 0xfffffffe,
                     previous_output: OutPoint {
                         txid: hex_to_hash_rev(
-                            "0000000000000000000000000000000000000000000000000000000000000000"
+                            "0000000000000000000000000000000000000000000000000000000000000000",
                         ),
                         vout: 0,
                         data: TxOut { value: 100, pk_script: @from_hex(""), cached: true },
@@ -766,7 +764,7 @@ mod tests {
                     sequence: 0xfffffffe,
                     previous_output: OutPoint {
                         txid: hex_to_hash_rev(
-                            "0000000000000000000000000000000000000000000000000000000000000000"
+                            "0000000000000000000000000000000000000000000000000000000000000000",
                         ),
                         vout: 0,
                         data: TxOut { value: 100, pk_script: @from_hex(""), cached: true },
@@ -775,7 +773,7 @@ mod tests {
                         is_coinbase: false,
                     },
                     witness: array![].span(),
-                }
+                },
             ]
                 .span(),
             outputs: array![
@@ -783,7 +781,7 @@ mod tests {
                     value: 50,
                     pk_script: @from_hex("76a914000000000000000000000000000000000000000088ac"),
                     cached: false,
-                }
+                },
             ]
                 .span(),
             lock_time: 0,
@@ -814,7 +812,7 @@ mod tests {
                     sequence: 0xfffffffe,
                     previous_output: OutPoint {
                         txid: hex_to_hash_rev(
-                            "0000000000000000000000000000000000000000000000000000000000000000"
+                            "0000000000000000000000000000000000000000000000000000000000000000",
                         ),
                         vout: 0,
                         data: TxOut { value: 100, pk_script: @from_hex(""), cached: false },
@@ -829,7 +827,7 @@ mod tests {
                     sequence: 0xfffffffe,
                     previous_output: OutPoint {
                         txid: hex_to_hash_rev(
-                            "0000000000000000000000000000000000000000000000000000000000000000"
+                            "0000000000000000000000000000000000000000000000000000000000000000",
                         ),
                         vout: 0,
                         data: TxOut { value: 100, pk_script: @from_hex(""), cached: false },
@@ -838,7 +836,7 @@ mod tests {
                         is_coinbase: false,
                     },
                     witness: array![].span(),
-                }
+                },
             ]
                 .span(),
             outputs: array![
@@ -846,7 +844,7 @@ mod tests {
                     value: 50,
                     pk_script: @from_hex("76a914000000000000000000000000000000000000000088ac"),
                     cached: false,
-                }
+                },
             ]
                 .span(),
             lock_time: 0,

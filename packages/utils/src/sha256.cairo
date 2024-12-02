@@ -35,10 +35,8 @@ pub fn compute_sha256_byte_array(arr: @ByteArray) -> [u32; 8] {
 
 /// Cairo implementation of the corelib `compute_sha256_u32_array` function.
 pub fn compute_sha256_u32_array(
-    mut input: Array<u32>, last_input_word: u32, last_input_num_bytes: u32
-    ) -> [
-    u32
-; 8] {
+    mut input: Array<u32>, last_input_word: u32, last_input_num_bytes: u32,
+) -> [u32; 8] {
     add_sha256_padding(ref input, last_input_word, last_input_num_bytes);
 
     let result = sha256_inner(input.span(), 0, k.span(), h.span());
@@ -267,79 +265,19 @@ fn ssig1(x: u32) -> u32 {
     result.try_into().unwrap()
 }
 
-const h: [
-    u32
-    ; 8] = [
-    0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, 0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19
+const h: [u32; 8] = [
+    0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, 0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19,
 ];
 
-const k: [
-    u32
-    ; 64] = [
-    0x428a2f98,
-    0x71374491,
-    0xb5c0fbcf,
-    0xe9b5dba5,
-    0x3956c25b,
-    0x59f111f1,
-    0x923f82a4,
-    0xab1c5ed5,
-    0xd807aa98,
-    0x12835b01,
-    0x243185be,
-    0x550c7dc3,
-    0x72be5d74,
-    0x80deb1fe,
-    0x9bdc06a7,
-    0xc19bf174,
-    0xe49b69c1,
-    0xefbe4786,
-    0x0fc19dc6,
-    0x240ca1cc,
-    0x2de92c6f,
-    0x4a7484aa,
-    0x5cb0a9dc,
-    0x76f988da,
-    0x983e5152,
-    0xa831c66d,
-    0xb00327c8,
-    0xbf597fc7,
-    0xc6e00bf3,
-    0xd5a79147,
-    0x06ca6351,
-    0x14292967,
-    0x27b70a85,
-    0x2e1b2138,
-    0x4d2c6dfc,
-    0x53380d13,
-    0x650a7354,
-    0x766a0abb,
-    0x81c2c92e,
-    0x92722c85,
-    0xa2bfe8a1,
-    0xa81a664b,
-    0xc24b8b70,
-    0xc76c51a3,
-    0xd192e819,
-    0xd6990624,
-    0xf40e3585,
-    0x106aa070,
-    0x19a4c116,
-    0x1e376c08,
-    0x2748774c,
-    0x34b0bcb5,
-    0x391c0cb3,
-    0x4ed8aa4a,
-    0x5b9cca4f,
-    0x682e6ff3,
-    0x748f82ee,
-    0x78a5636f,
-    0x84c87814,
-    0x8cc70208,
-    0x90befffa,
-    0xa4506ceb,
-    0xbef9a3f7,
-    0xc67178f2
+const k: [u32; 64] = [
+    0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
+    0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3, 0x72be5d74, 0x80deb1fe, 0x9bdc06a7, 0xc19bf174,
+    0xe49b69c1, 0xefbe4786, 0x0fc19dc6, 0x240ca1cc, 0x2de92c6f, 0x4a7484aa, 0x5cb0a9dc, 0x76f988da,
+    0x983e5152, 0xa831c66d, 0xb00327c8, 0xbf597fc7, 0xc6e00bf3, 0xd5a79147, 0x06ca6351, 0x14292967,
+    0x27b70a85, 0x2e1b2138, 0x4d2c6dfc, 0x53380d13, 0x650a7354, 0x766a0abb, 0x81c2c92e, 0x92722c85,
+    0xa2bfe8a1, 0xa81a664b, 0xc24b8b70, 0xc76c51a3, 0xd192e819, 0xd6990624, 0xf40e3585, 0x106aa070,
+    0x19a4c116, 0x1e376c08, 0x2748774c, 0x34b0bcb5, 0x391c0cb3, 0x4ed8aa4a, 0x5b9cca4f, 0x682e6ff3,
+    0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208, 0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2,
 ];
 
 #[cfg(test)]
@@ -354,14 +292,14 @@ mod tests {
         let digest = DigestTrait::new(compute_sha256_byte_array(@input));
         assert_eq!(
             from_hex("E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855"),
-            digest.into()
+            digest.into(),
         );
 
         let input: ByteArray = "abc";
         let digest = DigestTrait::new(compute_sha256_byte_array(@input));
         assert_eq!(
             from_hex("ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad"),
-            digest.into()
+            digest.into(),
         );
 
         // Following tests have been inspired by the following test suite:
@@ -370,7 +308,7 @@ mod tests {
         let digest = DigestTrait::new(compute_sha256_byte_array(@input));
         assert_eq!(
             from_hex("248d6a61d20638b8e5c026930c3e6039a33ce45964ff2167f6ecedd419db06c1"),
-            digest.into()
+            digest.into(),
         );
 
         let input: ByteArray =
@@ -378,21 +316,21 @@ mod tests {
         let digest = DigestTrait::new(compute_sha256_byte_array(@input));
         assert_eq!(
             from_hex("cf5b16a778af8380036ce59e7b0492370b249b11e8f07a51afac45037afee9d1"),
-            digest.into()
+            digest.into(),
         );
 
         let input: ByteArray = "This is exactly 64 bytes long, not counting the terminating byte";
         let digest = DigestTrait::new(compute_sha256_byte_array(@input));
         assert_eq!(
             from_hex("ab64eff7e88e2e46165e29f2bce41826bd4c7b3552f6b382a9e7d3af47c245f8"),
-            digest.into()
+            digest.into(),
         );
 
         let input: ByteArray = "For this sample, this 63-byte string will be used as input data";
         let digest = DigestTrait::new(compute_sha256_byte_array(@input));
         assert_eq!(
             from_hex("f08a78cbbaee082b052ae0708f32fa1e50c5c421aa772ba5dbb406a2ea6be342"),
-            digest.into()
+            digest.into(),
         );
 
         let input: ByteArray =
@@ -400,7 +338,7 @@ mod tests {
         let digest = DigestTrait::new(compute_sha256_byte_array(@input));
         assert_eq!(
             from_hex("0ab803344830f92089494fb635ad00d76164ad6e57012b237722df0d7ad26896"),
-            digest.into()
+            digest.into(),
         );
 
         let input: ByteArray =
@@ -408,14 +346,14 @@ mod tests {
         let digest = DigestTrait::new(compute_sha256_byte_array(@input));
         assert_eq!(
             from_hex("e4326d0459653d7d3514674d713e74dc3df11ed4d30b4013fd327fdb9e394c26"),
-            digest.into()
+            digest.into(),
         );
 
         let input: ByteArray = "The quick brown fox jumps over the lazy dog";
         let digest = DigestTrait::new(compute_sha256_byte_array(@input));
         assert_eq!(
             from_hex("d7a8fbb307d7809469ca9abcb0082e4f8d5651e46d3cdb762d02d0bf37c9e592"),
-            digest.into()
+            digest.into(),
         );
 
         let input: ByteArray =
@@ -423,7 +361,7 @@ mod tests {
         let digest = DigestTrait::new(compute_sha256_byte_array(@input));
         assert_eq!(
             from_hex("2ce675bd3b70e104d696d1b25bf3d42b2b45cd776d4f590f210f12c44bf473d5"),
-            digest.into()
+            digest.into(),
         );
     }
 }

@@ -99,7 +99,7 @@ pub struct OutPoint {
     /// seconds.
     pub median_time_past: u32,
     /// Determines if the outpoint is a coinbase transaction.
-    pub is_coinbase: bool
+    pub is_coinbase: bool,
 }
 
 
@@ -148,7 +148,7 @@ pub impl OutPointHashImpl of OutPointHashTrait {
 /// `Default` trait implementation for `TxOut`.
 impl TxOutDefault of Default<TxOut> {
     fn default() -> TxOut {
-        TxOut { value: 0, pk_script: @"", cached: false, }
+        TxOut { value: 0, pk_script: @"", cached: false }
     }
 }
 
@@ -161,7 +161,7 @@ impl TransactionDisplay of Display<Transaction> {
             *self.is_segwit,
             (*self.inputs).len(),
             (*self.outputs).len(),
-            *self.lock_time
+            *self.lock_time,
         );
         f.buffer.append(@str);
         Result::Ok(())
@@ -176,7 +176,7 @@ impl TxInDisplay of Display<TxIn> {
             *self.script,
             *self.sequence,
             *self.previous_output.txid,
-            (*self.witness).len()
+            (*self.witness).len(),
         );
         f.buffer.append(@str);
         Result::Ok(())
@@ -200,7 +200,7 @@ impl OutPointDisplay of Display<OutPoint> {
             *self.data,
             *self.block_height,
             *self.median_time_past,
-            *self.is_coinbase
+            *self.is_coinbase,
         );
         f.buffer.append(@str);
         Result::Ok(())
@@ -214,7 +214,7 @@ impl TxOutDisplay of Display<TxOut> {
             "TxOut {{ value: {}, pk_script: {}, cached: {} }}",
             *self.value,
             *self.pk_script,
-            *self.cached
+            *self.cached,
         );
         f.buffer.append(@str);
         Result::Ok(())
@@ -260,7 +260,7 @@ mod tests {
 
     #[derive(Debug, Drop, Default)]
     pub struct HashState {
-        pub value: Array<felt252>
+        pub value: Array<felt252>,
     }
 
     impl HashStateImpl of HashStateTrait<HashState> {
@@ -279,13 +279,13 @@ mod tests {
     pub fn test_outpoint_poseidon_hash_cb9() {
         let mut coinbase_9_utxo = OutPoint {
             txid: hex_to_hash_rev(
-                "0437cd7f8525ceed2324359c2d0ba26006d92d856a9c20fa0241106ee5a597c9"
+                "0437cd7f8525ceed2324359c2d0ba26006d92d856a9c20fa0241106ee5a597c9",
             ),
             vout: 0,
             data: TxOut {
                 value: 5000000000,
                 pk_script: @from_hex(
-                    "410411db93e1dcdb8a016b49840f8c53bc1eb68a382e97b1482ecad7b148a6909a5cb2e0eaddfb84ccf9744464f82e160bfa9b8b64f9d4c03f999b8643f656b412a3ac"
+                    "410411db93e1dcdb8a016b49840f8c53bc1eb68a382e97b1482ecad7b148a6909a5cb2e0eaddfb84ccf9744464f82e160bfa9b8b64f9d4c03f999b8643f656b412a3ac",
                 ),
                 cached: false,
             },
@@ -309,13 +309,13 @@ mod tests {
             5,
             9,
             1231470988,
-            1
+            1,
         ];
         assert_eq!(expected, state.value);
 
         let hash = coinbase_9_utxo.hash();
         assert_eq!(
-            761592244424273723796345514960638980240531938129162865626185984897576522513, hash
+            761592244424273723796345514960638980240531938129162865626185984897576522513, hash,
         );
     }
 
@@ -323,13 +323,13 @@ mod tests {
     pub fn test_outpoint_poseidon_hash_cb1() {
         let mut coinbase_9_utxo = OutPoint {
             txid: hex_to_hash_rev(
-                "0e3e2357e806b6cdb1f70b54c3a3a17b6714ee1f0e68bebb44a74b1efd512098"
+                "0e3e2357e806b6cdb1f70b54c3a3a17b6714ee1f0e68bebb44a74b1efd512098",
             ),
             vout: 0,
             data: TxOut {
                 value: 5000000000,
                 pk_script: @from_hex(
-                    "410496b538e853519c726a2c91e61ec11600ae1390813a627c66fb8be7947be63c52da7589379515d4e0a604f8141781e62294721166bf621e73a82cbf2342c858eeac"
+                    "410496b538e853519c726a2c91e61ec11600ae1390813a627c66fb8be7947be63c52da7589379515d4e0a604f8141781e62294721166bf621e73a82cbf2342c858eeac",
                 ),
                 cached: false,
             },
@@ -353,13 +353,13 @@ mod tests {
             5,
             1,
             1231006505,
-            1
+            1,
         ];
         assert_eq!(expected, state.value);
 
         let hash = coinbase_9_utxo.hash();
         assert_eq!(
-            49459078824306138476779209834441505868925737545954320330266544605873965565, hash
+            49459078824306138476779209834441505868925737545954320330266544605873965565, hash,
         );
     }
 }

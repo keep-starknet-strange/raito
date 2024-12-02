@@ -42,12 +42,12 @@ pub impl StumpUtreexoAccumulatorImpl of StumpUtreexoAccumulator {
             leaves += 1;
         };
 
-        UtreexoStumpState { roots: new_roots.span(), num_leaves: leaves, }
+        UtreexoStumpState { roots: new_roots.span(), num_leaves: leaves }
     }
 
     /// Verifies that specified leaves are part of the utreexo forest given a proof.
     fn verify(
-        self: @UtreexoStumpState, proof: @UtreexoBatchProof, leaves: Span<felt252>
+        self: @UtreexoStumpState, proof: @UtreexoBatchProof, leaves: Span<felt252>,
     ) -> Result<(), ByteArray> {
         let computed_roots = proof.compute_roots(leaves, *self.num_leaves)?;
         let num_computed = computed_roots.len();
@@ -74,7 +74,7 @@ pub impl StumpUtreexoAccumulatorImpl of StumpUtreexoAccumulator {
                     num_matched,
                     computed_roots,
                     self.roots,
-                )
+                ),
             );
         }
 
@@ -84,7 +84,7 @@ pub impl StumpUtreexoAccumulatorImpl of StumpUtreexoAccumulator {
     /// Verifies that the specified leaves are part of the utreexo forest given the proof,
     /// deletes them and returns an updated state.
     fn verify_and_delete(
-        self: @UtreexoStumpState, proof: @UtreexoBatchProof, leaves: Span<felt252>
+        self: @UtreexoStumpState, proof: @UtreexoBatchProof, leaves: Span<felt252>,
     ) -> Result<UtreexoStumpState, ByteArray> {
         let mut computed_roots = proof
             .compute_roots_with_deletion(leaves, *self.num_leaves)?
@@ -92,22 +92,21 @@ pub impl StumpUtreexoAccumulatorImpl of StumpUtreexoAccumulator {
         let mut new_roots = array![];
 
         // Note that roots are sorted top down
-        for maybe_root in *self
-            .roots {
-                if let Option::Some(our_root) = maybe_root {
-                    let computed_len = computed_roots.len();
-                    if computed_len != 0 {
-                        // Computed roots are in reversed order (sorted bottom up)
-                        let (their_root, new_root) = computed_roots[computed_len - 1];
-                        if our_root == their_root {
-                            computed_roots.pop_back().unwrap();
-                            new_roots.append(*new_root);
-                            continue;
-                        }
+        for maybe_root in *self.roots {
+            if let Option::Some(our_root) = maybe_root {
+                let computed_len = computed_roots.len();
+                if computed_len != 0 {
+                    // Computed roots are in reversed order (sorted bottom up)
+                    let (their_root, new_root) = computed_roots[computed_len - 1];
+                    if our_root == their_root {
+                        computed_roots.pop_back().unwrap();
+                        new_roots.append(*new_root);
+                        continue;
                     }
                 }
-                new_roots.append(*maybe_root);
-            };
+            }
+            new_roots.append(*maybe_root);
+        };
 
         if !computed_roots.is_empty() {
             return Result::Err("Proof verification / leaf deletion failed");
@@ -118,27 +117,24 @@ pub impl StumpUtreexoAccumulatorImpl of StumpUtreexoAccumulator {
 
     /// Legacy implementation of proof verification.
     fn verify_legacy(
-        self: @UtreexoStumpState, proof: @UtreexoBatchProof, del_hashes: Span<felt252>
+        self: @UtreexoStumpState, proof: @UtreexoBatchProof, del_hashes: Span<felt252>,
     ) -> Result<(), ByteArray> {
         let computed_roots: Span<felt252> = proof
             .compute_roots_legacy(del_hashes, *self.num_leaves)?;
         let mut number_matched_roots: u32 = 0;
 
-        for i in 0
-            ..computed_roots
-                .len() {
-                    for root in *self
-                        .roots {
-                            match root {
-                                Option::Some(root) => {
-                                    if (computed_roots[i] == root) {
-                                        number_matched_roots += 1;
-                                    };
-                                },
-                                Option::None => {},
-                            };
+        for i in 0..computed_roots.len() {
+            for root in *self.roots {
+                match root {
+                    Option::Some(root) => {
+                        if (computed_roots[i] == root) {
+                            number_matched_roots += 1;
                         };
+                    },
+                    Option::None => {},
                 };
+            };
+        };
 
         let computed_roots_len = computed_roots.len();
 

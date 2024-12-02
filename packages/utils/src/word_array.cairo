@@ -79,7 +79,7 @@ pub impl WordArrayImpl of WordArrayTrait {
     fn append_word(ref self: WordArray, word: u32, num_bytes: u32) {
         assert!(num_bytes <= 4, "Out of bounds `num_bytes`: {}", num_bytes);
         let (num_full_words, last_input_num_bytes) = DivRem::div_rem(
-            self.last_input_num_bytes + num_bytes, 4
+            self.last_input_num_bytes + num_bytes, 4,
         );
 
         if num_full_words == 1 {
@@ -190,7 +190,7 @@ pub impl WordArrayImpl of WordArrayTrait {
         WordSpan {
             input: self.input.span(),
             last_input_word: *self.last_input_word,
-            last_input_num_bytes: *self.last_input_num_bytes
+            last_input_num_bytes: *self.last_input_num_bytes,
         }
     }
 
@@ -240,21 +240,20 @@ pub mod hex {
         let mut result: ByteArray = Default::default();
 
         while let Option::Some((word, num_bytes)) = words.pop_front() {
-            for i in 0
-                ..num_bytes {
-                    let div: NonZero<u32> = match (num_bytes - 1 - i) {
-                        0 => 1,
-                        1 => 0x100,
-                        2 => 0x10000,
-                        3 => 0x1000000,
-                        _ => panic!("num_bytes out of bounds"),
-                    };
-                    let (value, _) = DivRem::div_rem(word, div);
-                    let (_, value) = DivRem::div_rem(value, 0x100);
-                    let (l, r) = DivRem::div_rem(value, 16);
-                    result.append_byte(alphabet.at(l).expect('l'));
-                    result.append_byte(alphabet.at(r).expect('r'));
-                }
+            for i in 0..num_bytes {
+                let div: NonZero<u32> = match (num_bytes - 1 - i) {
+                    0 => 1,
+                    1 => 0x100,
+                    2 => 0x10000,
+                    3 => 0x1000000,
+                    _ => panic!("num_bytes out of bounds"),
+                };
+                let (value, _) = DivRem::div_rem(word, div);
+                let (_, value) = DivRem::div_rem(value, 0x100);
+                let (l, r) = DivRem::div_rem(value, 16);
+                result.append_byte(alphabet.at(l).expect('l'));
+                result.append_byte(alphabet.at(r).expect('r'));
+            }
         };
 
         result

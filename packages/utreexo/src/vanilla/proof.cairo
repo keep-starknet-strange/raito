@@ -19,7 +19,7 @@ impl UtreexoProofDisplay of Display<UtreexoProof> {
             proofs.append(@format!("{},", proof));
         };
         let str: ByteArray = format!(
-            "UtreexoProof {{ proof: {}, leaf_index: {} }}", *self.leaf_index, @proofs
+            "UtreexoProof {{ proof: {}, leaf_index: {} }}", *self.leaf_index, @proofs,
         );
         f.buffer.append(@str);
         Result::Ok(())
@@ -36,18 +36,17 @@ pub impl UtreexoProofImpl of UtreexoProofTrait {
         let mut curr_node = leaf_hash;
         let mut node_index = *self.leaf_index;
 
-        for sibling in *self
-            .proof {
-                let (next_node_index, is_right) = DivRem::div_rem(node_index, 2);
+        for sibling in *self.proof {
+            let (next_node_index, is_right) = DivRem::div_rem(node_index, 2);
 
-                let (left, right) = if is_right == 0 {
-                    (curr_node, *sibling)
-                } else {
-                    (*sibling, curr_node)
-                };
-                curr_node = parent_hash(left, right);
-                node_index = next_node_index;
+            let (left, right) = if is_right == 0 {
+                (curr_node, *sibling)
+            } else {
+                (*sibling, curr_node)
             };
+            curr_node = parent_hash(left, right);
+            node_index = next_node_index;
+        };
         // Return the computed root (or the node itself if the proof is empty).
         curr_node
     }

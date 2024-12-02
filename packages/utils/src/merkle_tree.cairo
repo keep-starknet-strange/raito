@@ -43,7 +43,7 @@ mod tests {
         ];
 
         let expected_merkle_root: Digest = hex_to_hash_rev(
-            "acd9825be8bece7782ec746a80b52f44d6a8af41c63dbab59b03e29558469682"
+            "acd9825be8bece7782ec746a80b52f44d6a8af41c63dbab59b03e29558469682",
         );
         assert_eq!(merkle_root(txids.span()), expected_merkle_root);
     }
@@ -57,7 +57,7 @@ mod tests {
         ];
 
         let expected_merkle_root: Digest = hex_to_hash_rev(
-            "7dac2c5666815c17a3b36427de37bb9d2e2c5ccec3f8633eb91a4205cb4c10ff"
+            "7dac2c5666815c17a3b36427de37bb9d2e2c5ccec3f8633eb91a4205cb4c10ff",
         );
         assert_eq!(merkle_root(txids.span()), expected_merkle_root);
     }
@@ -71,7 +71,7 @@ mod tests {
         ];
 
         let expected_merkle_root: Digest = hex_to_hash_rev(
-            "035dff4bfc62ff255ddac842dd31be4d28756b3625b0c4fecade7011f8dada20"
+            "035dff4bfc62ff255ddac842dd31be4d28756b3625b0c4fecade7011f8dada20",
         );
         assert_eq!(merkle_root(txids.span()), expected_merkle_root);
     }
@@ -82,11 +82,11 @@ mod tests {
         let mut txids: Array<Digest> = array![
             hex_to_hash_rev("5aa99d53575d34a8fe9324820606d90563ab37f246182911314df1e2570d6c80"),
             hex_to_hash_rev("9367940d1975aa9cc83f8118448ad94b6081e12ed0f7c968e375b2a283e78910"),
-            hex_to_hash_rev("b5f969b3d098c6ac87bb976eb0983259edb294892872d0aba0d47e66e1a5236f")
+            hex_to_hash_rev("b5f969b3d098c6ac87bb976eb0983259edb294892872d0aba0d47e66e1a5236f"),
         ];
 
         let expected_merkle_root: Digest = hex_to_hash_rev(
-            "222ae86adb1f65c0458f53f4c4c5d70966e12f122ef00bfdf2eac04022865013"
+            "222ae86adb1f65c0458f53f4c4c5d70966e12f122ef00bfdf2eac04022865013",
         );
         assert_eq!(merkle_root(txids.span()), expected_merkle_root);
     }
@@ -98,11 +98,11 @@ mod tests {
             hex_to_hash_rev("32a46e3fcdb462c16de20e3fe88f988ff9174b7b68faa630040f938566f114e9"),
             hex_to_hash_rev("6af9fc350b15715a0b1892110523fb8d6b43b004b23d201670acf398371ed27d"),
             hex_to_hash_rev("4bcf8ebc578c4d577a1da75bca8e0fe3e884466b51391b34237d94bb4925d065"),
-            hex_to_hash_rev("93298aadb447909639ed4ae0aa608a6b7bb907991064bc6582839710555f453d")
+            hex_to_hash_rev("93298aadb447909639ed4ae0aa608a6b7bb907991064bc6582839710555f453d"),
         ];
 
         let expected_merkle_root = hex_to_hash_rev(
-            "968bd407fe881936f5140e3794c85962db7e8614c1bb9894bb78b59e56be4555"
+            "968bd407fe881936f5140e3794c85962db7e8614c1bb9894bb78b59e56be4555",
         );
         assert_eq!(merkle_root(txids.span()), expected_merkle_root);
     }
@@ -132,7 +132,7 @@ mod tests {
         ];
 
         let expected_merkle_root: Digest = hex_to_hash_rev(
-            "af77d9974359ae0699e62990b300d1e4663d03996176528bfa92aa24a65a45e1"
+            "af77d9974359ae0699e62990b300d1e4663d03996176528bfa92aa24a65a45e1",
         );
         assert_eq!(merkle_root(txids.span()), expected_merkle_root);
     }
@@ -178,7 +178,7 @@ mod tests {
         ];
 
         let expected_merkle_root: Digest = hex_to_hash_rev(
-            "c78e335cb8908ecda32ff5dd44e9985099572692761f7809a400f60ec58d452c"
+            "c78e335cb8908ecda32ff5dd44e9985099572692761f7809a400f60ec58d452c",
         );
         assert_eq!(merkle_root(txids.span()), expected_merkle_root);
     }

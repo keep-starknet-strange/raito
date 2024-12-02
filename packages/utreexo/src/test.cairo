@@ -17,18 +17,16 @@ fn main(args: Array<felt252>) -> Array<felt252> {
     let mut gas_before = get_available_gas();
     let mut arguments = args.span();
 
-    let Args { mut state, proof, leaves_to_del, leaves_to_add, expected_state, _unused: _ } =
-        Serde::deserialize(
-        ref arguments
-    )
-        .expect('Failed to deserialize');
+    let Args {
+        mut state, proof, leaves_to_del, leaves_to_add, expected_state, _unused: _,
+    } = Serde::deserialize(ref arguments).expect('Failed to deserialize');
 
     match state.verify(@proof, leaves_to_del.span()) {
         Result::Ok(_) => {},
         Result::Err(err) => {
             println!("FAIL: gas_spent={} error='{:?}'", gas_before - get_available_gas(), err);
             panic!();
-        }
+        },
     }
 
     match state.verify_and_delete(@proof, leaves_to_del.span()) {
@@ -36,7 +34,7 @@ fn main(args: Array<felt252>) -> Array<felt252> {
         Result::Err(err) => {
             println!("FAIL: gas_spent={} error='{:?}'", gas_before - get_available_gas(), err);
             panic!();
-        }
+        },
     }
 
     state = state.add(leaves_to_add.span());
@@ -46,7 +44,7 @@ fn main(args: Array<felt252>) -> Array<felt252> {
             "FAIL: gas_spent={} error='expected state {:?}, actual {:?}'",
             gas_before - get_available_gas(),
             expected_state,
-            state
+            state,
         );
         panic!();
     }

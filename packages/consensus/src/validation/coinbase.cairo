@@ -137,7 +137,7 @@ fn calculate_wtxid_commitment(wtxid_root: Digest) -> Digest {
 
 /// validates segwit output (BIP-141).
 fn validate_coinbase_outputs(
-    mut outputs: Span<TxOut>, wtxid_commitment: Digest
+    mut outputs: Span<TxOut>, wtxid_commitment: Digest,
 ) -> Result<(), ByteArray> {
     let mut is_wtxid_commitment_present: bool = false;
 
@@ -271,7 +271,7 @@ mod tests {
                     previous_output: OutPoint {
                         txid: 0_u256.into(),
                         vout: 0xffffffff_u32,
-                        data: TxOut { value: 0_64, ..Default::default(), },
+                        data: TxOut { value: 0_64, ..Default::default() },
                         block_height: Default::default(),
                         median_time_past: Default::default(),
                         is_coinbase: false,
@@ -284,20 +284,20 @@ mod tests {
                     previous_output: OutPoint {
                         txid: 0_u256.into(),
                         vout: 0xffffffff_u32,
-                        data: TxOut { value: 0_64, ..Default::default(), },
+                        data: TxOut { value: 0_64, ..Default::default() },
                         block_height: Default::default(),
                         median_time_past: Default::default(),
                         is_coinbase: false,
                     },
                     witness: array![].span(),
-                }
+                },
             ]
                 .span(),
             outputs: array![
-                TxOut { value: 5000000000_u64, pk_script: @from_hex(""), cached: false, }
+                TxOut { value: 5000000000_u64, pk_script: @from_hex(""), cached: false },
             ]
                 .span(),
-            lock_time: 0
+            lock_time: 0,
         };
         let total_fees = 5000000000_u64;
         let block_height = 1;
@@ -313,7 +313,7 @@ mod tests {
             previous_output: OutPoint {
                 txid: 0_u256.into(),
                 vout: 0x1_u32,
-                data: TxOut { value: 0_64, ..Default::default(), },
+                data: TxOut { value: 0_64, ..Default::default() },
                 block_height: Default::default(),
                 median_time_past: Default::default(),
                 is_coinbase: false,
@@ -332,7 +332,7 @@ mod tests {
             previous_output: OutPoint {
                 txid: 0x2_u256.into(),
                 vout: 0xFFFFFFFF_u32,
-                data: TxOut { value: 0_64, ..Default::default(), },
+                data: TxOut { value: 0_64, ..Default::default() },
                 block_height: Default::default(),
                 median_time_past: Default::default(),
                 is_coinbase: false,
@@ -355,20 +355,20 @@ mod tests {
                     previous_output: OutPoint {
                         txid: 0_u256.into(),
                         vout: 0xffffffff_u32,
-                        data: TxOut { value: 0_64, ..Default::default(), },
+                        data: TxOut { value: 0_64, ..Default::default() },
                         block_height: Default::default(),
                         median_time_past: Default::default(),
                         is_coinbase: false,
                     },
                     witness: array![].span(),
-                }
+                },
             ]
                 .span(),
             outputs: array![
-                TxOut { value: 5000000000_u64, pk_script: @from_hex(""), cached: false, }
+                TxOut { value: 5000000000_u64, pk_script: @from_hex(""), cached: false },
             ]
                 .span(),
-            lock_time: 0
+            lock_time: 0,
         };
 
         let total_fees = 0_u64;
@@ -385,29 +385,31 @@ mod tests {
             inputs: array![
                 TxIn {
                     script: @from_hex(
-                        "03f3110d04e202bb667c204d41524120506f6f6c207c204d61646520696e2055534120f09f87baf09f87b8207c2028763033313932342976649b3c094f135bf4b83108c14ea85f129c98e20e0000000000ffffffff"
+                        "03f3110d04e202bb667c204d41524120506f6f6c207c204d61646520696e2055534120f09f87baf09f87b8207c2028763033313932342976649b3c094f135bf4b83108c14ea85f129c98e20e0000000000ffffffff",
                     ),
                     sequence: 4294967295,
                     previous_output: OutPoint {
                         txid: 0_u256.into(),
                         vout: 0xffffffff_u32,
-                        data: TxOut { value: 0_64, ..Default::default(), },
+                        data: TxOut { value: 0_64, ..Default::default() },
                         block_height: Default::default(),
                         median_time_past: Default::default(),
                         is_coinbase: false,
                     },
                     witness: array![
-                        from_hex("0000000000000000000000000000000000000000000000000000000000000000")
+                        from_hex(
+                            "0000000000000000000000000000000000000000000000000000000000000000",
+                        ),
                     ]
                         .span(),
-                }
+                },
             ]
                 .span(),
             outputs: array![
-                TxOut { value: 5000000000_u64, pk_script: @from_hex(""), cached: false, }
+                TxOut { value: 5000000000_u64, pk_script: @from_hex(""), cached: false },
             ]
                 .span(),
-            lock_time: 0
+            lock_time: 0,
         };
 
         let total_fees = 5000000000_u64;
@@ -434,20 +436,20 @@ mod tests {
                         is_coinbase: false,
                     },
                     witness: array![].span(),
-                }
+                },
             ]
                 .span(),
             outputs: array![
                 TxOut {
                     value: 5000000000_u64,
                     pk_script: @from_hex(
-                        "4104d46c4968bde02899d2aa0963367c7a6ce34eec332b32e42e5f3407e052d64ac625da6f0718e7b302140434bd725706957c092db53805b821a85b23a7ac61725bac"
+                        "4104d46c4968bde02899d2aa0963367c7a6ce34eec332b32e42e5f3407e052d64ac625da6f0718e7b302140434bd725706957c092db53805b821a85b23a7ac61725bac",
                     ),
                     cached: false,
-                }
+                },
             ]
                 .span(),
-            lock_time: 0
+            lock_time: 0,
         };
         let total_fees = 0_u64;
         let block_height = 170;
@@ -464,7 +466,7 @@ mod tests {
     #[test]
     fn test_validate_coinbase_BIP_34_sig_script_greater_than_100() {
         let script = from_hex(
-            "4104d46c4968bde02899d2aa0963367c7a6ce34eec332b32e42e5f3407e052d64ac625da6f0718e7b302140434bd725706957c092db53805b821a85b23a7ac61725bac4104d46c4968bde02899d2aa0963367c7a6ce34eec332b32e42e5f3407e052d64ac625da6f0718e7b302140434bd725706957c092db53805b821a85b23a7ac61725bac"
+            "4104d46c4968bde02899d2aa0963367c7a6ce34eec332b32e42e5f3407e052d64ac625da6f0718e7b302140434bd725706957c092db53805b821a85b23a7ac61725bac4104d46c4968bde02899d2aa0963367c7a6ce34eec332b32e42e5f3407e052d64ac625da6f0718e7b302140434bd725706957c092db53805b821a85b23a7ac61725bac",
         );
         validate_coinbase_sig_script(@script, 856563).unwrap_err();
     }
@@ -472,7 +474,7 @@ mod tests {
     #[test]
     fn test_validate_coinbase_BIP_34_sig_script_with_wrong_block_height() {
         let script = from_hex(
-            "03aa68060004c345815704451c591c0c60ef5b577b690000000000000a2020202020200a2f72657365727665642f"
+            "03aa68060004c345815704451c591c0c60ef5b577b690000000000000a2020202020200a2f72657365727665642f",
         );
         validate_coinbase_sig_script(@script, 856563).unwrap_err();
     }
@@ -480,7 +482,7 @@ mod tests {
     #[test]
     fn test_validate_coinbase_BIP_34_sig_script_with_Invalid_number_of_bytes() {
         let script = from_hex(
-            "04aa68060004c345815704451c591c0c60ef5b577b690000000000000a2020202020200a2f72657365727665642f"
+            "04aa68060004c345815704451c591c0c60ef5b577b690000000000000a2020202020200a2f72657365727665642f",
         );
         validate_coinbase_sig_script(@script, 856563).unwrap_err();
     }
@@ -488,7 +490,7 @@ mod tests {
     #[test]
     fn test_validate_coinbase_BIP_34_sig_script() {
         let script = from_hex(
-            "03aa68060004c345815704451c591c0c60ef5b577b690000000000000a2020202020200a2f72657365727665642f"
+            "03aa68060004c345815704451c591c0c60ef5b577b690000000000000a2020202020200a2f72657365727665642f",
         );
         validate_coinbase_sig_script(@script, 420_010).unwrap();
     }
@@ -503,7 +505,7 @@ mod tests {
     fn test_validate_coinbase_witness_with_more_than_one_element() {
         let witness = array![
             from_hex("0000000000000000000000000000000000000000000000000000000000000000"),
-            from_hex("0000000000000000000000000000000000000000000000000000000000000000")
+            from_hex("0000000000000000000000000000000000000000000000000000000000000000"),
         ]
             .span();
         validate_coinbase_witness(witness).unwrap_err();
@@ -512,7 +514,7 @@ mod tests {
     #[test]
     fn test_validate_coinbase_witness_with_wrong_witness() {
         let witness = array![
-            from_hex("400d00000000e000000000000000000000000e00000000000000000000000000")
+            from_hex("400d00000000e000000000000000000000000e00000000000000000000000000"),
         ]
             .span();
         validate_coinbase_witness(witness).unwrap_err();
@@ -521,7 +523,7 @@ mod tests {
     #[test]
     fn test_validate_coinbase_witness() {
         let witness = array![
-            from_hex("0000000000000000000000000000000000000000000000000000000000000000")
+            from_hex("0000000000000000000000000000000000000000000000000000000000000000"),
         ]
             .span();
         validate_coinbase_witness(witness).unwrap();
@@ -533,31 +535,25 @@ mod tests {
             TxOut {
                 value: 625107042,
                 pk_script: @from_hex(
-                    "0000000000000000000000000000000000000000000000000000000000000000000000000000"
+                    "0000000000000000000000000000000000000000000000000000000000000000000000000000",
                 ),
-                cached: false
+                cached: false,
             },
             TxOut {
                 value: 0_u64,
                 pk_script: @from_hex(
-                    "0000000000000000000000000000000000000000000000000000000000000000000000000000"
+                    "0000000000000000000000000000000000000000000000000000000000000000000000000000",
                 ),
-                cached: false
-            }
+                cached: false,
+            },
         ]
             .span();
 
         let wtxid_commitment = Digest {
             value: [
-                0x10109f4b,
-                0x82aa3ed7,
-                0xec9d02a2,
-                0xa9024647,
-                0x8b3308c8,
-                0xb85daf62,
-                0xfe501d58,
-                0xd05727a4
-            ]
+                0x10109f4b, 0x82aa3ed7, 0xec9d02a2, 0xa9024647, 0x8b3308c8, 0xb85daf62, 0xfe501d58,
+                0xd05727a4,
+            ],
         };
 
         validate_coinbase_outputs(outputs, wtxid_commitment).unwrap_err();
@@ -569,36 +565,36 @@ mod tests {
             TxOut {
                 value: 625107042,
                 pk_script: @from_hex(
-                    "0000000000000000000000000000000000000000000000000000000000000000000000000000"
+                    "0000000000000000000000000000000000000000000000000000000000000000000000000000",
                 ),
-                cached: false
+                cached: false,
             },
             TxOut {
                 value: 0_u64,
                 pk_script: @from_hex(
-                    "6a24aa21a9ed6502e8637ba29cd8a820021915339c7341223d571e5e8d66edd83786d387e715"
+                    "6a24aa21a9ed6502e8637ba29cd8a820021915339c7341223d571e5e8d66edd83786d387e715",
                 ),
-                cached: false
+                cached: false,
             },
             TxOut {
                 value: 0_u64,
                 pk_script: @from_hex(
-                    "0000000000000000000000000000000000000000000000000000000000000000000000000000"
+                    "0000000000000000000000000000000000000000000000000000000000000000000000000000",
                 ),
-                cached: false
+                cached: false,
             },
             TxOut {
                 value: 0_u64,
                 pk_script: @from_hex(
-                    "0000000000000000000000000000000000000000000000000000000000000000000000000000"
+                    "0000000000000000000000000000000000000000000000000000000000000000000000000000",
                 ),
-                cached: false
-            }
+                cached: false,
+            },
         ]
             .span();
 
         let wtxid_commitment: Digest = hex_to_hash_rev(
-            "15e787d38637d8ed668d5e1e573d2241739c3315190220a8d89ca27b63e80265"
+            "15e787d38637d8ed668d5e1e573d2241739c3315190220a8d89ca27b63e80265",
         );
 
         validate_coinbase_outputs(outputs, wtxid_commitment).unwrap();
@@ -607,15 +603,15 @@ mod tests {
     #[test]
     fn test_calculate_wtxid_commitment() {
         let witness_root_hash: Digest = hex_to_hash_rev(
-            "f2db1fa411685843d0b5ece37cacb7df882a64f13a68df1d2aaa8c8a869aeedb"
+            "f2db1fa411685843d0b5ece37cacb7df882a64f13a68df1d2aaa8c8a869aeedb",
         );
 
         let expected_wtxid_commitment = from_hex(
-            "6502e8637ba29cd8a820021915339c7341223d571e5e8d66edd83786d387e715"
+            "6502e8637ba29cd8a820021915339c7341223d571e5e8d66edd83786d387e715",
         );
 
         assert_eq!(
-            (calculate_wtxid_commitment(witness_root_hash)).into(), expected_wtxid_commitment
+            (calculate_wtxid_commitment(witness_root_hash)).into(), expected_wtxid_commitment,
         );
     }
 
@@ -627,7 +623,7 @@ mod tests {
             inputs: array![
                 TxIn {
                     script: @from_hex(
-                        "0320a107046f0a385a632f4254432e434f4d2ffabe6d6dbdd0ee86f9a1badfd0aa1b3c9dac8d90840cf973f7b2590d6c9adde1a6e0974a010000000000000001283da9a172020000000000"
+                        "0320a107046f0a385a632f4254432e434f4d2ffabe6d6dbdd0ee86f9a1badfd0aa1b3c9dac8d90840cf973f7b2590d6c9adde1a6e0974a010000000000000001283da9a172020000000000",
                     ),
                     sequence: 4294967295,
                     previous_output: OutPoint {
@@ -639,51 +635,53 @@ mod tests {
                         is_coinbase: false,
                     },
                     witness: array![
-                        from_hex("0000000000000000000000000000000000000000000000000000000000000000")
+                        from_hex(
+                            "0000000000000000000000000000000000000000000000000000000000000000",
+                        ),
                     ]
                         .span(),
-                }
+                },
             ]
                 .span(),
             outputs: array![
                 TxOut {
                     value: 0_u64,
                     pk_script: @from_hex(
-                        "0000000000000000000000000000000000000000000000000000000000000000"
+                        "0000000000000000000000000000000000000000000000000000000000000000",
                     ),
                     cached: false,
                 },
                 TxOut {
                     value: 0_u64,
                     pk_script: @from_hex(
-                        "6a24aa21a9ed6502e8637ba29cd8a820021915339c7341223d571e5e8d66edd83786d387e715"
+                        "6a24aa21a9ed6502e8637ba29cd8a820021915339c7341223d571e5e8d66edd83786d387e715",
                     ),
                     cached: false,
                 },
                 TxOut {
                     value: 0_u64,
                     pk_script: @from_hex(
-                        "0000000000000000000000000000000000000000000000000000000000000000"
+                        "0000000000000000000000000000000000000000000000000000000000000000",
                     ),
                     cached: false,
                 },
                 TxOut {
                     value: 0_u64,
                     pk_script: @from_hex(
-                        "0000000000000000000000000000000000000000000000000000000000000000"
+                        "0000000000000000000000000000000000000000000000000000000000000000",
                     ),
                     cached: false,
-                }
+                },
             ]
                 .span(),
-            lock_time: 0
+            lock_time: 0,
         };
 
         let total_fees = 0_u64;
         let block_height = 500_000;
 
         let wtxid_root_hash: Digest = hex_to_hash_rev(
-            "f2db1fa411685843d0b5ece37cacb7df882a64f13a68df1d2aaa8c8a869aeedb"
+            "f2db1fa411685843d0b5ece37cacb7df882a64f13a68df1d2aaa8c8a869aeedb",
         );
 
         validate_coinbase(@tx, total_fees, block_height, wtxid_root_hash).unwrap();

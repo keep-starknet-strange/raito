@@ -57,15 +57,9 @@ pub fn hex_to_hash_rev(hex_string: ByteArray) -> Digest {
 
     Digest {
         value: [
-            *result[0],
-            *result[1],
-            *result[2],
-            *result[3],
-            *result[4],
-            *result[5],
-            *result[6],
+            *result[0], *result[1], *result[2], *result[3], *result[4], *result[5], *result[6],
             *result[7],
-        ]
+        ],
     }
 }
 
@@ -105,15 +99,9 @@ mod tests {
     fn test_hex_to_hash_rev() {
         let hash: Digest = Digest {
             value: [
-                0x12345678_u32,
-                0x9abcdef0_u32,
-                0x11223344_u32,
-                0x55667788_u32,
-                0xaabbccdd_u32,
-                0xeeff0011_u32,
-                0x22334455_u32,
-                0x66778899_u32
-            ]
+                0x12345678_u32, 0x9abcdef0_u32, 0x11223344_u32, 0x55667788_u32, 0xaabbccdd_u32,
+                0xeeff0011_u32, 0x22334455_u32, 0x66778899_u32,
+            ],
         };
         let hex = "99887766554433221100ffeeddccbbaa8877665544332211f0debc9a78563412";
         assert_eq!(hash, hex_to_hash_rev(hex));

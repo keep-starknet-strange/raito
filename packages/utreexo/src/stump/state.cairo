@@ -15,7 +15,7 @@ pub struct UtreexoStumpState {
 /// `Default` trait implementation for `UtreexoStumpState`.
 pub impl UtreexoStumpStateDefault of Default<UtreexoStumpState> {
     fn default() -> UtreexoStumpState {
-        UtreexoStumpState { roots: array![Option::None].span(), num_leaves: 0, }
+        UtreexoStumpState { roots: array![Option::None].span(), num_leaves: 0 }
     }
 }
 
@@ -25,7 +25,7 @@ impl UtreexoStumpStateDisplay of Display<UtreexoStumpState> {
         let str: ByteArray = format!(
             "UtreexoStumpState {{ roots: {}, num_leaves: {} }}",
             (*self.roots).len(),
-            *self.num_leaves
+            *self.num_leaves,
         );
         f.buffer.append(@str);
         Result::Ok(())

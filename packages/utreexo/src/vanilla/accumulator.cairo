@@ -11,20 +11,19 @@ pub impl VanillaUtreexoAccumulatorImpl of VanillaUtreexoAccumulator {
         let mut first_none_found: bool = false;
         let mut node = hash;
 
-        for root in *self
-            .roots {
-                if !first_none_found {
-                    if let Option::Some(root) = root {
-                        node = parent_hash(*root, node);
-                        new_roots.append(Option::None);
-                    } else {
-                        first_none_found = true;
-                        new_roots.append(Option::Some(node));
-                    }
+        for root in *self.roots {
+            if !first_none_found {
+                if let Option::Some(root) = root {
+                    node = parent_hash(*root, node);
+                    new_roots.append(Option::None);
                 } else {
-                    new_roots.append(*root);
+                    first_none_found = true;
+                    new_roots.append(Option::Some(node));
                 }
-            };
+            } else {
+                new_roots.append(*root);
+            }
+        };
 
         // Check if terminates with `Option::None`
         if (new_roots[new_roots.len() - 1].is_some()) {

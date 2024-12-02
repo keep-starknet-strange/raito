@@ -7,7 +7,7 @@ use shinigami_engine::engine::EngineImpl;
 use shinigami_engine::hash_cache::HashCacheImpl;
 use shinigami_engine::flags::ScriptFlags;
 use shinigami_engine::transaction::{
-    EngineTransactionInputTrait, EngineTransactionOutputTrait, EngineTransactionTrait
+    EngineTransactionInputTrait, EngineTransactionOutputTrait, EngineTransactionTrait,
 };
 
 const BIP_16_BLOCK_HEIGHT: u32 = 173805; // Pay-to-Script-Hash (P2SH) 
@@ -66,7 +66,7 @@ impl EngineTransactionOutputDummyImpl of EngineTransactionOutputTrait<TxOut> {
     }
 }
 
-impl EngineTransactionDummyImpl of EngineTransactionTrait<Transaction, TxIn, TxOut,> {
+impl EngineTransactionDummyImpl of EngineTransactionTrait<Transaction, TxIn, TxOut> {
     /// Returns the version of the given transaction.
     fn get_version(self: @Transaction) -> i32 {
         Into::<u32, i64>::into(*self.version).try_into().unwrap()
@@ -150,40 +150,38 @@ fn parse_short_string(short: felt252) -> ByteArray {
 fn validate_script(header: @Header, tx: @Transaction, tx_idx: u32) -> Result<(), ByteArray> {
     let cache = HashCacheImpl::new(tx);
     let mut result: Option<ByteArray> = Option::None;
-    for input_idx in 0
-        ..(*tx.inputs)
-            .len() {
-                let previous_output = *tx.inputs[input_idx].previous_output;
-                let mut engine = EngineImpl::new(
-                    previous_output.data.pk_script,
-                    tx,
-                    input_idx,
-                    script_flags(header, tx),
-                    Into::<u64, i128>::into(previous_output.data.value).try_into().unwrap(),
-                    @cache
-                )
-                    .unwrap(); //TODO: handle error
+    for input_idx in 0..(*tx.inputs).len() {
+        let previous_output = *tx.inputs[input_idx].previous_output;
+        let mut engine = EngineImpl::new(
+            previous_output.data.pk_script,
+            tx,
+            input_idx,
+            script_flags(header, tx),
+            Into::<u64, i128>::into(previous_output.data.value).try_into().unwrap(),
+            @cache,
+        )
+            .unwrap(); //TODO: handle error
 
-                match engine.execute() {
-                    Result::Ok(_) => { break; }, // TODO: verify this is correct
-                    Result::Err(err) => {
-                        result =
-                            Option::Some(
-                                format!(
-                                    "Script validation failed on tx_idx: {}, input_idx: {}: {}",
-                                    tx_idx,
-                                    input_idx,
-                                    parse_short_string(err)
-                                )
-                            );
-                        break;
-                    }
-                }
-            };
+        match engine.execute() {
+            Result::Ok(_) => { break; }, // TODO: verify this is correct
+            Result::Err(err) => {
+                result =
+                    Option::Some(
+                        format!(
+                            "Script validation failed on tx_idx: {}, input_idx: {}: {}",
+                            tx_idx,
+                            input_idx,
+                            parse_short_string(err),
+                        ),
+                    );
+                break;
+            },
+        }
+    };
 
     match result {
         Option::Some(err) => Result::Err(err),
-        Option::None => Result::Ok(())
+        Option::None => Result::Ok(()),
     }
 }
 
