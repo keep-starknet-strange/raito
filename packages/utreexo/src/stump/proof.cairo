@@ -25,7 +25,7 @@ impl UtreexoBatchProofDisplay of Display<UtreexoBatchProof> {
             targets.append(@format!("{},", target));
         };
         let str: ByteArray = format!(
-            "UtreexoBatchProof {{ proof: [{}], leaf_index: [{}] }}", @targets, @proofs
+            "UtreexoBatchProof {{ proof: [{}], leaf_index: [{}] }}", @targets, @proofs,
         );
         f.buffer.append(@str);
         Result::Ok(())
@@ -213,7 +213,7 @@ pub impl UtreexoBatchProofImpl of UtreexoBatchProofTrait {
         // here we accumulate the result
         let mut roots = array![];
         let mut inner_result: Result<Array<(felt252, Option<felt252>)>, ByteArray> = Result::Ok(
-            array![]
+            array![],
         );
 
         // we process the whole forest row by row from the bottom leaves to the top root
@@ -245,9 +245,9 @@ pub impl UtreexoBatchProofImpl of UtreexoBatchProofTrait {
                                         (
                                             pos / 2,
                                             parent_hash_pair(
-                                                hash, (*proof_hash, Option::Some(*proof_hash))
-                                            )
-                                        )
+                                                hash, (*proof_hash, Option::Some(*proof_hash)),
+                                            ),
+                                        ),
                                     );
                             } else {
                                 inner_result = Result::Err("Invalid proof");
@@ -264,9 +264,9 @@ pub impl UtreexoBatchProofImpl of UtreexoBatchProofTrait {
                                     (
                                         pos / 2,
                                         parent_hash_pair(
-                                            hash, (*proof_hash, Option::Some(*proof_hash))
-                                        )
-                                    )
+                                            hash, (*proof_hash, Option::Some(*proof_hash)),
+                                        ),
+                                    ),
                                 );
                         } else {
                             inner_result = Result::Err("Invalid proof");
@@ -286,8 +286,10 @@ pub impl UtreexoBatchProofImpl of UtreexoBatchProofTrait {
                             .append(
                                 (
                                     pos / 2,
-                                    parent_hash_pair((*proof_hash, Option::Some(*proof_hash)), hash)
-                                )
+                                    parent_hash_pair(
+                                        (*proof_hash, Option::Some(*proof_hash)), hash,
+                                    ),
+                                ),
                             );
                     } else {
                         inner_result = Result::Err("Invalid proof");
@@ -397,7 +399,7 @@ pub impl UtreexoBatchProofImpl of UtreexoBatchProofTrait {
                 if row_len == 0 {
                     inner_result =
                         Result::Err(
-                            format!("Position {pos} is out of the forest range {row_len_acc}.")
+                            format!("Position {pos} is out of the forest range {row_len_acc}."),
                         );
                     break;
                 }
@@ -469,7 +471,7 @@ pub impl UtreexoBatchProofImpl of UtreexoBatchProofTrait {
 /// Extracts all nodes with absolute positions in [row_start; row_end)
 /// and transforms their positions to relative.
 fn extract_row<T, +Copy<T>, +Drop<T>>(
-    ref nodes: Array<(u64, T)>, row_start: u64, row_end: u64
+    ref nodes: Array<(u64, T)>, row_start: u64, row_end: u64,
 ) -> Array<(u64, T)> {
     let mut row = array![];
     while let Option::Some(box) = nodes.get(0) {
@@ -485,7 +487,7 @@ fn extract_row<T, +Copy<T>, +Drop<T>>(
 
 /// Merges two sorted arrays into a single sorted array.
 fn merge_sorted<T, +Drop<T>>(
-    ref arr1: Array<(u64, T)>, ref arr2: Array<(u64, T)>
+    ref arr1: Array<(u64, T)>, ref arr2: Array<(u64, T)>,
 ) -> Array<(u64, T)> {
     let mut res = array![];
     while let Option::Some((p1, v1)) = arr1.pop_front() {
@@ -507,7 +509,7 @@ fn merge_sorted<T, +Drop<T>>(
 /// Takes two nodes containing two values each: (L1, L2) and (R1, R2), and calculates
 /// a parent node, that also contains two values (P1 = h(L1, R1), P2 = h(L2, R2)).
 fn parent_hash_pair(
-    left: (felt252, Option<felt252>), right: (felt252, Option<felt252>)
+    left: (felt252, Option<felt252>), right: (felt252, Option<felt252>),
 ) -> (felt252, Option<felt252>) {
     let (old_left, new_left) = left;
     let (old_right, new_right) = right;

@@ -11,8 +11,8 @@ pub fn validate_proof_of_work(target: u256, block_hash: Digest) -> Result<(), By
             format!(
                 "Insufficient proof of work. Expected block hash {:?} to be less than or equal to {}",
                 block_hash,
-                target
-            )
+                target,
+            ),
         )
     }
 }
@@ -56,7 +56,7 @@ mod tests {
         // Block prev block hash is less than target
         let result = validate_proof_of_work(
             0x00000000ffff0000000000000000000000000000000000000000000000000000_u256,
-            0x000000002a22cfee1f2c846adbd12b3e183d4f97683f85dad08a79780a84bd55_u256.into()
+            0x000000002a22cfee1f2c846adbd12b3e183d4f97683f85dad08a79780a84bd55_u256.into(),
         );
         assert!(result.is_ok(), "Expect prev block hash lt target");
     }

@@ -82,7 +82,7 @@ impl BlockDisplay of Display<Block> {
     fn fmt(self: @Block, ref f: Formatter) -> Result<(), Error> {
         let data = match *self.data {
             TransactionData::MerkleRoot(root) => format!("{}", root),
-            TransactionData::Transactions(txs) => format!("{}", txs.len())
+            TransactionData::Transactions(txs) => format!("{}", txs.len()),
         };
         let str: ByteArray = format!(" Block {{ header: {}, data: {} }}", *self.header, @data);
         f.buffer.append(@str);
@@ -98,7 +98,7 @@ impl HeaderDisplay of Display<Header> {
             *self.version,
             *self.time,
             *self.bits,
-            *self.nonce
+            *self.nonce,
         );
         f.buffer.append(@str);
         Result::Ok(())
@@ -112,7 +112,7 @@ impl TransactionDataDisplay of Display<TransactionData> {
             TransactionData::MerkleRoot(root) => f.buffer.append(@format!("MerkleRoot: {}", root)),
             TransactionData::Transactions(txs) => f
                 .buffer
-                .append(@format!("Transactions: {}", txs.len()))
+                .append(@format!("Transactions: {}", txs.len())),
         };
         Result::Ok(())
     }
@@ -133,7 +133,7 @@ mod tests {
             .into();
         // Block 170
         let header = Header {
-            version: 1_u32, time: 1231731025_u32, bits: 0x1d00ffff_u32, nonce: 1889418792_u32
+            version: 1_u32, time: 1231731025_u32, bits: 0x1d00ffff_u32, nonce: 1889418792_u32,
         };
         let merkle_root: Digest =
             0x7dac2c5666815c17a3b36427de37bb9d2e2c5ccec3f8633eb91a4205cb4c10ff_u256
@@ -158,7 +158,7 @@ mod tests {
             .into();
         // Block 170
         let header = Header {
-            version: 1_u32, time: 1231731025_u32, bits: 0x1d00ffff_u32, nonce: 1889418792_u32
+            version: 1_u32, time: 1231731025_u32, bits: 0x1d00ffff_u32, nonce: 1889418792_u32,
         };
         let merkle_root: Digest =
             0x6dac2c5666815c17a3b36427de37bb9d2e2c5ccec3f8633eb91a4205cb4c10ff_u256
@@ -182,7 +182,7 @@ mod tests {
             .into();
         // block 170
         let header = Header {
-            version: 1_u32, time: 1231731025_u32, bits: 0x1d00ffff_u32, nonce: 1889418792_u32
+            version: 1_u32, time: 1231731025_u32, bits: 0x1d00ffff_u32, nonce: 1889418792_u32,
         };
         let merkle_root: Digest =
             0x7dac2c5666815c17a3b36427de37bb9d2e2c5ccec3f8633eb91a4205cb4c10ff_u256

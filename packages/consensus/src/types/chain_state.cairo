@@ -9,7 +9,7 @@ use crate::validation::{
     difficulty::{validate_bits, adjust_difficulty}, coinbase::validate_coinbase,
     timestamp::{validate_timestamp, next_prev_timestamps, compute_median_time_past},
     work::{validate_proof_of_work, compute_total_work}, block::compute_and_validate_tx_data,
-    script::validate_scripts
+    script::validate_scripts,
 };
 use super::{block::{BlockHash, Block, TransactionData}, utxo_set::UtxoSet};
 use utils::hash::Digest;
@@ -46,9 +46,7 @@ impl ChainStateDefault of Default<ChainState> {
                 .into(),
             current_target: 0x00000000ffff0000000000000000000000000000000000000000000000000000_u256,
             epoch_start_time: 1231006505,
-            prev_timestamps: [
-                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1231006505
-            ].span(),
+            prev_timestamps: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1231006505].span(),
         }
     }
 }
@@ -57,7 +55,7 @@ impl ChainStateDefault of Default<ChainState> {
 #[generate_trait]
 pub impl BlockValidatorImpl of BlockValidator {
     fn validate_and_apply(
-        self: ChainState, block: Block, ref utxo_set: UtxoSet, execute_script: bool
+        self: ChainState, block: Block, ref utxo_set: UtxoSet, execute_script: bool,
     ) -> Result<ChainState, ByteArray> {
         let block_height = self.block_height + 1;
 
@@ -73,14 +71,14 @@ pub impl BlockValidatorImpl of BlockValidator {
             TransactionData::MerkleRoot(root) => root,
             TransactionData::Transactions(txs) => {
                 let (total_fees, txid_root, wtxid_root) = compute_and_validate_tx_data(
-                    txs, block_height, block.header.time, median_time_past, ref utxo_set
+                    txs, block_height, block.header.time, median_time_past, ref utxo_set,
                 )?;
                 validate_coinbase(txs[0], total_fees, block_height, wtxid_root)?;
                 if execute_script {
                     validate_scripts(@block.header, txs.slice(1, txs.len() - 1))?;
                 }
                 txid_root
-            }
+            },
         };
 
         let (current_target, epoch_start_time) = adjust_difficulty(
@@ -88,7 +86,7 @@ pub impl BlockValidatorImpl of BlockValidator {
             self.epoch_start_time,
             block_height,
             prev_block_time,
-            block.header.time
+            block.header.time,
         );
         let total_work = compute_total_work(self.total_work, current_target);
         let best_block_hash = block.header.hash(self.best_block_hash, txid_root);
@@ -104,7 +102,7 @@ pub impl BlockValidatorImpl of BlockValidator {
                 current_target,
                 epoch_start_time,
                 prev_timestamps,
-            }
+            },
         )
     }
 }
@@ -130,7 +128,7 @@ impl ChainStateDisplay of Display<ChainState> {
             *self.best_block_hash,
             *self.current_target,
             *self.epoch_start_time,
-            @prev_ts
+            @prev_ts,
         );
         f.buffer.append(@str);
         Result::Ok(())

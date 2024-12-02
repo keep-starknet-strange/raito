@@ -20,7 +20,7 @@ pub impl UtreexoStateDefault of Default<UtreexoState> {
 /// `Display` trait implement for `UtreexoState`.
 impl UtreexoStateDisplay of Display<UtreexoState> {
     fn fmt(self: @UtreexoState, ref f: Formatter) -> Result<(), Error> {
-        let str: ByteArray = format!("UtreexoState {{ roots: {} }}", (*self.roots).len(),);
+        let str: ByteArray = format!("UtreexoState {{ roots: {} }}", (*self.roots).len());
         f.buffer.append(@str);
         Result::Ok(())
     }
@@ -33,7 +33,7 @@ pub impl UtreexoStateImpl of UtreexoStateTrait {
         self: @UtreexoState,
         hashes_to_add: Span<felt252>,
         hashes_to_delete: Span<felt252>,
-        mut proofs: Span<UtreexoProof>
+        mut proofs: Span<UtreexoProof>,
     ) -> Result<UtreexoState, ByteArray> {
         let mut inner_result = Result::Ok(());
         let mut state = *self;

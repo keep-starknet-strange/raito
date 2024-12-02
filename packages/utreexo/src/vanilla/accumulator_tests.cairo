@@ -27,7 +27,7 @@ fn test_verify_inclusion() {
     let mut utxo_state = UtreexoState {
         roots: array![Option::Some(0x111111111111111111111111)].into(),
     };
-    let proof = UtreexoProof { leaf_index: 0, proof: array![].span(), };
+    let proof = UtreexoProof { leaf_index: 0, proof: array![].span() };
     let result = utxo_state.verify(leaf1, @proof);
     assert!(result.is_ok(), "Root at index 0 should be 0x111111111111111111111111");
 
@@ -38,16 +38,16 @@ fn test_verify_inclusion() {
         UtreexoState {
             roots: array![
                 Option::None,
-                Option::Some(0x05fb342b44641ae6d67310cf9da5566e1a398fd6b0121d40e2c5acd16e1ddb4a)
+                Option::Some(0x05fb342b44641ae6d67310cf9da5566e1a398fd6b0121d40e2c5acd16e1ddb4a),
             ]
                 .into(),
         };
 
-    let proof = UtreexoProof { leaf_index: 1, proof: array![0x111111111111111111111111].span(), };
+    let proof = UtreexoProof { leaf_index: 1, proof: array![0x111111111111111111111111].span() };
     let result = utxo_state.verify(leaf2, @proof);
     assert!(
         result.is_ok(),
-        "Root at index 1 should be 0x05fb342b44641ae6d67310cf9da5566e1a398fd6b0121d40e2c5acd16e1ddb4a"
+        "Root at index 1 should be 0x05fb342b44641ae6d67310cf9da5566e1a398fd6b0121d40e2c5acd16e1ddb4a",
     );
 
     // Add the third leaf (0x333333333333333333333333)
@@ -56,16 +56,16 @@ fn test_verify_inclusion() {
         UtreexoState {
             roots: array![
                 Option::Some(leaf3),
-                Option::Some(0x05fb342b44641ae6d67310cf9da5566e1a398fd6b0121d40e2c5acd16e1ddb4a)
+                Option::Some(0x05fb342b44641ae6d67310cf9da5566e1a398fd6b0121d40e2c5acd16e1ddb4a),
             ]
                 .into(),
         };
 
-    let proof = UtreexoProof { leaf_index: 1, proof: array![0x111111111111111111111111].span(), };
+    let proof = UtreexoProof { leaf_index: 1, proof: array![0x111111111111111111111111].span() };
     let result = utxo_state.verify(leaf2, @proof);
     assert!(
         result.is_ok(),
-        "Root at index 1 should be 0x05fb342b44641ae6d67310cf9da5566e1a398fd6b0121d40e2c5acd16e1ddb4a"
+        "Root at index 1 should be 0x05fb342b44641ae6d67310cf9da5566e1a398fd6b0121d40e2c5acd16e1ddb4a",
     );
 
     // Add the fourth leaf (0x444444444444444444444444)
@@ -77,7 +77,7 @@ fn test_verify_inclusion() {
             roots: array![
                 Option::None,
                 Option::None,
-                Option::Some(0x018674e0c40577cb5ba4728d6ac7bedfd9548f4020161223261941b2a8ae84b2)
+                Option::Some(0x018674e0c40577cb5ba4728d6ac7bedfd9548f4020161223261941b2a8ae84b2),
             ]
                 .into(),
         };
@@ -87,7 +87,7 @@ fn test_verify_inclusion() {
         leaf_index: 0,
         proof: array![
             0x222222222222222222222222,
-            0x02a6b2ae998d30e1ac356c32b2750c3126cd6b3ecf02e6918a93021d17b2b026
+            0x02a6b2ae998d30e1ac356c32b2750c3126cd6b3ecf02e6918a93021d17b2b026,
         ]
             .span(),
     };
@@ -147,7 +147,7 @@ fn test_utreexo_add() {
 
     let expected: Span<Option<felt252>> = array![
         Option::Some(0x291F8F5FC449D42C715B529E542F24A80136D18F4A85DE28829CD3DCAAC1B9C),
-        Option::None
+        Option::None,
     ]
         .span();
     assert_eq!(utreexo_state.roots, expected, "cannot add first leave");
@@ -158,7 +158,7 @@ fn test_utreexo_add() {
     let expected: Span<Option<felt252>> = array![
         Option::None,
         Option::Some(0x738A7C495E564574993BBCB6A62D65C3C570BB81C63801066AF8934649F66F6),
-        Option::None
+        Option::None,
     ]
         .span();
     assert_eq!(utreexo_state.roots, expected, "cannot add second leave");
@@ -169,7 +169,7 @@ fn test_utreexo_add() {
     let expected: Span<Option<felt252>> = array![
         Option::Some(0x291F8F5FC449D42C715B529E542F24A80136D18F4A85DE28829CD3DCAAC1B9C),
         Option::Some(0x738A7C495E564574993BBCB6A62D65C3C570BB81C63801066AF8934649F66F6),
-        Option::None
+        Option::None,
     ]
         .span();
     assert_eq!(utreexo_state.roots, expected, "cannot add thirdth leave");
@@ -181,7 +181,7 @@ fn test_utreexo_add() {
         Option::None,
         Option::None,
         Option::Some(0x25D0DE35DD446E3D35504866FD7A04D4245E01B5908E19EAA70ABA84DD5A1F1),
-        Option::None
+        Option::None,
     ]
         .span();
     assert_eq!(utreexo_state.roots, expected, "cannot add fourth leave");
@@ -193,7 +193,7 @@ fn test_utreexo_add() {
         Option::Some(0x291F8F5FC449D42C715B529E542F24A80136D18F4A85DE28829CD3DCAAC1B9C),
         Option::None,
         Option::Some(0x25D0DE35DD446E3D35504866FD7A04D4245E01B5908E19EAA70ABA84DD5A1F1),
-        Option::None
+        Option::None,
     ]
         .span();
     assert_eq!(utreexo_state.roots, expected, "cannot add fifth leave");
@@ -208,7 +208,7 @@ fn test_utreexo_add() {
         Option::None,
         Option::None,
         Option::Some(0x708EB39E30B035376EC871F8F17CD3BADAE6A68406B13C3BB671009D56F5AD),
-        Option::None
+        Option::None,
     ]
         .span();
     assert_eq!(utreexo_state.roots, expected, "cannot add 3 leaves");
@@ -224,8 +224,9 @@ fn test_utreexo_add() {
         Option::Some(0x25D0DE35DD446E3D35504866FD7A04D4245E01B5908E19EAA70ABA84DD5A1F1),
         Option::Some(0x708EB39E30B035376EC871F8F17CD3BADAE6A68406B13C3BB671009D56F5AD),
         Option::Some(0x58D6BEF6CFC28638FB4C8271355961F50922BCC1577DD2B6D04E11B7A911702),
-        Option::None(())
-    ].span();
+        Option::None(()),
+    ]
+        .span();
     assert_eq!(utreexo_state.roots, expected, "cannot add 22 leaves");
 }
 
@@ -271,9 +272,9 @@ fn test_utreexo_delete() {
             0x0000000000000000000000000000000000000000444444444444444444444444,
             0x05fb342b44641ae6d67310cf9da5566e1a398fd6b0121d40e2c5acd16e1ddb4a,
             0x01670d29719eae8deaa34a1d75752368d180a2c3e53f08d344ad784f1a034be7,
-            0x04448e395061d8b58524c81978a17837c66c7f3286ea3c1773c7fafd77d29f69
+            0x04448e395061d8b58524c81978a17837c66c7f3286ea3c1773c7fafd77d29f69,
         ]
-            .span()
+            .span(),
     };
 
     // Deletes the 3rd leaf

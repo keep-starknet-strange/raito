@@ -5,7 +5,7 @@ use crate::types::utxo_set::{UtxoSet, UtxoSetTrait};
 use crate::types::transaction::{OutPoint, Transaction};
 use crate::codec::{Encode, TransactionCodec};
 use crate::validation::{coinbase::is_coinbase_txid_duplicated, transaction::validate_transaction};
-use utils::{hash::Digest, merkle_tree::merkle_root, double_sha256::double_sha256_word_array,};
+use utils::{hash::Digest, merkle_tree::merkle_root, double_sha256::double_sha256_word_array};
 use utils::word_array::WordArrayTrait;
 
 const MAX_BLOCK_WEIGHT_LEGACY: usize = 1_000_000;
@@ -18,8 +18,8 @@ pub fn validate_block_weight(weight: usize) -> Result<(), ByteArray> {
     if (weight > MAX_BLOCK_WEIGHT) {
         return Result::Err(
             format!(
-                "[validate_weight] block weight {weight} exceeds the limit {MAX_BLOCK_WEIGHT} for segwit blocks"
-            )
+                "[validate_weight] block weight {weight} exceeds the limit {MAX_BLOCK_WEIGHT} for segwit blocks",
+            ),
         );
     }
 
@@ -36,7 +36,7 @@ pub fn compute_and_validate_tx_data(
     block_height: u32,
     block_time: u32,
     median_time_past: u32,
-    ref utxo_set: UtxoSet
+    ref utxo_set: UtxoSet,
 ) -> Result<(u64, Digest, Digest), ByteArray> {
     let mut txids: Array<Digest> = array![];
     let mut wtxids: Array<Digest> = array![];
@@ -84,33 +84,27 @@ pub fn compute_and_validate_tx_data(
             }
 
             let mut vout = 0;
-            for output in *tx
-                .outputs {
-                    let outpoint = OutPoint {
-                        txid,
-                        vout,
-                        data: *output,
-                        block_height,
-                        median_time_past,
-                        is_coinbase: true,
-                    };
-                    inner_result = utxo_set.add(outpoint);
-                    if inner_result.is_err() {
-                        break;
-                    }
-                    vout += 1;
+            for output in *tx.outputs {
+                let outpoint = OutPoint {
+                    txid, vout, data: *output, block_height, median_time_past, is_coinbase: true,
                 };
+                inner_result = utxo_set.add(outpoint);
+                if inner_result.is_err() {
+                    break;
+                }
+                vout += 1;
+            };
             is_coinbase = false;
         } else {
             let fee =
                 match validate_transaction(
-                    tx, block_height, block_time, median_time_past, txid, ref utxo_set
+                    tx, block_height, block_time, median_time_past, txid, ref utxo_set,
                 ) {
                 Result::Ok(fee) => fee,
                 Result::Err(err) => {
                     inner_result = Result::Err(err);
                     break;
-                }
+                },
             };
             total_fee += fee;
         }

@@ -29,7 +29,7 @@ pub fn is_input_final(sequence: u32) -> bool {
 ///
 /// https://learnmeabitcoin.com/technical/transaction/locktime/
 pub fn validate_absolute_locktime(
-    lock_time: u32, block_height: u32, block_time: u32
+    lock_time: u32, block_height: u32, block_time: u32,
 ) -> Result<(), ByteArray> {
     if lock_time < LOCKTIME_THRESHOLD {
         if lock_time < block_height {
@@ -39,8 +39,8 @@ pub fn validate_absolute_locktime(
                 format!(
                     "Transaction locktime {} is not lesser than current block height {}",
                     lock_time,
-                    block_height
-                )
+                    block_height,
+                ),
             );
         }
     } else if lock_time < block_time {
@@ -50,8 +50,8 @@ pub fn validate_absolute_locktime(
             format!(
                 "Transaction locktime {} is not lesser than current block time {}",
                 lock_time,
-                block_time
-            )
+                block_time,
+            ),
         );
     }
 }
@@ -61,7 +61,7 @@ pub fn validate_absolute_locktime(
 /// If relative locktime is enabled, ensure the input's locktime is respected.
 /// https://learnmeabitcoin.com/technical/transaction/input/sequence/
 pub fn validate_relative_locktime(
-    input: @TxIn, block_height: u32, median_time_past: u32
+    input: @TxIn, block_height: u32, median_time_past: u32,
 ) -> Result<(), ByteArray> {
     let sequence = *input.sequence;
     if sequence & SEQUENCE_LOCKTIME_DISABLE_FLAG != 0 {
@@ -85,8 +85,8 @@ pub fn validate_relative_locktime(
                     "Relative time-based lock time is not respected: current MTP: {}, outpoint MTP: {}, lock time: {} seconds",
                     median_time_past,
                     *input.previous_output.median_time_past,
-                    lock_time
-                )
+                    lock_time,
+                ),
             );
         }
     } else {
@@ -97,8 +97,8 @@ pub fn validate_relative_locktime(
                     "Relative block-based lock time is not respected: current height: {}, outpoint height: {}, lock time: {} blocks",
                     block_height,
                     *input.previous_output.block_height,
-                    value
-                )
+                    value,
+                ),
             );
         }
     }
@@ -119,7 +119,7 @@ mod tests {
             sequence: 0xffffffff, // Final, relative locktime disabled
             previous_output: OutPoint {
                 txid: hex_to_hash_rev(
-                    "0000000000000000000000000000000000000000000000000000000000000000"
+                    "0000000000000000000000000000000000000000000000000000000000000000",
                 ),
                 vout: 0,
                 data: TxOut { value: 100, ..Default::default() },
@@ -142,7 +142,7 @@ mod tests {
             sequence: 144,
             previous_output: OutPoint {
                 txid: hex_to_hash_rev(
-                    "0000000000000000000000000000000000000000000000000000000000000000"
+                    "0000000000000000000000000000000000000000000000000000000000000000",
                 ),
                 vout: 0,
                 data: TxOut { value: 188442, ..Default::default() },
@@ -165,7 +165,7 @@ mod tests {
             sequence: 4194311,
             previous_output: OutPoint {
                 txid: hex_to_hash_rev(
-                    "0000000000000000000000000000000000000000000000000000000000000000"
+                    "0000000000000000000000000000000000000000000000000000000000000000",
                 ),
                 vout: 0,
                 data: TxOut { value: 13671, ..Default::default() },
@@ -185,7 +185,7 @@ mod tests {
             sequence: 144, // Lower sequence number with locktime enabled (block-based locktime)
             previous_output: OutPoint {
                 txid: hex_to_hash_rev(
-                    "0000000000000000000000000000000000000000000000000000000000000000"
+                    "0000000000000000000000000000000000000000000000000000000000000000",
                 ),
                 vout: 0,
                 data: TxOut { value: 188442, ..Default::default() },
@@ -213,7 +213,7 @@ mod tests {
             sequence: 4194311, // Time-based relative locktime (0x400007 = SEQUENCE_LOCKTIME_TYPE_FLAG + value)
             previous_output: OutPoint {
                 txid: hex_to_hash_rev(
-                    "0000000000000000000000000000000000000000000000000000000000000000"
+                    "0000000000000000000000000000000000000000000000000000000000000000",
                 ),
                 vout: 0,
                 data: TxOut { value: 13671, ..Default::default() },
@@ -240,7 +240,7 @@ mod tests {
             sequence: 144, // Relative locktime enabled (no SEQUENCE_LOCKTIME_DISABLE_FLAG)
             previous_output: OutPoint {
                 txid: hex_to_hash_rev(
-                    "0000000000000000000000000000000000000000000000000000000000000000"
+                    "0000000000000000000000000000000000000000000000000000000000000000",
                 ),
                 vout: 0,
                 data: TxOut { value: 100, ..Default::default() },

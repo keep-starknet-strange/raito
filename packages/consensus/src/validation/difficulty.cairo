@@ -36,7 +36,7 @@ pub fn adjust_difficulty(
     epoch_start_time: u32,
     block_height: u32,
     prev_block_time: u32,
-    block_time: u32
+    block_time: u32,
 ) -> (u256, u32) {
     if block_height % BLOCKS_PER_EPOCH == 0 {
         let mut time_span = prev_block_time - epoch_start_time;
@@ -127,12 +127,12 @@ fn bits_to_target(bits: u32) -> Result<u256, ByteArray> {
         },
         15 => {
             return Result::Ok(
-                u256 { low: (mantissa.into() * 0x1000000000000000000000000), high: 0 }
+                u256 { low: (mantissa.into() * 0x1000000000000000000000000), high: 0 },
             );
         },
         16 => {
             return Result::Ok(
-                u256 { low: (mantissa.into() * 0x100000000000000000000000000), high: 0 }
+                u256 { low: (mantissa.into() * 0x100000000000000000000000000), high: 0 },
             );
         },
         // Here we don't know
@@ -185,11 +185,11 @@ mod tests {
         let block_height: u32 = 2016;
 
         let (new_target, new_epoch_start_time) = adjust_difficulty(
-            current_target, epoch_start_time, block_height, prev_block_time, block_time
+            current_target, epoch_start_time, block_height, prev_block_time, block_time,
         );
 
         assert_eq!(
-            new_target, 0x00000000ffff0000000000000000000000000000000000000000000000000000_u256
+            new_target, 0x00000000ffff0000000000000000000000000000000000000000000000000000_u256,
         );
         assert_eq!(new_epoch_start_time, 1233063531);
     }
@@ -207,11 +207,11 @@ mod tests {
         let block_height: u32 = 2017;
 
         let (new_target, new_epoch_start_time) = adjust_difficulty(
-            current_target, epoch_start_time, block_height, prev_block_time, block_time
+            current_target, epoch_start_time, block_height, prev_block_time, block_time,
         );
 
         assert_eq!(
-            new_target, 0x00000000ffff0000000000000000000000000000000000000000000000000000_u256
+            new_target, 0x00000000ffff0000000000000000000000000000000000000000000000000000_u256,
         );
         assert_eq!(new_epoch_start_time, 1233063531);
     }
@@ -229,11 +229,11 @@ mod tests {
         let block_height: u32 = 32256;
 
         let (new_target, new_epoch_start_time) = adjust_difficulty(
-            current_target, epoch_start_time, block_height, prev_block_time, block_time
+            current_target, epoch_start_time, block_height, prev_block_time, block_time,
         );
 
         assert_eq!(
-            new_target, 0x00000000d86a0000000000000000000000000000000000000000000000000000_u256
+            new_target, 0x00000000d86a0000000000000000000000000000000000000000000000000000_u256,
         );
         assert_eq!(new_epoch_start_time, 1262153464);
     }
@@ -251,11 +251,11 @@ mod tests {
         let block_height: u32 = 56448;
 
         let (new_target, new_epoch_start_time) = adjust_difficulty(
-            current_target, epoch_start_time, block_height, prev_block_time, block_time
+            current_target, epoch_start_time, block_height, prev_block_time, block_time,
         );
 
         assert_eq!(
-            new_target, 0x00000000159c2400000000000000000000000000000000000000000000000000_u256
+            new_target, 0x00000000159c2400000000000000000000000000000000000000000000000000_u256,
         );
         assert_eq!(new_epoch_start_time, 1274278435);
     }
@@ -287,7 +287,7 @@ mod tests {
         assert!(result.is_ok(), "Should be valid");
         assert!(
             result.unwrap() == 0x1bc330000000000000000000000000000000000000000000_u256,
-            "Incorrect target for 0x181bc330"
+            "Incorrect target for 0x181bc330",
         );
     }
 
@@ -312,7 +312,7 @@ mod tests {
         assert!(
             result
                 .unwrap() == 0x00000000ffff0000000000000000000000000000000000000000000000000000_u256,
-            "Incorrect target for 0x1d00ffff"
+            "Incorrect target for 0x1d00ffff",
         );
     }
 
@@ -323,7 +323,7 @@ mod tests {
         assert!(
             result
                 .unwrap() == 0x000000000d314200000000000000000000000000000000000000000000000000_u256,
-            "Incorrect target for 0x1c0d3142"
+            "Incorrect target for 0x1c0d3142",
         );
     }
 
@@ -334,7 +334,7 @@ mod tests {
         assert!(
             result
                 .unwrap() == 0x00000000000000000007a4290000000000000000000000000000000000000000_u256,
-            "Incorrect target for 0x1707a429"
+            "Incorrect target for 0x1707a429",
         );
     }
 
@@ -342,7 +342,7 @@ mod tests {
     fn test_bits_to_target_bounds() {
         // MSB is 0x80
         assert_eq!(
-            bits_to_target(0x03800000).unwrap_err(), "Target cannot have most significant bit set"
+            bits_to_target(0x03800000).unwrap_err(), "Target cannot have most significant bit set",
         );
         // Exponent is 33
         assert_eq!(bits_to_target(0x2100aa00).unwrap_err(), "Target size cannot exceed 32 bytes");
@@ -362,21 +362,21 @@ mod tests {
         assert_eq!(reduce_target_precision(0x800001), 0x800000);
         assert_eq!(
             reduce_target_precision(
-                0x00000000FFFF0000000000000000000000000000000000000000000000000000
+                0x00000000FFFF0000000000000000000000000000000000000000000000000000,
             ),
-            0x00000000FFFF0000000000000000000000000000000000000000000000000000
+            0x00000000FFFF0000000000000000000000000000000000000000000000000000,
         );
         assert_eq!(
             reduce_target_precision(
-                0x00000000FFFF0100000000000000000000000000000000000000000000000000
+                0x00000000FFFF0100000000000000000000000000000000000000000000000000,
             ),
-            0x00000000FFFF0000000000000000000000000000000000000000000000000000
+            0x00000000FFFF0000000000000000000000000000000000000000000000000000,
         );
         assert_eq!(
             reduce_target_precision(
-                0x00000001FFFF0100000000000000000000000000000000000000000000000000
+                0x00000001FFFF0100000000000000000000000000000000000000000000000000,
             ),
-            0x00000001FFFF0000000000000000000000000000000000000000000000000000
+            0x00000001FFFF0000000000000000000000000000000000000000000000000000,
         );
     }
 }

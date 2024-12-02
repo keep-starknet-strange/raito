@@ -160,7 +160,7 @@ mod tests {
     fn dummy_unspendable_outpoint(vout: u32, cached: bool) -> OutPoint {
         OutPoint {
             txid: hex_to_hash_rev(
-                "0000000000000000000000000000000000000000000000000000000000000000"
+                "0000000000000000000000000000000000000000000000000000000000000000",
             ),
             vout,
             data: TxOut {
@@ -178,7 +178,7 @@ mod tests {
     fn dummy_outpoint(vout: u32, cached: bool) -> OutPoint {
         OutPoint {
             txid: hex_to_hash_rev(
-                "0000000000000000000000000000000000000000000000000000000000000000"
+                "0000000000000000000000000000000000000000000000000000000000000000",
             ),
             vout,
             data: TxOut {
@@ -196,19 +196,19 @@ mod tests {
     fn get_outpoint() -> OutPoint {
         OutPoint {
             txid: hex_to_hash_rev(
-                "0437cd7f8525ceed2324359c2d0ba26006d92d856a9c20fa0241106ee5a597c9"
+                "0437cd7f8525ceed2324359c2d0ba26006d92d856a9c20fa0241106ee5a597c9",
             ),
             vout: 0,
             data: TxOut {
                 value: 5000000000,
                 pk_script: @from_hex(
-                    "410411db93e1dcdb8a016b49840f8c53bc1eb68a382e97b1482ecad7b148a6909a5cb2e0eaddfb84ccf9744464f82e160bfa9b8b64f9d4c03f999b8643f656b412a3ac"
+                    "410411db93e1dcdb8a016b49840f8c53bc1eb68a382e97b1482ecad7b148a6909a5cb2e0eaddfb84ccf9744464f82e160bfa9b8b64f9d4c03f999b8643f656b412a3ac",
                 ),
-                cached: false
+                cached: false,
             },
             block_height: 9,
             median_time_past: 1231470988,
-            is_coinbase: true
+            is_coinbase: true,
         }
     }
 
