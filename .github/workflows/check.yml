@@ -24,6 +24,6 @@ jobs:
       - uses: actions/checkout@v4
       - uses: software-mansion/setup-scarb@v1
         with:
-          scarb-version: "nightly"
+          scarb-version: "2.9.1"
       - run: scarb --version
       - run: scarb test
