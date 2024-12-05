@@ -14,10 +14,11 @@ pub mod vanilla {
 }
 pub mod test;
 
-use core::hash::{HashStateTrait, HashStateExTrait};
-use core::poseidon::PoseidonTrait;
+use core::poseidon::hades_permutation;
 
 /// Parent hash of two Utreexo nodes.
+#[inline]
 fn parent_hash(left: felt252, right: felt252) -> felt252 {
-    return PoseidonTrait::new().update_with(left).update_with(right).finalize();
+    let (res, _, _) = hades_permutation(left, right, 2);
+    return res;
 }
