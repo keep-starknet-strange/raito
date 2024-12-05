@@ -4,6 +4,7 @@ use super::types::transaction::{Transaction, TxIn, TxOut, OutPoint};
 use utils::hash::Digest;
 use utils::word_array::{WordArray, WordArrayTrait, WordSpan, WordSpanTrait};
 use core::traits::DivRem;
+use core::serde::Serde;
 
 pub trait Encode<T> {
     /// Encodes using Bitcoin codec and appends to the buffer.
@@ -31,15 +32,23 @@ pub impl EncodeSpan<T, +Encode<T>> of Encode<Span<T>> {
 }
 
 /// `Encode` trait implementation for `ByteArray`.
-/// TODO: use WordArray for arguments instead of ByteArray.
-/// Extra optimization: predict word array offset
 pub impl EncodeByteArray of Encode<ByteArray> {
     fn encode_to(self: @ByteArray, ref dest: WordArray) {
         encode_compact_size(self.len(), ref dest);
-        let num_bytes = self.len();
-        for i in 0..num_bytes {
-            dest.append_u8(self[i]);
-        }
+
+        // Serialized ByteArray: [num_bytes31_chunks, bytes31_chunks..., last_word, last_word_len]
+        let mut out: Array<felt252> = Default::default();
+        self.serialize(ref out);
+
+        let mut num_bytes31 = out.pop_front().unwrap();
+        while num_bytes31 != 0 {
+            dest.append_bytes31(out.pop_front().unwrap().into());
+            num_bytes31 -= 1;
+        };
+
+        let last_word = out.pop_front().unwrap();
+        let last_word_len = out.pop_front().unwrap();
+        dest.append_bytes(last_word.into(), last_word_len.try_into().unwrap());
     }
 }
 
