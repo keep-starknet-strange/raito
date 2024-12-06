@@ -30,25 +30,6 @@ for arg in "$@"; do
 done
 
 ignored_files=(
-    "tests/data/full_209999.json", #cairo-run dies, to be investigated
-    "tests/data/full_403199.json", #cairo-run dies, to be investigated
-    "tests/data/full_481823.json", #cairo-run dies, to be investigated
-    "tests/data/full_489888.json", #cairo-run dies, to be investigated
-    "tests/data/full_491406.json", #cairo-run dies, to be investigated
-    "tests/data/full_629999.json", #cairo-run dies, to be investigated
-    "tests/data/full_709631.json", #cairo-run dies, to be investigated
-    "tests/data/full_774627.json", # Couldn't compute operand op1. Unknown value for memory cell 1:131082
-    "tests/data/full_839999.json", # Couldn't compute operand op1. Unknown value for memory cell 1:262154
-    "tests/data/full_116927.json", # Run panicked with [108217864776563 ('blocks'), ]. 
-    "tests/data/full_150012.json", # Run panicked with [108217864776563 ('blocks'), ]. 
-    "tests/data/full_2015.json",   # Run panicked with [108217864776563 ('blocks'), ]. 
-    "tests/data/full_24834.json",  # Run panicked with [108217864776563 ('blocks'), ]. 
-    "tests/data/full_32255.json",  # Run panicked with [108217864776563 ('blocks'), ]. 
-    "tests/data/full_478557.json", # Run panicked with [108217864776563 ('blocks'), ]. 
-    "tests/data/full_57042.json",  # Run panicked with [108217864776563 ('blocks'), ]. 
-    "tests/data/full_72575.json",  # Run panicked with [108217864776563 ('blocks'), ]. 
-    "tests/data/full_757752.json", # Run panicked with [108217864776563 ('blocks'), ].
-    # "tests/data/full_478557.json", #runs on server
 )
 
 ignore_file="tests/data/ignore"
