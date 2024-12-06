@@ -9,30 +9,30 @@ use utreexo::stump::proof::UtreexoBatchProof;
 
 /// Integration testing program arguments.
 #[derive(Drop)]
-struct Args {
+pub struct Args {
     /// Current (initial) chain state.
-    chain_state: ChainState,
+    pub chain_state: ChainState,
     /// Batch of blocks that have to be applied to the current chain state.
-    blocks: Array<Block>,
+    pub blocks: Array<Block>,
     /// Expected chain state (that we want to compare the result with).
-    expected_chain_state: ChainState,
+    pub expected_chain_state: ChainState,
     /// Optional Utreexo arguments.
-    utreexo_args: Option<UtreexoArgs>,
+    pub utreexo_args: Option<UtreexoArgs>,
     /// If this flag is set, locking scripts will be executed
-    execute_script: bool,
+    pub execute_script: bool,
 }
 
 /// Utreexo arguments necessary for constraining the UTXO set.
 #[derive(Drop, Serde)]
 struct UtreexoArgs {
     /// Current (initial) accumulator state.
-    state: UtreexoStumpState,
+    pub state: UtreexoStumpState,
     /// Batch inclusion proof for TXOs spent during the current block.
     /// Note that it doesn't support flow with multiple blocks applied
     /// in a single program run.
-    proof: UtreexoBatchProof,
+    pub proof: UtreexoBatchProof,
     /// Expected accumulator state at the end of the execution.
-    expected_state: UtreexoStumpState,
+    pub expected_state: UtreexoStumpState,
 }
 
 /// Integration testing program entrypoint.
