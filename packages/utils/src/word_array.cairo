@@ -180,20 +180,22 @@ pub impl WordArrayImpl of WordArrayTrait {
         }
     }
 
-    fn append_bytes31(ref self: WordArray, value: u256) {
+    /// Append 31 bytes (max number of full bytes that single field element can store)
+    fn append_bytes31(ref self: WordArray, value: felt252) {
+        let bytes31: u256 = value.into(); // DivRem is not implemented for felt252
         let bytes28 = if self.last_input_num_bytes == 0 {
-            let (bytes28, last_word) = DivRem::div_rem(value, 0x1000000);
+            let (bytes28, last_word) = DivRem::div_rem(bytes31, 0x1000000);
             self.last_input_word = last_word.try_into().expect('append_bytes31/1');
             self.last_input_num_bytes = 3;
             bytes28
         } else if self.last_input_num_bytes == 1 {
             let (first_word, bytes28) = DivRem::div_rem(
-                value, 0x100000000000000000000000000000000000000000000000000000000,
+                bytes31, 0x100000000000000000000000000000000000000000000000000000000,
             );
             self.append_word(first_word.try_into().expect('append_bytes31/2'), 3);
             bytes28
         } else if self.last_input_num_bytes == 2 {
-            let (bytes29, last_word) = DivRem::div_rem(value, 0x100);
+            let (bytes29, last_word) = DivRem::div_rem(bytes31, 0x100);
             let (first_word, bytes28) = DivRem::div_rem(
                 bytes29, 0x100000000000000000000000000000000000000000000000000000000,
             );
@@ -202,7 +204,7 @@ pub impl WordArrayImpl of WordArrayTrait {
             self.last_input_num_bytes = 1;
             bytes28
         } else {
-            let (bytes30, last_word) = DivRem::div_rem(value, 0x10000);
+            let (bytes30, last_word) = DivRem::div_rem(bytes31, 0x10000);
             let (first_word, bytes28) = DivRem::div_rem(
                 bytes30, 0x100000000000000000000000000000000000000000000000000000000,
             );
@@ -227,16 +229,18 @@ pub impl WordArrayImpl of WordArrayTrait {
         self.input.append(r0.try_into().expect('append_bytes31/13'));
     }
 
-    fn append_bytes(ref self: WordArray, value: u256, num_bytes: u32) {
+    /// Append up to 31 bytes (byte length provided), packed in a single field element.
+    fn append_bytes(ref self: WordArray, value: felt252, num_bytes: u32) {
+        let bytes: u256 = value.into(); // DivRem is not implemented for felt252
         let (num_full_words, last_input_num_bytes) = DivRem::div_rem(
             self.last_input_num_bytes + num_bytes, 4,
         );
 
         if num_full_words != 0 {
             let (head, last_word) = if last_input_num_bytes == 0 {
-                (value, 0)
+                (bytes, 0)
             } else {
-                DivRem::div_rem(value, pow256(last_input_num_bytes))
+                DivRem::div_rem(bytes, pow256(last_input_num_bytes))
             };
 
             let (mut full_words, mut full_words_num_bytes) = if self.last_input_num_bytes == 0 {
@@ -266,7 +270,7 @@ pub impl WordArrayImpl of WordArrayTrait {
             self.last_input_word = last_word.try_into().expect('append_bytes/3');
             self.last_input_num_bytes = last_input_num_bytes;
         } else {
-            self.append_word(value.try_into().expect('append_bytes/3'), num_bytes);
+            self.append_word(bytes.try_into().expect('append_bytes/3'), num_bytes);
         }
     }
 
@@ -437,7 +441,7 @@ mod tests {
     #[test]
     fn append_bytes31() {
         let mut words: WordArray = Default::default();
-        words.append_bytes31(0x01020304050607080910111213141516171819202122232425262728293031_u256);
+        words.append_bytes31(0x01020304050607080910111213141516171819202122232425262728293031);
         assert_eq!(
             "01020304050607080910111213141516171819202122232425262728293031",
             words_to_hex(words.span()),
@@ -445,7 +449,7 @@ mod tests {
 
         let mut words: WordArray = Default::default();
         words.append_word(0xff, 1);
-        words.append_bytes31(0x01020304050607080910111213141516171819202122232425262728293031_u256);
+        words.append_bytes31(0x01020304050607080910111213141516171819202122232425262728293031);
         assert_eq!(
             "ff01020304050607080910111213141516171819202122232425262728293031",
             words_to_hex(words.span()),
@@ -453,7 +457,7 @@ mod tests {
 
         let mut words: WordArray = Default::default();
         words.append_word(0xfffe, 2);
-        words.append_bytes31(0x01020304050607080910111213141516171819202122232425262728293031_u256);
+        words.append_bytes31(0x01020304050607080910111213141516171819202122232425262728293031);
         assert_eq!(
             "fffe01020304050607080910111213141516171819202122232425262728293031",
             words_to_hex(words.span()),
@@ -461,7 +465,7 @@ mod tests {
 
         let mut words: WordArray = Default::default();
         words.append_word(0xfffefd, 3);
-        words.append_bytes31(0x01020304050607080910111213141516171819202122232425262728293031_u256);
+        words.append_bytes31(0x01020304050607080910111213141516171819202122232425262728293031);
         assert_eq!(
             "fffefd01020304050607080910111213141516171819202122232425262728293031",
             words_to_hex(words.span()),
@@ -471,7 +475,7 @@ mod tests {
     #[test]
     fn append_bytes() {
         let mut words: WordArray = Default::default();
-        words.append_bytes(0x010203040506070809101112131415161718192021222324252627282930_u256, 30);
+        words.append_bytes(0x010203040506070809101112131415161718192021222324252627282930, 30);
         assert_eq!(
             "010203040506070809101112131415161718192021222324252627282930",
             words_to_hex(words.span()),
@@ -479,7 +483,7 @@ mod tests {
 
         let mut words: WordArray = Default::default();
         words.append_word(0xff, 1);
-        words.append_bytes(0x01020304050607080910111213141516171819202122232425262728_u256, 28);
+        words.append_bytes(0x01020304050607080910111213141516171819202122232425262728, 28);
         assert_eq!(
             "ff01020304050607080910111213141516171819202122232425262728",
             words_to_hex(words.span()),
@@ -487,7 +491,7 @@ mod tests {
 
         let mut words: WordArray = Default::default();
         words.append_word(0xfffe, 2);
-        words.append_bytes(0x010203040506070809101112131415161718192021222324252627_u256, 27);
+        words.append_bytes(0x010203040506070809101112131415161718192021222324252627, 27);
         assert_eq!(
             "fffe010203040506070809101112131415161718192021222324252627",
             words_to_hex(words.span()),

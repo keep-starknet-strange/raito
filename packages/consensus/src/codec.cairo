@@ -36,19 +36,22 @@ pub impl EncodeByteArray of Encode<ByteArray> {
     fn encode_to(self: @ByteArray, ref dest: WordArray) {
         encode_compact_size(self.len(), ref dest);
 
-        // Serialized ByteArray: [num_bytes31_chunks, bytes31_chunks..., last_word, last_word_len]
+        // We cannot get access to ByteArray internals, but we can use Serde to convert
+        // the inner triple (Array<bytes31>, last_word, last_word_len) into array of felts.
+        // WARNING: these assumptions might be broken if ByteArray implementation changes
+        // in corelib. A better approach would be introducing IntoIterator<felt252> for ByteArray.
         let mut out: Array<felt252> = Default::default();
         self.serialize(ref out);
 
         let mut num_bytes31 = out.pop_front().unwrap();
         while num_bytes31 != 0 {
-            dest.append_bytes31(out.pop_front().unwrap().into());
+            dest.append_bytes31(out.pop_front().unwrap());
             num_bytes31 -= 1;
         };
 
         let last_word = out.pop_front().unwrap();
         let last_word_len = out.pop_front().unwrap();
-        dest.append_bytes(last_word.into(), last_word_len.try_into().unwrap());
+        dest.append_bytes(last_word, last_word_len.try_into().unwrap());
     }
 }
 
