@@ -2,7 +2,7 @@
 In order to generate input to the [validate_and_apply](../packages/consensus/src/types/chain_state.cairo#L62) function, a lot of data needs to be gathered. 
 
 ## ChainState and Block
-Generating ChainState and Block data involves joining information between multiple blocks and transactions. Since this kind of operations is slow with Bitcoin RPC we use Google Bitcoin data set which allows us to export data with plain sql. Unfortunately due to the [missing transaction_index](https://github.com/blockchain-etl/bitcoin-etl/issues/47) bug in the data set it can't be the only source of data.
+Generating ChainState and Block data involves joining information between multiple blocks and transactions. Since this kind of operation is slow with Bitcoin RPC we use Google Bitcoin data set which allows us to export data with plain sql. Unfortunately due to the [missing transaction_index](https://github.com/blockchain-etl/bitcoin-etl/issues/47) bug in the data set it can't be the only source of data.
 
 <p align="center" width="100%">
   <img src="./img/data.svg" alt="client"/>
