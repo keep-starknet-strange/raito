@@ -1,4 +1,4 @@
-//! Chain state is a minimal subset of data required to unambiguosly
+//! Chain state is a minimal subset of data required to unambiguously
 //! define a particular blockchain starting at the genesis.
 //!
 //! Chain state alone is not enough to do full block validation, however
