@@ -86,9 +86,7 @@ fn main(arguments: Array<felt252>) -> Array<felt252> {
 
         if state != expected_state {
             println!(
-                "FAIL: error='expected utreexo state {:?}, actual {:?}'",
-                expected_state,
-                state,
+                "FAIL: error='expected utreexo state {:?}, actual {:?}'", expected_state, state,
             );
             panic!();
         }
