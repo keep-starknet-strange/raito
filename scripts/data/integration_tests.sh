@@ -63,24 +63,24 @@ for test_file in "${test_files[@]}"; do
         else
             arguments_file="$(dirname "$test_file")/.arguments-$(basename "$test_file")"
             python ../../scripts/data/format_args.py --input_file ${test_file} $([[ $execute_scripts -eq 1 ]] && echo "--execute_script") > $arguments_file
-            output=$(scarb cairo-run --no-build --function main --arguments-file $arguments_file)
-            gas_spent=$(echo $output | grep -o 'gas_spent=[0-9]*' | sed 's/gas_spent=//')
+            output=$(scarb cairo-run --no-build --function main --print-resource-usage --arguments-file $arguments_file)
+            steps=$(echo $output | grep -o 'steps: [0-9]*' | sed 's/steps: //')
 
             if [[ "$nocapture" -eq 1 ]]; then
                 echo -e "\n$output"
             fi
 
             if [[ "$output" == *"FAIL"* ]]; then
-                echo -e "${RED} fail ${RESET}(gas usage est.: $gas_spent)"
+                echo -e "${RED} fail ${RESET}(steps: $steps)"
                 num_fail=$((num_fail + 1))
                 error=$(echo $output | grep -o "error='[^']*'" | sed "s/error=//")
                 failures+="\t$test_file — Panicked with $error\n"
             elif [[ "$output" == *"OK"* ]]; then
-                echo -e "${GREEN} ok ${RESET}(gas usage est.: $gas_spent)"
+                echo -e "${GREEN} ok ${RESET}(steps: $steps)"
                 num_ok=$((num_ok + 1))
                 rm $arguments_file
             else
-                echo -e "${RED} fail ${RESET}(gas usage est.: 0)"
+                echo -e "${RED} fail ${RESET}"
                 num_fail=$((num_fail + 1))
                 error=$(echo "$output" | sed '1d' | tr '\n' ' ' | sed 's/[[:space:]]\+/ /g') #spellchecker:disable-line
                 failures+="\t$test_file — $error\n"

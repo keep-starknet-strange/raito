@@ -1,5 +1,4 @@
 use core::serde::Serde;
-use core::testing::get_available_gas;
 use consensus::types::block::Block;
 use consensus::types::chain_state::{ChainState, BlockValidatorImpl};
 use consensus::types::utxo_set::{UtxoSet, UtxoSetTrait};
@@ -42,7 +41,6 @@ struct UtreexoArgs {
 /// Prints result to the stdout.
 fn main(arguments: Array<felt252>) -> Array<felt252> {
     println!("Running integration test... ");
-    let mut gas_before = get_available_gas();
     let mut args = arguments.span();
 
     let Args {
@@ -55,7 +53,7 @@ fn main(arguments: Array<felt252>) -> Array<felt252> {
         match chain_state.validate_and_apply(block, ref utxo_set, execute_script) {
             Result::Ok(new_chain_state) => { chain_state = new_chain_state; },
             Result::Err(err) => {
-                println!("FAIL: gas_spent={} error='{}'", gas_before - get_available_gas(), err);
+                println!("FAIL: error='{}'", err);
                 panic!();
             },
         }
@@ -63,8 +61,7 @@ fn main(arguments: Array<felt252>) -> Array<felt252> {
 
     if chain_state != expected_chain_state {
         println!(
-            "FAIL: gas_spent={} error='expected chain state {:?}, actual {:?}'",
-            gas_before - get_available_gas(),
+            "FAIL: error='expected chain state {:?}, actual {:?}'",
             expected_chain_state,
             chain_state,
         );
@@ -72,7 +69,7 @@ fn main(arguments: Array<felt252>) -> Array<felt252> {
     }
 
     if let Result::Err(err) = utxo_set.finalize() {
-        println!("FAIL: gas_spent={} error='{}'", gas_before - get_available_gas(), err);
+        println!("FAIL: error='{}'", err);
         panic!();
     }
 
@@ -80,7 +77,7 @@ fn main(arguments: Array<felt252>) -> Array<felt252> {
         match state.verify_and_delete(@proof, utxo_set.leaves_to_delete.span()) {
             Result::Ok(new_state) => { state = new_state; },
             Result::Err(err) => {
-                println!("FAIL: gas_spent={} error='{:?}'", gas_before - get_available_gas(), err);
+                println!("FAIL: error='{:?}'", err);
                 panic!();
             },
         }
@@ -89,16 +86,13 @@ fn main(arguments: Array<felt252>) -> Array<felt252> {
 
         if state != expected_state {
             println!(
-                "FAIL: gas_spent={} error='expected utreexo state {:?}, actual {:?}'",
-                gas_before - get_available_gas(),
-                expected_state,
-                state,
+                "FAIL: error='expected utreexo state {:?}, actual {:?}'", expected_state, state,
             );
             panic!();
         }
     }
 
-    println!("OK: gas_spent={}", gas_before - get_available_gas());
+    println!("OK");
     array![]
 }
 
