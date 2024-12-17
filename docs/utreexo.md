@@ -54,7 +54,7 @@ More specifically, stump consists of roots and the number of leaves (as we know 
 
 Note that previously we had either a root or "null" for every row in the forest, but in stump we have to use a different approach to determine to which row a particular root belongs. A simple rule is if the row length is even we skip it, otherwise (odd) the root is added. Another way to see this is to look at the binary representation of the leaves number and for each "1" there should be a root in the according row.
 
-Also it's worth noting that before "null" was indicating a missing roots whereas in stump empty root just means its children are empty too.
+Also it's worth noting that before "null" was indicating missing roots whereas in stump empty root just means its children are empty too.
 
 ## Batch proof
 
