@@ -4,14 +4,14 @@ In the world of L2s it is a common pattern when a certain computation (e.g. stat
 - First time to get the result and return it to the user (fast execution backend)
 - Second time to generate a validity proof (slow execution backend)
 
-The primary reason for compute things twice is that we want to serve users as fast as possible, while a proper verifiable run can be run in the background for a longer time period. On top of that, sometimes we need to look ahead into the future to reduce the complexity of the verifiable program. In practice that means we pass the result of the first (fast) run as arguments of the second (slow) run.
+The primary reason for computing things twice is that we want to serve users as fast as possible, while a proper verifiable run can be run in the background for a longer time period. On top of that, sometimes we need to look ahead into the future to reduce the complexity of the verifiable program. In practice that means we pass the result of the first (fast) run as arguments of the second (slow) run.
 
 ## What is Raito
 
 Having this dual-run model in mind we can now define what Raito is.
 
 Raito is a verifiable program that in its turn validates that a given Bitcoin block is valid (full consensus validation).  
-So it does the very same checks as a Bitcoin Core node but in such a way that its possible to generate a succinct proof of a fact that a particular Bitcoin block is valid.
+So it does the very same checks as a Bitcoin Core node but in such a way that it is possible to generate a succinct proof of a fact that a particular Bitcoin block is valid.
 
 ## How to use
 
