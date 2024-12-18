@@ -97,7 +97,7 @@ pub impl U256IntoDigest of Into<u256, Digest> {
     }
 }
 
-/// `Into` implementation that converts a `Digest` value into a `u256` type and reverses bytes 
+/// `Into` implementation that converts a `Digest` value into a `u256` type and reverses bytes
 /// order.
 /// `Digest` is little-endian order, while `u256` is big-endian like in explorer.
 pub impl DigestIntoU256 of Into<Digest, u256> {
