@@ -1,7 +1,7 @@
 //! Unspent transaction output set contains outputs from the previous blocks
 //! that can be referenced in the transaction inputs.
 //!
-//! UTXO set is very large hence it is infeasible to pass it entirely as a program input.
+//! UTXO set is enormous hence it is infeasible to pass it entirely as a program input.
 //! Instead we provide only a subset of outputs that are:
 //!   - going to be spent in the validated blocks
 //!   - created in the previous blocks (i.e. are not spent in the same block)

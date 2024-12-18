@@ -109,7 +109,7 @@ fn compute_transaction_fee(
     Result::Ok(total_input_amount - total_output_amount)
 }
 
-/// Ensures than coinbase output is old enough to be spent.
+/// Ensures that coinbase output is old enough to be spent.
 fn validate_coinbase_maturity(output_height: u32, block_height: u32) -> Result<(), ByteArray> {
     if block_height < output_height + 100 {
         return Result::Err(
