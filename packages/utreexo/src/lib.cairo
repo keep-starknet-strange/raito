@@ -2,8 +2,6 @@ pub mod stump {
     pub mod accumulator;
     pub mod proof;
     pub mod state;
-    #[cfg(test)]
-    mod accumulator_tests;
 }
 pub mod vanilla {
     pub mod accumulator;
