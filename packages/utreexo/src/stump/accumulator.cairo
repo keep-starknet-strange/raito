@@ -114,34 +114,4 @@ pub impl StumpUtreexoAccumulatorImpl of StumpUtreexoAccumulator {
 
         Result::Ok(UtreexoStumpState { roots: new_roots.span(), num_leaves: *self.num_leaves })
     }
-
-    /// Legacy implementation of proof verification.
-    fn verify_legacy(
-        self: @UtreexoStumpState, proof: @UtreexoBatchProof, del_hashes: Span<felt252>,
-    ) -> Result<(), ByteArray> {
-        let computed_roots: Span<felt252> = proof
-            .compute_roots_legacy(del_hashes, *self.num_leaves)?;
-        let mut number_matched_roots: u32 = 0;
-
-        for i in 0..computed_roots.len() {
-            for root in *self.roots {
-                match root {
-                    Option::Some(root) => {
-                        if (computed_roots[i] == root) {
-                            number_matched_roots += 1;
-                        };
-                    },
-                    Option::None => {},
-                };
-            };
-        };
-
-        let computed_roots_len = computed_roots.len();
-
-        if (computed_roots_len != number_matched_roots && computed_roots_len != 0) {
-            return Result::Err("Proof verification failed");
-        }
-
-        Result::Ok(())
-    }
 }
