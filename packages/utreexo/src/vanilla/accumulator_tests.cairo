@@ -38,7 +38,7 @@ fn test_verify_inclusion() {
         UtreexoState {
             roots: array![
                 Option::None,
-                Option::Some(0x05fb342b44641ae6d67310cf9da5566e1a398fd6b0121d40e2c5acd16e1ddb4a),
+                Option::Some(0x181a554869978703143b97d281460c38e30fe6ba52eb0a03641e446beb0f610),
             ]
                 .into(),
         };
@@ -47,7 +47,7 @@ fn test_verify_inclusion() {
     let result = utxo_state.verify(leaf2, @proof);
     assert!(
         result.is_ok(),
-        "Root at index 1 should be 0x05fb342b44641ae6d67310cf9da5566e1a398fd6b0121d40e2c5acd16e1ddb4a",
+        "Root at index 1 should be 0x181a554869978703143b97d281460c38e30fe6ba52eb0a03641e446beb0f610",
     );
 
     // Add the third leaf (0x333333333333333333333333)
@@ -56,7 +56,7 @@ fn test_verify_inclusion() {
         UtreexoState {
             roots: array![
                 Option::Some(leaf3),
-                Option::Some(0x05fb342b44641ae6d67310cf9da5566e1a398fd6b0121d40e2c5acd16e1ddb4a),
+                Option::Some(0x181a554869978703143b97d281460c38e30fe6ba52eb0a03641e446beb0f610),
             ]
                 .into(),
         };
@@ -65,7 +65,7 @@ fn test_verify_inclusion() {
     let result = utxo_state.verify(leaf2, @proof);
     assert!(
         result.is_ok(),
-        "Root at index 1 should be 0x05fb342b44641ae6d67310cf9da5566e1a398fd6b0121d40e2c5acd16e1ddb4a",
+        "Root at index 1 should be 0x181a554869978703143b97d281460c38e30fe6ba52eb0a03641e446beb0f610",
     );
 
     // Add the fourth leaf (0x444444444444444444444444)
@@ -77,7 +77,7 @@ fn test_verify_inclusion() {
             roots: array![
                 Option::None,
                 Option::None,
-                Option::Some(0x018674e0c40577cb5ba4728d6ac7bedfd9548f4020161223261941b2a8ae84b2),
+                Option::Some(0x73f11135a8f669c50ec8257ea06c9e231c140db996458f698b2be1f771a318f),
             ]
                 .into(),
         };
@@ -87,7 +87,7 @@ fn test_verify_inclusion() {
         leaf_index: 0,
         proof: array![
             0x222222222222222222222222,
-            0x02a6b2ae998d30e1ac356c32b2750c3126cd6b3ecf02e6918a93021d17b2b026,
+            0x3f2d79e3abddc2b8ac61fba19928ef4882b1c784bff13c633513dd49818384c,
         ]
             .span(),
     };
@@ -97,7 +97,7 @@ fn test_verify_inclusion() {
     // Create the UtreexoProof for leaf 2
     let proof = UtreexoProof {
         leaf_index: 1,
-        proof: array![leaf1, 0x02a6b2ae998d30e1ac356c32b2750c3126cd6b3ecf02e6918a93021d17b2b026]
+        proof: array![leaf1, 0x3f2d79e3abddc2b8ac61fba19928ef4882b1c784bff13c633513dd49818384c]
             .span(),
     };
     // Call the verify function
@@ -107,7 +107,7 @@ fn test_verify_inclusion() {
     // Create the UtreexoProof for leaf 3
     let proof = UtreexoProof {
         leaf_index: 2,
-        proof: array![leaf4, 0x05fb342b44641ae6d67310cf9da5566e1a398fd6b0121d40e2c5acd16e1ddb4a]
+        proof: array![leaf4, 0x181a554869978703143b97d281460c38e30fe6ba52eb0a03641e446beb0f610]
             .span(),
     };
     // Call the verify function
@@ -117,7 +117,7 @@ fn test_verify_inclusion() {
     // Create the UtreexoProof for leaf 4
     let proof = UtreexoProof {
         leaf_index: 3,
-        proof: array![leaf3, 0x05fb342b44641ae6d67310cf9da5566e1a398fd6b0121d40e2c5acd16e1ddb4a]
+        proof: array![leaf3, 0x181a554869978703143b97d281460c38e30fe6ba52eb0a03641e446beb0f610]
             .span(),
     };
     // Call the verify function
@@ -127,7 +127,7 @@ fn test_verify_inclusion() {
     // Create the UtreexoProof for leaf 4
     let proof = UtreexoProof {
         leaf_index: 3,
-        proof: array![leaf2, 0x05fb342b44641ae6d67310cf9da5566e1a398fd6b0121d40e2c5acd16e1ddb4a]
+        proof: array![leaf2, 0x181a554869978703143b97d281460c38e30fe6ba52eb0a03641e446beb0f610]
             .span(),
     };
     // Call the verify function
@@ -157,7 +157,7 @@ fn test_utreexo_add() {
 
     let expected: Span<Option<felt252>> = array![
         Option::None,
-        Option::Some(0x738A7C495E564574993BBCB6A62D65C3C570BB81C63801066AF8934649F66F6),
+        Option::Some(0x6b255e34b8c22a48b7821a867bea0a697d6a0820a6f827482cf0c25cfc08338),
         Option::None,
     ]
         .span();
@@ -167,8 +167,8 @@ fn test_utreexo_add() {
     utreexo_state = utreexo_state.add(outpoint);
 
     let expected: Span<Option<felt252>> = array![
-        Option::Some(0x291F8F5FC449D42C715B529E542F24A80136D18F4A85DE28829CD3DCAAC1B9C),
-        Option::Some(0x738A7C495E564574993BBCB6A62D65C3C570BB81C63801066AF8934649F66F6),
+        Option::Some(0x291f8f5fc449d42c715b529e542f24a80136d18f4a85de28829cd3dcaac1b9c),
+        Option::Some(0x6b255e34b8c22a48b7821a867bea0a697d6a0820a6f827482cf0c25cfc08338),
         Option::None,
     ]
         .span();
@@ -180,7 +180,7 @@ fn test_utreexo_add() {
     let expected: Span<Option<felt252>> = array![
         Option::None,
         Option::None,
-        Option::Some(0x25D0DE35DD446E3D35504866FD7A04D4245E01B5908E19EAA70ABA84DD5A1F1),
+        Option::Some(0x3b3ed120874d97b712f68895b658659ee8055a82ea5bef26fa210fa956754c7),
         Option::None,
     ]
         .span();
@@ -192,7 +192,7 @@ fn test_utreexo_add() {
     let expected: Span<Option<felt252>> = array![
         Option::Some(0x291F8F5FC449D42C715B529E542F24A80136D18F4A85DE28829CD3DCAAC1B9C),
         Option::None,
-        Option::Some(0x25D0DE35DD446E3D35504866FD7A04D4245E01B5908E19EAA70ABA84DD5A1F1),
+        Option::Some(0x3b3ed120874d97b712f68895b658659ee8055a82ea5bef26fa210fa956754c7),
         Option::None,
     ]
         .span();
@@ -207,7 +207,7 @@ fn test_utreexo_add() {
         Option::None,
         Option::None,
         Option::None,
-        Option::Some(0x708EB39E30B035376EC871F8F17CD3BADAE6A68406B13C3BB671009D56F5AD),
+        Option::Some(0x7c9dbc3d6eba8cb43284ce97423a48d660612c0834baad3c2f8b423530a5619),
         Option::None,
     ]
         .span();
@@ -220,10 +220,10 @@ fn test_utreexo_add() {
 
     let expected: Span<Option<felt252>> = [
         Option::None(()),
-        Option::Some(0x738A7C495E564574993BBCB6A62D65C3C570BB81C63801066AF8934649F66F6),
-        Option::Some(0x25D0DE35DD446E3D35504866FD7A04D4245E01B5908E19EAA70ABA84DD5A1F1),
-        Option::Some(0x708EB39E30B035376EC871F8F17CD3BADAE6A68406B13C3BB671009D56F5AD),
-        Option::Some(0x58D6BEF6CFC28638FB4C8271355961F50922BCC1577DD2B6D04E11B7A911702),
+        Option::Some(0x6b255e34b8c22a48b7821a867bea0a697d6a0820a6f827482cf0c25cfc08338),
+        Option::Some(0x3b3ed120874d97b712f68895b658659ee8055a82ea5bef26fa210fa956754c7),
+        Option::Some(0x7c9dbc3d6eba8cb43284ce97423a48d660612c0834baad3c2f8b423530a5619),
+        Option::Some(0x54d5e7a4e449e914bed7a4acd2dc7660125e1e69dc4e887bbbfba58b3643e98),
         Option::None(()),
     ]
         .span();
@@ -260,7 +260,7 @@ fn test_utreexo_delete() {
         Option::None,
         Option::None,
         Option::None,
-        Option::Some(0x03467aa210cc0b108229d9a7fc554f9175af4ee27ee08b128b96862f7beca2ea),
+        Option::Some(0x1818a64c0ecbcb9fec43227f7b137c9567b936cabbc378711c52c2bb5b4b53a),
         Option::None,
     ]
         .span();
@@ -269,10 +269,10 @@ fn test_utreexo_delete() {
     let proof_for_3rd_leaf: UtreexoProof = UtreexoProof {
         leaf_index: 2,
         proof: array![
-            0x0000000000000000000000000000000000000000444444444444444444444444,
-            0x05fb342b44641ae6d67310cf9da5566e1a398fd6b0121d40e2c5acd16e1ddb4a,
-            0x01670d29719eae8deaa34a1d75752368d180a2c3e53f08d344ad784f1a034be7,
-            0x04448e395061d8b58524c81978a17837c66c7f3286ea3c1773c7fafd77d29f69,
+            0x444444444444444444444444,
+            0x181a554869978703143b97d281460c38e30fe6ba52eb0a03641e446beb0f610,
+            0x1f35ec8aaadbda4f4f28d098ad0d073f8acbba791a8ef10d6b798c5b6150ebe,
+            0x600961c4f15bc633f584abbd7f10c77a053552ef53baebfedc689c223c2a314,
         ]
             .span(),
     };
@@ -281,10 +281,10 @@ fn test_utreexo_delete() {
     utreexo_state = utreexo_state.delete(@proof_for_3rd_leaf);
 
     let expected: Span<Option<felt252>> = array![
-        Option::Some(0x0000000000000000000000000000000000000000444444444444444444444444),
-        Option::Some(0x05fb342b44641ae6d67310cf9da5566e1a398fd6b0121d40e2c5acd16e1ddb4a),
-        Option::Some(0x01670d29719eae8deaa34a1d75752368d180a2c3e53f08d344ad784f1a034be7),
-        Option::Some(0x04448e395061d8b58524c81978a17837c66c7f3286ea3c1773c7fafd77d29f69),
+        Option::Some(0x444444444444444444444444),
+        Option::Some(0x181a554869978703143b97d281460c38e30fe6ba52eb0a03641e446beb0f610),
+        Option::Some(0x1f35ec8aaadbda4f4f28d098ad0d073f8acbba791a8ef10d6b798c5b6150ebe),
+        Option::Some(0x600961c4f15bc633f584abbd7f10c77a053552ef53baebfedc689c223c2a314),
         Option::None,
         Option::None,
     ]
@@ -310,9 +310,9 @@ fn test_utreexo_delete_2() {
         .add(0x777777777777777777777777);
 
     let expected: Span<Option<felt252>> = array![
-        Option::Some(0x0000000000000000000000000000000000000000777777777777777777777777),
-        Option::Some(0x0358bb901cdc1d0d68afdb06dfeb84f2472c254ea052a942d8640924386935a6),
-        Option::Some(0x018674e0c40577cb5ba4728d6ac7bedfd9548f4020161223261941b2a8ae84b2),
+        Option::Some(0x777777777777777777777777),
+        Option::Some(0x4e94ad0a594972f27a4a9b0ce1d32a9d5994d4a109932c44ce1359818bd6c08),
+        Option::Some(0x73f11135a8f669c50ec8257ea06c9e231c140db996458f698b2be1f771a318f),
         Option::None,
     ]
         .span();
@@ -325,8 +325,8 @@ fn test_utreexo_delete_2() {
 
     let expected: Span<Option<felt252>> = array![
         Option::None,
-        Option::Some(0x0358bb901cdc1d0d68afdb06dfeb84f2472c254ea052a942d8640924386935a6),
-        Option::Some(0x018674e0c40577cb5ba4728d6ac7bedfd9548f4020161223261941b2a8ae84b2),
+        Option::Some(0x4e94ad0a594972f27a4a9b0ce1d32a9d5994d4a109932c44ce1359818bd6c08),
+        Option::Some(0x73f11135a8f669c50ec8257ea06c9e231c140db996458f698b2be1f771a318f),
         Option::None,
     ]
         .span();
