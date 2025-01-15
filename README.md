@@ -71,7 +71,7 @@ Tasks:
 
 ### Milestone 3 - Bitcoin script validation
 
-Try to run script validation with external Cairo crate.
+Try to run script validation with an external Cairo crate.
 
 Tasks:
 
