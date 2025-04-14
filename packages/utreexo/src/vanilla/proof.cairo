@@ -1,5 +1,5 @@
+use core::fmt::{Display, Error, Formatter};
 use crate::parent_hash;
-use core::fmt::{Display, Formatter, Error};
 
 /// Utreexo inclusion proof for a single transaction output.
 #[derive(Drop, Copy, Serde)]
@@ -17,7 +17,7 @@ impl UtreexoProofDisplay of Display<UtreexoProof> {
         let mut proofs: ByteArray = Default::default();
         for proof in *self.proof {
             proofs.append(@format!("{},", proof));
-        };
+        }
         let str: ByteArray = format!(
             "UtreexoProof {{ proof: {}, leaf_index: {} }}", *self.leaf_index, @proofs,
         );
@@ -46,7 +46,7 @@ pub impl UtreexoProofImpl of UtreexoProofTrait {
             };
             curr_node = parent_hash(left, right);
             node_index = next_node_index;
-        };
+        }
         // Return the computed root (or the node itself if the proof is empty).
         curr_node
     }

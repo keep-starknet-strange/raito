@@ -263,7 +263,7 @@ pub impl WordArrayImpl of WordArrayTrait {
                     self.input.append(word.try_into().expect('append_bytes/1'));
                     full_words = r;
                     full_words_num_bytes -= 4;
-                };
+                }
                 self.input.append(full_words.try_into().expect('append_bytes/2'));
             }
 
@@ -314,7 +314,7 @@ pub mod hex {
     /// Gets words from hex (base16).
     pub fn words_from_hex(hex_string: ByteArray) -> WordArray {
         let num_characters = hex_string.len();
-        assert!(num_characters & 1 == 0, "Invalid hex string length");
+        assert!(num_characters % 2 == 0, "Invalid hex string length");
 
         let mut words: WordArray = Default::default();
         let mut i = 0;
@@ -324,7 +324,7 @@ pub mod hex {
             let lo = hex_char_to_nibble(hex_string[i + 1]);
             words.append_u8(hi * 16 + lo);
             i += 2;
-        };
+        }
 
         words
     }
@@ -349,7 +349,7 @@ pub mod hex {
                 result.append_byte(alphabet.at(l).expect('l'));
                 result.append_byte(alphabet.at(r).expect('r'));
             }
-        };
+        }
 
         result
     }
@@ -357,9 +357,8 @@ pub mod hex {
 
 #[cfg(test)]
 mod tests {
-    use super::WordSpanTrait;
-    use super::hex::{words_to_hex};
-    use super::{WordArray, WordArrayTrait};
+    use super::hex::words_to_hex;
+    use super::{WordArray, WordArrayTrait, WordSpanTrait};
 
     #[test]
     fn test_append_u8() {

@@ -10,20 +10,17 @@ num_ignored=0
 failures=()
 test_files=()
 nocapture=0
-execute_scripts=0
 forceall=0
-fullonly=0
+lightonly=0
 
 # Process arguments
 for arg in "$@"; do
   if [[ "$arg" == "--nocapture" ]]; then
     nocapture=1
-  elif [[ "$arg" == "--fullonly" ]]; then
-    fullonly=1
+  elif [[ "$arg" == "--lightonly" ]]; then
+    lightonly=1
   elif [[ "$arg" == "--forceall" ]]; then
     forceall=1
-  elif [[ "$arg" == "--execute-scripts" ]]; then
-    execute_scripts=1
   else
     test_files+=("$arg")  # Add only non-flag arguments as test files
   fi
@@ -42,17 +39,13 @@ fi
 ignored="${ignored_files[@]}"
 
 # If no test files are explicitly specified, default to tests/data/*
-if [[ $fullonly -eq 1 && ${#test_files[@]} -eq 0 ]]; then
-  test_files=("tests/data"/full*.json)
+if [[ $lightonly -eq 1 && ${#test_files[@]} -eq 0 ]]; then
+  test_files=("tests/data"/light*.json)
 elif [[ ${#test_files[@]} -eq 0 ]]; then
   test_files=("tests/data"/*.json)
 fi
 
-if [[ $execute_scripts -eq 1 ]]; then
-    echo "running integration tests (with scripts) ..."
-else
-    echo "running integration tests ..."
-fi
+echo "running integration tests ..."
 
 for test_file in "${test_files[@]}"; do
     if [ -f "$test_file" ]; then
@@ -62,8 +55,8 @@ for test_file in "${test_files[@]}"; do
             num_ignored=$((num_ignored + 1))
         else
             arguments_file="$(dirname "$test_file")/.arguments-$(basename "$test_file")"
-            python ../../scripts/data/format_args.py --input_file ${test_file} $([[ $execute_scripts -eq 1 ]] && echo "--execute_script") > $arguments_file
-            output=$(scarb cairo-run --no-build --function main --print-resource-usage --arguments-file $arguments_file)
+            python ../../scripts/data/format_args.py --input_file ${test_file} > $arguments_file
+            output=$(scarb execute --no-build --print-resource-usage --arguments-file $arguments_file)
             steps=$(echo $output | grep -o 'steps: [0-9]*' | sed 's/steps: //')
 
             if [[ "$nocapture" -eq 1 ]]; then

@@ -1,7 +1,7 @@
 use core::traits::DivRem;
-use crate::stump::state::UtreexoStumpState;
-use crate::stump::proof::{UtreexoBatchProof, UtreexoBatchProofTrait};
 use crate::parent_hash;
+use crate::stump::proof::{UtreexoBatchProof, UtreexoBatchProofTrait};
+use crate::stump::state::UtreexoStumpState;
 
 #[generate_trait]
 pub impl StumpUtreexoAccumulatorImpl of StumpUtreexoAccumulator {
@@ -35,12 +35,12 @@ pub impl StumpUtreexoAccumulatorImpl of StumpUtreexoAccumulator {
                 let (q, r) = DivRem::div_rem(next_row_len, 2);
                 next_row_len = q;
                 has_root = r;
-            };
+            }
 
             new_roots = new_roots_span.into();
             new_roots.append(Option::Some(to_add));
             leaves += 1;
-        };
+        }
 
         UtreexoStumpState { roots: new_roots.span(), num_leaves: leaves }
     }
@@ -64,7 +64,7 @@ pub impl StumpUtreexoAccumulatorImpl of StumpUtreexoAccumulator {
                     }
                 }
             }
-        };
+        }
 
         if num_matched != num_computed {
             return Result::Err(
@@ -106,7 +106,7 @@ pub impl StumpUtreexoAccumulatorImpl of StumpUtreexoAccumulator {
                 }
             }
             new_roots.append(*maybe_root);
-        };
+        }
 
         if !computed_roots.is_empty() {
             return Result::Err("Proof verification / leaf deletion failed");

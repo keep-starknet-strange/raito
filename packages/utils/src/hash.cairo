@@ -1,6 +1,6 @@
 //! `Digest` struct and trait implementations.
 
-use core::fmt::{Display, Formatter, Error};
+use core::fmt::{Display, Error, Formatter};
 use core::hash::{Hash, HashStateTrait};
 use core::integer::u128_byte_reverse;
 use core::num::traits::zero::Zero;
@@ -58,7 +58,7 @@ pub impl DigestIntoByteArray of Into<Digest, ByteArray> {
         let mut bytes: ByteArray = Default::default();
         for word in self.value.span() {
             bytes.append_word((*word).into(), 4);
-        };
+        }
         bytes
     }
 }

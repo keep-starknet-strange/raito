@@ -11,5 +11,8 @@ shinigami_engine.workspace = true
 cairo_test.workspace = true
 
 [scripts]
-# TODO: cairo lint
 lint = "scarb fmt"
+
+[features]
+default = []
+shinigami = []

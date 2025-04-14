@@ -72,7 +72,7 @@ fn reduce_target_precision(target: u256) -> u256 {
     while num != 0 {
         num /= 256;
         size += 1;
-    };
+    }
 
     // Extract 3 most significant bytes and round down
     if size > 2 {
@@ -170,7 +170,7 @@ fn bits_to_target(bits: u32) -> Result<u256, ByteArray> {
 
 #[cfg(test)]
 mod tests {
-    use super::{bits_to_target, adjust_difficulty, reduce_target_precision};
+    use super::{adjust_difficulty, bits_to_target, reduce_target_precision};
 
     #[test]
     fn test_adjust_difficulty_block_2016_no_retargeting() {

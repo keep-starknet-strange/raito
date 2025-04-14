@@ -2,9 +2,10 @@
 //!
 //! https://learnmeabitcoin.com/technical/mining/coinbase-transaction/
 
-use crate::types::transaction::{Transaction, TxIn, TxOut};
-use utils::{hash::{Digest, DigestIntoByteArray}, double_sha256::double_sha256_word_array};
+use utils::double_sha256::double_sha256_word_array;
+use utils::hash::{Digest, DigestIntoByteArray};
 use utils::word_array::{WordArray, WordArrayTrait};
+use crate::types::transaction::{Transaction, TxIn, TxOut};
 
 const BIP_34_BLOCK_HEIGHT: u32 = 227_836;
 const BIP_141_BLOCK_HEIGHT: u32 = 481_824;
@@ -29,18 +30,16 @@ pub fn validate_coinbase(
     let mut total_output_amount = 0;
     for output in *tx.outputs {
         total_output_amount += *output.value;
-    };
+    }
 
     // Ensure the total output amount is at most the block reward + TX fees
     let block_reward = compute_block_reward(block_height);
     assert(total_output_amount <= total_fees + block_reward, 'total output > block rwd + fees');
 
     // Validate BIP-141 segwit output
-    if block_height >= BIP_141_BLOCK_HEIGHT {
-        if *tx.is_segwit {
-            // Calculate expected wtxid commitment and validate segwit output
-            validate_coinbase_outputs(*tx.outputs, calculate_wtxid_commitment(wtxid_root))?;
-        }
+    if block_height >= BIP_141_BLOCK_HEIGHT && *tx.is_segwit {
+        // Calculate expected wtxid commitment and validate segwit output
+        validate_coinbase_outputs(*tx.outputs, calculate_wtxid_commitment(wtxid_root))?;
     }
 
     Result::Ok(())
@@ -117,7 +116,7 @@ fn compute_block_reward(block_height: u32) -> u64 {
 
     for _ in 0..block_height / 210_000 {
         result /= 2;
-    };
+    }
 
     result
 }
@@ -155,7 +154,7 @@ fn validate_coinbase_outputs(
             let mut extracted_witness_script: ByteArray = "";
             for i in 0..WTNS_PK_SCRIPT_LEN {
                 extracted_witness_script.append_byte(pk_script[i]);
-            };
+            }
 
             // Compare expected and extracted witness script
             if expected_witness_script == extracted_witness_script {
@@ -163,7 +162,7 @@ fn validate_coinbase_outputs(
                 break;
             }
         }
-    };
+    }
 
     if !is_wtxid_commitment_present {
         return Result::Err("No wtxid commitment found");
@@ -192,13 +191,14 @@ pub fn is_coinbase_txid_duplicated(txid: Digest, block_height: u32) -> bool {
 
 #[cfg(test)]
 mod tests {
-    use crate::types::transaction::{TxIn, TxOut, Transaction, OutPoint};
+    use utils::hash::Digest;
+    use utils::hex::{from_hex, hex_to_hash_rev};
+    use crate::types::transaction::{OutPoint, Transaction, TxIn, TxOut};
     use super::{
-        compute_block_reward, validate_coinbase, validate_coinbase_input,
-        validate_coinbase_sig_script, validate_coinbase_witness, validate_coinbase_outputs,
-        calculate_wtxid_commitment, is_coinbase_txid_duplicated, FIRST_DUP_TXID, SECOND_DUP_TXID,
+        FIRST_DUP_TXID, SECOND_DUP_TXID, calculate_wtxid_commitment, compute_block_reward,
+        is_coinbase_txid_duplicated, validate_coinbase, validate_coinbase_input,
+        validate_coinbase_outputs, validate_coinbase_sig_script, validate_coinbase_witness,
     };
-    use utils::{hex::{from_hex, hex_to_hash_rev}, hash::Digest};
 
     #[test]
     fn test_bip30_first_txid_dup() {

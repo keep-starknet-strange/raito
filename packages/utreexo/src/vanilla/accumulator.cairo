@@ -23,7 +23,7 @@ pub impl VanillaUtreexoAccumulatorImpl of VanillaUtreexoAccumulator {
             } else {
                 new_roots.append(*root);
             }
-        };
+        }
 
         // Check if terminates with `Option::None`
         if (new_roots[new_roots.len() - 1].is_some()) {
@@ -59,14 +59,14 @@ pub impl VanillaUtreexoAccumulatorImpl of VanillaUtreexoAccumulator {
             }
 
             height += 1;
-        };
+        }
 
         new_roots.append(node);
         height += 1;
         while height != num_roots {
             new_roots.append(*self.roots[height]);
             height += 1;
-        };
+        }
 
         UtreexoState { roots: new_roots.span() }
     }
@@ -84,7 +84,7 @@ pub impl VanillaUtreexoAccumulatorImpl of VanillaUtreexoAccumulator {
         if let Option::Some(expected_root) = self.roots[root_index] {
             if *expected_root == proof_root {
                 return Result::Ok(());
-            };
+            }
             Result::Err(format!("Expected root {}, but computed {}", expected_root, proof_root))
         } else {
             Result::Err(format!("Target root is empty"))

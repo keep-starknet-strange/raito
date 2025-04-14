@@ -1,10 +1,10 @@
 //! Bitcoin binary codec traits, implementations, and helpers.
 
-use super::types::transaction::{Transaction, TxIn, TxOut, OutPoint};
+use core::serde::Serde;
+use core::traits::DivRem;
 use utils::hash::Digest;
 use utils::word_array::{WordArray, WordArrayTrait, WordSpan, WordSpanTrait};
-use core::traits::DivRem;
-use core::serde::Serde;
+use super::types::transaction::{OutPoint, Transaction, TxIn, TxOut};
 
 pub trait Encode<T> {
     /// Encodes using Bitcoin codec and appends to the buffer.
@@ -47,7 +47,7 @@ pub impl EncodeByteArray of Encode<ByteArray> {
         while num_bytes31 != 0 {
             dest.append_bytes31(out.pop_front().unwrap());
             num_bytes31 -= 1;
-        };
+        }
 
         let last_word = out.pop_front().unwrap();
         let last_word_len = out.pop_front().unwrap();
@@ -134,11 +134,11 @@ pub impl TransactionCodecImpl of TransactionCodec {
         // Rest of the tx (except locktime)
         while let Option::Some((word, num_bytes)) = tx_words.pop_front() {
             dest.append_word(word, num_bytes);
-        };
+        }
         // Append witness data
         for txin in *self.inputs {
             txin.witness.encode_to(ref dest);
-        };
+        }
         // Append locktime
         dest.append_word(lock_time_word, 4);
 
@@ -167,10 +167,11 @@ pub fn encode_compact_size(len: usize, ref dest: WordArray) {
 
 #[cfg(test)]
 mod tests {
-    use crate::types::transaction::{Transaction, TxIn, TxOut, OutPoint};
-    use super::{Encode, TransactionCodec, encode_compact_size};
     use utils::hex::{from_hex, hex_to_hash_rev};
-    use utils::word_array::{WordArrayTrait, hex::words_from_hex};
+    use utils::word_array::WordArrayTrait;
+    use utils::word_array::hex::words_from_hex;
+    use crate::types::transaction::{OutPoint, Transaction, TxIn, TxOut};
+    use super::{Encode, TransactionCodec, encode_compact_size};
 
     #[test]
     fn test_encode_compact_size1() {

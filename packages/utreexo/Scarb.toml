@@ -3,13 +3,17 @@ name = "utreexo"
 version = "0.1.0"
 edition = "2024_07"
 
+[executable]
+
+[lib]
+
 [dependencies]
+cairo_execute = "2.11.4"
 utils = { path = "../utils" }
 
 [dev-dependencies]
 cairo_test.workspace = true
 
 [scripts]
-# TODO: cairo lint
 lint = "scarb fmt"
-test = "scarb cairo-test && scarb build && ../../scripts/data/integration_tests.sh"
+test = "scarb cairo-test && scarb --profile proving build --target-kinds executable && ../../scripts/data/integration_tests.sh"
