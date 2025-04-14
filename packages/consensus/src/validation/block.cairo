@@ -6,14 +6,47 @@ use utils::hash::Digest;
 use utils::merkle_tree::merkle_root;
 use utils::word_array::WordArrayTrait;
 use crate::codec::{Encode, TransactionCodec};
+use crate::types::block::{Block, TransactionData};
+use crate::types::chain_state::ChainState;
 use crate::types::transaction::{OutPoint, Transaction};
 use crate::types::utxo_set::{UtxoSet, UtxoSetTrait};
-use crate::validation::coinbase::is_coinbase_txid_duplicated;
+use crate::validation::coinbase::{is_coinbase_txid_duplicated, validate_coinbase};
+use crate::validation::header::validate_header;
+use crate::validation::script::validate_scripts;
+use crate::validation::timestamp::compute_median_time_past;
 use crate::validation::transaction::validate_transaction;
 
 const MAX_BLOCK_WEIGHT_LEGACY: usize = 1_000_000;
 const MAX_BLOCK_WEIGHT: usize = 4_000_000;
 const SEGWIT_BLOCK: usize = 481_824;
+
+/// Validates block given the [ChainState], [Block] and the [UtxoSet].
+/// Returns the new chain state.
+pub fn validate_block(
+    state: ChainState, block: Block, ref utxo_set: UtxoSet,
+) -> Result<ChainState, ByteArray> {
+    // MTP of the previous block
+    let median_time_past = compute_median_time_past(state.prev_timestamps);
+
+    // Validate the block data
+    let txid_root = match block.data {
+        TransactionData::MerkleRoot(root) => root,
+        TransactionData::Transactions(txs) => {
+            // Height of the current block
+            let block_height = state.block_height + 1;
+
+            let (total_fees, txid_root, wtxid_root) = compute_and_validate_tx_data(
+                txs, block_height, block.header.time, median_time_past, ref utxo_set,
+            )?;
+
+            validate_coinbase(txs[0], total_fees, block_height, wtxid_root)?;
+            validate_scripts(@block.header, txs.slice(1, txs.len() - 1))?;
+            txid_root
+        },
+    };
+
+    validate_header(state, block, txid_root, median_time_past)
+}
 
 /// Validates block weight.
 /// Blocks after Segwit upgrade have a limit of 4,000,000 weight units.
@@ -29,11 +62,10 @@ pub fn validate_block_weight(weight: usize) -> Result<(), ByteArray> {
     Result::Ok(())
 }
 
-/// Validates transactions and aggregates:
+/// Validates transactions and returns:
 ///  - Total fee
 ///  - TXID merkle root
 ///  - wTXID commitment (only for blocks after Segwit upgrade, otherwise returns zero hash)
-///  - Block weight
 pub fn compute_and_validate_tx_data(
     txs: Span<Transaction>,
     block_height: u32,

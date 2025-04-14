@@ -5,6 +5,8 @@
 //! it is sufficient to validate block headers.
 
 use core::fmt::{Display, Error, Formatter};
+use core::hash::{Hash, HashStateExTrait, HashStateTrait};
+use core::poseidon::PoseidonTrait;
 use utils::hash::Digest;
 use crate::validation::block::compute_and_validate_tx_data;
 use crate::validation::coinbase::validate_coinbase;
@@ -18,7 +20,7 @@ use super::block::{Block, BlockHash, TransactionData};
 use super::utxo_set::UtxoSet;
 
 /// Represents the state of the blockchain.
-#[derive(Drop, Copy, Debug, PartialEq, Serde)]
+#[derive(Drop, Copy, Debug, PartialEq, Serde, Hash)]
 pub struct ChainState {
     /// Height of the current block.
     pub block_height: u32,
@@ -36,6 +38,14 @@ pub struct ChainState {
     /// it's possible that one block could have an earlier timestamp
     /// than a block that came before it in the chain.
     pub prev_timestamps: Span<u32>,
+}
+
+/// `ChainState` Poseidon hash implementation.
+#[generate_trait]
+pub impl ChainStateHashImpl of ChainStateHashTrait {
+    fn hash(self: @ChainState) -> felt252 {
+        PoseidonTrait::new().update_with(*self).finalize()
+    }
 }
 
 /// `Default` implementation of `ChainState` representing the initial state after genesis block.
@@ -135,6 +145,15 @@ impl ChainStateDisplay of Display<ChainState> {
         Result::Ok(())
     }
 }
-// TODO: implement Digest trait for ChainState
 
-
+/// `Hash` trait implementation for `Span<T>` where T implements `Hash` and `Copy`.
+/// Required for `ChainState` to be `Hash`able.
+impl SpanHash<S, +HashStateTrait<S>, +Drop<S>, T, +Hash<T, S>, +Copy<T>> of Hash<Span<T>, S> {
+    fn update_state(state: S, value: Span<T>) -> S {
+        let mut state = state;
+        for element in value {
+            state = state.update_with(*element);
+        }
+        state
+    }
+}
