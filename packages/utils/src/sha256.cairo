@@ -282,7 +282,7 @@ const k: [u32; 64] = [
 
 #[cfg(test)]
 mod tests {
-    use crate::hash::DigestTrait;
+    use crate::digest::DigestTrait;
     use crate::hex::from_hex;
     use super::compute_sha256_byte_array;
 

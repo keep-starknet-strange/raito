@@ -5,7 +5,7 @@ use crate::types::utxo_set::{UtxoSet, UtxoSetTrait};
 use crate::types::transaction::{OutPoint, Transaction};
 use crate::codec::{Encode, TransactionCodec};
 use crate::validation::{coinbase::is_coinbase_txid_duplicated, transaction::validate_transaction};
-use utils::{hash::Digest, merkle_tree::merkle_root, double_sha256::double_sha256_word_array};
+use utils::{digest::Digest, merkle_tree::merkle_root};
 use utils::word_array::WordArrayTrait;
 
 const MAX_BLOCK_WEIGHT_LEGACY: usize = 1_000_000;
@@ -50,7 +50,7 @@ pub fn compute_and_validate_tx_data(
         let tx_words_span = tx_words.span();
         let tx_byte_len = tx_words.byte_len();
 
-        let txid = double_sha256_word_array(tx_words);
+        let txid = tx_words.compute_hash256();
 
         if block_height >= SEGWIT_BLOCK {
             let tx_words_segwit = tx
@@ -63,7 +63,7 @@ pub fn compute_and_validate_tx_data(
             let wtxid = if is_coinbase {
                 Zero::zero()
             } else {
-                double_sha256_word_array(tx_words_segwit)
+                tx_words_segwit.compute_hash256()
             };
 
             total_weight += 3 * tx_byte_len

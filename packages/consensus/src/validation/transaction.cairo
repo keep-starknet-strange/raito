@@ -5,7 +5,7 @@ use crate::types::utxo_set::{UtxoSet, UtxoSetTrait};
 use crate::validation::locktime::{
     is_input_final, validate_absolute_locktime, validate_relative_locktime,
 };
-use utils::hash::Digest;
+use utils::digest::Digest;
 
 const OP_RETURN: u8 = 0x6a;
 const MAX_SCRIPT_SIZE: u32 = 10000;
@@ -135,12 +135,13 @@ pub fn is_pubscript_unspendable(pubscript: @ByteArray) -> bool {
 
 #[cfg(test)]
 mod tests {
-    use core::dict::Felt252Dict;
+    use utils::word_array::WordArrayTrait;
+use core::dict::Felt252Dict;
     use crate::codec::Encode;
     use crate::types::transaction::{Transaction, TxIn, TxOut, OutPoint, OutPointHashTrait};
     use crate::types::utxo_set::{UtxoSet, TX_OUTPUT_STATUS_UNSPENT};
     use super::{validate_transaction, is_pubscript_unspendable, MAX_SCRIPT_SIZE};
-    use utils::{hex::{from_hex, hex_to_hash_rev}, double_sha256::double_sha256_word_array};
+    use utils::{hex::{from_hex, hex_to_hash_rev}};
 
     #[test]
     fn test_tx_fee() {
@@ -181,7 +182,7 @@ mod tests {
         };
 
         let tx_words = tx.encode();
-        let txid = double_sha256_word_array(tx_words);
+        let txid = tx_words.compute_hash256();
         let mut utxo_set: UtxoSet = Default::default();
 
         assert!(validate_transaction(@tx, 0, 0, 0, txid, ref utxo_set).is_err());
@@ -210,7 +211,7 @@ mod tests {
         };
 
         let tx_words = tx.encode();
-        let txid = double_sha256_word_array(tx_words);
+        let txid = tx_words.compute_hash256();
         let mut utxo_set: UtxoSet = Default::default();
 
         let result = validate_transaction(@tx, 0, 0, 0, txid, ref utxo_set);
@@ -245,7 +246,7 @@ mod tests {
         };
 
         let tx_words = tx.encode();
-        let txid = double_sha256_word_array(tx_words);
+        let txid = tx_words.compute_hash256();
         let mut utxo_set: UtxoSet = Default::default();
 
         let result = validate_transaction(@tx, 0, 0, 0, txid, ref utxo_set);
@@ -287,7 +288,7 @@ mod tests {
         };
 
         let tx_words = tx.encode();
-        let txid = double_sha256_word_array(tx_words);
+        let txid = tx_words.compute_hash256();
         let mut utxo_set: UtxoSet = Default::default();
 
         // Transaction should be invalid when current block height is less than locktime
@@ -340,7 +341,7 @@ mod tests {
         };
 
         let tx_words = tx.encode();
-        let txid = double_sha256_word_array(tx_words);
+        let txid = tx_words.compute_hash256();
         let mut utxo_set: UtxoSet = Default::default();
 
         // Transaction should be invalid when current block time is not greater than locktime
@@ -392,7 +393,7 @@ mod tests {
         };
 
         let tx_words = tx.encode();
-        let txid = double_sha256_word_array(tx_words);
+        let txid = tx_words.compute_hash256();
         let mut utxo_set: UtxoSet = Default::default();
 
         // Transaction should still valid when current block time is not greater than locktime
@@ -441,7 +442,7 @@ mod tests {
         };
 
         let tx_words = tx.encode();
-        let txid = double_sha256_word_array(tx_words);
+        let txid = tx_words.compute_hash256();
         let mut utxo_set: UtxoSet = Default::default();
 
         // Transaction should still valid when current block time is not greater than locktime
@@ -492,7 +493,7 @@ mod tests {
         };
 
         let tx_words = tx.encode();
-        let txid = double_sha256_word_array(tx_words);
+        let txid = tx_words.compute_hash256();
         let mut utxo_set: UtxoSet = Default::default();
 
         validate_transaction(@tx, block_height, 0, 0, txid, ref utxo_set).unwrap_err();
@@ -535,7 +536,7 @@ mod tests {
         };
 
         let tx_words = tx.encode();
-        let txid = double_sha256_word_array(tx_words);
+        let txid = tx_words.compute_hash256();
         let mut utxo_set: UtxoSet = Default::default();
 
         validate_transaction(@tx, block_height, 0, 0, txid, ref utxo_set).unwrap();
@@ -579,7 +580,7 @@ mod tests {
         };
 
         let tx_words = tx.encode();
-        let txid = double_sha256_word_array(tx_words);
+        let txid = tx_words.compute_hash256();
         let mut utxo_set: UtxoSet = Default::default();
 
         validate_transaction(@tx, block_height, 0, 0, txid, ref utxo_set).unwrap();
@@ -623,7 +624,7 @@ mod tests {
         };
 
         let tx_words = tx.encode();
-        let txid = double_sha256_word_array(tx_words);
+        let txid = tx_words.compute_hash256();
 
         let mut cache: Felt252Dict<u8> = Default::default();
         let outpoint_hash = (*tx.inputs[0]).previous_output.hash();
@@ -670,7 +671,7 @@ mod tests {
         };
 
         let tx_words = tx.encode();
-        let txid = double_sha256_word_array(tx_words);
+        let txid = tx_words.compute_hash256();
 
         let mut cache: Felt252Dict<u8> = Default::default();
         let outpoint_hash = (*tx.inputs[0]).previous_output.hash();
@@ -717,7 +718,7 @@ mod tests {
         };
 
         let tx_words = tx.encode();
-        let txid = double_sha256_word_array(tx_words);
+        let txid = tx_words.compute_hash256();
 
         let mut cache: Felt252Dict<u8> = Default::default();
         let outpoint = OutPoint {
@@ -788,7 +789,7 @@ mod tests {
         };
 
         let tx_words = tx.encode();
-        let txid = double_sha256_word_array(tx_words);
+        let txid = tx_words.compute_hash256();
 
         let mut cache: Felt252Dict<u8> = Default::default();
         let outpoint_hash = (*tx.inputs[0]).previous_output.hash();
@@ -851,7 +852,7 @@ mod tests {
         };
 
         let tx_words = tx.encode();
-        let txid = double_sha256_word_array(tx_words);
+        let txid = tx_words.compute_hash256();
         let mut utxo_set: UtxoSet = Default::default();
 
         let result = validate_transaction(@tx, block_height, 0, 0, txid, ref utxo_set);

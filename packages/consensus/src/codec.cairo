@@ -1,7 +1,7 @@
 //! Bitcoin binary codec traits, implementations, and helpers.
 
 use super::types::transaction::{Transaction, TxIn, TxOut, OutPoint};
-use utils::hash::Digest;
+use utils::digest::Digest;
 use utils::word_array::{WordArray, WordArrayTrait, WordSpan, WordSpanTrait};
 use core::traits::DivRem;
 use core::serde::Serde;

@@ -4,8 +4,7 @@
 
 use core::fmt::{Display, Formatter, Error};
 use super::transaction::Transaction;
-use utils::hash::Digest;
-use utils::double_sha256::double_sha256_word_array;
+use utils::digest::Digest;
 use utils::word_array::{WordArray, WordArrayTrait};
 
 /// Represents a block in the blockchain.
@@ -66,7 +65,7 @@ pub impl BlockHashImpl of BlockHash {
         words.append_u32_le(*self.bits);
         words.append_u32_le(*self.nonce);
 
-        double_sha256_word_array(words)
+        words.compute_hash256()
     }
 }
 
@@ -122,7 +121,7 @@ impl TransactionDataDisplay of Display<TransactionData> {
 mod tests {
     use crate::types::chain_state::ChainState;
     use super::{Header, BlockHash};
-    use utils::hash::Digest;
+    use utils::digest::Digest;
 
     #[test]
     fn test_block_hash() {

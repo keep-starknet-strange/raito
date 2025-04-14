@@ -29,7 +29,7 @@ pub fn double_sha256_word_array(words: WordArray) -> Digest {
 
 #[cfg(test)]
 mod tests {
-    use crate::{hex::from_hex, hash::Digest, word_array::hex::words_from_hex};
+    use crate::{hex::from_hex, digest::Digest, word_array::hex::words_from_hex};
     use super::{double_sha256_word_array, double_sha256_parent};
 
     #[test]

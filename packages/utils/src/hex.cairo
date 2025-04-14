@@ -1,6 +1,6 @@
 //! Hex helpers.
 
-use crate::hash::Digest;
+use utils::digest::Digest;
 
 /// Gets bytes from hex (base16).
 pub fn from_hex(hex_string: ByteArray) -> ByteArray {
@@ -81,7 +81,7 @@ pub fn hex_char_to_nibble(hex_char: u8) -> u8 {
 
 #[cfg(test)]
 mod tests {
-    use crate::hash::Digest;
+    use utils::digest::Digest;
     use super::{from_hex, to_hex, hex_to_hash_rev};
 
     #[test]

@@ -1,6 +1,6 @@
 //! Merkle tree helpers.
 
-use super::{double_sha256::double_sha256_parent, hash::Digest};
+use super::digest::{Digest, DigestTrait};
 
 /// Calculates Merkle tree root given the array of leaves.
 pub fn merkle_root(hashes: Span<Digest>) -> Digest {
@@ -16,12 +16,12 @@ pub fn merkle_root(hashes: Span<Digest>) -> Digest {
 
     while let Option::Some(v) = arr.multi_pop_front::<2>() {
         let [a, b] = (*v).unbox();
-        next_hashes.append(double_sha256_parent(@a, @b));
+        next_hashes.append(DigestTrait::compute_hash256(@a, @b));
     };
 
     if (is_odd == 1) {
         let last = *arr.pop_front().unwrap();
-        next_hashes.append(double_sha256_parent(@last, @last));
+        next_hashes.append(DigestTrait::compute_hash256(@last, @last));
     } else if (*hashes[len - 1] == *hashes[len - 2]) {
         // CVE-2012-2459 bug fix
         panic!("unexpected node duplication in merkle tree");
@@ -32,7 +32,7 @@ pub fn merkle_root(hashes: Span<Digest>) -> Digest {
 
 #[cfg(test)]
 mod tests {
-    use crate::{hash::{Digest, U256IntoDigest}, hex::hex_to_hash_rev};
+    use crate::{digest::{Digest, U256IntoDigest}, hex::hex_to_hash_rev};
     use super::{merkle_root};
 
     #[test]

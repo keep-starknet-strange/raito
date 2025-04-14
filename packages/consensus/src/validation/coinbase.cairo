@@ -3,7 +3,7 @@
 //! https://learnmeabitcoin.com/technical/mining/coinbase-transaction/
 
 use crate::types::transaction::{Transaction, TxIn, TxOut};
-use utils::{hash::{Digest, DigestIntoByteArray}, double_sha256::double_sha256_word_array};
+use utils::{digest::{Digest, DigestIntoByteArray}};
 use utils::word_array::{WordArray, WordArrayTrait};
 
 const BIP_34_BLOCK_HEIGHT: u32 = 227_836;
@@ -132,7 +132,7 @@ fn calculate_wtxid_commitment(wtxid_root: Digest) -> Digest {
     // 0000000000000000000000000000000000000000000000000000000000000000
     buffer.append_span(array![0, 0, 0, 0, 0, 0, 0, 0].span());
 
-    double_sha256_word_array(buffer)
+    buffer.compute_hash256()
 }
 
 /// validates segwit output (BIP-141).
@@ -198,7 +198,7 @@ mod tests {
         validate_coinbase_sig_script, validate_coinbase_witness, validate_coinbase_outputs,
         calculate_wtxid_commitment, is_coinbase_txid_duplicated, FIRST_DUP_TXID, SECOND_DUP_TXID,
     };
-    use utils::{hex::{from_hex, hex_to_hash_rev}, hash::Digest};
+    use utils::{hex::{from_hex, hex_to_hash_rev}, digest::Digest};
 
     #[test]
     fn test_bip30_first_txid_dup() {

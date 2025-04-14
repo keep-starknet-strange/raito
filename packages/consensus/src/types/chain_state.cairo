@@ -12,7 +12,7 @@ use crate::validation::{
     script::validate_scripts,
 };
 use super::{block::{BlockHash, Block, TransactionData}, utxo_set::UtxoSet};
-use utils::hash::Digest;
+use utils::digest::Digest;
 
 /// Represents the state of the blockchain.
 #[derive(Drop, Copy, Debug, PartialEq, Serde)]
