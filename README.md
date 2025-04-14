@@ -11,7 +11,9 @@
 
 ## Overview
 
-Shinigami is a zero-knowledge Bitcoin client implemented in Cairo. It aims to provide trustless validation of the Bitcoin blockchain through STARK proof verification. It is heavily inspired by [ZeroSync](https://github.com/ZeroSync/ZeroSync) project.
+Raito is a Bitcoin consensus client written in Cairo: it implements the same block validation logic as Bitcoin Core but in a provable language. What that means is after you run block validation you can present the result (e.g. chain state) and a succinct proof of execution correctness. The key is that the other party is no longer required to re-run the validation to ensure the chain state is correct, it is enough to just verify the proof.
+
+Raito is heavily inspired by [ZeroSync](https://github.com/ZeroSync/ZeroSync) project.
 
 > **Disclaimer:** This project is in the early stages of development and should not be used in production. It will evolve rapidly, expect breaking changes.
 
@@ -23,12 +25,36 @@ At its core, consensus client accepts two inputs: a batch of consecutive blocks 
 
 ## Applications
 
-Although this is a highly experimental project without immediate plans for deployment, there are many potential applications:
+### Bootstrapping full nodes
 
-* light clients
-* IBD speedup
-* non custodial bridges
-* layer 2s
+Raito essentially "compresses" the block validation and hence its primary application is enabling quick node synchronization (aka initial block download — IBD). Currently if you are bootstrapping a new full node from scratch there are two options:
+
+- Fetch all the block headers and transaction from P2P and then apply them one by one, computing the state and accumulating the UTXO set (There is an optimization [`assumevalid`](https://bitcoincore.org/en/2017/03/08/release-0.14.0/#assumed-valid-blocks) that helps to speed up the process);
+- Download and import a snapshot of the chain state from some trusted source, run the usual sync in the background (see `assumeutxo`[https://bitcoinops.org/en/topics/assumeutxo/]).
+
+First option takes a lot of time but it is trustless, while the second one is super fast but at the cost of extra trust assumption.
+With STARKs we can enjoy both fast and trust-minimized synchronization!
+
+### Indexer for meta protocols
+
+Raito can be extended with additional validation logic and custom state tree for protocols like [Runes](https://docs.ordinals.com/runes.html) and be used for bootstrapping meta indexers, similarly to how it is used for bootstrapping Bitcoin full nodes.
+
+### Light clients
+
+A trust-minimized bridge design requires "embedding" a Bitcoin client into the target chain for validating the block headers and verifying transaction inclusion proofs. It is typically a "light" version of the client that is efficient onchain but makes more trust assumptions.  
+
+Raito provides building blocks for creating light clients with different tradeoffs. However the job of determining the canonical chain remains outside of Raito's scope and should be implemented separately.
+
+### L2 solutions
+
+Since Raito compresses block validation and execution it can be leveraged to build Bitcoin scaling solutions aka L2s: aggregate multiple transactions, execute, generate a proof, settle on Bitcoin. It is basically a validity rollup or validium if you choose to post data not on Bitcoin but elsewhere. Same would also work for meta protocols effectively turning them from [sovereign](https://celestia.org/glossary/sovereign-rollup/) to validity rollups.
+
+Such design is much more scalable and secure compared to sidechains and free of some of the limitations of Lightning. The settlement part however remains unsolved and we yet to see proof verification happening in Bitcoin mainnet.
+
+Some interesting read on this problem:
+
+- <https://hackmd.io/@polyhedra/bitcoin>
+- <https://l2ivresearch.substack.com/p/recent-progress-on-bitcoin-stark>
 
 ## Roadmap
 
@@ -43,13 +69,13 @@ It does not have to validate execution, just check that the block header fields 
 
 Tasks:
 
-* [x] block hash computation
-* [x] proof-of-work validation/computation
-* [x] block time validation/computation
-* [x] block difficulty adjustment
-* [x] script for fetching arbitrary block data
-* [x] script for preparing program arguments
-* [x] script for running the program e2e for multiple blocks
+- [x] block hash computation
+- [x] proof-of-work validation/computation
+- [x] block time validation/computation
+- [x] block difficulty adjustment
+- [x] script for fetching arbitrary block data
+- [x] script for preparing program arguments
+- [x] script for running the program e2e for multiple blocks
 
 ### Milestone 2 - Partial transaction validation
 
@@ -57,17 +83,17 @@ Extend light client with partial transaction validation, but without UTXO checks
 
 Tasks:
 
-* [x] reassess validation check list (analyze Bitcoin core codebase)
-* [x] generate & run integration tests e2e instead of Cairo codegen
-* [x] transaction ID calculation
-* [x] transaction root computation
-* [x] validate transaction fee
-* [x] validate coinbase transaction
-* [x] validate that transaction can be mined (locktime, sequence, coinbase maturity)
-* [x] validate segwit specific data (wtxid commitment)
-* [x] validate block weight
-* [x] script that fetches blocks extended with references UTXOs
-* [x] script that runs the program e2e for a span of blocks
+- [x] reassess validation check list (analyze Bitcoin core codebase)
+- [x] generate & run integration tests e2e instead of Cairo codegen
+- [x] transaction ID calculation
+- [x] transaction root computation
+- [x] validate transaction fee
+- [x] validate coinbase transaction
+- [x] validate that transaction can be mined (locktime, sequence, coinbase maturity)
+- [x] validate segwit specific data (wtxid commitment)
+- [x] validate block weight
+- [x] script that fetches blocks extended with references UTXOs
+- [x] script that runs the program e2e for a span of blocks
 
 ### Milestone 3 - Bitcoin script validation
 
@@ -75,7 +101,7 @@ Try to run script validation with external Cairo crate.
 
 Tasks:
 
-* [x] Integrate Shinigami-script
+- [x] Integrate Shinigami-script
 
 ### Milestone 4 - UTXO set verification
 
@@ -83,39 +109,39 @@ Add inclusion proofs for the UTXOs included in the block.
 
 Tasks:
 
-* [x] isolate unspendable outputs (OP_RETURN, etc)
-* [x] implement cache for UTXOs spent in the same block they are created (*)
-* [x] implement transaction outpoint hashing
-* [x] implement Utreexo accumulator (addition)
-* [x] Utreexo backend that maintains utxo set and Utreexo roots
-* [x] implement Utreexo single inclusion proof verification
-* [x] implement Utreexo single output removal
-* [x] implement Utreexo bridge node that generates individual inclusion proofs
-* [x] implement script that runs the program e2e for a span of blocks
-* [x] implement Utreexo accumulator version compatible with [rustreexo](https://github.com/mit-dci/rustreexo)
+- [x] isolate unspendable outputs (OP_RETURN, etc)
+- [x] implement cache for UTXOs spent in the same block they are created (*)
+- [x] implement transaction outpoint hashing
+- [x] implement Utreexo accumulator (addition)
+- [x] Utreexo backend that maintains utxo set and Utreexo roots
+- [x] implement Utreexo single inclusion proof verification
+- [x] implement Utreexo single output removal
+- [x] implement Utreexo bridge node that generates individual inclusion proofs
+- [x] implement script that runs the program e2e for a span of blocks
+- [x] implement Utreexo accumulator version compatible with [rustreexo](https://github.com/mit-dci/rustreexo)
 
 ### Milestone 5 - Full consensus validation
 
 Validate full block execution over large number of blocks, including the Bitcoin scripts checks and Utreexo proofs.
 
-* [x] consensus logic
-* [ ] consensus logic + utreexo proofs  
-* [ ] consensus logic + utreexo proofs + scripts
+- [x] consensus logic
+- [ ] consensus logic + utreexo proofs  
+- [ ] consensus logic + utreexo proofs + scripts
 
 ### Milestone 6 - Proving
 
 Recursively verify STARK proofs of chain state updates. Still largely tbd. From initial observations it is clear that a series of optimizations will be necessary.
 
-* [ ] sha256 optimization
-* [ ] don't use ByteArray when serializing data
-* [ ] blocklevel recursion
-* [ ] consider using garaga msm to batch signature verifications
-* [ ] identify other Cairo code botlenecks
+- [ ] sha256 optimization
+- [x] don't use ByteArray when serializing data
+- [ ] blocklevel recursion
+- [ ] consider using garaga msm to batch signature verifications
+- [ ] identify other Cairo code botlenecks
 
 # Contact
 
-* [Telegram](https://t.me/ShinigamiStarknet)
-* [OnlyDust](https://app.onlydust.com/p/raito---bitcoin-zk-client)
+- [Telegram](https://t.me/ShinigamiStarknet)
+- [OnlyDust](https://app.onlydust.com/p/raito---bitcoin-zk-client)
 
 ## Usage
 
@@ -141,13 +167,13 @@ pip install -r scripts/data/requirements.txt
 
 ## References
 
-* [Data processing notes](./docs/data.md)
-* [Utreexo implementation notes](./docs/utreexo.md)
-* [ZeroSync](https://github.com/ZeroSync/ZeroSync)
-* [Shinigami Script](https://github.com/keep-starknet-strange/shinigami)
-* [STWO](https://github.com/starkware-libs/stwo)
-* [Cairo](https://www.cairo-lang.org/)
-* [Circle STARK paper](https://eprint.iacr.org/2024/278)
+- [Data processing notes](./docs/data.md)
+- [Utreexo implementation notes](./docs/utreexo.md)
+- [ZeroSync](https://github.com/ZeroSync/ZeroSync)
+- [Bitcoin VM in Cairo](https://github.com/keep-starknet-strange/shinigami)
+- [STWO](https://github.com/starkware-libs/stwo)
+- [Cairo](https://www.cairo-lang.org/)
+- [Circle STARK paper](https://eprint.iacr.org/2024/278)
 
 ## Contributors ✨
 
