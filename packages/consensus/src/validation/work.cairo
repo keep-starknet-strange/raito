@@ -33,7 +33,7 @@ fn compute_work_from_target(target: u256) -> u256 {
 
 #[cfg(test)]
 mod tests {
-    use super::{validate_proof_of_work, compute_work_from_target};
+    use super::{compute_work_from_target, validate_proof_of_work};
 
     #[test]
     fn test_validate_proof_of_work() {

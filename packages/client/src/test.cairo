@@ -1,10 +1,10 @@
-use core::serde::Serde;
 use consensus::types::block::Block;
-use consensus::types::chain_state::{ChainState, BlockValidatorImpl};
+use consensus::types::chain_state::{BlockValidatorImpl, ChainState};
 use consensus::types::utxo_set::{UtxoSet, UtxoSetTrait};
+use core::serde::Serde;
 use utreexo::stump::accumulator::StumpUtreexoAccumulator;
-use utreexo::stump::state::UtreexoStumpState;
 use utreexo::stump::proof::UtreexoBatchProof;
+use utreexo::stump::state::UtreexoStumpState;
 
 /// Integration testing program arguments.
 #[derive(Drop)]
@@ -17,8 +17,6 @@ struct Args {
     expected_chain_state: ChainState,
     /// Optional Utreexo arguments.
     utreexo_args: Option<UtreexoArgs>,
-    /// If this flag is set, locking scripts will be executed
-    execute_script: bool,
 }
 
 /// Utreexo arguments necessary for constraining the UTXO set.
@@ -39,25 +37,21 @@ struct UtreexoArgs {
 /// Receives arguments in a serialized format (Cairo serde).
 /// Panics in case of a validation error or chain state mismatch.
 /// Prints result to the stdout.
-fn main(arguments: Array<felt252>) -> Array<felt252> {
+#[executable]
+fn main(args: Args) {
     println!("Running integration test... ");
-    let mut args = arguments.span();
-
-    let Args {
-        mut chain_state, blocks, expected_chain_state, utreexo_args, execute_script,
-    } = Serde::deserialize(ref args).expect('Failed to deserialize');
-
+    let Args { mut chain_state, blocks, expected_chain_state, utreexo_args } = args;
     let mut utxo_set: UtxoSet = Default::default();
 
     for block in blocks {
-        match chain_state.validate_and_apply(block, ref utxo_set, execute_script) {
+        match chain_state.validate_and_apply(block, ref utxo_set) {
             Result::Ok(new_chain_state) => { chain_state = new_chain_state; },
             Result::Err(err) => {
                 println!("FAIL: error='{}'", err);
                 panic!();
             },
         }
-    };
+    }
 
     if chain_state != expected_chain_state {
         println!(
@@ -93,7 +87,6 @@ fn main(arguments: Array<felt252>) -> Array<felt252> {
     }
 
     println!("OK");
-    array![]
 }
 
 /// Workaround for handling missing `utreexo_args` field.
@@ -113,9 +106,6 @@ impl ArgsSerde of Serde<Args> {
         } else {
             Option::None
         };
-        let execute_script: bool = Serde::deserialize(ref serialized).expect('execute_script');
-        Option::Some(
-            Args { chain_state, blocks, expected_chain_state, utreexo_args, execute_script },
-        )
+        Option::Some(Args { chain_state, blocks, expected_chain_state, utreexo_args })
     }
 }

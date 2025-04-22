@@ -3,10 +3,11 @@
 //! Types are extended with extra information required for validation.
 //! The data is expected to be prepared in advance and passed as program arguments.
 
-use core::fmt::{Display, Formatter, Error};
-use core::hash::{HashStateTrait, HashStateExTrait, Hash};
+use core::fmt::{Display, Error, Formatter};
+use core::hash::{Hash, HashStateExTrait, HashStateTrait};
 use core::poseidon::PoseidonTrait;
-use utils::{hash::Digest, bytearray::{ByteArraySnapHash, ByteArraySnapSerde}};
+use utils::bytearray::{ByteArraySnapHash, ByteArraySnapSerde};
+use utils::hash::Digest;
 
 /// Represents a transaction.
 /// https://learnmeabitcoin.com/technical/transaction/
@@ -224,8 +225,8 @@ impl TxOutDisplay of Display<TxOut> {
 #[cfg(test)]
 mod tests {
     use core::poseidon::PoseidonTrait;
-    use utils::hex::{hex_to_hash_rev, from_hex};
-    use super::{OutPoint, TxOut, HashStateTrait, HashStateExTrait, OutPointHashTrait};
+    use utils::hex::{from_hex, hex_to_hash_rev};
+    use super::{HashStateExTrait, HashStateTrait, OutPoint, OutPointHashTrait, TxOut};
 
     fn hash(tx: @TxOut) -> felt252 {
         PoseidonTrait::new().update_with(*tx).finalize()
