@@ -12,8 +12,8 @@ pub mod validation {
     pub mod locktime;
 
     // TODO: once Scarb supports feature propagation, pass it from the client
-    #[cfg(feature: "shinigami")]
-    pub mod script;
+    //#[cfg(feature: "shinigami")]
+    //pub mod script;
 
     #[cfg(not(feature: "shinigami"))]
     pub mod script {
