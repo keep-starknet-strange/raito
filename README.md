@@ -35,6 +35,12 @@ Raito essentially "compresses" the block validation and hence its primary applic
 First option takes a lot of time but it is trustless, while the second one is super fast but at the cost of extra trust assumption.
 With STARKs we can enjoy both fast and trust-minimized synchronization!
 
+### Witness aggregation
+
+Non-interactive witness aggregation (also known as [transaction compression](https://delvingbitcoin.org/t/post-quantum-signatures-and-scaling-bitcoin-with-starks/1584)) is a method for more efficient block size utilization. It becomes especially important in the context of migrating to post-quantum signing schemes, which typically involve large public keys and signatures. However, even with the current set of cryptographic primitives, witness aggregation can help address the issue of payment transactions competing with complex contracts and meta-protocols.
+
+How it works: Miners execute blocks and produce a proof of correct execution. Once this proof is available, all transaction witnesses (that include signatures, Taproot scripts, etc) can be discarded, freeing up block space for additional transactions. This approach effectively increases the "effective" block size (i.e., the maximum amount of computation) without increasing bandwidth or storage requirements. It also helps mitigate the impact of large, complex transactions (rollup state settlements, refutations, or inscriptions) that might otherwise postpone the ordinary payment transactions.
+
 ### Indexer for meta protocols
 
 Raito can be extended with additional validation logic and custom state tree for protocols like [Runes](https://docs.ordinals.com/runes.html) and be used for bootstrapping meta indexers, similarly to how it is used for bootstrapping Bitcoin full nodes.
