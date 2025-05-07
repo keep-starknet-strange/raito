@@ -47,9 +47,11 @@ Raito can be extended with additional validation logic and custom state tree for
 
 ### Light clients
 
-A trust-minimized bridge design requires "embedding" a Bitcoin client into the target chain for validating the block headers and verifying transaction inclusion proofs. It is typically a "light" version of the client that is efficient onchain but makes more trust assumptions.  
+A trust-minimized bridge design requires "embedding" a Bitcoin client into the target chain for validating the block headers and verifying transaction inclusion proofs. It is typically a "light" version of the client that is efficient onchain but makes more trust assumptions.
 
 Raito provides building blocks for creating light clients with different tradeoffs. However the job of determining the canonical chain remains outside of Raito's scope and should be implemented separately.
+
+See [UTU relay](https://github.com/lfglabs-dev/utu_relay) for an example how Raito primitives can be utilized to build a one-way bridge.
 
 ### L2 solutions
 
@@ -61,6 +63,27 @@ Some interesting read on this problem:
 
 - <https://hackmd.io/@polyhedra/bitcoin>
 - <https://l2ivresearch.substack.com/p/recent-progress-on-bitcoin-stark>
+
+### Proof of assets
+
+Consider a problem of proving that you can spend a set of outputs `O` (that are not yet spent as of block `B`) with total amount `>X` without revealing which particular UTXOs these are. This requires several primitives:
+
+- Utreexo accumulator: a hash commitment scheme tailored for UTXO set, allows to produce succinct inclusion proofs given the current roots
+- Utreexo enabled ZK client: a provable Bitcoin consensus client which also maintains the UTXO set and updates Utreexo accumulator
+
+Given these primitives we can prove the following statements:
+
+- If you start with genesis and sequentially execute `B` blocks you'd end up with a certain state of Utreexo accumulator `R`
+- A set of outputs `O` belongs to the UTXO set at that point
+- The total amount of outputs `O` is greater than `X`
+- You are able to produce a valid witness to spend all the outputs `O`
+
+Aggregating all above would give us a proof of assets, which can be part of a more complex protocol such as proof of reserves (aka proof of solvency).  
+Proof of reserves protocol allows to show that the reserves a crypto exchange hold are actually held and that their clients’ funds are “safe“.
+
+See also:
+
+- <https://delvingbitcoin.org/t/proving-utxo-set-inclusion-in-zero-knowledge/1142>
 
 ## Roadmap
 
