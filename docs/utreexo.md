@@ -24,7 +24,7 @@ With the new design where leaves are never actually removed the forest constantl
   <img src="./img/utreexo_pollard.svg" alt=""/>
 </p>
 
-Although the new scheme is more memory consuming it has several advantages:
+Although the new scheme is more memory-consuming it has several advantages:
 - Better UTXO locality: the leaves that are spent soon are clustered at the right, so the proof size is optimal in most cases (see some [cool charts](https://github.com/mit-dci/utreexo/issues/257)); at the same time the proof size for old UTXOs is also amortized thanks to the "hollowing";
 - The removal algorithm does not mess much with the tree structure and requires less updates of the intermediate nodes.
 
@@ -41,7 +41,7 @@ This allows more convenient navigation through the pollard and some bit tricks.
 ## Stump
 
 Stump is the "light" version of Utreexo accumulator that contains the minimal necessary data required to verify inclusion proofs and add/remove leaves. It is not sufficient to generate proofs though — for that you need the full pollard, which is quite large.  
-Stump is a perfect fit for a ZK client where maintaining large state is prohibitively expensive.
+Stump is a perfect fit for a ZK client where maintaining a large state is prohibitively expensive.
 
 More specifically, stump consists of roots and the number of leaves (as we know this is the total number of UTXOs). Note that there are differences in how roots are stored and represented compared to the vanilla implementation:
 - Roots are sorted top down

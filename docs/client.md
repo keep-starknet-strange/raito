@@ -31,7 +31,7 @@ python ./scripts/data/client.py --start $INITIAL_CHAIN_HEIGHT --mode utreexo
 
 Raito will check that the block at level `$INITIAL_CHAIN_HEIGHT + 1` is valid and fail otherwise.
 
-## How to generate test case
+## How to generate a test case
 
 In the following example we will create an integration test for applying block 630000 with all validations and Utreexo accumulator enabled:
 
