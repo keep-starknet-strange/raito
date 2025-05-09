@@ -2,11 +2,11 @@
 //!
 //! The data is expected to be prepared in advance and passed as program arguments.
 
-use core::fmt::{Display, Formatter, Error};
-use super::transaction::Transaction;
-use utils::hash::Digest;
+use core::fmt::{Display, Error, Formatter};
 use utils::double_sha256::double_sha256_word_array;
+use utils::hash::Digest;
 use utils::word_array::{WordArray, WordArrayTrait};
+use super::transaction::Transaction;
 
 /// Represents a block in the blockchain.
 #[derive(Drop, Copy, Debug, PartialEq, Default, Serde)]
@@ -113,16 +113,16 @@ impl TransactionDataDisplay of Display<TransactionData> {
             TransactionData::Transactions(txs) => f
                 .buffer
                 .append(@format!("Transactions: {}", txs.len())),
-        };
+        }
         Result::Ok(())
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::types::chain_state::ChainState;
-    use super::{Header, BlockHash};
     use utils::hash::Digest;
+    use crate::types::chain_state::ChainState;
+    use super::{BlockHash, Header};
 
     #[test]
     fn test_block_hash() {

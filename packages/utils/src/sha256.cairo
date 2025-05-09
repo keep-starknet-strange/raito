@@ -20,7 +20,7 @@ pub fn compute_sha256_byte_array(arr: @ByteArray) -> [u32; 8] {
             + arr.at(index).unwrap().into() * 0x1000000;
         word_arr.append(word);
         index = index + 4;
-    };
+    }
     let last = match rem {
         0 => 0,
         1 => arr.at(len - 1).unwrap().into(),
@@ -202,7 +202,7 @@ fn create_message_schedule(data: Span<u32>, i: usize) -> Span<u32> {
     while (j != 16) {
         result.append(*data[i * 16 + j]);
         j += 1;
-    };
+    }
     let mut i = 16;
     while (i != 64) {
         let s0 = ssig0(*result[i - 15]);
@@ -213,7 +213,7 @@ fn create_message_schedule(data: Span<u32>, i: usize) -> Span<u32> {
         let (res, _) = tmp.overflowing_add(s1);
         result.append(res);
         i += 1;
-    };
+    }
     result.span()
 }
 

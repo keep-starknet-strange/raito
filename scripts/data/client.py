@@ -96,14 +96,13 @@ class Job:
     mode: str
     weight: int
     batch_file: Path
-    execute_scripts: bool
 
     def __str__(self):
         return f"Job(height='{self.height}', step={self.step}, weight='{self.weight}')"
 
 
 # Generator function to create jobs
-def job_generator(start, blocks, step, mode, strategy, execute_scripts):
+def job_generator(start, blocks, step, mode, strategy):
     BASE_DIR.mkdir(exist_ok=True)
     end = start + blocks
 
@@ -125,7 +124,11 @@ def job_generator(start, blocks, step, mode, strategy, execute_scripts):
 
             batch_weight = calculate_batch_weight(batch_data, mode)
             yield Job(
-                height, step, mode, batch_weight, batch_file, execute_scripts
+                height,
+                step,
+                mode,
+                batch_weight,
+                batch_file,
             ), batch_weight
         except Exception as e:
             logger.error(f"Error while generating data for: {height}:\n{e}")
@@ -135,17 +138,15 @@ def process_batch(job):
     arguments_file = job.batch_file.as_posix().replace(".json", "-arguments.json")
 
     with open(arguments_file, "w") as af:
-        af.write(str(format_args(job.batch_file, job.execute_scripts, False)))
+        af.write(str(format_args(job.batch_file, False)))
 
     stdout, stderr, returncode = run(
         [
             "scarb",
-            "cairo-run",
+            "execute",
             "--no-build",
             "--package",
             "client",
-            "--function",
-            "main",
             "--arguments-file",
             str(arguments_file),
         ]
@@ -301,7 +302,7 @@ def job_consumer(process_job):
     logger.debug("Job consumer done.")
 
 
-def main(start, blocks, step, mode, strategy, execute_scripts):
+def main(start, blocks, step, mode, strategy):
     global shutdown_requested
 
     # Set up signal handlers
@@ -315,13 +316,12 @@ def main(start, blocks, step, mode, strategy, execute_scripts):
     signal.signal(signal.SIGINT, signal_handler)
 
     logger.info(
-        "Starting client, initial height: %d, blocks: %d, step: %d, mode: %s, strategy: %s, execute_scripts: %s",
+        "Starting client, initial height: %d, blocks: %d, step: %d, mode: %s, strategy: %s",
         start,
         blocks,
         step,
         mode,
         strategy,
-        execute_scripts,
     )
     logger.info(
         "Max weight limit: %d, Thread pool size: %d, Queue max size: %d",
@@ -331,7 +331,7 @@ def main(start, blocks, step, mode, strategy, execute_scripts):
     )
 
     # Create the job generator
-    job_gen = job_generator(start, blocks, step, mode, strategy, execute_scripts)
+    job_gen = job_generator(start, blocks, step, mode, strategy)
 
     # Start the job producer thread
     producer_thread = threading.Thread(target=job_producer, args=(job_gen,))
@@ -436,5 +436,4 @@ if __name__ == "__main__":
         args.step,
         args.mode,
         args.strategy,
-        args.execute_scripts,
     )

@@ -35,9 +35,9 @@ pub fn compute_median_time_past(prev_timestamps: Span<u32>) -> u32 {
                 sorted_iteration = false;
             }
         };
-    };
+    }
 
-    *sorted_prev_timestamps.at(sorted_prev_timestamps.len() / 2)
+    (*sorted_prev_timestamps.at(sorted_prev_timestamps.len() / 2))
 }
 
 /// Checks that the block time is greater than the Median Time Past (MTP).
@@ -65,7 +65,7 @@ pub fn next_prev_timestamps(prev_timestamps: Span<u32>, block_time: u32) -> Span
 
 #[cfg(test)]
 mod tests {
-    use super::{compute_median_time_past, validate_timestamp, next_prev_timestamps};
+    use super::{compute_median_time_past, next_prev_timestamps, validate_timestamp};
 
     #[test]
     fn test_compute_median_time_past() {

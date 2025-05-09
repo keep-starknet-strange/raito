@@ -108,9 +108,9 @@ pub fn validate_relative_locktime(
 
 #[cfg(test)]
 mod tests {
-    use crate::types::transaction::{TxIn, OutPoint, TxOut};
-    use super::{validate_absolute_locktime, validate_relative_locktime};
     use utils::hex::{from_hex, hex_to_hash_rev};
+    use crate::types::transaction::{OutPoint, TxIn, TxOut};
+    use super::{validate_absolute_locktime, validate_relative_locktime};
 
     #[test]
     fn test_relative_locktime_disabled() {

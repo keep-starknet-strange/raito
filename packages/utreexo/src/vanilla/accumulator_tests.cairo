@@ -201,7 +201,7 @@ fn test_utreexo_add() {
     // Add 3 leaves
     for _ in 1..4_u8 {
         utreexo_state = utreexo_state.add(outpoint);
-    };
+    }
 
     let expected: Span<Option<felt252>> = array![
         Option::None,
@@ -216,7 +216,7 @@ fn test_utreexo_add() {
     // Add 22 leaves
     for _ in 1..23_u8 {
         utreexo_state = utreexo_state.add(outpoint);
-    };
+    }
 
     let expected: Span<Option<felt252>> = [
         Option::None(()),

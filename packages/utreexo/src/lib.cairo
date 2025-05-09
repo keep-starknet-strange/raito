@@ -5,13 +5,12 @@ pub mod stump {
 }
 pub mod vanilla {
     pub mod accumulator;
-    pub mod proof;
-    pub mod state;
     #[cfg(test)]
     mod accumulator_tests;
+    pub mod proof;
+    pub mod state;
 }
 pub mod test;
-
 use core::poseidon::hades_permutation;
 
 /// Parent hash of two Utreexo nodes.

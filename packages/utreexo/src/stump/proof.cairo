@@ -1,7 +1,8 @@
-use core::fmt::{Display, Formatter, Error};
+use core::fmt::{Display, Error, Formatter};
 use core::num::traits::Bounded;
+use utils::numeric::u64_next_power_of_two;
+use utils::sort::merged_sort;
 use crate::parent_hash;
-use utils::{numeric::u64_next_power_of_two, sort::merged_sort};
 
 /// Utreexo inclusion proof for multiple outputs.
 /// Compatible with https://github.com/utreexo/utreexo
@@ -20,10 +21,10 @@ impl UtreexoBatchProofDisplay of Display<UtreexoBatchProof> {
         let mut proofs: ByteArray = Default::default();
         for proof in *self.proof {
             proofs.append(@format!("{},", proof));
-        };
+        }
         for target in *self.targets {
             targets.append(@format!("{},", target));
-        };
+        }
         let str: ByteArray = format!(
             "UtreexoBatchProof {{ proof: [{}], leaf_index: [{}] }}", @targets, @proofs,
         );
@@ -53,7 +54,7 @@ pub impl UtreexoBatchProofImpl of UtreexoBatchProofTrait {
         let mut targets = array![];
         while let Option::Some(hash) = hashes.pop_front() {
             targets.append((*positions.pop_front().unwrap(), *hash));
-        };
+        }
         // and sort them by position to align with the proof
         targets = merged_sort(targets.span());
 
@@ -131,7 +132,7 @@ pub impl UtreexoBatchProofImpl of UtreexoBatchProofTrait {
                         break;
                     }
                 }
-            };
+            }
 
             // after we processed all the targets in the current row and computed their parents,
             // we move the parents (and pending targets from the proof) to the next row and
@@ -158,7 +159,7 @@ pub impl UtreexoBatchProofImpl of UtreexoBatchProofTrait {
                         merge_sorted(ref next_row_targets, ref next_row_computed)
                     }
             }
-        };
+        }
 
         // after we processed all rows of the forest, computed roots are all settled in the `roots`
         // array, which is automatically ordered, btw
@@ -192,7 +193,7 @@ pub impl UtreexoBatchProofImpl of UtreexoBatchProofTrait {
         let mut targets = array![];
         while let Option::Some(hash) = hashes.pop_front() {
             targets.append((*positions.pop_front().unwrap(), (*hash, Option::None)));
-        };
+        }
         // and sort them by position to align with the proof
         targets = merged_sort(targets.span());
 
@@ -296,7 +297,7 @@ pub impl UtreexoBatchProofImpl of UtreexoBatchProofTrait {
                         break;
                     }
                 }
-            };
+            }
 
             // after we processed all the targets in the current row and computed their parents,
             // we move the parents (and pending targets from the proof) to the next row and
@@ -323,7 +324,7 @@ pub impl UtreexoBatchProofImpl of UtreexoBatchProofTrait {
                         merge_sorted(ref next_row_targets, ref next_row_computed)
                     }
             }
-        };
+        }
 
         // after we processed all rows of the forest, computed roots are all settled in the `roots`
         // array, which is automatically ordered, btw
@@ -351,7 +352,7 @@ pub impl UtreexoBatchProofImpl of UtreexoBatchProofTrait {
             } else {
                 inner_result = Result::Err("Not enough targets in the proof.");
             }
-        };
+        }
 
         let mut leaf_nodes: Array<(u64, felt252)> = merged_sort(leaf_nodes.span());
 
@@ -403,7 +404,7 @@ pub impl UtreexoBatchProofImpl of UtreexoBatchProofTrait {
                         );
                     break;
                 }
-            };
+            }
 
             // If row length is odd and we are at the edge this is a root.
             if pos == row_len_acc + actual_row_len - 1 && actual_row_len % 2 == 1 {
@@ -412,7 +413,7 @@ pub impl UtreexoBatchProofImpl of UtreexoBatchProofTrait {
                 row_len /= 2;
                 actual_row_len /= 2;
                 continue;
-            };
+            }
 
             let parent_node = if (pos - row_len_acc) % 2 == 0 {
                 // Right sibling can be both leaf/computed or proof.
@@ -432,7 +433,7 @@ pub impl UtreexoBatchProofImpl of UtreexoBatchProofTrait {
                     if sibling_nodes.is_empty() {
                         inner_result = Result::Err("Proof is empty.");
                         break;
-                    };
+                    }
                     sibling_nodes.pop_front().unwrap()
                 };
                 parent_hash(node, right_sibling)
@@ -454,7 +455,7 @@ pub impl UtreexoBatchProofImpl of UtreexoBatchProofTrait {
             } else {
                 computed_nodes.append((parent_pos, parent_node));
             }
-        };
+        }
 
         if !sibling_nodes.is_empty() {
             return Result::Err("Proof should be empty");
@@ -481,7 +482,7 @@ fn extract_row<T, +Copy<T>, +Drop<T>>(
         }
         nodes.pop_front().unwrap();
         row.append((*pos - row_start, *value));
-    };
+    }
     row
 }
 
@@ -497,12 +498,12 @@ fn merge_sorted<T, +Drop<T>>(
                 break;
             }
             res.append(arr2.pop_front().unwrap());
-        };
+        }
         res.append((p1, v1));
-    };
+    }
     while let Option::Some(node) = arr2.pop_front() {
         res.append(node);
-    };
+    }
     res
 }
 

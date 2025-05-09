@@ -1,6 +1,6 @@
 //! Bit shifts and pow helpers.
 
-use core::num::traits::{Zero, One};
+use core::num::traits::{One, Zero};
 
 /// Performs a bitwise right shift on a `u64` value by a specified number of bits.
 /// This specialized version offers optimal performance for `u64` types.
