@@ -3,11 +3,11 @@ install-stwo:
 	RUSTFLAGS="-C target-cpu=native -C opt-level=3" \
 		cargo install \
 		--git https://github.com/starkware-libs/stwo-cairo \
-		--rev b1ff665569140b0701b34c9d965fe9da9246c086 \
+		--rev df2d5a6f92fbe4180952356680d3935b1ed065de \
 		adapted_stwo
 
 install-cairo-execute:
-	cargo install --git https://github.com/m-kus/cairo --rev 00d11e0fd87581bd67da676eba7ffb43a9018aa5 cairo-execute
+	cargo install --git https://github.com/m-kus/cairo --rev 9117214e4a3509870c6a6db8e61ddcdaf9ade561 cairo-execute
 
 build-light-client:
 	scarb --profile release build --package light_client
@@ -36,3 +36,8 @@ prove-light-client:
 		--proof_path target/proof.json \
 		--proof-format cairo-serde \
 		--verify
+
+light-client:
+	$(MAKE) build-light-client
+	$(MAKE) exec-light-client
+	$(MAKE) prove-light-client
