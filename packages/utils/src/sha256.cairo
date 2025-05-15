@@ -4,7 +4,7 @@
 
 //! Helpers for calculating double SHA256 hash digest.
 
-use core::num::traits::{Bounded, OverflowingAdd, OverflowingMul};
+use core::num::traits::{OverflowingAdd, OverflowingMul};
 
 /// Tuple of 8 u32 values.
 type T8 = (u32, u32, u32, u32, u32, u32, u32, u32);
