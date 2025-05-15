@@ -20,15 +20,6 @@ struct Result {
 
 #[executable]
 fn main(args: Args) -> Result {
-    core::internal::require_implicit::<core::circuit::RangeCheck96>();
-    core::internal::require_implicit::<core::circuit::AddMod>();
-    core::internal::require_implicit::<core::circuit::MulMod>();
-    core::internal::require_implicit::<core::RangeCheck>();
-    core::internal::require_implicit::<core::pedersen::Pedersen>();
-    core::internal::require_implicit::<core::integer::Bitwise>();
-    core::internal::require_implicit::<core::ec::EcOp>();
-    core::internal::require_implicit::<core::poseidon::Poseidon>();
-
     let Args { mut chain_state, blocks } = args;
     let mut utxo_set: UtxoSet = Default::default();
 

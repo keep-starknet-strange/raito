@@ -3,7 +3,7 @@ install-stwo:
 	RUSTFLAGS="-C target-cpu=native -C opt-level=3" \
 		cargo install \
 		--git https://github.com/starkware-libs/stwo-cairo \
-		--rev df2d5a6f92fbe4180952356680d3935b1ed065de \
+		--rev 61d338ee93f11a735eb5cd86f024f7a73d59d420 \
 		adapted_stwo
 
 install-cairo-execute:
