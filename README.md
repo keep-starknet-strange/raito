@@ -30,10 +30,14 @@ At its core, consensus client accepts two inputs: a batch of consecutive blocks 
 Raito essentially "compresses" the block validation and hence its primary application is enabling quick node synchronization (aka initial block download — IBD). Currently if you are bootstrapping a new full node from scratch there are two options:
 
 - Fetch all the block headers and transaction from P2P and then apply them one by one, computing the state and accumulating the UTXO set (There is an optimization [`assumevalid`](https://bitcoincore.org/en/2017/03/08/release-0.14.0/#assumed-valid-blocks) that helps to speed up the process);
-- Download and import a snapshot of the chain state from some trusted source, run the usual sync in the background (see `assumeutxo`[https://bitcoinops.org/en/topics/assumeutxo/]).
+- Download and import a snapshot of the chain state from some trusted source, run the usual sync in the background (see [`assumeutxo`](https://bitcoinops.org/en/topics/assumeutxo/)).
 
-First option takes a lot of time but it is trustless, while the second one is super fast but at the cost of extra trust assumption.
-With STARKs we can enjoy both fast and trust-minimized synchronization!
+First option takes a lot of time but it is trustless, while the second one is faster (importing snapshot and catching up with the head still takes time) but at the cost of extra trust assumption that assumeutxo hash is checked for correctness during code review (every time it changes!).  
+
+With STARKs we can enjoy both fast and trust-minimized synchronization:
+
+- You still have to trust that Raito (Bitcoin client), Cairo (compiler toolchain), Stwo (prover toolchain), and STARKs are sound and flawless, i.e. that enough qualified specialists verified the code and math (and issued audit reports!);
+- However these are "reusable" trust assumptions: you can produce proof for every new Bitcoin block without a need to review anything (unlike assumeutxo approach); this allows to minimize the gap between the head and the snapshot and that way speed up the IBD.
 
 ### Witness aggregation
 
