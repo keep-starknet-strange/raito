@@ -6,8 +6,8 @@
 
 use core::num::traits::{OverflowingAdd, OverflowingMul};
 
-/// Tuple of 8 u32 values.
-type T8 = (u32, u32, u32, u32, u32, u32, u32, u32);
+/// Sha256 hasher state.
+type Sha256State = (u32, u32, u32, u32, u32, u32, u32, u32);
 
 /// Cairo implementation of the corelib `compute_sha256_byte_array` function.
 pub fn compute_sha256_byte_array(arr: @ByteArray) -> [u32; 8] {
@@ -46,7 +46,7 @@ pub fn compute_sha256_u32_array(
     let mut state = h;
 
     while let Option::Some(chunk) = data.multi_pop_front::<16>() {
-        state = sha256_inner((*chunk).unbox().span(), k.span(), state);
+        state = sha256_inner((*chunk).unbox().span(), state);
     };
 
     let (d0, d1, d2, d3, d4, d5, d6, d7) = state;
@@ -148,9 +148,10 @@ fn append_zeros(ref arr: Array<u32>, count: u32) {
     arr.append(0);
 }
 
-fn sha256_inner(data: Span<u32>, mut k: Span<u32>, h: T8) -> T8 {
+fn sha256_inner(data: Span<u32>, h: Sha256State) -> Sha256State {
     let mut w = create_message_schedule(data);
     let mut g = h;
+    let mut k = k.span();
 
     while let Option::Some(ki) = k.pop_front() {
         let wi = w.pop_front().unwrap();
@@ -171,7 +172,7 @@ fn sha256_inner(data: Span<u32>, mut k: Span<u32>, h: T8) -> T8 {
     (t0, t1, t2, t3, t4, t5, t6, t7)
 }
 
-fn compression(wi: u32, ki: u32, h: T8) -> T8 {
+fn compression(wi: u32, ki: u32, h: Sha256State) -> Sha256State {
     let (h0, h1, h2, h3, h4, h5, h6, h7) = h;
     let s1 = bsig1(h4);
     let ch = ch(h4, h5, h6);
@@ -248,10 +249,12 @@ fn ssig1(x: u32) -> u32 {
     x1 ^ x2 ^ x3
 }
 
-const h: T8 = (
+/// Sha256 IV.
+const h: Sha256State = (
     0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, 0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19,
 );
 
+/// Sha256 round constants.
 const k: [u32; 64] = [
     0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
     0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3, 0x72be5d74, 0x80deb1fe, 0x9bdc06a7, 0xc19bf174,
