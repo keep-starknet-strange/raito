@@ -4,7 +4,10 @@
 
 //! Helpers for calculating double SHA256 hash digest.
 
-use core::num::traits::{Bounded, OverflowingAdd};
+use core::num::traits::{Bounded, OverflowingAdd, OverflowingMul};
+
+/// Tuple of 8 u32 values.
+type T8 = (u32, u32, u32, u32, u32, u32, u32, u32);
 
 /// Cairo implementation of the corelib `compute_sha256_byte_array` function.
 pub fn compute_sha256_byte_array(arr: @ByteArray) -> [u32; 8] {
@@ -39,16 +42,22 @@ pub fn compute_sha256_u32_array(
 ) -> [u32; 8] {
     add_sha256_padding(ref input, last_input_word, last_input_num_bytes);
 
-    let result = sha256_inner(input.span(), 0, k.span(), h.span());
+    let mut data = input.span();
+    let mut state = h;
 
-    [*result[0], *result[1], *result[2], *result[3], *result[4], *result[5], *result[6], *result[7]]
+    while let Option::Some(chunk) = data.multi_pop_front::<16>() {
+        state = sha256_inner((*chunk).unbox().span(), k.span(), state);
+    };
+
+    let (d0, d1, d2, d3, d4, d5, d6, d7) = state;
+    [d0, d1, d2, d3, d4, d5, d6, d7]
 }
 
 /// Adds padding to the input array for SHA-256. The padding is defined as follows:
 /// 1. Append a single bit with value 1 to the end of the array.
 /// 2. Append zeros until the length of the array is 448 mod 512.
 /// 3. Append the length of the array in bits as a 64-bit number.
-/// Use last_input_word when the number of bytes in the last input word is less than 4.
+/// use last_input_word when the number of bytes in the last input word is less than 4.
 fn add_sha256_padding(ref arr: Array<u32>, last_input_word: u32, last_input_num_bytes: u32) {
     let len = arr.len();
     if last_input_num_bytes == 0 {
@@ -65,15 +74,14 @@ fn add_sha256_padding(ref arr: Array<u32>, last_input_word: u32, last_input_num_
         arr.append(r * m + pad);
     }
 
-    let mut remaining: felt252 = 16 - ((arr.len() + 1) % 16).into();
-
+    let mut remaining = 16 - ((arr.len() + 1) % 16);
     append_zeros(ref arr, remaining);
 
     arr.append(len * 32 + last_input_num_bytes * 8);
 }
 
 /// Appends `count` zeros to the array.
-fn append_zeros(ref arr: Array<u32>, count: felt252) {
+fn append_zeros(ref arr: Array<u32>, count: u32) {
     if count == 0 {
         return;
     }
@@ -140,85 +148,62 @@ fn append_zeros(ref arr: Array<u32>, count: felt252) {
     arr.append(0);
 }
 
-fn sha256_inner(mut data: Span<u32>, i: usize, k: Span<u32>, mut h: Span<u32>) -> Span<u32> {
-    if 16 * i >= data.len() {
-        return h;
-    }
-    let w = create_message_schedule(data, i);
-    let h2 = compression(w, 0, k, h);
+fn sha256_inner(data: Span<u32>, mut k: Span<u32>, h: T8) -> T8 {
+    let mut w = create_message_schedule(data);
+    let mut g = h;
 
-    let mut t = array![];
-    let (tmp, _) = (*h[0]).overflowing_add(*h2[0]);
-    t.append(tmp);
-    let (tmp, _) = (*h[1]).overflowing_add(*h2[1]);
-    t.append(tmp);
-    let (tmp, _) = (*h[2]).overflowing_add(*h2[2]);
-    t.append(tmp);
-    let (tmp, _) = (*h[3]).overflowing_add(*h2[3]);
-    t.append(tmp);
-    let (tmp, _) = (*h[4]).overflowing_add(*h2[4]);
-    t.append(tmp);
-    let (tmp, _) = (*h[5]).overflowing_add(*h2[5]);
-    t.append(tmp);
-    let (tmp, _) = (*h[6]).overflowing_add(*h2[6]);
-    t.append(tmp);
-    let (tmp, _) = (*h[7]).overflowing_add(*h2[7]);
-    t.append(tmp);
-    h = t.span();
-    sha256_inner(data, i + 1, k, h)
-}
-
-fn compression(w: Span<u32>, i: usize, k: Span<u32>, mut h: Span<u32>) -> Span<u32> {
-    if i >= 64 {
-        return h;
-    }
-    let s1 = bsig1(*h[4]);
-    let ch = ch(*h[4], *h[5], *h[6]);
-    let (tmp, _) = (*h[7]).overflowing_add(s1);
-    let (tmp, _) = tmp.overflowing_add(ch);
-    let (tmp, _) = tmp.overflowing_add(*k[i]);
-    let (temp1, _) = tmp.overflowing_add(*w[i]);
-    let s0 = bsig0(*h[0]);
-    let maj = maj(*h[0], *h[1], *h[2]);
-    let (temp2, _) = s0.overflowing_add(maj);
-    let mut t = array![];
-    let (temp3, _) = temp1.overflowing_add(temp2);
-    t.append(temp3);
-    t.append(*h[0]);
-    t.append(*h[1]);
-    t.append(*h[2]);
-    let (temp3, _) = (*h[3]).overflowing_add(temp1);
-    t.append(temp3);
-    t.append(*h[4]);
-    t.append(*h[5]);
-    t.append(*h[6]);
-    h = t.span();
-    compression(w, i + 1, k, h)
-}
-
-fn create_message_schedule(data: Span<u32>, i: usize) -> Span<u32> {
-    let mut j = 0;
-    let mut result = array![];
-    while (j != 16) {
-        result.append(*data[i * 16 + j]);
-        j += 1;
+    while let Option::Some(ki) = k.pop_front() {
+        let wi = w.pop_front().unwrap();
+        g = compression(*wi, *ki, g);
     };
-    let mut i = 16;
-    while (i != 64) {
+
+    let (h0, h1, h2, h3, h4, h5, h6, h7) = h;
+    let (g0, g1, g2, g3, g4, g5, g6, g7) = g;
+
+    let (t0, _) = h0.overflowing_add(g0);
+    let (t1, _) = h1.overflowing_add(g1);
+    let (t2, _) = h2.overflowing_add(g2);
+    let (t3, _) = h3.overflowing_add(g3);
+    let (t4, _) = h4.overflowing_add(g4);
+    let (t5, _) = h5.overflowing_add(g5);
+    let (t6, _) = h6.overflowing_add(g6);
+    let (t7, _) = h7.overflowing_add(g7);
+    (t0, t1, t2, t3, t4, t5, t6, t7)
+}
+
+fn compression(wi: u32, ki: u32, h: T8) -> T8 {
+    let (h0, h1, h2, h3, h4, h5, h6, h7) = h;
+    let s1 = bsig1(h4);
+    let ch = ch(h4, h5, h6);
+    let (tmp, _) = h7.overflowing_add(s1);
+    let (tmp, _) = tmp.overflowing_add(ch);
+    let (tmp, _) = tmp.overflowing_add(ki);
+    let (temp1, _) = tmp.overflowing_add(wi);
+    let s0 = bsig0(h0);
+    let maj = maj(h0, h1, h2);
+    let (temp2, _) = s0.overflowing_add(maj);
+    let (temp3, _) = temp1.overflowing_add(temp2);
+    let t0 = temp3;
+    let (temp3, _) = h3.overflowing_add(temp1);
+    let t4 = temp3;
+    (t0, h0, h1, h2, t4, h4, h5, h6)
+}
+
+fn create_message_schedule(data: Span<u32>) -> Span<u32> {
+    let mut result: Array<u32> = data.into();
+    for i in 16..64_usize {
         let s0 = ssig0(*result[i - 15]);
         let s1 = ssig1(*result[i - 2]);
-
         let (tmp, _) = (*result[i - 16]).overflowing_add(s0);
         let (tmp, _) = tmp.overflowing_add(*result[i - 7]);
         let (res, _) = tmp.overflowing_add(s1);
         result.append(res);
-        i += 1;
     };
     result.span()
 }
 
 fn ch(x: u32, y: u32, z: u32) -> u32 {
-    (x & y) ^ ((x ^ Bounded::<u32>::MAX.into()) & z)
+    (x & y) ^ ((x ^ 0xffffffff) & z)
 }
 
 fn maj(x: u32, y: u32, z: u32) -> u32 {
@@ -226,48 +211,46 @@ fn maj(x: u32, y: u32, z: u32) -> u32 {
 }
 
 fn bsig0(x: u32) -> u32 {
-    let x: u128 = x.into();
-    let x1 = (x / 0x4) | (x * 0x40000000);
-    let x2 = (x / 0x2000) | (x * 0x80000);
-    let x3 = (x / 0x400000) | (x * 0x400);
-    let result = (x1 ^ x2 ^ x3) & Bounded::<u32>::MAX.into();
-
-    result.try_into().unwrap()
+    let (rhs, _) = x.overflowing_mul(0x40000000);
+    let x1 = (x / 0x4) | rhs;
+    let (rhs, _) = x.overflowing_mul(0x80000);
+    let x2 = (x / 0x2000) | rhs;
+    let (rhs, _) = x.overflowing_mul(0x400);
+    let x3 = (x / 0x400000) | rhs;
+    x1 ^ x2 ^ x3
 }
 
 fn bsig1(x: u32) -> u32 {
-    let x: u128 = x.into();
-    let x1 = (x / 0x40) | (x * 0x4000000);
-    let x2 = (x / 0x800) | (x * 0x200000);
-    let x3 = (x / 0x2000000) | (x * 0x80);
-    let result = (x1 ^ x2 ^ x3) & Bounded::<u32>::MAX.into();
-
-    result.try_into().unwrap()
+    let (rhs, _) = x.overflowing_mul(0x4000000);
+    let x1 = (x / 0x40) | rhs;
+    let (rhs, _) = x.overflowing_mul(0x200000);
+    let x2 = (x / 0x800) | rhs;
+    let (rhs, _) = x.overflowing_mul(0x80);
+    let x3 = (x / 0x2000000) | rhs;
+    x1 ^ x2 ^ x3
 }
 
 fn ssig0(x: u32) -> u32 {
-    let x: u128 = x.into();
-    let x1 = (x / 0x80) | (x * 0x2000000);
-    let x2 = (x / 0x40000) | (x * 0x4000);
+    let (rhs, _) = x.overflowing_mul(0x2000000);
+    let x1 = (x / 0x80) | rhs;
+    let (rhs, _) = x.overflowing_mul(0x4000);
+    let x2 = (x / 0x40000) | rhs;
     let x3 = (x / 0x8);
-    let result = (x1 ^ x2 ^ x3) & Bounded::<u32>::MAX.into();
-
-    result.try_into().unwrap()
+    x1 ^ x2 ^ x3
 }
 
 fn ssig1(x: u32) -> u32 {
-    let x: u128 = x.into();
-    let x1 = (x / 0x20000) | (x * 0x8000);
-    let x2 = (x / 0x80000) | (x * 0x2000);
+    let (rhs, _) = x.overflowing_mul(0x8000);
+    let x1 = (x / 0x20000) | rhs;
+    let (rhs, _) = x.overflowing_mul(0x2000);
+    let x2 = (x / 0x80000) | rhs;
     let x3 = (x / 0x400);
-    let result = (x1 ^ x2 ^ x3) & Bounded::<u32>::MAX.into();
-
-    result.try_into().unwrap()
+    x1 ^ x2 ^ x3
 }
 
-const h: [u32; 8] = [
+const h: T8 = (
     0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, 0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19,
-];
+);
 
 const k: [u32; 64] = [
     0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
