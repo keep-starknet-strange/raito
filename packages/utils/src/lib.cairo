@@ -8,9 +8,9 @@ pub mod sort;
 pub mod word_array;
 
 
-// pub mod sha256;
+pub mod sha256;
 // Let's use core non provable functions for now. Much faster.
-pub use core::sha256;
+pub use core::sha256 as sha256_core;
 
 #[cfg(target: 'test')]
 pub mod hex;
