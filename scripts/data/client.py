@@ -143,6 +143,8 @@ def process_batch(job):
     stdout, stderr, returncode = run(
         [
             "scarb",
+            "--profile",
+            "proving",
             "execute",
             "--no-build",
             "--package",
@@ -388,10 +390,6 @@ if __name__ == "__main__":
 
     parser.add_argument(
         "--maxweight", type=int, default=MAX_WEIGHT_LIMIT, help="Max weight limit"
-    )
-
-    parser.add_argument(
-        "--execute-scripts", action="store_true", help="Execute scripts"
     )
 
     parser.add_argument("--verbose", action="store_true", help="Verbose")

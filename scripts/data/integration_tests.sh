@@ -56,7 +56,7 @@ for test_file in "${test_files[@]}"; do
         else
             arguments_file="$(dirname "$test_file")/.arguments-$(basename "$test_file")"
             python ../../scripts/data/format_args.py --input_file ${test_file} > $arguments_file
-            output=$(scarb execute --no-build --print-resource-usage --arguments-file $arguments_file)
+            output=$(scarb --profile proving execute --no-build --print-resource-usage --arguments-file $arguments_file)
             steps=$(echo $output | grep -o 'steps: [0-9]*' | sed 's/steps: //')
 
             if [[ "$nocapture" -eq 1 ]]; then
