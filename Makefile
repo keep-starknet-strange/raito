@@ -21,7 +21,9 @@ install-cairo-execute:
 	cargo install --git https://github.com/m-kus/cairo --rev 9117214e4a3509870c6a6db8e61ddcdaf9ade561 cairo-execute
 
 assumevalid-build:
+	sed -i '' 's/default = \["syscalls"\]/default = \[\]/' packages/utils/Scarb.toml
 	scarb --profile proving build --package assumevalid
+	sed -i '' 's/default = \[\]/default = \["syscalls"\]/' packages/utils/Scarb.toml
 
 assumevalid-execute:
 	rm -rf target/execute \
