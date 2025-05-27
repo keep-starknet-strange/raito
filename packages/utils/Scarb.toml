@@ -7,5 +7,4 @@ edition = "2024_07"
 cairo_test.workspace = true
 
 [scripts]
-# TODO: cairo lint
 lint = "scarb fmt"

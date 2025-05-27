@@ -1,9 +1,8 @@
-use super::word_array::WordArrayTrait;
 //! Helpers for calculating double SHA256 hash digest.
 
 use super::hash::{Digest, DigestTrait};
 use super::sha256_core::compute_sha256_u32_array;
-use super::word_array::WordArray;
+use super::word_array::{WordArray, WordArrayTrait};
 
 /// Calculates double sha256 digest of a concatenation of two hashes.
 pub fn double_sha256_parent(a: @Digest, b: @Digest) -> Digest {
@@ -29,8 +28,10 @@ pub fn double_sha256_word_array(words: WordArray) -> Digest {
 
 #[cfg(test)]
 mod tests {
-    use crate::{hex::from_hex, hash::Digest, word_array::hex::words_from_hex};
-    use super::{double_sha256_word_array, double_sha256_parent};
+    use crate::hash::Digest;
+    use crate::hex::from_hex;
+    use crate::word_array::hex::words_from_hex;
+    use super::{double_sha256_parent, double_sha256_word_array};
 
     #[test]
     fn test_double_sha256_word_array() {

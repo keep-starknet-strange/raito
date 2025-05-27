@@ -3,18 +3,18 @@ members = ["packages/*"]
 
 [workspace.package]
 description = "Bitcoin ZK client."
-cairo-version = "2.9.1"
+cairo-version = "2.11.4"
 version = "0.1.0"
 readme = "README.md"
 repository = "https://github.com/keep-starknet-strange/raito"
 license-file = "LICENSE"
 
 [workspace.dependencies]
-cairo_test = "2.9.1"
+cairo_test = "2.11.4"
 shinigami_engine = { git = "https://github.com/keep-starknet-strange/shinigami.git", rev = "1963116" }
 
-[profile.cairo1-run.cairo]
-# https://github.com/lambdaclass/cairo-vm/issues/1745
+[profile.proving]
+inherits = "release"
+
+[profile.proving.cairo]
 enable-gas = false
-# https://github.com/software-mansion/scarb/blob/4d91be7a7dbfeb24327e3ba21c62fbac43a2105a/scarb/src/compiler/compilers/lib.rs#L154
-sierra-replace-ids = true

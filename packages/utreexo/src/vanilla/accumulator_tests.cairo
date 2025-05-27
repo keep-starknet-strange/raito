@@ -75,8 +75,7 @@ fn test_verify_inclusion() {
     utxo_state =
         UtreexoState {
             roots: array![
-                Option::None,
-                Option::None,
+                Option::None, Option::None,
                 Option::Some(0x73f11135a8f669c50ec8257ea06c9e231c140db996458f698b2be1f771a318f),
             ]
                 .into(),
@@ -178,8 +177,7 @@ fn test_utreexo_add() {
     utreexo_state = utreexo_state.add(outpoint);
 
     let expected: Span<Option<felt252>> = array![
-        Option::None,
-        Option::None,
+        Option::None, Option::None,
         Option::Some(0x3b3ed120874d97b712f68895b658659ee8055a82ea5bef26fa210fa956754c7),
         Option::None,
     ]
@@ -201,12 +199,10 @@ fn test_utreexo_add() {
     // Add 3 leaves
     for _ in 1..4_u8 {
         utreexo_state = utreexo_state.add(outpoint);
-    };
+    }
 
     let expected: Span<Option<felt252>> = array![
-        Option::None,
-        Option::None,
-        Option::None,
+        Option::None, Option::None, Option::None,
         Option::Some(0x7c9dbc3d6eba8cb43284ce97423a48d660612c0834baad3c2f8b423530a5619),
         Option::None,
     ]
@@ -216,7 +212,7 @@ fn test_utreexo_add() {
     // Add 22 leaves
     for _ in 1..23_u8 {
         utreexo_state = utreexo_state.add(outpoint);
-    };
+    }
 
     let expected: Span<Option<felt252>> = [
         Option::None(()),
@@ -256,10 +252,7 @@ fn test_utreexo_delete() {
         .add(0xFFFFFFFFFFFFFFFFFFFFFFF1);
 
     let expected: Span<Option<felt252>> = array![
-        Option::None,
-        Option::None,
-        Option::None,
-        Option::None,
+        Option::None, Option::None, Option::None, Option::None,
         Option::Some(0x1818a64c0ecbcb9fec43227f7b137c9567b936cabbc378711c52c2bb5b4b53a),
         Option::None,
     ]
@@ -285,8 +278,7 @@ fn test_utreexo_delete() {
         Option::Some(0x181a554869978703143b97d281460c38e30fe6ba52eb0a03641e446beb0f610),
         Option::Some(0x1f35ec8aaadbda4f4f28d098ad0d073f8acbba791a8ef10d6b798c5b6150ebe),
         Option::Some(0x600961c4f15bc633f584abbd7f10c77a053552ef53baebfedc689c223c2a314),
-        Option::None,
-        Option::None,
+        Option::None, Option::None,
     ]
         .span();
 

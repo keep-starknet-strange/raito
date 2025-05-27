@@ -1,11 +1,11 @@
 //! Transaction validation helpers.
 
+use utils::hash::Digest;
 use crate::types::transaction::{OutPoint, Transaction};
 use crate::types::utxo_set::{UtxoSet, UtxoSetTrait};
 use crate::validation::locktime::{
     is_input_final, validate_absolute_locktime, validate_relative_locktime,
 };
-use utils::hash::Digest;
 
 const OP_RETURN: u8 = 0x6a;
 const MAX_SCRIPT_SIZE: u32 = 10000;
@@ -23,11 +23,11 @@ pub fn validate_transaction(
 ) -> Result<u64, ByteArray> {
     if (*tx.inputs).is_empty() {
         return Result::Err("transaction inputs are empty");
-    };
+    }
 
     if (*tx.outputs).is_empty() {
         return Result::Err("transaction outputs are empty");
-    };
+    }
 
     let mut inner_result: Result<(), ByteArray> = Result::Ok(());
 
@@ -61,7 +61,7 @@ pub fn validate_transaction(
         }
 
         total_input_amount += *input.previous_output.data.value;
-    };
+    }
 
     if inner_result.is_err() {
         return Result::Err(inner_result.unwrap_err());
@@ -90,7 +90,7 @@ pub fn validate_transaction(
 
         total_output_amount += *output.value;
         vout += 1;
-    };
+    }
 
     inner_result?;
     compute_transaction_fee(total_input_amount, total_output_amount)
@@ -136,11 +136,12 @@ pub fn is_pubscript_unspendable(pubscript: @ByteArray) -> bool {
 #[cfg(test)]
 mod tests {
     use core::dict::Felt252Dict;
+    use utils::double_sha256::double_sha256_word_array;
+    use utils::hex::{from_hex, hex_to_hash_rev};
     use crate::codec::Encode;
-    use crate::types::transaction::{Transaction, TxIn, TxOut, OutPoint, OutPointHashTrait};
-    use crate::types::utxo_set::{UtxoSet, TX_OUTPUT_STATUS_UNSPENT};
-    use super::{validate_transaction, is_pubscript_unspendable, MAX_SCRIPT_SIZE};
-    use utils::{hex::{from_hex, hex_to_hash_rev}, double_sha256::double_sha256_word_array};
+    use crate::types::transaction::{OutPoint, OutPointHashTrait, Transaction, TxIn, TxOut};
+    use crate::types::utxo_set::{TX_OUTPUT_STATUS_UNSPENT, UtxoSet};
+    use super::{MAX_SCRIPT_SIZE, is_pubscript_unspendable, validate_transaction};
 
     #[test]
     fn test_tx_fee() {
@@ -875,7 +876,7 @@ mod tests {
         let mut large_script: ByteArray = Default::default();
         for _ in 0..(MAX_SCRIPT_SIZE + 1) {
             large_script.append_byte(0x00);
-        };
+        }
         assert!(is_pubscript_unspendable(@large_script));
     }
 }

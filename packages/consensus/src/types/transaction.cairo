@@ -3,10 +3,11 @@
 //! Types are extended with extra information required for validation.
 //! The data is expected to be prepared in advance and passed as program arguments.
 
-use core::fmt::{Display, Formatter, Error};
-use core::hash::{HashStateTrait, HashStateExTrait, Hash};
+use core::fmt::{Display, Error, Formatter};
+use core::hash::{Hash, HashStateExTrait, HashStateTrait};
 use core::poseidon::PoseidonTrait;
-use utils::{hash::Digest, bytearray::{ByteArraySnapHash, ByteArraySnapSerde}};
+use utils::bytearray::{ByteArraySnapHash, ByteArraySnapSerde};
+use utils::hash::Digest;
 
 /// Represents a transaction.
 /// https://learnmeabitcoin.com/technical/transaction/
@@ -224,8 +225,8 @@ impl TxOutDisplay of Display<TxOut> {
 #[cfg(test)]
 mod tests {
     use core::poseidon::PoseidonTrait;
-    use utils::hex::{hex_to_hash_rev, from_hex};
-    use super::{OutPoint, TxOut, HashStateTrait, HashStateExTrait, OutPointHashTrait};
+    use utils::hex::{from_hex, hex_to_hash_rev};
+    use super::{HashStateExTrait, HashStateTrait, OutPoint, OutPointHashTrait, TxOut};
 
     fn hash(tx: @TxOut) -> felt252 {
         PoseidonTrait::new().update_with(*tx).finalize()
@@ -298,18 +299,11 @@ mod tests {
         state = state.update_with(coinbase_9_utxo);
 
         let expected: Array<felt252> = array![
-            5606656307511680658662848977137541728,
-            9103019671783490751638296454939121609,
-            0,
-            5000000000,
-            2,
+            5606656307511680658662848977137541728, 9103019671783490751638296454939121609, 0,
+            5000000000, 2,
             114873147639302600539941532864842037771792291166958548649371950632810924198,
             255491345418700057264349667014908841246825595399329019948869966327385048054,
-            372388307884,
-            5,
-            9,
-            1231470988,
-            1,
+            372388307884, 5, 9, 1231470988, 1,
         ];
         assert_eq!(expected, state.value);
 
@@ -342,18 +336,11 @@ mod tests {
         state = state.update_with(coinbase_9_utxo);
 
         let expected: Array<felt252> = array![
-            18931831195212887181660290436187791739,
-            137019159177035157628276746705882390680,
-            0,
-            5000000000,
-            2,
+            18931831195212887181660290436187791739, 137019159177035157628276746705882390680, 0,
+            5000000000, 2,
             114876729272917404712191936498804624660105992100397383656070609774475449467,
             406791163401893627439198994794895943141891052128672824792182596804809637667,
-            286829113004,
-            5,
-            1,
-            1231006505,
-            1,
+            286829113004, 5, 1, 1231006505, 1,
         ];
         assert_eq!(expected, state.value);
 

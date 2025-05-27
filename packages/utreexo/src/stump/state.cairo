@@ -1,4 +1,4 @@
-use core::fmt::{Display, Formatter, Error};
+use core::fmt::{Display, Error, Formatter};
 
 /// Accumulator representation of the state aka "Compact State Node".
 #[derive(Drop, Copy, PartialEq, Serde, Debug)]

@@ -1,4 +1,4 @@
-use core::fmt::{Display, Formatter, Error};
+use core::fmt::{Display, Error, Formatter};
 use crate::vanilla::accumulator::VanillaUtreexoAccumulator;
 use crate::vanilla::proof::UtreexoProof;
 
@@ -49,12 +49,12 @@ pub impl UtreexoStateImpl of UtreexoStateTrait {
                 inner_result = Result::Err(format!("Missing proof for leaf {}", hash));
                 break;
             }
-        };
+        }
         inner_result?;
 
         for hash in hashes_to_add {
             state = state.add(*hash);
-        };
+        }
 
         Result::Ok(state)
     }

@@ -1,12 +1,15 @@
 //! Block validation helpers.
 
 use core::num::traits::zero::Zero;
-use crate::types::utxo_set::{UtxoSet, UtxoSetTrait};
-use crate::types::transaction::{OutPoint, Transaction};
-use crate::codec::{Encode, TransactionCodec};
-use crate::validation::{coinbase::is_coinbase_txid_duplicated, transaction::validate_transaction};
-use utils::{hash::Digest, merkle_tree::merkle_root, double_sha256::double_sha256_word_array};
+use utils::double_sha256::double_sha256_word_array;
+use utils::hash::Digest;
+use utils::merkle_tree::merkle_root;
 use utils::word_array::WordArrayTrait;
+use crate::codec::{Encode, TransactionCodec};
+use crate::types::transaction::{OutPoint, Transaction};
+use crate::types::utxo_set::{UtxoSet, UtxoSetTrait};
+use crate::validation::coinbase::is_coinbase_txid_duplicated;
+use crate::validation::transaction::validate_transaction;
 
 const MAX_BLOCK_WEIGHT_LEGACY: usize = 1_000_000;
 const MAX_BLOCK_WEIGHT: usize = 4_000_000;
@@ -93,7 +96,7 @@ pub fn compute_and_validate_tx_data(
                     break;
                 }
                 vout += 1;
-            };
+            }
             is_coinbase = false;
         } else {
             let fee =
@@ -108,7 +111,7 @@ pub fn compute_and_validate_tx_data(
             };
             total_fee += fee;
         }
-    };
+    }
 
     inner_result?;
     validate_block_weight(total_weight)?;

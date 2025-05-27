@@ -23,7 +23,7 @@ pub fn compute_sha256_byte_array(arr: @ByteArray) -> [u32; 8] {
             + arr.at(index).unwrap().into() * 0x1000000;
         word_arr.append(word);
         index = index + 4;
-    };
+    }
     let last = match rem {
         0 => 0,
         1 => arr.at(len - 1).unwrap().into(),
@@ -47,7 +47,7 @@ pub fn compute_sha256_u32_array(
 
     while let Option::Some(chunk) = data.multi_pop_front::<16>() {
         state = sha256_inner((*chunk).unbox().span(), state);
-    };
+    }
 
     let (d0, d1, d2, d3, d4, d5, d6, d7) = state;
     [d0, d1, d2, d3, d4, d5, d6, d7]
@@ -156,7 +156,7 @@ fn sha256_inner(data: Span<u32>, h: Sha256State) -> Sha256State {
     while let Option::Some(ki) = k.pop_front() {
         let wi = w.pop_front().unwrap();
         g = compression(*wi, *ki, g);
-    };
+    }
 
     let (h0, h1, h2, h3, h4, h5, h6, h7) = h;
     let (g0, g1, g2, g3, g4, g5, g6, g7) = g;
@@ -199,7 +199,7 @@ fn create_message_schedule(data: Span<u32>) -> Span<u32> {
         let (tmp, _) = tmp.overflowing_add(*result[i - 7]);
         let (res, _) = tmp.overflowing_add(s1);
         result.append(res);
-    };
+    }
     result.span()
 }
 
@@ -351,4 +351,3 @@ mod tests {
         );
     }
 }
-

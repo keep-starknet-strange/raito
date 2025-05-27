@@ -1,14 +1,13 @@
 //! Shinigami Bitcoin Script VM integration helpers.
 
-use crate::types::transaction::{Transaction, TxIn, TxOut};
-use crate::types::block::Header;
-use shinigami_engine::engine::EngineTrait;
-use shinigami_engine::engine::EngineImpl;
-use shinigami_engine::hash_cache::HashCacheImpl;
+use shinigami_engine::engine::{EngineImpl, EngineTrait};
 use shinigami_engine::flags::ScriptFlags;
+use shinigami_engine::hash_cache::HashCacheImpl;
 use shinigami_engine::transaction::{
     EngineTransactionInputTrait, EngineTransactionOutputTrait, EngineTransactionTrait,
 };
+use crate::types::block::Header;
+use crate::types::transaction::{Transaction, TxIn, TxOut};
 
 const BIP_16_BLOCK_HEIGHT: u32 = 173805; // Pay-to-Script-Hash (P2SH) 
 const BIP_66_BLOCK_HEIGHT: u32 = 363725; // DER Signatures 
@@ -140,7 +139,7 @@ fn parse_short_string(short: felt252) -> ByteArray {
     while f != 0 {
         f = f / 256;
         l += 1;
-    };
+    }
     let mut parsed: ByteArray = Default::default();
     parsed.append_word(short, l);
     parsed
@@ -177,7 +176,7 @@ fn validate_script(header: @Header, tx: @Transaction, tx_idx: u32) -> Result<(),
                 break;
             },
         }
-    };
+    }
 
     match result {
         Option::Some(err) => Result::Err(err),
@@ -195,7 +194,7 @@ pub fn validate_scripts(header: @Header, txs: Span<Transaction>) -> Result<(), B
             break;
         }
         i += 1;
-    };
+    }
 
     r
 }

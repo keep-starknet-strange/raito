@@ -92,47 +92,18 @@ def flatten_tuples(src) -> list:
     return res
 
 
-def format_cairo1_run(args: list) -> str:
-    """Formats arguments for usage with cairo1-run.
-    Example: [0, 1, [2, 3, 4]] -> "[0 1 [2 3 4]]"
-
-    :param args: Python object containing already processed arguments.
-    :return: Returns string with removed commas.
-    """
-
-    def format_item(item):
-        if isinstance(item, list):
-            arr = " ".join(map(format_item, item))
-            return f"[{arr}]"
-        else:
-            return str(item)
-
-    return format_item(args)
-
-
-def format_args(input_file, execute_script, cairo1_run):
+def format_args(input_file):
     """Reads arguments from JSON file and prints formatted result.
     Expects a single CLI argument containing file path.
     Output is compatible with the Scarb runner arguments format.
     """
     args = json.loads(Path(input_file).read_text())
     res = flatten_tuples(serialize(args))
-    res.append(1 if execute_script else 0)
-    if cairo1_run:
-        return format_cairo1_run(res)
-    else:
-        return [res]
+    return json.dumps(list(map(hex, res)))
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Prepare arguments for Scarb runner.")
-
-    parser.add_argument(
-        "--execute_script",
-        dest="execute_script",
-        action="store_true",
-        help="Execute script",
-    )
 
     parser.add_argument(
         "--input_file",
@@ -142,12 +113,6 @@ if __name__ == "__main__":
         help="Input file with arguments in JSON format",
     )
 
-    parser.add_argument(
-        "--cairo1_run",
-        action="store_true",
-        help="Whether to format args for cairo1-run or not",
-    )
-
     args = parser.parse_args()
 
-    print(format_args(args.input_file, args.execute_script, args.cairo1_run))
+    print(format_args(args.input_file))

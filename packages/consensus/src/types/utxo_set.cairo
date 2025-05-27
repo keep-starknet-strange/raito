@@ -9,8 +9,8 @@
 //! In order to prove that the UTXOs provided actually belong to the set we use either
 //! Utreexo accumulator or local cache.
 
-use core::dict::Felt252Dict;
 use consensus::validation::transaction::is_pubscript_unspendable;
+use core::dict::Felt252Dict;
 use super::transaction::{OutPoint, OutPointHashTrait};
 
 pub const TX_OUTPUT_STATUS_NONE: u8 = 0;
@@ -87,11 +87,11 @@ pub impl UtxoSetImpl of UtxoSetTrait {
 
 #[cfg(test)]
 mod tests {
-    use crate::types::transaction::{TxOut, OutPoint};
-    use crate::types::utxo_set::{UtxoSet, UtxoSetTrait};
+    use core::hash::{HashStateExTrait, HashStateTrait};
     use core::poseidon::PoseidonTrait;
-    use core::hash::{HashStateTrait, HashStateExTrait};
     use utils::hex::{from_hex, hex_to_hash_rev};
+    use crate::types::transaction::{OutPoint, TxOut};
+    use crate::types::utxo_set::{UtxoSet, UtxoSetTrait};
 
     #[test]
     fn test_utxo_set_add() {
