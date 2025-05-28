@@ -11,3 +11,6 @@ consensus = { path = "../consensus" }
 
 [dev-dependencies]
 cairo_test.workspace = true
+
+[scripts]
+build-agg = "cairo-compile src/aggregator.cairo --proof_mode --output ../../target/proving/aggregator.json"

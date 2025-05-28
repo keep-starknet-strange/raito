@@ -6,6 +6,9 @@ build-with-shinigami:
 	scarb --profile proving build --target-kinds executable
 	sed -i '' 's/default = \["shinigami"\]/default = []/' packages/consensus/Scarb.toml
 
+install-cairo-lang:
+	pip install cairo-lang
+
 install-stwo:
 	# NOTE: rust-toolchain.toml must be the same as the one in the stwo-cairo repo
 	RUSTFLAGS="-C target-cpu=native -C opt-level=3" \
