@@ -33,7 +33,7 @@ fn agg(proof: CairoProof) -> VerificationOutput {
 #[executable]
 fn main(args: Args) -> Result {
     // Force cairo-prove to use canonical PP variant
-    core::internal::require_implicit::<core::pedersen::Pedersen>();
+    // core::internal::require_implicit::<core::pedersen::Pedersen>();
 
     let Args { mut chain_state, blocks } = args;
 

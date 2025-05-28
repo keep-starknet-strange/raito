@@ -19,7 +19,12 @@ assumevalid-build:
 
 assumevalid-execute:
 	scripts/data/format_args.py --input_file packages/assumevalid/tests/data/light_169.json > target/execute/assumevalid/args.json
-	scarb --profile proving execute --no-build --package assumevalid --executable-name main --arguments-file target/execute/assumevalid/args.json
+	scarb --profile proving execute \
+		--no-build \
+		--package assumevalid \
+		--executable-name main \
+		--arguments-file target/execute/assumevalid/args.json \
+		--print-resource-usage
 
 assumevalid-execute-rec:
 	scarb --profile proving execute \
