@@ -3,11 +3,18 @@ name = "assumevalid"
 version = "0.1.0"
 edition = "2024_07"
 
-[executable]
+[[target.executable]]
+name = "agg"
+function = "assumevalid::agg"
+
+[[target.executable]]
+name = "main"
+function = "assumevalid::main"
 
 [dependencies]
 cairo_execute = "2.11.4"
 consensus = { path = "../consensus" }
+stwo_cairo_air = { git = "https://github.com/starkware-libs/stwo-cairo", rev = "02b24c67b9045ffb7203f8ff7bce3bcc318ae727" }
 
 [dev-dependencies]
 cairo_test.workspace = true
