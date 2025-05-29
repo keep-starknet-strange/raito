@@ -9,6 +9,7 @@ pub mod validation {
     pub mod block;
     pub mod coinbase;
     pub mod difficulty;
+    pub mod header;
     pub mod locktime;
 
     // TODO: once Scarb supports feature propagation, pass it from the client

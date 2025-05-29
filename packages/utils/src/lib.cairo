@@ -4,10 +4,13 @@ pub mod double_sha256;
 pub mod hash;
 pub mod merkle_tree;
 pub mod numeric;
-pub mod sha256;
 pub mod sort;
 pub mod word_array;
-pub use core::sha256 as sha256_core;
+#[cfg(feature: "syscalls")]
+pub use core::sha256 as sha256;
 
 #[cfg(target: 'test')]
 pub mod hex;
+
+#[cfg(not(feature: "syscalls"))]
+pub mod sha256;

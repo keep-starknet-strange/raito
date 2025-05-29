@@ -8,3 +8,7 @@ cairo_test.workspace = true
 
 [scripts]
 lint = "scarb fmt"
+
+[features]
+default = ["syscalls"]
+syscalls = []

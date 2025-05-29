@@ -5,20 +5,12 @@
 //! it is sufficient to validate block headers.
 
 use core::fmt::{Display, Error, Formatter};
+use core::hash::{Hash, HashStateExTrait, HashStateTrait};
+use core::poseidon::PoseidonTrait;
 use utils::hash::Digest;
-use crate::validation::block::compute_and_validate_tx_data;
-use crate::validation::coinbase::validate_coinbase;
-use crate::validation::difficulty::{adjust_difficulty, validate_bits};
-use crate::validation::script::validate_scripts;
-use crate::validation::timestamp::{
-    compute_median_time_past, next_prev_timestamps, validate_timestamp,
-};
-use crate::validation::work::{compute_total_work, validate_proof_of_work};
-use super::block::{Block, BlockHash, TransactionData};
-use super::utxo_set::UtxoSet;
 
 /// Represents the state of the blockchain.
-#[derive(Drop, Copy, Debug, PartialEq, Serde)]
+#[derive(Drop, Copy, Debug, PartialEq, Serde, Hash)]
 pub struct ChainState {
     /// Height of the current block.
     pub block_height: u32,
@@ -38,6 +30,14 @@ pub struct ChainState {
     pub prev_timestamps: Span<u32>,
 }
 
+/// `ChainState` Poseidon hash implementation.
+#[generate_trait]
+pub impl ChainStateHashImpl of ChainStateHashTrait {
+    fn hash(self: @ChainState) -> felt252 {
+        PoseidonTrait::new().update_with(*self).finalize()
+    }
+}
+
 /// `Default` implementation of `ChainState` representing the initial state after genesis block.
 /// https://github.com/bitcoin/bitcoin/blob/ee367170cb2acf82b6ff8e0ccdbc1cce09730662/src/kernel/chainparams.cpp#L99
 impl ChainStateDefault of Default<ChainState> {
@@ -51,60 +51,6 @@ impl ChainStateDefault of Default<ChainState> {
             epoch_start_time: 1231006505,
             prev_timestamps: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1231006505].span(),
         }
-    }
-}
-
-/// Full block validator (w/o Bitcoin script checks and UTXO inclusion verification for now).
-#[generate_trait]
-pub impl BlockValidatorImpl of BlockValidator {
-    fn validate_and_apply(
-        self: ChainState, block: Block, ref utxo_set: UtxoSet,
-    ) -> Result<ChainState, ByteArray> {
-        let block_height = self.block_height + 1;
-
-        let prev_block_time = *self.prev_timestamps[self.prev_timestamps.len() - 1];
-
-        // MTP of the _previous_ block
-        let median_time_past = compute_median_time_past(self.prev_timestamps);
-        let prev_timestamps = next_prev_timestamps(self.prev_timestamps, block.header.time);
-
-        validate_timestamp(median_time_past, block.header.time)?;
-
-        let txid_root = match block.data {
-            TransactionData::MerkleRoot(root) => root,
-            TransactionData::Transactions(txs) => {
-                let (total_fees, txid_root, wtxid_root) = compute_and_validate_tx_data(
-                    txs, block_height, block.header.time, median_time_past, ref utxo_set,
-                )?;
-                validate_coinbase(txs[0], total_fees, block_height, wtxid_root)?;
-                validate_scripts(@block.header, txs.slice(1, txs.len() - 1))?;
-                txid_root
-            },
-        };
-
-        let (current_target, epoch_start_time) = adjust_difficulty(
-            self.current_target,
-            self.epoch_start_time,
-            block_height,
-            prev_block_time,
-            block.header.time,
-        );
-        let total_work = compute_total_work(self.total_work, current_target);
-        let best_block_hash = block.header.hash(self.best_block_hash, txid_root);
-
-        validate_proof_of_work(current_target, best_block_hash)?;
-        validate_bits(current_target, block.header.bits)?;
-
-        Result::Ok(
-            ChainState {
-                block_height,
-                total_work,
-                best_block_hash,
-                current_target,
-                epoch_start_time,
-                prev_timestamps,
-            },
-        )
     }
 }
 
@@ -135,6 +81,15 @@ impl ChainStateDisplay of Display<ChainState> {
         Result::Ok(())
     }
 }
-// TODO: implement Digest trait for ChainState
 
-
+/// `Hash` trait implementation for `Span<T>` where T implements `Hash` and `Copy`.
+/// Required for `ChainState` to be `Hash`able.
+impl SpanHash<S, +HashStateTrait<S>, +Drop<S>, T, +Hash<T, S>, +Copy<T>> of Hash<Span<T>, S> {
+    fn update_state(state: S, value: Span<T>) -> S {
+        let mut state = state;
+        for element in value {
+            state = state.update_with(*element);
+        }
+        state
+    }
+}

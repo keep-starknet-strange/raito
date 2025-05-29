@@ -2,6 +2,13 @@
 version = 1
 
 [[package]]
+name = "assumevalid"
+version = "0.1.0"
+dependencies = [
+ "consensus",
+]
+
+[[package]]
 name = "client"
 version = "0.1.0"
 dependencies = [

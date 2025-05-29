@@ -1,6 +1,7 @@
 use consensus::types::block::Block;
-use consensus::types::chain_state::{BlockValidatorImpl, ChainState};
+use consensus::types::chain_state::ChainState;
 use consensus::types::utxo_set::{UtxoSet, UtxoSetTrait};
+use consensus::validation::block::validate_block;
 use core::serde::Serde;
 use utreexo::stump::accumulator::StumpUtreexoAccumulator;
 use utreexo::stump::proof::UtreexoBatchProof;
@@ -44,7 +45,7 @@ fn main(args: Args) {
     let mut utxo_set: UtxoSet = Default::default();
 
     for block in blocks {
-        match chain_state.validate_and_apply(block, ref utxo_set) {
+        match validate_block(chain_state, block, ref utxo_set) {
             Result::Ok(new_chain_state) => { chain_state = new_chain_state; },
             Result::Err(err) => {
                 println!("FAIL: error='{}'", err);

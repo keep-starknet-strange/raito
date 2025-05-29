@@ -1,7 +1,7 @@
 //! Helpers for calculating double SHA256 hash digest.
 
 use super::hash::{Digest, DigestTrait};
-use super::sha256_core::compute_sha256_u32_array;
+use super::sha256::compute_sha256_u32_array;
 use super::word_array::{WordArray, WordArrayTrait};
 
 /// Calculates double sha256 digest of a concatenation of two hashes.

@@ -18,4 +18,4 @@ jobs:
           scarb-version: "nightly-2025-05-24"
       - run: scarb --version
       - run: scarb fmt --check
-      - run: scarb --profile proving build
+      - run: scarb --profile proving build --package client
