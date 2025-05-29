@@ -1,6 +1,7 @@
 use consensus::types::block::Block;
 use consensus::types::chain_state::{ChainState, ChainStateHashTrait};
 use consensus::validation::header::validate_block_header;
+use stwo_cairo_air::{CairoProof, VerificationOutput, get_verification_output, verify_cairo};
 
 #[derive(Drop, Serde)]
 struct Args {
@@ -19,7 +20,21 @@ struct Result {
 }
 
 #[executable]
+fn agg(proof: CairoProof) -> VerificationOutput {
+    let verification_output = get_verification_output(proof: @proof);
+
+    if let Err(err) = verify_cairo(proof) {
+        panic!("Verification failed: {:?}", err);
+    }
+
+    verification_output
+}
+
+#[executable]
 fn main(args: Args) -> Result {
+    // Force cairo-prove to use canonical PP variant
+    // core::internal::require_implicit::<core::pedersen::Pedersen>();
+
     let Args { mut chain_state, blocks } = args;
 
     for block in blocks {
