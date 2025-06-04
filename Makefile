@@ -9,14 +9,14 @@ client-build:
 	scarb --profile proving build --package client --target-kinds executable
 
 client-build-with-shinigami:
-	sed -i '' 's/default = \[\]/default = ["shinigami"]/' packages/consensus/Scarb.toml
+	sed -i.bak 's/default = \[\]/default = ["shinigami"]/' packages/consensus/Scarb.toml && rm packages/consensus/Scarb.toml.bak
 	scarb --profile proving build --package client --target-kinds executable
-	sed -i '' 's/default = \["shinigami"\]/default = []/' packages/consensus/Scarb.toml
+	sed -i.bak 's/default = \["shinigami"\]/default = []/' packages/consensus/Scarb.toml && rm packages/consensus/Scarb.toml.bak
 
 assumevalid-build:
-	sed -i '' 's/default = \["syscalls"\]/default = \[\]/' packages/utils/Scarb.toml
+	sed -i.bak 's/default = \["syscalls"\]/default = \[\]/' packages/utils/Scarb.toml && rm packages/utils/Scarb.toml.bak
 	scarb --profile proving build --package assumevalid
-	sed -i '' 's/default = \[\]/default = \["syscalls"\]/' packages/utils/Scarb.toml
+	sed -i.bak 's/default = \[\]/default = \["syscalls"\]/' packages/utils/Scarb.toml && rm packages/utils/Scarb.toml.bak
 
 assumevalid-execute:
 	scripts/data/format_args.py --input_file packages/assumevalid/tests/data/batch_100.json > target/execute/assumevalid/args.json
