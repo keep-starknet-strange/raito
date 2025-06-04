@@ -1,8 +1,9 @@
 install-cairo-prove:
-	cargo install --git https://github.com/starkware-libs/stwo-cairo cairo-prove
-
-install-cairo-execute:
-	cargo install --git https://github.com/m-kus/cairo --rev 9117214e4a3509870c6a6db8e61ddcdaf9ade561 cairo-execute
+	RUSTFLAGS="-C target-cpu=native -C opt-level=3" \
+		cargo install \
+			--git https://github.com/starkware-libs/stwo-cairo \
+			--rev adc68829b0e913d5a8bdf14932a45fde27a2e335 \
+			cairo-prove
 
 client-build:
 	scarb --profile proving build --package client --target-kinds executable
@@ -18,7 +19,7 @@ assumevalid-build:
 	sed -i '' 's/default = \[\]/default = \["syscalls"\]/' packages/utils/Scarb.toml
 
 assumevalid-execute:
-	scripts/data/format_args.py --input_file packages/assumevalid/tests/data/light_169.json > target/execute/assumevalid/args.json
+	scripts/data/format_args.py --input_file packages/assumevalid/tests/data/batch_100.json > target/execute/assumevalid/args.json
 	scarb --profile proving execute \
 		--no-build \
 		--package assumevalid \
