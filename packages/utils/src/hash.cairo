@@ -19,6 +19,10 @@ pub impl DigestImpl of DigestTrait {
     fn new(array: [u32; 8]) -> Digest {
         Digest { value: array }
     }
+
+    fn span(self: @Digest) -> Span<u32> {
+        self.value.span()
+    }
 }
 
 /// `Zero` trait implementation for `Digest`.

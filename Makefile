@@ -5,6 +5,9 @@ install-cairo-prove:
 			--rev adc68829b0e913d5a8bdf14932a45fde27a2e335 \
 			cairo-prove
 
+install-cairo-execute:
+	cargo install --git https://github.com/m-kus/cairo --rev 9117214e4a3509870c6a6db8e61ddcdaf9ade561 cairo-execute
+
 client-build:
 	scarb --profile proving build --package client --target-kinds executable
 
@@ -26,6 +29,22 @@ assumevalid-execute:
 		--executable-name main \
 		--arguments-file target/execute/assumevalid/args.json \
 		--print-resource-usage
+
+assumevalid-cairo-execute:
+	rm -rf target/execute \
+		&& mkdir -p target/execute/assumevalid/execution1 \
+		&& scripts/data/format_args.py --input_file packages/assumevalid/tests/data/batch_100.json > target/execute/assumevalid/args.json \
+		&& cairo-execute \
+		--layout all_cairo_stwo \
+		--args-file target/execute/assumevalid/args.json \
+		--standalone \
+		--disable-trace-padding true \
+		--prebuilt \
+		--trace-file target/execute/assumevalid/execution1/trace.bin \
+		--memory-file target/execute/assumevalid/execution1/memory.bin \
+		--air-public-input target/execute/assumevalid/execution1/air_public_input.json \
+		--air-private-input target/execute/assumevalid/execution1/air_private_input.json \
+		target/proving/main.executable.json
 
 assumevalid-execute-rec:
 	scarb --profile proving execute \

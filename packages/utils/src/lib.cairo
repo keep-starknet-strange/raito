@@ -1,5 +1,6 @@
 pub mod bit_shifts;
 pub mod bytearray;
+pub mod blake2s;
 pub mod double_sha256;
 pub mod hash;
 pub mod merkle_tree;

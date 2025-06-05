@@ -20,6 +20,18 @@ pub fn u64_next_power_of_two(mut n: u64) -> u64 {
     n + 1
 }
 
+/// Converts a u128 number into an array of 4 u32 numbers (big endian).
+pub fn u128_to_u32_array(value: u128) -> Array<u32> {
+    let (abc, d) = DivRem::div_rem(value, 0x100000000);
+    let (ab, c) = DivRem::div_rem(abc, 0x100000000);
+    let (a, b) = DivRem::div_rem(ab, 0x100000000);
+    let a: u32 = a.try_into().unwrap();
+    let b: u32 = b.try_into().unwrap();
+    let c: u32 = c.try_into().unwrap();
+    let d: u32 = d.try_into().unwrap();
+    array![a, b, c, d]
+}
+
 #[cfg(test)]
 mod tests {
     use super::u64_next_power_of_two;

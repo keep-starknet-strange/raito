@@ -5,12 +5,12 @@
 //! it is sufficient to validate block headers.
 
 use core::fmt::{Display, Error, Formatter};
-use core::hash::{Hash, HashStateExTrait, HashStateTrait};
-use core::poseidon::PoseidonTrait;
-use utils::hash::Digest;
+use utils::blake2s::blake2s_32;
+use utils::hash::{Digest, DigestTrait};
+use utils::numeric::u128_to_u32_array;
 
 /// Represents the state of the blockchain.
-#[derive(Drop, Copy, Debug, PartialEq, Serde, Hash)]
+#[derive(Drop, Copy, Debug, PartialEq, Serde)]
 pub struct ChainState {
     /// Height of the current block.
     pub block_height: u32,
@@ -33,8 +33,23 @@ pub struct ChainState {
 /// `ChainState` Poseidon hash implementation.
 #[generate_trait]
 pub impl ChainStateHashImpl of ChainStateHashTrait {
-    fn hash(self: @ChainState) -> felt252 {
-        PoseidonTrait::new().update_with(*self).finalize()
+    /// Serialize the chain state into a sequence of u32 numbers.
+    fn to_u32_array(self: @ChainState) -> Array<u32> {
+        let mut dest: Array<u32> = array![];
+        dest.append(*self.block_height);
+        dest.append_span(u128_to_u32_array(*self.total_work.high).span());
+        dest.append_span(u128_to_u32_array(*self.total_work.low).span());
+        dest.append_span((*self.best_block_hash).span());
+        dest.append_span(u128_to_u32_array(*self.current_target.high).span());
+        dest.append_span(u128_to_u32_array(*self.current_target.low).span());
+        dest.append(*self.epoch_start_time);
+        dest.append_span(*self.prev_timestamps);
+        dest
+    }
+
+    /// Hash the chain state using Blake2s.
+    fn hash(self: @ChainState) -> Digest {
+        blake2s_32(self.to_u32_array().span())
     }
 }
 
@@ -79,17 +94,5 @@ impl ChainStateDisplay of Display<ChainState> {
         );
         f.buffer.append(@str);
         Result::Ok(())
-    }
-}
-
-/// `Hash` trait implementation for `Span<T>` where T implements `Hash` and `Copy`.
-/// Required for `ChainState` to be `Hash`able.
-impl SpanHash<S, +HashStateTrait<S>, +Drop<S>, T, +Hash<T, S>, +Copy<T>> of Hash<Span<T>, S> {
-    fn update_state(state: S, value: Span<T>) -> S {
-        let mut state = state;
-        for element in value {
-            state = state.update_with(*element);
-        }
-        state
     }
 }

@@ -2,6 +2,7 @@ use consensus::types::block::Block;
 use consensus::types::chain_state::{ChainState, ChainStateHashTrait};
 use consensus::validation::header::validate_block_header;
 use stwo_cairo_air::{CairoProof, VerificationOutput, get_verification_output, verify_cairo};
+use utils::hash::Digest;
 
 #[derive(Drop, Serde)]
 struct Args {
@@ -13,10 +14,10 @@ struct Args {
 
 #[derive(Drop, Serde)]
 struct Result {
-    /// Hash of the initial chain state.
-    initial_hash: felt252,
-    /// Hash of the final chain state.
-    final_hash: felt252,
+    /// Initial chain state hash.
+    initial_hash: Digest,
+    /// Final chain state hash.
+    final_hash: Digest,
 }
 
 #[executable]
@@ -32,17 +33,15 @@ fn agg(proof: CairoProof) -> VerificationOutput {
 
 #[executable]
 fn main(args: Args) -> Result {
-    // Force cairo-prove to use canonical PP variant
-    // core::internal::require_implicit::<core::pedersen::Pedersen>();
-
-    let Args { mut chain_state, blocks } = args;
+    let Args { chain_state, blocks } = args;
+    let mut current_chain_state = chain_state;
 
     for block in blocks {
-        match validate_block_header(chain_state, block) {
-            Ok(new_chain_state) => { chain_state = new_chain_state; },
+        match validate_block_header(current_chain_state, block) {
+            Ok(new_chain_state) => { current_chain_state = new_chain_state; },
             Err(err) => panic!("Error: '{}'", err),
         }
     }
 
-    Result { initial_hash: chain_state.hash(), final_hash: chain_state.hash() }
+    Result { initial_hash: chain_state.hash(), final_hash: current_chain_state.hash() }
 }
